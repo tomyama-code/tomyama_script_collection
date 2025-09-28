@@ -1,0 +1,114 @@
+digraph physical_directory_structure {
+    newrank=true
+    constraint=false
+
+    // 全体に等幅フォントを適用
+    //   ex) "monospace", "Courier", "Courier New", "Consolas", "Monaco"
+    graph [fontname="monospace"]
+    node  [fontname="monospace", fontsize=10]
+    edge  [fontname="monospace"]
+
+    // 図全体を囲うクラスタ
+    subgraph cluster_all {
+
+        label = "Directory structure"
+        style = "rounded"   // 角を丸くする
+        color = "black"     // 枠線の色
+        penwidth = 1        // 枠線の太さ
+
+        // ツール
+        subgraph cluster_tools {
+            label = "[./tools]\nTools"
+            style = "solid"
+            penwidth = 2        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                tool1 -> tool2 -> toolN
+            }
+            tool1 [shape=box, label="tool1"]
+            tool2 [shape=box, label="tool2"]
+            toolN [shape=box, label="toolN"]
+            //rank=same
+        }
+
+        // ドキュメント
+        subgraph cluster_script_doc {
+            label = "[./docs] Documentation"
+            style = "solid"
+            penwidth = 2        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                all_catalog -> script1_doc -> script2_doc -> scriptN_doc
+                tool1_doc -> tool2_doc -> toolN_doc
+                script1_doc -> tool1_doc
+            }
+            all_catalog [shape=note, label="CATALOG.md"]
+            script1_doc [shape=note, label="script1.md"]
+            script2_doc [shape=note, label="script2.md"]
+            scriptN_doc [shape=note, label="scriptN.md"]
+            tool1_doc [shape=note, label="tool1.md"]
+            tool2_doc [shape=note, label="tool2.md"]
+            toolN_doc [shape=note, label="toolN.md"]
+        }
+
+        // スクリプト本体
+        subgraph cluster_installable_scripts {
+            label = "[.]\nInstallable scripts"
+            style = "solid"
+            penwidth = 2        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                script1 -> script2 -> scriptN
+            }
+            script1 [shape=box, label="script1"]
+            script2 [shape=box, label="script2"]
+            scriptN [shape=box, label="scriptN"]
+        }
+
+        // テスト用スクリプト
+        subgraph cluster_test_scripts {
+            label = "[./tests]\nTest scripts"
+            style = "solid"
+            penwidth = 2        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                script1_test -> script2_test -> scriptN_test
+            }
+            script1_test [shape=box, label="script1_test.pl"]
+            script2_test [shape=box, label="script2_test.pl"]
+            scriptN_test [shape=box, label="scriptN_test.pl"]
+        }
+
+        // 凡例（サブグラフとして追加）
+        subgraph cluster_legend {
+            label = "Legend"
+            labeljust = l   // ← ラベルを左寄せにする
+            fontsize=12
+            style=dotted
+            dot_meaning [shape=plaintext, label="\".\" = \"project root\""]
+        }
+
+        {rank=same; script1_doc; script1; script1_test; tool1_doc; tool1}
+        {rank=same; script2_doc; script2; script2_test; tool2_doc; tool2}
+        {rank=same; scriptN_doc; scriptN; scriptN_test; toolN_doc; toolN}
+
+        // スクリプトとドキュメントの関係
+        script1 -> script1_doc
+        script2 -> script2_doc
+        scriptN -> scriptN_doc
+
+        // スクリプトとテスト用スクリプトの関係
+        script1 -> script1_test
+        script2 -> script2_test
+        scriptN -> scriptN_test
+
+        // ツールとドキュメントの関係
+        tool1 -> tool1_doc
+        tool2 -> tool2_doc
+        toolN -> toolN_doc
+    }
+}

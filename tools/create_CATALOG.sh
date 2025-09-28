@@ -1,0 +1,188 @@
+#!/bin/sh
+################################################################################
+## create_CATALOG.sh -- Script to generate a catalog of scripts.
+##
+## - Generates Markdown formatted files in the "docs" directory.
+##
+## - $Revision: 1.5 $
+##
+## - Tools required for this script
+##   - pod2markdown
+##   - help2man
+##   - glow
+##
+## - Author: 2025, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2025, tomyama
+## All rights reserved.
+################################################################################
+
+usage()
+{
+    echo "Usage: $appname <CATALOG.md> <script>..."
+}
+
+sh_main()
+{
+    sh_init "$@"
+    parse_input "$@"
+
+    targfile="$1"
+    shift 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "No arguments specified."
+        usage
+        exit 1
+    fi
+
+    targdir="`dirname \"$targfile\"`"
+
+    sh_getMdHeader >"$targfile"
+
+    echo -e "# Script Catalog\n" >>"$targfile"
+
+    scr_dir_last=""
+    while [ 1 ]; do
+        dependent_file="$1"
+        shift 2>/dev/null
+        if [ $? -ne 0 ]; then
+            break
+        fi
+
+        echo "\$dependent_file=\"$dependent_file\""
+
+        depend_dir="`dirname \"$dependent_file\"`"
+        depend_base="`basename \"$dependent_file\"`"
+
+        if [ "$depend_dir" != "$scr_dir_last" ]; then
+            if [ "$depend_dir" = "." ]; then
+                heading_msg="Scripts to be installed"
+            elif [ "$depend_dir" = "tools" ]; then
+                heading_msg="The script that manages this directory"
+            fi
+            echo -e "* * *\n\n## $heading_msg\n" >>"$targfile"
+        fi
+        scr_dir_last="$depend_dir"
+
+        echo -e "### $dependent_file\n" >>"$targfile"
+
+        cat "$dependent_file" | awk '
+            BEGIN{
+                RS = "";
+                FS = "\n";
+            }
+            NR == 1{
+                for( idx=1; idx<NF; idx++ ){
+                    if( match( $idx, "^#####" ) ){
+                    }else if( match( $idx, "^##" ) ){
+                        sub( "^## ?", "", $idx );
+                        sub( "^.* -- ", "", $idx );
+                        print( $idx )
+                    }
+                }
+            }
+            ' >>"$targfile"
+
+        echo -e "\nFor details, please refer to [$depend_base.md]($depend_base.md).\n" >>"$targfile"
+
+        sh_getMdHeader >"$targdir/$depend_base.md"
+
+        filecmd_out="`file \"$dependent_file\"`"
+        echo "$filecmd_out" | grep -i 'perl' 1>/dev/null
+        if [ $? == 0 ]; then
+            perldoc -Tu "$dependent_file" | pod2markdown >>"$targdir/$depend_base.md"
+        fi
+        echo "$filecmd_out" | grep -i 'shell' 1>/dev/null
+        if [ $? == 0 ]; then
+            help2man --no-info "./$dependent_file" | man -l - | awk '
+                /^NAME/{
+                    FLAG = 1;
+                }
+                FLAG != 0{
+                    if( match( $0, "^[a-z]" ) ){
+                        FLAG = 0;
+                    }else if( match( $0, "^[A-Z]" ) ){
+                        printf( "# %s\n\n", $0 );
+                    }else{
+                        sub( "^       ", "", $0 );
+                        if( $0 == "OPTIONS" ){
+                          sub( "^", "# " );
+                        }
+                        print;
+                    }
+                }
+            ' >>"$targdir/$depend_base.md"
+        fi
+
+        sh_showMarkdownDoc "$targdir/$depend_base.md"
+    done
+
+    echo -e "* * *\n[README.md](../README.md)" >>"$targfile"
+
+    sh_showMarkdownDoc "$targfile"
+}
+
+## script setup
+sh_init()
+{
+    di_work="`pwd`"
+    appname="`basename \"$0\"`"
+    di_tmp="`dirname  \"$0\"`"
+    cd "$di_tmp/"; apppath="`pwd`"; cd "$di_work/"
+    unset di_tmp
+    version=`grep '$[R]evision' "$apppath/$appname" | \
+        sed 's/^.*$R/R/' | sed 's/ *\$$//'`
+}
+
+## argument analysis
+parse_input()
+{
+    while [ 1 ]; do
+        arg="$1"
+        shift 2>/dev/null
+        if [ $? -ne 0 ]; then
+            break
+        fi
+
+        #echo $arg
+        case "$arg" in
+        '-v' | '--version')
+            echo "$appname - version($version)"
+            exit 0
+            ;;
+        '-h' | '--help')
+            usage
+            echo "Script to generate a catalog of scripts."
+            echo "Generates Markdown formatted files in the 'docs' directory."
+            echo ""
+            echo "OPTIONS"
+            echo "  -h, --help     display this help and exit"
+            echo "  -v, --version  output version information and exit"
+            exit 0
+            ;;
+        '-'*)
+            errp "$appname: \`$arg': unknown option"
+            errp "`usage`"
+            exit 1
+            ;;
+        *)
+            ;;
+        esac
+    done
+}
+
+sh_getMdHeader()
+{
+    echo '<!--- This file is auto-generated by `make catalog`. Do not edit manually. -->'
+}
+
+sh_showMarkdownDoc()
+{
+    echo "[$1]"
+    glow "$1"
+}
+
+sh_main "$@"
+exit $?
