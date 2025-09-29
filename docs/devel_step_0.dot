@@ -1,3 +1,7 @@
+// File: docs/devel_step_0.dot
+// Author: tomyama
+// Purpose: Development workflow diagram
+
 digraph physical_directory_structure {
     newrank=true
     constraint=false

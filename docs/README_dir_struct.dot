@@ -1,3 +1,7 @@
+// File: docs/README_dir_struct.dot
+// Author: tomyama
+// Purpose: Directory structure diagram
+
 digraph physical_directory_structure {
     newrank=true
     constraint=false
@@ -41,13 +45,14 @@ digraph physical_directory_structure {
             {
                 edge [style=invis];
                 all_catalog -> script1_doc -> script2_doc -> scriptN_doc
-                tool1_doc -> tool2_doc -> toolN_doc
+                dev_manual -> tool1_doc -> tool2_doc -> toolN_doc
                 script1_doc -> tool1_doc
             }
             all_catalog [shape=note, label="CATALOG.md"]
             script1_doc [shape=note, label="script1.md"]
             script2_doc [shape=note, label="script2.md"]
             scriptN_doc [shape=note, label="scriptN.md"]
+            dev_manual [shape=note, label="Developer_Manual.md" ]
             tool1_doc [shape=note, label="tool1.md"]
             tool2_doc [shape=note, label="tool2.md"]
             toolN_doc [shape=note, label="toolN.md"]

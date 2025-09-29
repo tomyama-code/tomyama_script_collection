@@ -5,6 +5,7 @@
 
 ---
 
+
 ## 開発方針
 
 - `configure.ac` や `Makefile.am` は **直接編集しない**。  
@@ -15,6 +16,7 @@
 
 ---
 
+
 ## 開発環境の準備
 
 開発には以下が必要です：
@@ -23,7 +25,10 @@
 - Graphviz
 - 本リポジトリ内の自作スクリプト群
 
+ディレクトリ構成については、『[README.md](../README.md)』の「ディレクトリ構造」を参照してください。
+
 ---
+
 
 ## 開発ステップ概要
 
@@ -38,12 +43,14 @@
 
 ---
 
+
 ## ステップごとの手順
 
 ### Step 0: リポジトリを clone した状態
 ![step 0](devel_step_0.svg)
 
 ---
+
 
 ### Step 0-1: Graphviz 図の生成
 
@@ -57,22 +64,34 @@
 
 ---
 
+
 ### Step 0-2: autotools 入力ファイルの生成
 
 自作スクリプトを使ってテンプレートから configure.ac, Makefile.am を生成する。
-これらは 直接編集禁止。
+configure.ac, Makefile.am は 直接編集禁止です。
+
+まずは、大元である、`tools/GenAutotoolsAcAm_UserFile.pm`を編集してください。
+その後は以下のスクリプトで、configure.ac, Makefile.am を更新します。
 
 ```sh
 ./tools/gen_autotools_acam.pl
 ```
 
+`tools/GenAutotoolsAcAm_UserFile.pm` と `tools/gen_autotools_acam.pl` の詳細は、[CATALOG.md](CATALOG.md)を確認してください。
+もしくは、直接それぞれのドキュメントを見ることもできます。
+
+- [gen_autotools_acam.pl](gen_autotools_acam.pl.md)
+- [GenAutotoolsAcAm_UserFile.pm](GenAutotoolsAcAm_UserFile.pm.md)
+
 ![step 0-2](devel_step_0_2.svg)
 
 ---
 
+
 ここからは下は普通のautotools環境と同様の手順です（configure.ac, Makefile.amを直接編集しない事以外は）。
+この手順通りである必要はなくて`autoreconf -i`などを使っても良いです。
 どのステップでどのファイルが生成されるのかを整理したかったので作成した図です。
-この手順通りではなくても`autoreconf -i`などを使っても良いです。
+
 
 ### Step 1-1: aclocal
 
@@ -86,6 +105,7 @@ aclocal
 
 ---
 
+
 ### Step 1-2: autoconf
 
 autoconf を実行して configure を生成する。
@@ -97,6 +117,7 @@ autoconf
 ![step 1-2](devel_step_1_2.svg)
 
 ---
+
 
 ### Step 1-3: automake
 
@@ -111,6 +132,7 @@ automake --add-missing
 
 ---
 
+
 ### Step 1-4: configure
 
 ./configure を実行し、Makefile を生成する。
@@ -123,11 +145,13 @@ automake --add-missing
 
 ---
 
+
 ## テスト方法
 
-![README.md](../README.md) の「テスト」を参照してください。
+[README.md](../README.md) の「テスト」を参照してください。
 
 ---
+
 
 ## 配布用 tarball を作成するには：
 
@@ -137,6 +161,7 @@ make dist
 
 ---
 
+
 ## 注意事項
 
 編集禁止ファイル
@@ -144,7 +169,7 @@ make dist
 - configure.ac
 - Makefile.am
 
-これらはテンプレートからのみ生成してください。
+これらは Step 0-2 の手順で生成してください。
 
 ## 今後の拡張
 
@@ -153,7 +178,7 @@ make dist
   これは、利用者が `make install` しかしない場合に不要な処理であり、  
   また `dot` コマンドが環境にないとエラーになるリスクを避けるためです。  
   （例：`dot` ファイルのタイムスタンプが更新されたことで、意図せず再生成が走るケースなど）
-  開発者は必要に応じて自作スクリプトを実行して図を更新します。
+  開発者は必要に応じて `./tools/create_graph.sh` を実行して図を更新します。
   
 - 英語版マニュアル（必要に応じて）
 
