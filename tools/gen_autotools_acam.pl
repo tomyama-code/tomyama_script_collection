@@ -5,7 +5,7 @@
 ## - Outputs autotools ac and am files based on the data in "GenAutotoolsAcAm_UserFile.pm".
 ## - Eliminates the hassle of adding definitions to multiple files.
 ##
-## - $Revision: 1.5 $
+## - $Revision: 1.6 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -93,8 +93,10 @@ sub pl_main( @ )
                 print STDERR ( qq{$appname: could not remove file: $newname\n} );
             }
         }else{
-            if( unlink( $k ) <= 0 ){
-                print STDERR ( qq{$appname: could not remove file: $k\n} );
+            if( ! $bOldFileNothing ){
+                if( unlink( $k ) <= 0 ){
+                    print STDERR ( qq{$appname: could not remove file: $k\n} );
+                }
             }
             rename( $newname, $k ) ||
                 die( qq{$appname: could not rename file: $newname -> $k\n} );

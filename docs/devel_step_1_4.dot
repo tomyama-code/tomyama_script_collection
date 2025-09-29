@@ -1,0 +1,77 @@
+digraph physical_directory_structure {
+    newrank=true
+    constraint=false
+
+    // 全体に等幅フォントを適用
+    //   ex) "monospace", "Courier", "Courier New", "Consolas", "Monaco"
+    graph [fontname="monospace"]
+    node  [fontname="monospace", fontsize=10, penwidth=1]
+    edge  [fontname="monospace"]
+
+    // 図全体を囲うクラスタ
+    subgraph cluster_all {
+
+        label = "Build environment using \"autotools\" ( step.4 )"
+        style = "rounded"   // 角を丸くする
+        color = "black"     // 枠線の色
+        penwidth = 1        // 枠線の太さ
+
+        // プログラム
+        subgraph cluster_program {
+            label = "Program"
+            style = "solid"
+            penwidth = 1        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                program01 -> program02 -> program99 -> program03 -> program04 -> program05 -> program06
+            }
+            program01 [shape=box, style=solid , label="( Step.pre-1 )\n./tools/create_graph.sh      "]
+            program02 [shape=box, style=solid , label="( Step.pre-2 )\n./tools/gen_autotools_acam.pl"]
+            program99 [shape=box, style=invis]
+            program03 [shape=box, style=solid , label="( Step.1 )\naclocal                      "]
+            program04 [shape=box, style=solid , label="( Step.2 )\nautoconf                     "]
+            program05 [shape=box, style=solid , label="( Step.3 )\nautomake --add-missing       "]
+            program06 [shape=box, style=solid , label="( Step.4 )\n./configure                  ", penwidth=2]
+        }
+
+        // ファイル
+        subgraph cluster_file {
+            label = "Files"
+            style = "solid"
+            penwidth = 1        // 枠線の太さ
+            fontsize=12
+            {
+                edge [style=invis];
+                file01 -> file02 -> file03 -> file04 -> file05 -> file06 -> file07
+                file08 -> file09 -> file10 -> file11 -> file12 -> file13
+                file01 -> file08
+            }
+            file01 [shape=note, style=solid , label="docs/*.dot"]
+            file02 [shape=note, style=solid , label="aclocal.m4"]
+            file03 [shape=note, style=solid , label="configure.ac"]
+            file04 [shape=note, style=solid , label="Makefile.am"]
+            file05 [shape=note, style=solid , label="Makefile.in", penwidth=2]
+            file06 [shape=note, style=solid , label="Makefile", penwidth=2]
+            file07 [shape=note, style=solid , label="autom4te.cache/*"]
+            file08 [shape=note, style=solid , label="docs/*.svg"]
+            file09 [shape=note, style=solid , label="tools/GenAutotoolsAcAm_UserFile.pm"]
+            file10 [shape=note, style=solid , label="config.*", penwidth=2]
+            file11 [shape=note, style=solid , label="tests/Makefile.am"]
+            file12 [shape=note, style=solid , label="tests/Makefile.in", penwidth=2]
+            file13 [shape=note, style=solid , label="tests/Makefile", penwidth=2]
+        }
+
+        {rank=same; program01; file01; file08}
+        {rank=same; program02; file02; file09}
+        {rank=same; program99; file03; file10}
+        {rank=same; program03; file04; file11}
+        {rank=same; program04; file05; file12}
+        {rank=same; program05; file06; file13}
+
+        // スクリプトとドキュメントの関係
+        file05 -> program06 -> file06
+        file12 -> program06 -> file13
+        program06 -> file10
+    }
+}

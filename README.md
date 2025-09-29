@@ -68,20 +68,7 @@ make check
 
 ## 開発者向け情報
 
-新しいスクリプトを追加した場合は、`Makefile.am` を編集してください。
-autotools の生成物を作り直す場合は以下のコマンドを実行します。
-
-```sh
-autoreconf -i
-```
-
-その後、通常通り `./configure && make install` でインストールできます。
-
-配布用 tarball を作成するには：
-
-```sh
-make dist
-```
+docsディレクトリの [Developer_Manual.md](docs/Developer_Manual.md) を参照してください。
 
 * * *
 
@@ -89,3 +76,12 @@ make dist
 
 本リポジトリのスクリプトは **BSD 2-Clause License** の下で配布されています。
 詳細は [LICENSE](./LICENSE) ファイルをご覧ください。
+
+
+このリポジトリ内の自作スクリプトは BSD 2-Clause ライセンスで公開しています。
+
+なお、GNU Autotools により生成される補助スクリプト
+（例: `install-sh`, `missing`, `test-driver` など）が同梱されています。  
+これらのファイルは、それぞれのファイル先頭に記載されたライセンス
+（例: GPL など）に従います。  
+当リポジトリの BSD 2-Clause ライセンスの対象外です。
