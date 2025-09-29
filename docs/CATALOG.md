@@ -31,6 +31,19 @@ All rights reserved.
 
 For details, please refer to [hello.sh.md](hello.sh.md).
 
+### fill
+
+Generates data row-wise according to a pattern, similar to Excel's AutoFill.
+
+- Author: 2025, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2025, tomyama
+All rights reserved.
+
+For details, please refer to [fill.md](fill.md).
+
 * * *
 
 ## The script that manages this directory
