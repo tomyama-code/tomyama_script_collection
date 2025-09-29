@@ -90,7 +90,7 @@
 <title>program05</title>
 <polygon fill="none" stroke="black" points="552,-132 362,-132 362,-96 552,-96 552,-132"/>
 <text text-anchor="middle" x="457" y="-117.25" font-family="monospace" font-size="10.00">( Step.3 )</text>
-<text text-anchor="middle" x="457" y="-104.5" font-family="monospace" font-size="10.00">automake &#45;&#45;add&#45;missing &#160;&#160;&#160;&#160;&#160;&#160;</text>
+<text text-anchor="middle" x="457" y="-104.5" font-family="monospace" font-size="10.00">automake &#45;&#45;add&#45;missing &#45;&#45;copy</text>
 </g>
 <!-- program04&#45;&gt;program05 -->
 <!-- program06 -->

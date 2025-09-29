@@ -39,11 +39,25 @@ sh_main()
             echo "There were no dot files in the \"docs\" directory."
             exit 0
         fi
-        echo "dot: \"$dot\""
+        #echo "dot: \"$dot\""
+
+        epoch_dot="`stat '--format=%Y' \"$dot\"`"
 
         dot_basename="`basename \"$dot\"`"
         dot_base="`echo \"$dot\" | sed 's!\.[^\.][^\.]*$!!'`"
         #echo "\$dot_base=\"$dot_base\""
+
+        if [ -f "${dot_base}.${out_format}" ]; then
+            epoch_img="`stat '--format=%Y' \"${dot_base}.${out_format}\"`"
+
+            if [ "$epoch_img" -ge "$epoch_dot" ]; then
+                echo "[$dot] Already updated."
+                continue
+            fi
+            echo "[$dot] Update required."
+        else
+            "[$dot] Create!"
+        fi
 
         dot -Kdot -T${out_format} "$dot" "-o${dot_base}.${out_format}"
     done

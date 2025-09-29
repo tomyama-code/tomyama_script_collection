@@ -39,7 +39,7 @@
    - autotools 入力ファイルの生成（`configure.ac` など）
 
 2. **autotools 共通の処理**
-   - `aclocal`, `autoconf`, `automake --add-missing`, `./configure` など
+   - `aclocal`, `autoconf`, `automake --add-missing --copy`, `./configure` など
 
 ---
 
@@ -121,11 +121,11 @@ autoconf
 
 ### Step 1-3: automake
 
-automake --add-missing を実行し、Makefile.in を生成する。
+automake --add-missing --copy を実行し、Makefile.in を生成する。
 必要に応じて補助スクリプト（install-sh, missing など）が追加される。
 
 ```sh
-automake --add-missing
+automake --add-missing --copy
 ```
 
 ![step 1-3](devel_step_1_3.svg)

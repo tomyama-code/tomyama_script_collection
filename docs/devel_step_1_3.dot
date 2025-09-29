@@ -35,7 +35,7 @@ digraph physical_directory_structure {
             program99 [shape=box, style=invis]
             program03 [shape=box, style=solid , label="( Step.1 )\naclocal                      "]
             program04 [shape=box, style=solid , label="( Step.2 )\nautoconf                     "]
-            program05 [shape=box, style=solid , label="( Step.3 )\nautomake --add-missing       ", penwidth=2]
+            program05 [shape=box, style=solid , label="( Step.3 )\nautomake --add-missing --copy", penwidth=2]
             program06 [shape=box, style=solid , label="( Step.4 )\n./configure                  "]
         }
 
