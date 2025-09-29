@@ -18,7 +18,7 @@ use warnings 'all';
 use File::Basename;
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'hello.pl hello.sh';
+$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'hello.pl hello.sh fill';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh tools/create_graph.sh';
 $ACAM_KYVL{ '$MY_IMG_DOTS$' } = 'docs/README_dir_struct.dot';
 
@@ -28,7 +28,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 AC_PREREQ([2.72])
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.1.0], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.0], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）

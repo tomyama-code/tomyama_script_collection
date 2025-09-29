@@ -1,0 +1,643 @@
+#!/usr/bin/perl -w
+################################################################################
+## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
+##
+## - Author: 2025, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2025, tomyama
+## All rights reserved.
+################################################################################
+
+use strict ;
+use warnings 'all';
+use File::Basename ;
+
+
+exit( &pl_main( @ARGV ) );
+
+
+##########
+## スクリプトのエントリポイント
+sub pl_main()
+{
+    ## 初期化処理
+    &init_script();
+
+    my @line = ();
+    if( ! $main::bIsStdinATty ){
+        @line = <STDIN>;
+        $main::stdinLineNums = scalar( @line );
+        #printf( qq{\$line_nums=$line_nums\n} );
+        $main::cycle = $main::stdinLineNums;
+    }
+
+    ## 引数解析
+    &parse_arg( @_ );
+
+    &value_print();
+    exit( $main::exit_code ) if( ! $main::bContinue );
+
+    if( $main::debug && $main::wait_sec != 0 ){
+        $main::wait_sec = 0;
+    }
+
+    my $stringWithEscChars = &getStrWithEscChar( $main::prt_fmt );
+
+    for( my $idx=0; $idx<$main::cycle; $idx++ ){
+        ## STDINからのストリームを処理
+        my $fmt = $stringWithEscChars;
+        if( ! $main::bIsStdinATty ){
+            my $input = $line[ $idx ];
+            $input =~ s/\r?\n$//o;
+            $fmt =~ s/>i<N>p<U>t</$input/go;
+            while( $fmt =~ m/>I<n>([^P]*)<P>([^u]*)<u>T<s>U<b>/o ){
+                my $re = $1;
+                my $rep = $2;
+                my $str = &fillSub( $input, qr/$re/, $rep );
+                $fmt =~ s/>I<n>[^P]*<P>[^u]*<u>T<s>U<b>/$str/o;
+            }
+            while( $fmt =~ m/>I<n>([^P]*)<P>([^u]*)<u>T<g>S<u>B</o ){
+                my $re = $1;
+                my $rep = $2;
+                my $str = &fillGsub( $input, qr/$re/, $rep );
+                $fmt =~ s/>I<n>[^P]*<P>[^u]*<u>T<g>S<u>B</$str/o;
+            }
+        }
+
+        ## カウンターを更新
+        if( $idx > 0 ){
+            for( my $n=0; $n<$main::counter_len; $n++ ){
+                ## Timing of warnings when subtracting and adding
+                ##        ←*
+                ## -2  -1   0   1   2
+                ##      *→
+                my $bMsgFlag = 0;
+                if( $main::step[ $n ] < 0 ){
+                    if( ( $main::counter[ $n ] >= 0 ) &&
+                        ( 0 > ( $main::counter[ $n ] + $main::step[ $n ] ) )
+                    ){
+                        $bMsgFlag = 1;
+                    }
+                }else{
+                    if( ( $main::counter[ $n ] < 0 ) &&
+                        ( 0 <= ( $main::counter[ $n ] + $main::step[ $n ] ) )
+                    ){
+                        $bMsgFlag = 1;
+                    }
+                }
+                if( $bMsgFlag ){
+                    printf STDERR ( qq{$main::appname: "%d:%d": The sign changes across 0.\n},
+                        $main::counter[ $n ], $main::step[ $n ] );
+                }
+                $main::counter[ $n ] += $main::step[ $n ];
+            }
+        }
+
+        my @counter = ();
+        while( $fmt =~ s/{(%\d*d)(\d+)}/$1/o ){
+            push( @counter, $main::counter[ $2 ] );
+        }
+
+        sleep( $main::wait_sec );
+
+        printf( qq{${fmt}\n}, @counter );
+    }
+
+    return 0;
+}
+
+##########
+## 初期化処理
+sub init_script()
+{
+    ### GLOBAL ###
+    $main::apppath = dirname( $0 );
+    $main::appname = basename( $0 );
+    $main::debug = 0;
+    $main::bContinue = -1;
+    $main::exit_code = -1;
+    $main::cycle = 10;
+    $main::wait_sec = 0;
+    $main::prt_fmt = '';
+    $main::counter_len = 0;
+    @main::counter = ();
+    @main::step = ();
+    ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
+    $main::bIsStdoutATty = -t STDOUT;
+    $main::bIsStdinATty = -t STDIN;
+    $main::stdinLineNums = -1;
+    ##############
+}
+
+sub value_print()
+{
+    &dPrintf( qq{Value Print\n} .
+              qq{\$main::apppath = "%s"\n} .
+              qq{\$main::appname = "%s"\n} .
+              qq{\$main::debug = %d\n} .
+              qq{\$main::bContinue = %d\n} .
+              qq{\$main::exit_code = %d\n} .
+              qq{\$main::cycle = %d\n} .
+              qq{\$main::wait_sec = %d\n} .
+              qq{\$main::prt_fmt = "%s"\n} .
+              qq{\$main::counter_len = %d\n} .
+              qq{\$main::bIsStdoutATty = %d\n} .
+              qq{\$main::bIsStdinATty  = %d\n} .
+              qq{\$main::stdinLineNums = %d\n},
+        $main::apppath,
+        $main::appname,
+        $main::debug,
+        $main::bContinue,
+        $main::exit_code,
+        $main::cycle,
+        $main::wait_sec,
+        $main::prt_fmt,
+        $main::counter_len,
+        $main::bIsStdoutATty,
+        $main::bIsStdinATty,
+        $main::stdinLineNums );
+}
+
+##########
+## 引数解析
+sub parse_arg()
+{
+    my @val = @_;
+
+    ## 引数分のループを回す
+    while( my $myparam = shift( @val ) ){
+        ## アルファベットは1文字ずつ（-d, -h, -w）
+        if( $myparam =~ s/^-([dhw])([dhw\d]+)$/-$1/o ){
+            my $tmpparam = "-$2";
+            ## （"(\d+)"の部分はperlの最大マッチに依存した記述。変更時は注意）
+            if( $myparam eq '-w' && $tmpparam =~ s/^-(\d+)([dhw\d]*)$/-$2/o ){
+                $main::wait_sec = $1;
+            }
+            if( $tmpparam ne '-' ){
+                unshift( @val, $tmpparam );
+            }
+        ## 数字は塊を探す
+        }elsif( $myparam =~ s/^-(\d+)([dhw][dhw\d]+)$/-$1/o ){
+            unshift( @val, "-$2" );
+        }
+
+        ## デバッグモードOn
+        if( $myparam eq '-d' || $myparam eq '--debug' ){
+            $main::debug = 1;
+        }elsif( $myparam eq '--test-force-tty' ){
+            $main::bIsStdoutATty = 1;
+        }elsif( $myparam eq '-h' || $myparam eq '--help' ){
+            &usage( 0 );
+            $main::exit_code = 0;
+            $main::bContinue = 0;
+        }elsif( $myparam eq '-w' ){
+            if( $main::wait_sec == 0 ){
+                $main::wait_sec = 1;
+            }
+            ## 秒数指定がされているか探す
+            if( defined( $val[ 0 ] ) ){
+                if( $val[ 0 ] =~ m/^(\d+)$/o ){
+                    $main::wait_sec = $1;
+                    shift( @val );
+                }
+            }
+        }elsif( $myparam =~ m!^\-(\d+)$!o ){
+            my $specified_cycle = $1;
+            if( ( ! $main::bIsStdinATty ) &&
+                ( $specified_cycle > $main::stdinLineNums ) ){
+                printf STDERR ( qq{$main::appname: } .
+                    qq{STDIN=$main::stdinLineNums, specified_cycle=$specified_cycle: } .
+                    qq{The number of lines cannot be greater than STDIN and will be ignored.\n} );
+            }else{
+                $main::cycle = $specified_cycle;
+            }
+        }else{
+            if( $myparam =~ m/^([\-\d]\d*):([\-\d]\d*)$/o ){
+                $main::prt_fmt .= &getFmt( $1, $2 );
+            }elsif( $myparam eq '-' ){
+                if( ! $main::bIsStdinATty ){
+                    $main::prt_fmt .= '>i<N>p<U>t<';
+                }else{
+                    $main::prt_fmt .= $myparam;
+                }
+            }else{
+                while( $myparam =~ m/%%([\-\d]\d*):([\-\d]\d*)%%/o ){
+                    my $fmt = &getFmt( $1, $2 );
+                    ## 書式の%記号を退避（後段のエスケープを回避する為）
+                    $fmt =~ s/%/><-<!>-></o;
+                    #print( qq{\$fmt="$fmt"\n} );
+                    $myparam =~ s/%%[\-\d]\d*:[\-\d]\d*%%/$fmt/o;
+                }
+                if( ! $main::bIsStdinATty ){
+                    while( $myparam =~ m/<<SUB<([^%]+)%([^%]+)>SUB>>/o ){
+                        #printf( qq{\$1="$1", \$2="$2"\n} );
+                        $myparam =~ s/<<SUB<([^%]+)%([^%]+)>SUB>>/>I<n>$1<P>$2<u>T<s>U<b>/o;
+                    }
+                    while( $myparam =~ m/<<GSUB<([^%]+)%([^%]+)>GSUB>>/o ){
+                        $myparam =~ s/<<GSUB<([^%]+)%([^%]+)>GSUB>>/>I<n>$1<P>$2<u>T<g>S<u>B</o;
+                    }
+                    $myparam =~ s/%%-%%/>i<N>p<U>t</go;
+                }
+                ## fprint()用に%記号をエスケープ
+                $myparam =~ s/%/%%/go;
+                #print( qq{\$myparam="$myparam"\n} );
+                ## 書式の%記号を戻す
+                $myparam =~ s/><-<!>-></%/go;
+                #print( qq{\$myparam="$myparam"\n} );
+                $main::prt_fmt .= $myparam;
+            }
+        }
+
+        &dPrint( qq{ARGV : "$myparam"\n} );
+    }
+
+    $main::counter_len = scalar( @main::counter );
+
+    $main::bContinue = 1 if( $main::bContinue == -1 );
+    if( $main::prt_fmt eq '' && $main::exit_code == -1 ){
+        printf STDERR ( qq{$main::appname: An argument must be specified.\n} );
+        &usage( 1 );
+        $main::exit_code = 1;
+        $main::bContinue = 0;
+    }
+}
+
+sub getFmt( $$ )
+{
+    my $c = $_[ 0 ];
+    my $s = $_[ 1 ];
+    #printf( qq{\$c="$c", \$s="$s"\n} );
+    my $seq = scalar( @main::counter );
+    push( @main::counter, $c );
+    push( @main::step, $s );
+    my $c_len = length( $c );
+    my $prt_fmt = '%d';
+    ## ex) 1000:-1
+    #if( $c_len > 1 && $c =~ m/^0/o ){
+    if( $c_len > 1 ){
+        $prt_fmt = '%0' . $c_len . 'd';
+    }
+    $prt_fmt = '{' . $prt_fmt . $seq . '}';
+    ## 強調表示
+    if( $main::bIsStdoutATty ){
+        $prt_fmt = "\033[1m" . $prt_fmt . "\033[0m";
+    }
+
+    return $prt_fmt;
+}
+
+sub fillSub( $$$\@ )
+{
+    my( $intxt, $re, $str ) = @_;
+    my $txt = $intxt;
+    #print( qq{\$re="$re"\n} );
+    ## eフラグで右辺をコードとして解釈させる
+    $txt =~ s/$re/$str/;
+    my $m1 = ( defined( $1 ) ? $1 : undef );
+    my $m2 = ( defined( $2 ) ? $2 : undef );
+    my $m3 = ( defined( $3 ) ? $3 : undef );
+    my $m4 = ( defined( $4 ) ? $4 : undef );
+    my $m5 = ( defined( $5 ) ? $5 : undef );
+    #print( qq{\$str="$str"\n} );
+    if( ( $str =~ m/\$1/o ) && ( defined( $m1 ) ) ){
+        $txt =~ s/\$1/$m1/o;
+    }
+    if( ( $str =~ m/\$2/o ) && ( defined( $m2 ) ) ){
+        $txt =~ s/\$2/$m2/o;
+    }
+    if( ( $str =~ m/\$3/o ) && ( defined( $m3 ) ) ){
+        $txt =~ s/\$3/$m3/o;
+    }
+    if( ( $str =~ m/\$4/o ) && ( defined( $m4 ) ) ){
+        $txt =~ s/\$4/$m4/o;
+    }
+    if( ( $str =~ m/\$5/o ) && ( defined( $m5 ) ) ){
+        $txt =~ s/\$5/$m5/o;
+    }
+    return $txt;
+}
+
+sub fillGsub( $$$\@ )
+{
+    my( $intxt, $re, $str ) = @_;
+    my $txt = $intxt;
+    ## eフラグで右辺をコードとして解釈させる
+    $txt =~ s/$re/$str/g;
+    my $m1 = ( defined( $1 ) ? $1 : undef );
+    my $m2 = ( defined( $2 ) ? $2 : undef );
+    my $m3 = ( defined( $3 ) ? $3 : undef );
+    my $m4 = ( defined( $4 ) ? $4 : undef );
+    my $m5 = ( defined( $5 ) ? $5 : undef );
+    #print( qq{\$str="$str"\n} );
+    if( ( $str =~ m/\$1/o ) && ( defined( $m1 ) ) ){
+        $txt =~ s/\$1/$m1/go;
+    }
+    if( ( $str =~ m/\$2/o ) && ( defined( $m2 ) ) ){
+        $txt =~ s/\$2/$m2/go;
+    }
+    if( ( $str =~ m/\$3/o ) && ( defined( $m3 ) ) ){
+        $txt =~ s/\$3/$m3/go;
+    }
+    if( ( $str =~ m/\$4/o ) && ( defined( $m4 ) ) ){
+        $txt =~ s/\$4/$m4/go;
+    }
+    if( ( $str =~ m/\$5/o ) && ( defined( $m5 ) ) ){
+        $txt =~ s/\$5/$m5/go;
+    }
+    return $txt;
+}
+
+sub getStrWithEscChar( $ )
+{
+    my @strings = @_;
+
+    my %escapes = (
+        'n' => "\n",   # 改行
+        't' => "\t",   # 水平タブ
+#        'r' => "\r",   # 復帰
+#        'f' => "\f",   # 改ページ
+        'a' => "\a",   # 警報音
+#        'e' => "\e",   # ESC
+    );
+
+    for my $str( @strings ){
+        $str =~ s/\\([nta])/$escapes{ $1 }/go;
+    }
+    return join( ' ', @strings );
+}
+
+sub dPrint( @ )
+{
+    if( $main::debug ){
+        print( 'dbg: ', @_ );
+    }
+}
+
+sub dPrintf( @ )
+{
+    if( $main::debug ){
+        print( 'dbg: ' );
+        printf( @_ );
+    }
+}
+
+##########
+## 書式表示
+sub usage( $ )
+{
+    my $msg = "usage: " .
+        qq{$main::appname [-h|-<cycle(default:10)>|-w [<wait_sec>]] <PATTERN>...\n} .
+        qq{<PATTERN>:\n} .
+        qq{  <initial_value>:<step>\n} .
+        qq{           : Numeric sequence format\n} .
+        qq{           : ex) '001:1'\n} .
+        qq{  -        : Specifies where to insert the stream received from STDIN.\n} .
+        qq{-w [<wait_sec>]\n} .
+        qq{         : Wait <wait_sec> seconds before outputting a line.\n} .
+        qq{         : If <wait_sec> is not specified, the value is 1.\n} .
+        qq{-h, --help: display this help and exit\n} .
+        qq{\n} .
+        qq{* simple\n} .
+        qq{  \$ fill 0001:1\n} .
+        qq{* simple\n} .
+        qq{  \$ fill -3 -w 60 '%%1:1%% minute has passed.\\a'  ## 3-minute count-up timer\n} .
+        qq{  \$ fill -10 -w 09:-1 && tput bel  ## 10 second countdown timer\n} .
+        qq{* advance\n} .
+        qq{  \$ fill -5 'mv "\${img_a}_' 0010:5 '.jpg" "\${img_b}_' 001:1 '.jpg"'\n} .
+        qq{* advance\n} .
+        qq{  \$ ls -1 *.mp4 | \\\n} .
+        qq{    fill 'mv "%%-%%" "newname_%%100:-1%%.mp4"' >rename.sh\n} .
+        qq{\n} .
+        qq{It also has "<<SUB>>" and "<<GSUB>>" string substitution macros.\n} .
+        qq{Try `perldoc $main::apppath/$main::appname' for more information.\n};
+
+    if( $_[0] ){
+        print STDERR ( $msg );
+    } else {
+        print STDOUT ( $msg );
+    }
+
+    return 0;
+}
+
+__END__
+
+=pod
+
+=head1 NAME
+
+FILL - Generates row-wise data according to a pattern, similar to Excel's AutoFill
+
+=head1 SYNOPSIS
+
+$ fill [I<OPTIONS...>] I<PATTERN...>
+
+=head1 DESCRIPTION
+
+The "B<fill>" script generates sequences of numbers or strings according to the specified I<PATTERN>.
+
+Each I<PATTERN> can be:
+
+=over 4
+
+=item *
+
+A single sequence argument, e.g. "001:1" or "1000:-10".
+
+=item *
+
+Multiple patterns simultaneously, either as separate arguments or embedded in a string.
+
+=item *
+
+Embedded numeric sequences using "%%I<initial_value>:I<increment>%%" syntax within a string.
+
+=item *
+
+Insertion of STDIN lines at a specific location using "-" or "%%-%%".
+
+=back
+
+Examples:
+
+  # Single numeric sequence
+  $ fill 001:1
+  001
+  002
+  ...
+  009
+  010
+
+  # Multiple patterns simultaneously
+  $ fill 001:1 ' ' 1000:-10
+  001 1000
+  002 0990
+  ...
+  009 0920
+  010 0910
+
+  # Embedded sequences in strings
+  $ fill 'newname_%%003:-1%%.txt' -3
+  newname_003.txt
+  newname_002.txt
+  newname_001.txt
+
+  # Using STDIN insertion
+  $ ls *.mp4 | fill 'mv "' - '" "newname_%%100:-1%%.mp4"'
+  mv "fileA.mp4" "newname_100.mp4"
+  mv "fileB.mp4" "newname_099.mp4"
+
+Notes:
+
+- The number of output lines defaults to 10 if no STDIN is provided.
+- When using STDIN, the number of output lines is automatically determined by the number of input lines, unless the I<-repeat_count> option specifies a smaller value.
+- Sequences are incremented according to the specified step value.
+- "-" or "%%-%%" can be used to specify where input lines from STDIN are inserted.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -d, --debug
+
+Enable debug output.
+
+=item -h, --help
+
+Display this help message.
+
+=item -I<N>
+
+Specify the number of output lines (number of cycles). The default is 10, or the number of lines in STDIN if piped.
+
+=item -w [I<wait_sec>]
+
+Insert a delay between each line of output.
+If I<wait_sec> is omitted, the default is 1 second.
+
+=back
+
+=head1 ADVANCED USAGE
+
+You can create complex patterns combining fixed strings, numeric sequences, and STDIN input:
+
+  $ fill 320:320 x 180:180 , | tr '\n' ' ' | sed 's/, $/\n/'
+  320x180, 640x360, 960x540, 1280x720, 1600x900, 1920x1080, 2240x1260, 2560x1440, 2880x1620, 3200x1800
+
+Embedding STDIN input and renaming files:
+
+  $ ls *.mp4 | \
+    fill 'mv "%%-%%" "newname_%%100:-1%%.mp4"' | tee rename.sh
+  mv "123.mp4" "newname_100.mp4"
+  mv "987.mp4" "newname_099.mp4"
+  mv "abc.mp4" "newname_098.mp4"
+
+Modifying STDIN input with the I<E<lt>E<lt>SUBE<lt>..%..E<gt>SUBE<gt>E<gt>> macro to rename a file:
+
+  $ ls *.mp4 | \
+    fill 'mv "%%-%%" "<<SUB<\.([^\.]+)$%_%%01:1%%.$1>SUB>>"' | tee rename.sh
+  mv "123.mp4" "123_01.mp4"
+  mv "987.mp4" "987_02.mp4"
+  mv "abc.mp4" "abc_03.mp4"
+
+I<E<lt>E<lt>GSUBE<lt>..%..E<gt>GSUBE<gt>E<gt>> macros are global substitutions:
+
+  $ cat /proc/mounts | ./fill '%%1:1%%\t<<GSUB< +%\t>GSUB>>'
+  1       C:/cygwin64/bin /usr/bin        ntfs    binary,auto     1       1
+  2       C:/cygwin64/lib /usr/lib        ntfs    binary,auto     1       1
+  3       C:/cygwin64     /       ntfs    binary,auto     1       1
+  4       C:      /cygdrive/c     ntfs    binary,posix=0,user,noumount,auto       1       1
+  5       D:      /cygdrive/d     unknown binary,posix=0,user,noumount,auto       1       1
+  6       F:      /cygdrive/f     exfat   binary,posix=0,user,noumount,auto       1       1
+
+Creating test data from a random byte stream:
+
+  $ dd if=/dev/random of=/dev/stdout bs=1 count=5 2>/dev/null | \
+    od -An -tx1 | sed 's/^ //' | tr ' ' '\n' | \
+    fill 'echo ' - ' >' - '.dat' | tee create_testdata.sh
+  echo 23 >23.dat
+  echo 2c >2c.dat
+  echo 23 >23.dat
+  echo f6 >f6.dat
+  echo a7 >a7.dat
+
+3 lines with a 60-second delay (count-up timer):
+
+  $ fill -3 '%%1:1%% minute has passed.\a' -w 60
+  1 minute has passed.
+  2 minute has passed.
+  3 minute has passed.
+
+30 second countdown timer:
+
+  $ fill -30 29:-1 -w && tput bel
+  29
+  28
+  ...
+  01
+  00
+
+Copies the current script to all directories at the same level:
+
+step 1. Before you run the command, make sure it is correct.
+
+  $ ls -1 .. | fill 'cp -fp "work1.sh" "../' - '/work1.sh"' | grep -v 8ef1
+  cp -fp "work1.sh" "../4b24/work1.sh"
+  cp -fp "work1.sh" "../b2ac/work1.sh"
+  cp -fp "work1.sh" "../dff5/work1.sh"
+  cp -fp "work1.sh" "../f631/work1.sh"
+
+step 2. Run the command in the shell.
+
+  $ !! | bash
+  ls -1 .. | fill 'cp -fp "work1.sh" "../' - '/work1.sh"' | grep -v 8ef1 | bash
+
+step 3. Check the copied files.
+
+  $ cksum ../*/work1.sh
+  3657935767 874 ../4b24/work1.sh
+  3657935767 874 ../8ef1/work1.sh
+  3657935767 874 ../b2ac/work1.sh
+  3657935767 874 ../dff5/work1.sh
+  3657935767 874 ../f631/work1.sh
+
+=head1 SEE ALSO
+
+perl(1)
+
+=head1 AUTHOR
+
+2025, tomyama
+
+=head1 LICENSE
+
+Copyright (c) 2025, tomyama
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of tomyama nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut

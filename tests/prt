@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+##
+## Support for environments where the -e option of the echo command does not work.
+## ex) Test::Command on Android Termux
+##
+
+use strict;
+use warnings 'all';
+
+my %escapes = (
+    'n' => "\n",   # 改行
+    't' => "\t",   # 水平タブ
+#    'r' => "\r",   # 復帰
+#    'f' => "\f",   # 改ページ
+#    'a' => "\a",   # 警報音
+#    'e' => "\e",   # ESC
+);
+
+my $argc = scalar( @ARGV );
+for( my $idx=0; $idx<$argc; $idx++ ){
+    #print( qq{\$ARGV[ $idx ] = "$ARGV[ $idx ]"\n} );
+#    $ARGV[ $idx ] =~ s/\\n/\n/go;
+#    $ARGV[ $idx ] =~ s/\\a/\a/go;
+    $ARGV[ $idx ] =~ s/\\([nt])/$escapes{ $1 }/go;
+    #print( qq{\$ARGV[ $idx ] = "$ARGV[ $idx ]"\n} );
+}
+print( join( ' ', @ARGV ), "\n" );

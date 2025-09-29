@@ -407,7 +407,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-TESTS = hello.pl.test.pl hello.sh.test.pl
+TESTS = hello.pl.test.pl hello.sh.test.pl fill.test.pl
 dist_check_SCRIPTS = $(TESTS)
 all: all-am
 
@@ -625,6 +625,13 @@ hello.pl.test.pl.log: hello.pl.test.pl
 hello.sh.test.pl.log: hello.sh.test.pl
 	@p='hello.sh.test.pl'; \
 	b='hello.sh.test.pl'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+fill.test.pl.log: fill.test.pl
+	@p='fill.test.pl'; \
+	b='fill.test.pl'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

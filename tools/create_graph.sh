@@ -56,7 +56,7 @@ sh_main()
             fi
             echo "[$dot] Update required."
         else
-            "[$dot] Create!"
+            echo "[$dot] Needs to be created."
         fi
 
         dot -Kdot -T${out_format} "$dot" "-o${dot_base}.${out_format}"
