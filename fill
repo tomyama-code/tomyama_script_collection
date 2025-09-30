@@ -605,7 +605,7 @@ Modifying STDIN input with the I<E<lt>E<lt>SUBE<lt>..E<gt>%E<lt>..E<gt>SUBE<gt>E
 
 I<E<lt>E<lt>GSUBE<lt>..E<gt>%E<lt>..E<gt>GSUBE<gt>E<gt>> macros are global substitutions:
 
-  $ cat /proc/mounts | ./fill '%%1:1%%\t<<GSUB< +>%<\t>GSUB>>'
+  $ cat /proc/mounts | fill '%%1:1%%\t<<GSUB< +>%<\t>GSUB>>'
   1       C:/cygwin64/bin /usr/bin        ntfs    binary,auto     1       1
   2       C:/cygwin64/lib /usr/lib        ntfs    binary,auto     1       1
   3       C:/cygwin64     /       ntfs    binary,auto     1       1

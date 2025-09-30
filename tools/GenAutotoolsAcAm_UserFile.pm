@@ -18,8 +18,8 @@ use warnings 'all';
 use File::Basename;
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'hello.pl hello.sh fill';
-$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh tools/create_graph.sh';
+$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'fill hello.pl hello.sh';
+$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh';
 $ACAM_KYVL{ '$MY_IMG_DOTS$' } = 'docs/README_dir_struct.dot';
 
 my %ACAM_TMPL;

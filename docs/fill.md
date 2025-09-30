@@ -98,7 +98,7 @@ Modifying STDIN input with the _<<SUB<..>%<..>SUB>>_ macro to rename a file:
 
 _<<GSUB<..>%<..>GSUB>>_ macros are global substitutions:
 
-    $ cat /proc/mounts | ./fill '%%1:1%%\t<<GSUB< +>%<\t>GSUB>>'
+    $ cat /proc/mounts | fill '%%1:1%%\t<<GSUB< +>%<\t>GSUB>>'
     1       C:/cygwin64/bin /usr/bin        ntfs    binary,auto     1       1
     2       C:/cygwin64/lib /usr/lib        ntfs    binary,auto     1       1
     3       C:/cygwin64     /       ntfs    binary,auto     1       1

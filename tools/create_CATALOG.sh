@@ -2,14 +2,19 @@
 ################################################################################
 ## create_CATALOG.sh -- Script to generate a catalog of scripts.
 ##
-## - Generates Markdown formatted files in the "docs" directory.
+## - Generates Markdown formatted files in the 'docs' directory.
+##   - Output documentation from '--help' option or POD
+## - Generates image files using 'Graphviz'.
+##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.5 $
+## - $Revision: 1.6 $
 ##
 ## - Tools required for this script
+##   - Perl 5.10 or later
 ##   - pod2markdown
 ##   - help2man
 ##   - glow
+##   - Graphviz (using the dot command)
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -18,6 +23,9 @@
 ## Copyright (c) 2025, tomyama
 ## All rights reserved.
 ################################################################################
+
+#out_format="png"
+out_format="svg"
 
 usage()
 {
@@ -39,9 +47,9 @@ sh_main()
 
     targdir="`dirname \"$targfile\"`"
 
-    sh_getMdHeader >"$targfile"
+    sh_getMdHeader >"$targfile.new"
 
-    echo -e "# Script Catalog\n" >>"$targfile"
+    echo -e "# Script Catalog\n" >>"$targfile.new"
 
     scr_dir_last=""
     while [ 1 ]; do
@@ -51,7 +59,7 @@ sh_main()
             break
         fi
 
-        echo "\$dependent_file=\"$dependent_file\""
+        #echo "\$dependent_file=\"$dependent_file\""
 
         depend_dir="`dirname \"$dependent_file\"`"
         depend_base="`basename \"$dependent_file\"`"
@@ -62,11 +70,11 @@ sh_main()
             elif [ "$depend_dir" = "tools" ]; then
                 heading_msg="The script that manages this directory"
             fi
-            echo -e "* * *\n\n## $heading_msg\n" >>"$targfile"
+            echo -e "* * *\n\n## $heading_msg\n" >>"$targfile.new"
         fi
         scr_dir_last="$depend_dir"
 
-        echo -e "### $dependent_file\n" >>"$targfile"
+        echo -e "### $dependent_file\n" >>"$targfile.new"
 
         cat "$dependent_file" | awk '
             BEGIN{
@@ -83,45 +91,76 @@ sh_main()
                     }
                 }
             }
-            ' >>"$targfile"
+            ' >>"$targfile.new"
 
-        echo -e "\nFor details, please refer to [$depend_base.md]($depend_base.md).\n" >>"$targfile"
+        echo -e "\nFor details, please refer to [$depend_base.md]($depend_base.md).\n" >>"$targfile.new"
 
-        sh_getMdHeader >"$targdir/$depend_base.md"
-
-        filecmd_out="`file \"$dependent_file\"`"
-        echo "$filecmd_out" | grep -i 'perl' 1>/dev/null
-        if [ $? == 0 ]; then
-            perldoc -Tu "$dependent_file" | pod2markdown >>"$targdir/$depend_base.md"
+        sh_isUpdateNecessary "$dependent_file" "$targdir/$depend_base.md"
+        ret=$?
+        update_flag=0
+        if [ $ret -eq 0 ]; then
+            echo "[$targdir/$depend_base.md] Already updated."
+            update_flag=0
+        elif [ $ret -eq 1 ]; then
+            echo "[$targdir/$depend_base.md] Update required."
+            update_flag=1
+        else
+            echo "[$targdir/$depend_base.md] Needs to be created."
+            update_flag=1
         fi
-        echo "$filecmd_out" | grep -i 'shell' 1>/dev/null
-        if [ $? == 0 ]; then
-            help2man --no-info "./$dependent_file" | man -l - | awk '
-                /^NAME/{
-                    FLAG = 1;
-                }
-                FLAG != 0{
-                    if( match( $0, "^[a-z]" ) ){
-                        FLAG = 0;
-                    }else if( match( $0, "^[A-Z]" ) ){
-                        printf( "# %s\n\n", $0 );
-                    }else{
-                        sub( "^       ", "", $0 );
-                        if( $0 == "OPTIONS" ){
-                          sub( "^", "# " );
-                        }
-                        print;
+
+        if [ $update_flag -ne 0 ]; then
+            sh_getMdHeader >"$targdir/$depend_base.md"
+
+            filecmd_out="`file \"$dependent_file\"`"
+            echo "$filecmd_out" | grep -i 'perl' 1>/dev/null
+            if [ $? -eq 0 ]; then
+                perldoc -Tu "$dependent_file" | pod2markdown >>"$targdir/$depend_base.md"
+            fi
+            echo "$filecmd_out" | grep -i 'shell' 1>/dev/null
+            if [ $? -eq 0 ]; then
+                help2man --no-info "./$dependent_file" | man -l - | awk '
+                    /^NAME/{
+                        FLAG = 1;
                     }
-                }
-            ' >>"$targdir/$depend_base.md"
-        fi
+                    FLAG != 0{
+                        if( match( $0, "^[a-z]" ) ){
+                            FLAG = 0;
+                        }else if( match( $0, "^[A-Z]" ) ){
+                            printf( "# %s\n\n", $0 );
+                        }else{
+                            sub( "^       ", "", $0 );
+                            if( $0 == "OPTIONS" ){
+                              sub( "^", "# " );
+                            }
+                            print;
+                        }
+                    }
+                ' >>"$targdir/$depend_base.md"
+            fi
 
-        sh_showMarkdownDoc "$targdir/$depend_base.md"
+            sh_showMarkdownDoc "$targdir/$depend_base.md"
+        fi
     done
 
-    echo -e "* * *\n[README.md](../README.md)" >>"$targfile"
+    echo -e "* * *\n[README.md](../README.md)" >>"$targfile.new"
 
-    sh_showMarkdownDoc "$targfile"
+    if [ -f "$targfile" ]; then
+        diff "$targfile" "$targfile.new" >/dev/null
+        if [ $? -eq 0 ]; then
+            echo "[$targfile] Already updated."
+        else
+            echo "[$targfile] Update required."
+            mv -f "$targfile.new" "$targfile"
+            sh_showMarkdownDoc "$targfile"
+        fi
+    else
+        echo "[$targfile] Needs to be created."
+        mv "$targfile.new" "$targfile"
+        sh_showMarkdownDoc "$targfile"
+    fi
+
+    sh_createGraph "$targdir"
 }
 
 ## script setup
@@ -155,7 +194,18 @@ parse_input()
         '-h' | '--help')
             usage
             echo "Script to generate a catalog of scripts."
-            echo "Generates Markdown formatted files in the 'docs' directory."
+            echo ""
+            echo "- Generates Markdown formatted files in the 'docs' directory."
+            echo "  - Output documentation from '--help' option or POD"
+            echo "- Generates image files using 'Graphviz'."
+            echo "  - Outputs svg images from dot files in 'docs'."
+            echo ""
+            echo "- Tools required for this script"
+            echo "  - Perl 5.10 or later"
+            echo "  - pod2markdown"
+            echo "  - help2man"
+            echo "  - glow"
+            echo "  - Graphviz (using the dot command)"
             echo ""
             echo "OPTIONS"
             echo "  -h, --help     display this help and exit"
@@ -182,6 +232,59 @@ sh_showMarkdownDoc()
 {
     echo "[$1]"
     glow "$1"
+}
+
+sh_isUpdateNecessary()
+{
+    basefile="$1"
+    genfile="$2"
+
+    if [ ! -f "$basefile" ]; then
+        echo "$0: error: $basefile: file not found" 1>&2
+        exit 1
+    fi
+
+    epoch_base="`stat '--format=%Y' \"$basefile\"`"
+
+    if [ -f "$genfile" ]; then
+        epoch_genfile="`stat '--format=%Y' \"$genfile\"`"
+
+        if [ "$epoch_genfile" -ge "$epoch_base" ]; then
+            return 0
+        fi
+        return 1
+    else
+        return 2
+    fi
+}
+
+sh_createGraph()
+{
+    cd "$1"
+    for dot in *.dot; do
+        if [ "$dot" = '*.dot' ]; then
+            echo "There were no dot files in the \"docs\" directory."
+            return 0
+        fi
+        #echo "dot: \"$dot\""
+
+        dot_basename="`basename \"$dot\"`"
+        dot_base="`echo \"$dot\" | sed 's!\.[^\.][^\.]*$!!'`"
+        #echo "\$dot_base=\"$dot_base\""
+
+        sh_isUpdateNecessary "$dot" "${dot_base}.${out_format}"
+        ret=$?
+        if [ $ret -eq 0 ]; then
+            echo "[$dot] Already updated."
+            continue
+        elif [ $ret -eq 1 ]; then
+            echo "[$dot] Update required."
+        else
+            echo "[$dot] Needs to be created."
+        fi
+
+        dot -Kdot -T${out_format} "$dot" "-o${dot_base}.${out_format}"
+    done
 }
 
 sh_main "$@"

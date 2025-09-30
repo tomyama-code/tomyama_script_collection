@@ -35,7 +35,6 @@
 開発の流れは大きく以下の2段階に分かれます。
 
 1. **このリポジトリ特有の前処理**
-   - Graphviz 図の生成
    - autotools 入力ファイルの生成（`configure.ac` など）
 
 2. **autotools 共通の処理**
@@ -52,20 +51,7 @@
 ---
 
 
-### Step 0-1: Graphviz 図の生成
-
-自作スクリプトを使って `docs/*.dot` から `docs/*.svg` を生成する。  
-
-```sh
-./tools/create_graph.sh
-```
-
-![step 0-1](devel_step_0_1.svg)
-
----
-
-
-### Step 0-2: autotools 入力ファイルの生成
+### Step 0-1: autotools 入力ファイルの生成
 
 自作スクリプトを使ってテンプレートから configure.ac, Makefile.am を生成する。
 configure.ac, Makefile.am は 直接編集禁止です。
@@ -83,7 +69,7 @@ configure.ac, Makefile.am は 直接編集禁止です。
 - [gen_autotools_acam.pl](gen_autotools_acam.pl.md)
 - [GenAutotoolsAcAm_UserFile.pm](GenAutotoolsAcAm_UserFile.pm.md)
 
-![step 0-2](devel_step_0_2.svg)
+![step 0-1](devel_step_0_1.svg)
 
 ---
 
@@ -178,7 +164,7 @@ make dist
   これは、利用者が `make install` しかしない場合に不要な処理であり、  
   また `dot` コマンドが環境にないとエラーになるリスクを避けるためです。  
   （例：`dot` ファイルのタイムスタンプが更新されたことで、意図せず再生成が走るケースなど）
-  開発者は必要に応じて `./tools/create_graph.sh` を実行して図を更新します。
+  開発者は必要に応じて `./tools/create_CATALOG.sh` を実行して図を更新します。
   
 - 英語版マニュアル（必要に応じて）
 

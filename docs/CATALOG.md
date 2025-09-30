@@ -5,6 +5,19 @@
 
 ## Scripts to be installed
 
+### fill
+
+Generates data row-wise according to a pattern, similar to Excel's AutoFill.
+
+- Author: 2025, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2025, tomyama
+All rights reserved.
+
+For details, please refer to [fill.md](fill.md).
+
 ### hello.pl
 
 sample script
@@ -30,19 +43,6 @@ Copyright (c) 2025, tomyama
 All rights reserved.
 
 For details, please refer to [hello.sh.md](hello.sh.md).
-
-### fill
-
-Generates data row-wise according to a pattern, similar to Excel's AutoFill.
-
-- Author: 2025, tomyama
-- Intended primarily for personal use, but BSD license permits redistribution.
-
-BSD 2-Clause License:
-Copyright (c) 2025, tomyama
-All rights reserved.
-
-For details, please refer to [fill.md](fill.md).
 
 * * *
 
@@ -85,34 +85,18 @@ For details, please refer to [GenAutotoolsAcAm_UserFile.pm.md](GenAutotoolsAcAm_
 
 Script to generate a catalog of scripts.
 
-- Generates Markdown formatted files in the "docs" directory.
+- Generates Markdown formatted files in the 'docs' directory.
+  - Output documentation from '--help' option or POD
+- Generates image files using 'Graphviz'.
+  - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.5 $
-
-- Tools required for this script
-  - pod2markdown
-  - help2man
-  - glow
-
-- Author: 2025, tomyama
-- Intended primarily for personal use, but BSD license permits redistribution.
-
-BSD 2-Clause License:
-Copyright (c) 2025, tomyama
-All rights reserved.
-
-For details, please refer to [create_CATALOG.sh.md](create_CATALOG.sh.md).
-
-### tools/create_graph.sh
-
-A script to generate image files using "Graphviz".
-
-- Outputs svn images from dot files in "docs".
-
-- $Revision: 1.2 $
+- $Revision: 1.6 $
 
 - Tools required for this script
   - Perl 5.10 or later
+  - pod2markdown
+  - help2man
+  - glow
   - Graphviz (using the dot command)
 
 - Author: 2025, tomyama
@@ -122,7 +106,7 @@ BSD 2-Clause License:
 Copyright (c) 2025, tomyama
 All rights reserved.
 
-For details, please refer to [create_graph.sh.md](create_graph.sh.md).
+For details, please refer to [create_CATALOG.sh.md](create_CATALOG.sh.md).
 
 * * *
 [README.md](../README.md)
