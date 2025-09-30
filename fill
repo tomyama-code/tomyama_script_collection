@@ -51,19 +51,77 @@ sub pl_main()
         if( ! $main::bIsStdinATty ){
             my $input = $line[ $idx ];
             $input =~ s/\r?\n$//o;
-            $fmt =~ s/>i<N>p<U>t</$input/go;
-            while( $fmt =~ m/>I<n>([^P]*)<P>([^u]*)<u>T<s>U<b>/o ){
-                my $re = $1;
-                my $rep = $2;
-                my $str = &fillSub( $input, qr/$re/, $rep );
-                $fmt =~ s/>I<n>[^P]*<P>[^u]*<u>T<s>U<b>/$str/o;
+
+            ## fprint()用に%記号をエスケープ
+            $input =~ s/%/%%/go;
+
+            my $remainStr;
+            my @checkedListSimple = ();
+            my @bStdinFlagSimple = ();
+
+            $remainStr = $fmt;
+            ## 前方の切り取り（$1）は最小マッチ ^(.*?)
+            while( $remainStr =~ m/^(.*?)>i<N>p<U>t<(.*)$/o ){
+                push( @checkedListSimple, $1, $input );
+                push( @bStdinFlagSimple ,  0,      1 );
+                $remainStr = $2;
             }
-            while( $fmt =~ m/>I<n>([^P]*)<P>([^u]*)<u>T<g>S<u>B</o ){
-                my $re = $1;
-                my $rep = $2;
-                my $str = &fillGsub( $input, qr/$re/, $rep );
-                $fmt =~ s/>I<n>[^P]*<P>[^u]*<u>T<g>S<u>B</$str/o;
+            push( @checkedListSimple, $remainStr );
+            push( @bStdinFlagSimple ,          0 );
+
+            my @checkedListSub = ();
+            my @bStdinFlagSub = ();
+            while( scalar( @checkedListSimple ) > 0 ){
+                $remainStr = shift( @checkedListSimple );
+                my $bStdinFlag = shift( @bStdinFlagSimple );
+
+                if( $bStdinFlag ){
+                    push( @checkedListSub, $remainStr );
+                    push( @bStdinFlagSub ,          1 );
+                }else{
+                    ## 前方の切り取り（$1）は最小マッチ ^(.*?)
+                    while( $remainStr =~ m/^(.*?)>I<n>(.*?)<P>(.*?)<u>T<s>U<b>(.*)$/o ){
+                        push( @checkedListSub, $1 );
+                        push( @bStdinFlagSub ,  0 );
+                        my $re = $2;
+                        my $rep = $3;
+                        $remainStr = $4;
+                        my $str = &fillSub( $input, qr/$re/, $rep );
+                        push( @checkedListSub, $str );
+                        push( @bStdinFlagSub ,    1 );
+                    }
+                    push( @checkedListSub, $remainStr );
+                    push( @bStdinFlagSub ,          0 );
+                }
             }
+
+            my @checkedListGsub = ();
+            my @bStdinFlagGsub = ();
+            while( scalar( @checkedListSub ) > 0 ){
+                $remainStr = shift( @checkedListSub );
+                my $bStdinFlag = shift( @bStdinFlagSub );
+
+                if( $bStdinFlag ){
+                    push( @checkedListGsub, $remainStr );
+                    push( @bStdinFlagGsub ,          1 );
+                }else{
+                    ## 前方の切り取り（$1）は最小マッチ ^(.*?)
+                    while( $remainStr =~ m/^(.*?)>I<n>(.*?)<P>(.*?)<u>T<g>S<u>B<(.*)$/o ){
+                        push( @checkedListGsub, $1 );
+                        push( @bStdinFlagGsub ,  0 );
+                        my $re = $2;
+                        my $rep = $3;
+                        $remainStr = $4;
+                        my $str = &fillGsub( $input, qr/$re/, $rep );
+                        push( @checkedListGsub, $str );
+                        push( @bStdinFlagGsub ,    1 );
+                    }
+                    push( @checkedListGsub, $remainStr );
+                    push( @bStdinFlagGsub ,          0 );
+                }
+            }
+
+            $fmt = join( '', @checkedListGsub );
         }
 
         ## カウンターを更新
@@ -231,12 +289,12 @@ sub parse_arg()
                     $myparam =~ s/%%[\-\d]\d*:[\-\d]\d*%%/$fmt/o;
                 }
                 if( ! $main::bIsStdinATty ){
-                    while( $myparam =~ m/<<SUB<([^%]+)%([^%]+)>SUB>>/o ){
-                        #printf( qq{\$1="$1", \$2="$2"\n} );
-                        $myparam =~ s/<<SUB<([^%]+)%([^%]+)>SUB>>/>I<n>$1<P>$2<u>T<s>U<b>/o;
+                    while( $myparam =~ m/^(.*)<<SUB<(.+?)>%<(.+?)>SUB>>(.*)$/o ){
+                        #printf( qq{\$2="$2", \$3="$3"\n} );
+                        $myparam = $1 . '>I<n>' . $2 . '<P>' . $3 . '<u>T' . '<s>U<b>' . $4;
                     }
-                    while( $myparam =~ m/<<GSUB<([^%]+)%([^%]+)>GSUB>>/o ){
-                        $myparam =~ s/<<GSUB<([^%]+)%([^%]+)>GSUB>>/>I<n>$1<P>$2<u>T<g>S<u>B</o;
+                    while( $myparam =~ m/^(.*)<<GSUB<(.+?)>%<(.+?)>GSUB>>(.*)/o ){
+                        $myparam = $1 . '>I<n>' . $2 . '<P>' . $3 . '<u>T' . '<g>S<u>B<' . $4;
                     }
                     $myparam =~ s/%%-%%/>i<N>p<U>t</go;
                 }
@@ -293,7 +351,6 @@ sub fillSub( $$$\@ )
     my( $intxt, $re, $str ) = @_;
     my $txt = $intxt;
     #print( qq{\$re="$re"\n} );
-    ## eフラグで右辺をコードとして解釈させる
     $txt =~ s/$re/$str/;
     my $m1 = ( defined( $1 ) ? $1 : undef );
     my $m2 = ( defined( $2 ) ? $2 : undef );
@@ -323,7 +380,6 @@ sub fillGsub( $$$\@ )
 {
     my( $intxt, $re, $str ) = @_;
     my $txt = $intxt;
-    ## eフラグで右辺をコードとして解釈させる
     $txt =~ s/$re/$str/g;
     my $m1 = ( defined( $1 ) ? $1 : undef );
     my $m2 = ( defined( $2 ) ? $2 : undef );
@@ -353,17 +409,22 @@ sub getStrWithEscChar( $ )
 {
     my @strings = @_;
 
+    ## 非サポート（置き換えない）の特殊文字を
+    ## このハッシュのコメントアウトでは対応しない方針。
+    ## 下記、$1を取得している正規表現中の文字リスト部分の更新漏れが発生しそうなので。
+    ## 文字リスト部分の更新を忘れるとテストでNGになるはずだが2度手間なので
+    ## 保守のし易そうなコードを採用。
     my %escapes = (
         'n' => "\n",   # 改行
         't' => "\t",   # 水平タブ
-#        'r' => "\r",   # 復帰
-#        'f' => "\f",   # 改ページ
+        'r' => "\\r",  # 復帰
+        'f' => "\\f",  # 改ページ
         'a' => "\a",   # 警報音
-#        'e' => "\e",   # ESC
+        'e' => "\\e",  # ESC
     );
 
     for my $str( @strings ){
-        $str =~ s/\\([nta])/$escapes{ $1 }/go;
+        $str =~ s/\\([ntrfae])/$escapes{ $1 }/go;
     }
     return join( ' ', @strings );
 }
@@ -534,7 +595,7 @@ Embedding STDIN input and renaming files:
   mv "987.mp4" "newname_099.mp4"
   mv "abc.mp4" "newname_098.mp4"
 
-Modifying STDIN input with the I<E<lt>E<lt>SUBE<lt>..%..E<gt>SUBE<gt>E<gt>> macro to rename a file:
+Modifying STDIN input with the I<E<lt>E<lt>SUBE<lt>..<gt>%<lt>..E<gt>SUBE<gt>E<gt>> macro to rename a file:
 
   $ ls *.mp4 | \
     fill 'mv "%%-%%" "<<SUB<\.([^\.]+)$%_%%01:1%%.$1>SUB>>"' | tee rename.sh
@@ -542,7 +603,7 @@ Modifying STDIN input with the I<E<lt>E<lt>SUBE<lt>..%..E<gt>SUBE<gt>E<gt>> macr
   mv "987.mp4" "987_02.mp4"
   mv "abc.mp4" "abc_03.mp4"
 
-I<E<lt>E<lt>GSUBE<lt>..%..E<gt>GSUBE<gt>E<gt>> macros are global substitutions:
+I<E<lt>E<lt>GSUBE<lt>..<gt>%<lt>..E<gt>GSUBE<gt>E<gt>> macros are global substitutions:
 
   $ cat /proc/mounts | ./fill '%%1:1%%\t<<GSUB< +%\t>GSUB>>'
   1       C:/cygwin64/bin /usr/bin        ntfs    binary,auto     1       1

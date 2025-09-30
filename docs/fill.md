@@ -88,7 +88,7 @@ Embedding STDIN input and renaming files:
     mv "987.mp4" "newname_099.mp4"
     mv "abc.mp4" "newname_098.mp4"
 
-Modifying STDIN input with the _<<SUB<..%..>SUB>>_ macro to rename a file:
+Modifying STDIN input with the _<<SUB<..&lt;gt_%&lt;lt>..>SUB>>> macro to rename a file:
 
     $ ls *.mp4 | \
       fill 'mv "%%-%%" "<<SUB<\.([^\.]+)$%_%%01:1%%.$1>SUB>>"' | tee rename.sh
@@ -96,7 +96,7 @@ Modifying STDIN input with the _<<SUB<..%..>SUB>>_ macro to rename a file:
     mv "987.mp4" "987_02.mp4"
     mv "abc.mp4" "abc_03.mp4"
 
-_<<GSUB<..%..>GSUB>>_ macros are global substitutions:
+_<<GSUB<..&lt;gt_%&lt;lt>..>GSUB>>> macros are global substitutions:
 
     $ cat /proc/mounts | ./fill '%%1:1%%\t<<GSUB< +%\t>GSUB>>'
     1       C:/cygwin64/bin /usr/bin        ntfs    binary,auto     1       1

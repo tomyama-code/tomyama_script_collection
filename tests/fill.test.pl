@@ -328,41 +328,62 @@ subtest qq{Replacing data from STDIN} => sub{
     $cmd->stdout_is_eq( qq{mv "%%-%%" "newname_01.txt"\nmv "%%-%%" "newname_02.txt"\nmv "%%-%%" "newname_03.txt"\n}, qq{Output as "%%-%%".} );
     $cmd->stderr_is_eq( "", "stderr is silent" );
     undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '1>i<N>p<U>t<9' | $FILLCMD 8 - 2 -d} );
+    $cmd->exit_is_num( 0, "Internal Special Tokens" );
+    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $cmd->stdout_like( qr/\n81>i<N>p<U>t<92\n/, qq{Correct output} );
+    $cmd->stderr_is_eq( "", "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '1>I<n>n<P>N<u>T<s>U<b>9' | $FILLCMD 8 - 2 -d} );
+    $cmd->exit_is_num( 0, "Internal Special Tokens" );
+    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $cmd->stdout_like( qr/\n81>I<n>n<P>N<u>T<s>U<b>92\n/, qq{Correct output} );
+    $cmd->stderr_is_eq( "", "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '1>I<n>n<P>N<u>T<g>S<u>B<9' | $FILLCMD 8 - 2 -d} );
+    $cmd->exit_is_num( 0, "Internal Special Tokens" );
+    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $cmd->stdout_like( qr/\n81>I<n>n<P>N<u>T<g>S<u>B<92\n/, qq{Correct output} );
+    $cmd->stderr_is_eq( "", "stderr is silent" );
+    undef( $cmd );
 };
 
 subtest qq{Control characters} => sub{
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\n' 11:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\n" is support (New Line)} );
     $cmd->stdout_is_eq( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\t' 21:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\t" is support (Tab)} );
     $cmd->stdout_is_eq( "1\t21\n2\t22\n3\t23\n", qq{Supports "\\t"} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\r' 31:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\r" is NOT support (Carriage Return)} );
     $cmd->stdout_is_eq( "1\\r31\n2\\r32\n3\\r33\n", qq{"\\r" is not support} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\f' 41:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\f" is NOT support (Form Feed)} );
     $cmd->stdout_is_eq( "1\\f41\n2\\f42\n3\\f43\n", qq{"\\f" is not support} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\a ' 51:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\a" is support (Alarm)} );
     $cmd->stdout_is_eq( "1\a 51\n2\a 52\n3\a 53\n", qq{Supports "\\a"} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\e' 61:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
+    $cmd->exit_is_num( 0, qq{"\\e" is NOT support (Escape)} );
     $cmd->stdout_is_eq( "1\\e61\n2\\e62\n3\\e63\n", qq{"\\e" is not support} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
@@ -389,102 +410,114 @@ subtest qq{Escaping the "%" symbol} => sub{
 };
 
 subtest qq{<<SUB<..%..>SUB>>} => sub{
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.[^\.]+$%.%%01:1%%>SUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.[^\.]+$>%<.%%01:1%%>SUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$%_%%01:1%%.$1>SUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<SUB<^((.+)\.([^\.]+))$%mv "$1" "$2_%%01:1%%.$3">SUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<SUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">SUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$%" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<SUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$%" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<SUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$%"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">SUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">SUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{"2017-09-30_141640_0774_01.MP4" "01_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0775_02.MP4" "02_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0776_03.MP4" "03_\$1-\$2-\$3_\$4.\$5"\n}, q{No global match} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$%_%%01:1%%.$1>SUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'<<SUB<(e)%E$1E>SUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'<<SUB<(e)>%<E$1E>SUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{MakEeEfile\nREADME.md\nauth-cram-md5\nchEeEck_header_file_dependencies.sh\n}, qq{Only the first matched part is replaced.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo 'OPQRSTUOPQRSTU' | $FILLCMD '9<<SUB<P>%<u>SUB>>1'} );
+    $cmd->exit_is_num( 0, "Ability to recognize delimiters within macros" );
+    $cmd->stdout_is_eq( "9OuQRSTUOPQRSTU1\n", qq{The SUB() macro is successful.} );
+    $cmd->stderr_is_eq( "", "stderr is silent" );
+    undef( $cmd );
 };
 
 subtest qq{<<GSUB<..%..>GSUB>>} => sub{
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.[^\.]+$%.%%01:1%%>GSUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.[^\.]+$>%<.%%01:1%%>GSUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$%_%%01:1%%.$1>GSUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<GSUB<^((.+)\.([^\.]+))$%mv "$1" "$2_%%01:1%%.$3">GSUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<GSUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">GSUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$%" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<GSUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$%" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "' - '<<GSUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$%"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">GSUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">GSUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{"2017-09-30_141640_0774_01.MP4" "01_2017-09-30_141640_0774.MP4"\n"2017-09-30_141640_0775_02.MP4" "02_2017-09-30_141640_0775.MP4"\n"2017-09-30_141640_0776_03.MP4" "03_2017-09-30_141640_0776.MP4"\n}, q{Global match} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$%_%%01:1%%.$1>GSUB>>"'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'<<GSUB<(e)%E$1E>GSUB>>'} );
+    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $FILLCMD } . q{'<<GSUB<(e)>%<E$1E>GSUB>>'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{MakEeEfilEeE\nREADME.md\nauth-cram-md5\nchEeEck_hEeEadEeEr_filEeE_dEeEpEeEndEeEnciEeEs.sh\n}, qq{All matches are replaced.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo 'OPQRSTUOPQRSTU' | $FILLCMD '9<<GSUB<P>%<u>GSUB>>1'} );
+    $cmd->exit_is_num( 0, "Ability to recognize delimiters within macros" );
+    $cmd->stdout_is_eq( "9OuQRSTUOuQRSTU1\n", qq{The GSUB() macro is successful.} );
+    $cmd->stderr_is_eq( "", "stderr is silent" );
     undef( $cmd );
 };
 
@@ -506,6 +539,12 @@ subtest qq{complicated} => sub{
     $cmd = Test::Command->new( cmd => qq{$FILLCMD -3 '%d%%1:3%%%d'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( "%d1%d\n%d4%d\n%d7%d\n", qq{Don't be fooled by "%d"} );
+    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{cat "$apppath/../fill" | $FILLCMD 0001:1 ' ' -} );
+    $cmd->exit_is_num( 0, "A file containing special tokens." );
+    $cmd->stdout_like( qr/ =cut$/, qq{It can be displayed to the end.} );
     $cmd->stderr_is_eq( qq{}, "stderr is silent" );
     undef( $cmd );
 };
