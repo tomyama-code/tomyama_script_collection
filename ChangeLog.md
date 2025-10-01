@@ -4,6 +4,18 @@
 ### Changed
 - xxx
 
+## [0.2.0] - 2025-10-01
+### Added
+- Add the first script.
+  - `fill`: Generates data row-wise according to a pattern, similar to Excel's AutoFill.
+
+### Changed
+- The process of generating svg images from dot files has been changed from using a script to being done by a Makefile.
+  - remove: `tools/create_graph.sh`
+- Fixed so that the file timestamp is not changed if there are no changes to the file being updated.
+  - change: `tools/gen_autotools_acam.pl`
+  - change: `tools/create_CATALOG.sh`
+
 ## [0.1.0] - 2025-09-29
 ### Added
 - First commit. Just the framework, no scripts yet.

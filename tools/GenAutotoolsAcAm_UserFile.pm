@@ -20,7 +20,7 @@ use File::Basename;
 my %ACAM_KYVL;
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'fill hello.pl hello.sh';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh';
-$ACAM_KYVL{ '$MY_IMG_DOTS$' } = 'docs/README_dir_struct.dot';
+$ACAM_KYVL{ '$MY_IMG_FORMAT$' } = 'svg';
 
 my %ACAM_TMPL;
 
@@ -46,20 +46,24 @@ $ACAM_TMPL{ 'Makefile.am' } = q{##
 
 # # make install 時に bindir（通常 /usr/local/bin）へコピーされるファイル
 # bin_SCRIPTS = $MY_SCRIPTS$
-
 # インストールもされるし、配布 tarball にも必ず入る
 dist_bin_SCRIPTS = $MY_SCRIPTS$
 
 # make dist したときに tarball に含める追加ファイル
-EXTRA_DIST = ChangeLog.md LICENSE README.md docs/CATALOG.md $MY_DOCS$ $MY_TL_DOCS$ $MY_DOCS_IMGS$ $MY_TOOLS$
+# automakeが自動的に見つけるファイルは書かない方針
+# （該当ファイルは automake --help でリストを確認できる）
+EXTRA_DIST = LICENSE docs/CATALOG.md $MY_DOTS$ $MY_IMGS$ $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$
 
-SUBDIRS = tests
+SUBDIRS = $SUBDIRS$
 
 docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
 
 .PHONY: catalog
 catalog: docs/CATALOG.md ;
+
+docs/%.$MY_IMG_FORMAT$: docs/%.dot
+	dot -Kdot -T$MY_IMG_FORMAT$ $< -o $@
 
 dist-hook: catalog ;
 };
@@ -88,19 +92,28 @@ sub setupValue()
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TL_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
-    $ACAM_KYVL{ '$MY_DOCS_IMGS$' } = &getImgNames( $ACAM_KYVL{ '$MY_IMG_DOTS$' } );
+    my @my_imgs_dot = glob( 'docs/*.dot' );
+    $ACAM_KYVL{ '$MY_DOTS$' } = join( ' ', @my_imgs_dot );
+    $ACAM_KYVL{ '$MY_IMGS$' } = &getImgNames( $ACAM_KYVL{ '$MY_DOTS$' } );
 
     $ACAM_KYVL{ '$AC_CONFIG_FILES$' } = '';
     my @ac_cfg_files = ();
+    my @subdirs = ();
     foreach my $k( sort( keys( %ACAM_TMPL ) ) ){
-        if( $k =~ m/Makefile\.am$/o ){
-            $k =~ s/\.am$//o;
-            push( @ac_cfg_files, $k );
+        if( $k =~ m!^((.*?)/?Makefile)\.am$!o ){
+            #$k =~ s/\.am$//o;
+            push( @ac_cfg_files, $1 );
+            if( defined( $2 ) && $2 ne '' ){
+                push( @subdirs, $2 );
+            }
         }
     }
     $ACAM_KYVL{ '$AC_CONFIG_FILES$' } = join( ' ', @ac_cfg_files );
+    $ACAM_KYVL{ '$SUBDIRS$' } = join( ' ', @subdirs );
 }
 
+## "fill hello.pl hello.sh"
+## -> "tests/fill.test.pl tests/hello.pl.test.pl tests/hello.sh.test.pl"
 sub getTestNames( $ )
 {
     my @arr = split( / +/, $_[ 0 ] );
@@ -113,6 +126,8 @@ sub getTestNames( $ )
     return join( ' ', @arr );
 }
 
+## "fill hello.pl hello.sh"
+## -> "docs/fill.md docs/hello.pl.md docs/hello.sh.md"
 sub getDocNames( $ )
 {
     my @arr = split( / +/, $_[ 0 ] );
@@ -125,6 +140,8 @@ sub getDocNames( $ )
     return join( ' ', @arr );
 }
 
+## "tests/fill.test.pl tests/hello.pl.test.pl tests/hello.sh.test.pl"
+## -> "fill.test.pl hello.pl.test.pl hello.sh.test.pl"
 sub getBaseNames( $ )
 {
     my @arr = split( / +/, $_[ 0 ] );
@@ -137,18 +154,20 @@ sub getBaseNames( $ )
     return join( ' ', @arr );
 }
 
+##    "docs/devel_step_0.dot docs/devel_step_0_1.dot"
+## -> "docs/devel_step_0.svg docs/devel_step_0_1.svg"
 sub getImgNames( $ )
 {
     my @arr = split( / +/, $_[ 0 ] );
     my $idx_max = scalar( @arr );
-    my @new = ();
+    my @imgs = ();
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );
         my $imgpath = $arr[ $idx ];
-        $imgpath =~ s!\.dot$!.svg!io;
-        push( @new, $imgpath );
+        $imgpath =~ s!\.dot$!.$ACAM_KYVL{ '$MY_IMG_FORMAT$' }!io;
+        push( @imgs, $imgpath );
     }
-    return join( ' ', @arr, @new );
+    return join( ' ', @imgs );
 }
 
 1;

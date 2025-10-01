@@ -55,7 +55,10 @@ Generate and manage autotools "ac" and "am" files from a single source.
 - Outputs autotools ac and am files based on the data in "GenAutotoolsAcAm_UserFile.pm".
 - Eliminates the hassle of adding definitions to multiple files.
 
-- $Revision: 1.6 $
+- If any files have been updated, it will exit with 0.
+- If no files have been updated, it will exit with a value other than 0.
+
+- $Revision: 1.7 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -90,7 +93,7 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.6 $
+- $Revision: 1.7 $
 
 - Tools required for this script
   - Perl 5.10 or later

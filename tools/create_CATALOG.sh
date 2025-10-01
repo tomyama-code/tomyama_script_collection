@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.6 $
+## - $Revision: 1.7 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
@@ -149,6 +149,7 @@ sh_main()
         diff "$targfile" "$targfile.new" >/dev/null
         if [ $? -eq 0 ]; then
             echo "[$targfile] Already updated."
+            \rm -f "$targfile.new"
         else
             echo "[$targfile] Update required."
             mv -f "$targfile.new" "$targfile"
@@ -160,7 +161,7 @@ sh_main()
         sh_showMarkdownDoc "$targfile"
     fi
 
-    sh_createGraph "$targdir"
+    #sh_createGraph "$targdir"
 }
 
 ## script setup

@@ -5,7 +5,10 @@
 ## - Outputs autotools ac and am files based on the data in "GenAutotoolsAcAm_UserFile.pm".
 ## - Eliminates the hassle of adding definitions to multiple files.
 ##
-## - $Revision: 1.6 $
+## - If any files have been updated, it will exit with 0.
+## - If no files have been updated, it will exit with a value other than 0.
+##
+## - $Revision: 1.7 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -25,6 +28,8 @@ use GenAutotoolsAcAm_UserFile;
 
 my $apppath;
 my $appname;
+
+my $exit_status = 1;
 
 exit( &pl_main( @ARGV ) );
 
@@ -64,7 +69,7 @@ sub pl_main( @ )
             $body .= $l . "\n";
         }
 
-        print( qq{[$k]\n} );
+#        print( qq{[$k]\n} );
 #        print( qq{$body} );
 
         my $bOldFileNothing = 0;
@@ -88,22 +93,27 @@ sub pl_main( @ )
         }
 
         if( $diff eq '' ){
-            print( qq{The file is already up to date.\n} );
+            print( qq{[$k] The file is already up to date.\n} );
             if( unlink( $newname ) <= 0 ){
                 print STDERR ( qq{$appname: could not remove file: $newname\n} );
             }
         }else{
             if( ! $bOldFileNothing ){
+                print( qq{[$k] Needs to be created.\n} );
                 if( unlink( $k ) <= 0 ){
                     print STDERR ( qq{$appname: could not remove file: $k\n} );
                 }
+            }else{
+                print( qq{[$k] Update required.\n} );
             }
+            $exit_status = 0;
             rename( $newname, $k ) ||
                 die( qq{$appname: could not rename file: $newname -> $k\n} );
+            system( 'cat', '-n', "$k" );
         }
     }
 
-    return 0;
+    return $exit_status;
 }
 
 ## 初期化サブルーチン
@@ -176,6 +186,9 @@ $ gen_autotools_acam.pl [I<OPTIONS...>]
 This script generates and updates autotools "ac" and "am" files
 based on templates and key-value pairs defined in "GenAutotoolsAcAm_UserFile.pm".
 It helps avoid the need to duplicate definitions across multiple files.
+
+If any files have been updated, it will exit with 0.
+If no files have been updated, it will exit with a value other than 0.
 
 Example:
 

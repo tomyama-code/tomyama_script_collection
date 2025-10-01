@@ -13,6 +13,9 @@ This script generates and updates autotools "ac" and "am" files
 based on templates and key-value pairs defined in "GenAutotoolsAcAm\_UserFile.pm".
 It helps avoid the need to duplicate definitions across multiple files.
 
+If any files have been updated, it will exit with 0.
+If no files have been updated, it will exit with a value other than 0.
+
 Example:
 
     $ ls -1 tools/*.p?
