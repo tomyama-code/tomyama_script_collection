@@ -1,17 +1,19 @@
 
-dist_bin_SCRIPTS = fill hello.pl hello.sh
+dist_bin_SCRIPTS = fill mark hello.pl hello.sh
 
-EXTRA_DIST = LICENSE docs/CATALOG.md docs/devel_step_0.dot docs/devel_step_0_1.dot docs/devel_step_1_1.dot docs/devel_step_1_2.dot docs/devel_step_1_3.dot docs/devel_step_1_4.dot docs/README_dir_struct.dot docs/devel_step_0.svg docs/devel_step_0_1.svg docs/devel_step_1_1.svg docs/devel_step_1_2.svg docs/devel_step_1_3.svg docs/devel_step_1_4.svg docs/README_dir_struct.svg docs/fill.md docs/hello.pl.md docs/hello.sh.md docs/gen_autotools_acam.pl.md docs/GenAutotoolsAcAm_UserFile.pm.md docs/create_CATALOG.sh.md tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh
+EXTRA_DIST = LICENSE docs/CATALOG.md docs/Developer_Manual.md docs/img/devel_step_0.dot docs/img/devel_step_0_1.dot docs/img/devel_step_1_1.dot docs/img/devel_step_1_2.dot docs/img/devel_step_1_3.dot docs/img/devel_step_1_4.dot docs/img/README_dir_struct.dot docs/img/devel_step_0.svg docs/img/devel_step_0_1.svg docs/img/devel_step_1_1.svg docs/img/devel_step_1_2.svg docs/img/devel_step_1_3.svg docs/img/devel_step_1_4.svg docs/img/README_dir_struct.svg docs/img/*.jpg docs/fill.md docs/mark.md docs/hello.pl.md docs/hello.sh.md docs/build_script.sh.md docs/gen_autotools_acam.pl.md docs/GenAutotoolsAcAm_UserFile.pm.md docs/create_CATALOG.sh.md tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh tests/prt
 
 SUBDIRS = tests
 
-docs/CATALOG.md: $(dist_bin_SCRIPTS) tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh
+docs/CATALOG.md: $(dist_bin_SCRIPTS) tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
 
 .PHONY: catalog
 catalog: docs/CATALOG.md ;
 
-docs/%.svg: docs/%.dot
+docs/img/%.svg: docs/img/%.dot
 	dot -Kdot -Tsvg $< -o $@
+
+docs/%.md: catalog ;
 
 dist-hook: catalog ;

@@ -2,7 +2,19 @@
 
 自作のスクリプトをまとめたリポジトリです。
 
+* * *
+
+## 配布スクリプト
+
 配布スクリプト、及びツールの一覧と概要は、 [CATALOG.md](./docs/CATALOG.md) をご覧ください。
+
+ここでは画面キャプチャのみ貼付します。
+
+### [fill](docs/fill.md)
+![Image of the fill command execution](docs/img/fill.jpg)
+
+### [mark](docs/mark.md)
+![Image of the mark command execution](docs/img/mark.jpg)
 
 * * *
 
@@ -54,7 +66,7 @@ make check
 配布するスクリプトは、テスト用のスクリプトとドキュメントを持っています。
 そして、それらのファイルは、それぞれ、"tests", "docs"ディレクトリに置いています。
 
-![ディレクトリ構造図](docs/README_dir_struct.svg)
+![ディレクトリ構造図](docs/img/README_dir_struct.svg)
 
 "tools"ディレクトリには、このプロジェクトを管理する為のツールが入っています。
 例えば、"docs"配下のドキュメントを出力するスクリプト等です。

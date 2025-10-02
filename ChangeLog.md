@@ -4,6 +4,20 @@
 ### Changed
 - xxx
 
+## [0.2.1] - 2025-10-02
+### Added
+- Add distribution script.
+  - `mark`: emphasizes part matching a pattern
+- The build procedure was scripted.
+  - `tools/build_script.sh`: A script that describes the build steps
+
+### Changed
+- Change the location of the image.
+  - `docs` -> `docs/img`
+- If you prepare an image for each script, you can paste it into the document, such as a screen capture.
+  - change: `tools/create_CATALOG.sh`
+  - Images will also be used in `README.md`.
+
 ## [0.2.0] - 2025-10-01
 ### Added
 - Add the first script.

@@ -18,8 +18,8 @@ use warnings 'all';
 use File::Basename;
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'fill hello.pl hello.sh';
-$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh';
+$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'fill mark hello.pl hello.sh';
+$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh';
 $ACAM_KYVL{ '$MY_IMG_FORMAT$' } = 'svg';
 
 my %ACAM_TMPL;
@@ -28,7 +28,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 AC_PREREQ([2.72])
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.0], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.1], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -52,7 +52,7 @@ dist_bin_SCRIPTS = $MY_SCRIPTS$
 # make dist したときに tarball に含める追加ファイル
 # automakeが自動的に見つけるファイルは書かない方針
 # （該当ファイルは automake --help でリストを確認できる）
-EXTRA_DIST = LICENSE docs/CATALOG.md $MY_DOTS$ $MY_IMGS$ $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$
+EXTRA_DIST = LICENSE docs/CATALOG.md docs/Developer_Manual.md $MY_DOTS$ $MY_IMGS$ docs/img/*.jpg $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$ tests/prt
 
 SUBDIRS = $SUBDIRS$
 
@@ -62,8 +62,10 @@ docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$
 .PHONY: catalog
 catalog: docs/CATALOG.md ;
 
-docs/%.$MY_IMG_FORMAT$: docs/%.dot
+docs/img/%.$MY_IMG_FORMAT$: docs/img/%.dot
 	dot -Kdot -T$MY_IMG_FORMAT$ $< -o $@
+
+docs/%.md: catalog ;
 
 dist-hook: catalog ;
 };
@@ -92,7 +94,7 @@ sub setupValue()
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TL_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
-    my @my_imgs_dot = glob( 'docs/*.dot' );
+    my @my_imgs_dot = glob( 'docs/img/*.dot' );
     $ACAM_KYVL{ '$MY_DOTS$' } = join( ' ', @my_imgs_dot );
     $ACAM_KYVL{ '$MY_IMGS$' } = &getImgNames( $ACAM_KYVL{ '$MY_DOTS$' } );
 

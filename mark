@@ -1,0 +1,470 @@
+#!/usr/bin/perl -w
+################################################################################
+## MARK -- emphasizes part matching a pattern
+##
+## - It behaves like the filter program.
+## - The back and forth 5 lines are displayed in default.
+##
+## - Author: 2006-2025, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2006-2025, tomyama
+## All rights reserved.
+################################################################################
+
+use strict;
+use warnings 'all';
+use File::Basename;
+
+exit( &pl_main( @ARGV ) );
+
+##########
+## スクリプトのエントリポイント
+sub pl_main()
+{
+
+    ## 初期化処理
+    &init_script();
+
+    ## 引数解析
+    &parse_arg( @_ );
+
+    ## デバッグ用 : パラメータ出力
+    &prt_param() if( $main::debug );
+
+    for( my( $i, $m ) = ( 0, scalar( @main::fi_in ) ); $i < $m; $i++ ){
+        my $opn_fname = "$main::fi_in[$i]";
+
+        print STDERR ( qq{ ***** $opn_fname *****\n}) if( $main::debug );
+
+        open( FI_IN, "<$opn_fname" ) ||
+            die( qq{$main::appname: "$opn_fname": } .
+                 qq{could not open file: $!\n} );
+        my $nr = 0;
+        my $num = 8;
+        if( $main::prt_fname ){
+            $num = ( ( ( int( length( $opn_fname ) / 8 ) ) + 1 ) * 8 ) - 1;
+        }
+        while( <FI_IN> ){
+            $nr++;
+            my $mybuff = $_;
+            $mybuff =~ s/\r?\n$//o;
+
+            ## マーキングする
+            my $match_flg = 0;
+            if( $main::bIsATty || $main::bForceColor ){
+                if( $main::ignorecase ){
+                    if( $mybuff =~ s/($main::re)/\033[1m$1\033[0m/igo ){
+                        $match_flg = 1;
+                    }
+                }else{
+                    if( $mybuff =~ s/($main::re)/\033[1m$1\033[0m/go ){
+                        $match_flg = 1;
+                    }
+                }
+            }else{
+                if( $main::ignorecase ){
+                    if( $mybuff =~ m/($main::re)/igo ){
+                        $match_flg = 1;
+                    }
+                }else{
+                    if( $mybuff =~ m/($main::re)/go ){
+                        $match_flg = 1;
+                    }
+                }
+            }
+
+            ## マッチしていなかったら
+            if ($main::opt_filter && ! $match_flg) {
+                ## 後方行の出力
+                $main::opt_filter_e--;
+                if( $main::opt_filter_e >= 0 ){
+                    goto PRINTOUT;
+                }
+
+                ## 前方行をバッファに溜めておく
+                ## opt_filter_pre=0 の場合はバッファは必要無し
+                if( $main::opt_filter_pre == 0 ){
+                    next;
+                ## バッファが満杯であれば整理しておく
+                }elsif( scalar( @main::opt_filter_buff ) >= $main::opt_filter_pre ){
+                    shift( @main::opt_filter_buff );
+                }
+
+                ## バッファに溜める
+                push( @main::opt_filter_buff, $mybuff );
+                next;
+            ## マッチしていたら
+            }elsif( $main::opt_filter ){
+                ## 読み易いように、skip...を出力
+                if( $main::opt_filter_e + scalar( @main::opt_filter_buff ) < 0 ){
+                    if( $main::bIsATty || $main::bForceColor ){
+                        print( "        \033[34m*** skip ***\033[0m\n" );
+                    }else{
+                        print( "        *** skip ***\n" );
+                    }
+                }
+
+                ## バッファを吐き出す
+                for( my( $i, $nri, $m ) = ( 0, $nr - scalar( @main::opt_filter_buff ), $#main::opt_filter_buff );
+                        $i <= $m; $i++, $nri++ ){
+                    ## 必要に応じてファイル名を出力
+                    if( $main::prt_fname ){
+                        printf( "%-${num}s:", $opn_fname );
+                    }
+                    ## 必要に応じて行番号を出力
+                    if( $main::numbering ){
+                        printf( "%7d:", $nri ) ;
+                    }
+                    ## 出力する
+                    print( "$main::opt_filter_buff[$i]\n" );
+                }
+                undef( @main::opt_filter_buff );
+
+                ## 後方行出力用のカウンタをセットする
+                $main::opt_filter_e = $main::opt_filter_post;
+            }
+
+            PRINTOUT:
+            ## 必要に応じてファイル名を出力
+            printf( "%-${num}s:", $opn_fname ) if( $main::prt_fname );
+
+            ## 必要に応じて行番号を出力
+            printf( "%7d:", $nr ) if( $main::numbering );
+
+            ## 出力する
+            print( "$mybuff\n" );
+        }
+        close( FI_IN );
+    }
+
+    return 0;
+}
+
+##########
+## 初期化処理
+sub init_script()
+{
+    ### GLOBAL ###
+    $main::apppath = dirname( $0 );
+    $main::appname = basename( $0 );
+    $main::debug = 0;
+    $main::numbering = 0;
+    $main::prt_fname = 0;
+    $main::opt_nofname = 0;
+    $main::opt_filter = 0;
+    $main::opt_filter_pre  = 0;
+    $main::opt_filter_post = 0;
+    #@main::opt_filter_buff;
+    $main::opt_filter_e = 0;
+    $main::ignorecase = 0;
+    $main::re = undef;
+    #@main::fi_in;
+    ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
+    $main::bIsATty = -t STDOUT;
+    $main::bForceColor = 0;
+    ##############
+}
+
+##########
+## デバッグ用 : パラメータ出力
+sub prt_param()
+{
+    my $c = 20;
+    local *prt_variable = sub( $$ ){
+        printf STDERR ( qq{PARAM : %-${c}s = "%s"\n}, uc( $_[0] ), $_[1] ? 'True' : 'False' );
+    };
+
+    print  STDERR ( qq{ ***** PARAMETER *****\n} );
+    printf STDERR ( qq{PARAM : %-${c}s = "%s"\n}, uc( 'apppath' ), $main::apppath );
+    printf STDERR ( qq{PARAM : %-${c}s = "%s"\n}, uc( 'appname' ), $main::appname );
+    &prt_variable( 'debug',         $main::debug );
+    &prt_variable( 'bIsATty',       $main::bIsATty );
+    &prt_variable( 'bForceColor',   $main::bForceColor );
+    &prt_variable( 'numbering',     $main::numbering );
+    &prt_variable( 'prt_fname',     $main::prt_fname );
+    &prt_variable( 'opt_nofname',   $main::opt_nofname );
+    &prt_variable( 'opt_filter',    $main::opt_filter );
+    printf STDERR ( qq{PARAM : %-${c}s = "%s"\n},
+        uc( 'opt_filter_pre' ), $main::opt_filter_pre );
+    printf STDERR ( qq{PARAM : %-${c}s = "%s"\n},
+        uc( 'opt_filter_post' ), $main::opt_filter_post );
+    &prt_variable( 'ignorecase',    $main::ignorecase );
+    printf STDERR ( qq{PARAM : %-${c}s = '%s'\n},
+        uc( 'Regular_Expressions' ), $main::re );
+    for( my( $i, $m ) = ( 0, scalar( @main::fi_in ) ); $i < $m; $i++ ){
+        printf STDERR (qq{PARAM : %-${c}s = "%s"\n}, uc( "fi_in($i)" ), $main::fi_in[$i] );
+    }
+}
+
+##########
+## 引数解析
+sub parse_arg()
+{
+    my @val = @_;
+
+    ## 引数分のループを回す
+    while( my $myparam = shift( @val ) ){
+        if( $myparam =~ s/^-([a-zA-Z])([a-zA-Z]+)$/-$1/o ){
+            unshift( @val, "-$2" );
+        }
+
+        ## デバッグモードOn
+        if    ( $myparam eq '-d' || $myparam eq '--debug' ){
+                $main::debug = 1;
+        }elsif( $myparam eq '-f' ){
+                $main::opt_filter      = 1;
+                $main::opt_filter_pre  = 5;
+                $main::opt_filter_post = 5;
+            if( defined( $val[0] ) && $val[0] =~ m/^([0-9]+)(?:,([0-9]+))?$/o ){
+                ## 捨てる
+                shift( @val );
+
+                $main::opt_filter_pre  = $1;
+                if( defined( $2 ) ){
+                    $main::opt_filter_post = $2;
+                }else{
+                    $main::opt_filter_post = $1;
+                }
+            }
+        }elsif( $myparam eq '-H' || $myparam eq '--with-filename' ){
+            $main::prt_fname = 1;
+        }elsif( $myparam eq '-h' || $myparam eq '--no-filename' ){
+            $main::opt_nofname = 1;
+        }elsif( $myparam eq '--help' ){
+            &usage( 0 );
+            exit( 0 );
+        }elsif( $myparam eq '-i' || $myparam eq '--ignore-case' ){
+            $main::ignorecase = 1;
+        }elsif( $myparam eq '-n' || $myparam eq '--line-number' ){
+            $main::numbering = 1;
+        }elsif( $myparam eq '-c' || $myparam eq '--force-color' ){
+            $main::bForceColor = 1;
+        }else{
+            if( ! defined( $main::re ) ){
+                    $main::re = $myparam;
+            }else{
+                if( "$myparam" eq '-' ){
+                        ## dummy
+                }elsif( ! -f "$myparam" ){
+                    warn( qq{$main::appname: "$myparam": file not found.\n} );
+                    &usage( 1 );
+                    exit( 1 );
+                }elsif( ! -r "$myparam" && ! -l "$myparam" ){
+                    warn( qq{$main::appname: "$myparam": permission denied.\n} );
+                    &usage( 1 );
+                    exit( 1 );
+                }
+                push( @main::fi_in, $myparam );
+            }
+        }
+        print STDERR ( qq{ARGV : "$myparam"\n} ) if( $main::debug );
+    }
+
+    if( ! defined( $main::re ) ){
+        warn( "$main::appname: Please specify the Regular Expressions.\n");
+        &usage( 1 );
+        exit( 1 );
+    }
+
+    if( $#main::fi_in < 0 ){
+        #&usage( 1 );
+        #exit( 1 );
+        push( @main::fi_in, '-' );
+    }elsif( $#main::fi_in > 0 ){
+        $main::prt_fname = 1 if( ! $main::opt_nofname );
+    }
+}
+
+##########
+## 書式表示
+sub usage( $ )
+{
+    my $msg = "Usage: " .
+        qq{$main::appname [<OPTIONS...>] <PATTERN> [<FILE...>]\n} .
+        qq{\n} .
+        qq{<PATTERN>: The PATTERN can be described by the Regular-Expression equal with Perl.\n} .
+        qq{\n} .
+        qq{<FILE>: specifies the input file name. If it is a standard input, "-" is given.\n} .
+        qq{\n} .
+        qq{<OPTIONS>\n} .
+        qq{  -f [num-forward[,num-rear]]:\n} .
+        qq{    It works like a filter program. If you omit the value,\n} .
+        qq{    the default is to display 5 lines before and after.\n} .
+        qq{    If you specify 0 for <num>, only lines that match <PATTERN> will be displayed.\n} .
+        qq{    If you specify 0, grep is more convenient.\n} .
+        qq{  -h, --no-filename:\n} .
+        qq{    Suppress the prefixing of filenames on output when multiple files are searched.\n} .
+        qq{  -H, --with-filename:\n} .
+        qq{    Print the filename for each match.\n} .
+        qq{  -i, --ignore-case:\n} .
+        qq{    Ignore case distinctions in the <PATTERN>.\n} .
+        qq{  -n, --line-number:\n} .
+        qq{    Prefix each line of output with the line number within its input file.\n} .
+        qq{  -c, --force-color:\n} .
+        qq{    Enable highlighting even if STDOUT is not a TTY (pipe, redirect).\n} .
+        qq{  --help: Display this help and exit\n} .
+        qq{\n} .
+        qq{Try "perldoc $main::apppath/$main::appname" for more information.\n};
+
+    if( $_[0] ){
+        print STDERR ( $msg );
+    }else{
+        print STDOUT ( $msg );
+    }
+
+    return 0;
+}
+__END__
+
+=pod
+
+=head1 NAME
+
+MARK - emphasizes part matching a pattern
+
+=head1 SYNOPSIS
+
+$ mark [I<OPTIONS...>] I<PATTERN> [I<FILE...>]
+
+=head1 DESCRIPTION
+
+The "B<mark>" behaves like the marker pen.
+The specified I<PATTERN> is searched out and that part is emphasized.
+
+The I<PATTERN> can be described by the Regular-Expression equal with B<Perl>.
+
+I<FILE>s specifies the input file name.
+If it is a standard input, "B<->" is given.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -d, --debug
+
+Debugging mode is on.
+
+=item -f [I<num-forward>[,I<num-rear>]]
+
+It behaves like the filter program.
+The back and forth 5 lines are displayed in default.
+
+=item --help
+
+Display simple help and exit
+
+=item -h, --no-filename
+
+Suppress the prefixing of filenames on output when multiple files are searched.
+
+=item -H, --with-filename
+
+Print the filename for each match.
+
+=item -i, --ignore-case
+
+Ignore case distinctions in the I<PATTERN>.
+
+=item -n, --line-number
+
+Prefix each line of output with the line number within its input file.
+
+=item -c, --force-color
+
+Enable highlighting even if STDOUT is not a TTY (pipe, redirect).
+
+=back
+
+=head1 ADVANCED USAGE
+
+$ rpm -qa | mark '-[0-9]+[a-z]?\..+$'
+
+$ mark '\b\d{1,3}(?:\.\d{1,3}){3}\b' /var/log/maillog
+
+$ mark -nf 5,0 '(ServerName|DocumentRoot|Log)\s+.*$' /etc/httpd/conf/httpd.conf
+
+$ mark -iHnf 0,10 '^[^\s].*$' *.{c,h}
+
+$ mark -ni '</?(table|tr|th|td)[^>]*>' index.html | S<less -R>
+
+$ man perlfunc | mark -nf 5,10 -i 'regular expr' | S<less -R>
+
+$ man awk | perl -ne 's/.\010//go; print' | S<mark -nf 0,3 '^[A-Z]'>
+
+$ tail -f /var/log/httpd/access_log | S<mark -f 0 '"(GET|POST) /(?:\S+(?:\.html|\.htm|/))? [^"]+"'>
+
+$ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
+
+=head1 SEE ALSO
+
+When you want to examine the regular expression,
+please refer to an online manual of B<Perl>.
+
+=over 4
+
+=item L<perlre>(1)
+
+Perl regular expressions
+
+=item L<perlrequick>(1)
+
+Perl regular expressions quick start
+
+=item L<perlreref>(1)
+
+Perl Regular Expressions Reference
+
+=item L<perlretut>(1)
+
+Perl regular expressions tutorial
+
+=item L<perlfaq6>(1)
+
+Regular Expressions
+
+=item regex(7)
+
+POSIX 1003.2 regular expressions
+
+=back
+
+Other more basic references
+
+L<perl>(1), grep(1)
+
+=head1 AUTHOR
+
+2006-2025, tomyama
+
+=head1 LICENSE
+
+Copyright (c) 2006-2025, tomyama
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of tomyama nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut

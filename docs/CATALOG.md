@@ -16,7 +16,27 @@ BSD 2-Clause License:
 Copyright (c) 2025, tomyama
 All rights reserved.
 
+![Image of the fill command execution](img/fill.jpg)
+
 For details, please refer to [fill.md](fill.md).
+
+### mark
+
+emphasizes part matching a pattern
+
+- It behaves like the filter program.
+- The back and forth 5 lines are displayed in default.
+
+- Author: 2006-2025, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2006-2025, tomyama
+All rights reserved.
+
+![Image of the mark command execution](img/mark.jpg)
+
+For details, please refer to [mark.md](mark.md).
 
 ### hello.pl
 
@@ -47,6 +67,24 @@ For details, please refer to [hello.sh.md](hello.sh.md).
 * * *
 
 ## The script that manages this directory
+
+### tools/build_script.sh
+
+A script that describes the build steps
+
+- A script describing the build steps in an environment
+  that uses 'autotools' and 'custom scripts that generate autotools input files.'
+
+- $Revision: 1.2 $
+
+- Author: 2025, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2025, tomyama
+All rights reserved.
+
+For details, please refer to [build_script.sh.md](build_script.sh.md).
 
 ### tools/gen_autotools_acam.pl
 
@@ -111,5 +149,6 @@ All rights reserved.
 
 For details, please refer to [create_CATALOG.sh.md](create_CATALOG.sh.md).
 
+
 * * *
-[README.md](../README.md)
+- See '[README.md](../README.md)' for installation instructions.

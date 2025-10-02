@@ -93,6 +93,10 @@ sh_main()
             }
             ' >>"$targfile.new"
 
+        if [ -f "$targdir/img/$depend_base.jpg" ]; then
+            echo -e '\n!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targfile.new"
+        fi
+
         echo -e "\nFor details, please refer to [$depend_base.md]($depend_base.md).\n" >>"$targfile.new"
 
         sh_isUpdateNecessary "$dependent_file" "$targdir/$depend_base.md"
@@ -111,6 +115,12 @@ sh_main()
 
         if [ $update_flag -ne 0 ]; then
             sh_getMdHeader >"$targdir/$depend_base.md"
+
+            if [ -f "$targdir/img/$depend_base.jpg" ]; then
+                echo -e '\n!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targdir/$depend_base.md"
+            fi
+
+            echo -e "\n* * *" >>"$targdir/$depend_base.md"
 
             filecmd_out="`file \"$dependent_file\"`"
             echo "$filecmd_out" | grep -i 'perl' 1>/dev/null
@@ -139,11 +149,16 @@ sh_main()
                 ' >>"$targdir/$depend_base.md"
             fi
 
+            echo -e "\n* * *" >>"$targdir/$depend_base.md"
+            echo -e "- See '[README.md](../README.md)' for installation instructions." >>"$targdir/$depend_base.md"
+            echo -e "- See '[CATALOG.md](CATALOG.md)' for a list and overview of the scripts." >>"$targdir/$depend_base.md"
+
             sh_showMarkdownDoc "$targdir/$depend_base.md"
         fi
     done
 
-    echo -e "* * *\n[README.md](../README.md)" >>"$targfile.new"
+    echo -e "\n* * *" >>"$targfile.new"
+    echo -e "- See '[README.md](../README.md)' for installation instructions." >>"$targfile.new"
 
     if [ -f "$targfile" ]; then
         diff "$targfile" "$targfile.new" >/dev/null

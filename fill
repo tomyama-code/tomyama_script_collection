@@ -458,7 +458,7 @@ sub usage( $ )
         qq{-w [<wait_sec>]\n} .
         qq{         : Wait <wait_sec> seconds before outputting a line.\n} .
         qq{         : If <wait_sec> is not specified, the value is 1.\n} .
-        qq{-h, --help: display this help and exit\n} .
+        qq{-h, --help: Display this help and exit\n} .
         qq{\n} .
         qq{* simple\n} .
         qq{  \$ fill 0001:1\n} .
@@ -567,7 +567,7 @@ Enable debug output.
 
 =item -h, --help
 
-Display this help message.
+Display simple help and exit
 
 =item -I<N>
 

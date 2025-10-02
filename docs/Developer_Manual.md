@@ -46,7 +46,7 @@
 ## ステップごとの手順
 
 ### Step 0: リポジトリを clone した状態
-![step 0](devel_step_0.svg)
+![( Step.0 )のファイルの状態図](img/devel_step_0.svg)
 
 ---
 
@@ -69,7 +69,7 @@ configure.ac, Makefile.am は 直接編集禁止です。
 - [gen_autotools_acam.pl](gen_autotools_acam.pl.md)
 - [GenAutotoolsAcAm_UserFile.pm](GenAutotoolsAcAm_UserFile.pm.md)
 
-![step 0-1](devel_step_0_1.svg)
+![( Step.0-1 )のファイルの状態図](img/devel_step_0_1.svg)
 
 ---
 
@@ -87,7 +87,7 @@ aclocal を実行して aclocal.m4 を生成する。
 aclocal
 ```
 
-![step 1-1](devel_step_1_1.svg)
+![( Step.1-1 )のファイルの状態図](img/devel_step_1_1.svg)
 
 ---
 
@@ -100,7 +100,7 @@ autoconf を実行して configure を生成する。
 autoconf
 ```
 
-![step 1-2](devel_step_1_2.svg)
+![( Step.1-2 )のファイルの状態図](img/devel_step_1_2.svg)
 
 ---
 
@@ -114,7 +114,7 @@ automake --add-missing --copy を実行し、Makefile.in を生成する。
 automake --add-missing --copy
 ```
 
-![step 1-3](devel_step_1_3.svg)
+![( Step.1-3 )のファイルの状態図](img/devel_step_1_3.svg)
 
 ---
 
@@ -127,7 +127,7 @@ automake --add-missing --copy
 ./configure
 ```
 
-![step 1-4](devel_step_1_4.svg)
+![( Step.1-4 )のファイルの状態図](img/devel_step_1_4.svg)
 
 ---
 
@@ -145,6 +145,9 @@ automake --add-missing --copy
 make dist
 ```
 
+配布用 tarballの作成と同時に、docs配下のドキュメント（Markdown形式）、DOTファイルを画像（SVG形式）に変換する処理も走ります。
+図やドキュメントを更新する場合も、`make dist` をご利用ください。
+
 ---
 
 
@@ -159,13 +162,6 @@ make dist
 
 ## 今後の拡張
 
-- 図の自動更新について  
-  現状では、Graphviz の変換処理を Makefile に統合していません。  
-  これは、利用者が `make install` しかしない場合に不要な処理であり、  
-  また `dot` コマンドが環境にないとエラーになるリスクを避けるためです。  
-  （例：`dot` ファイルのタイムスタンプが更新されたことで、意図せず再生成が走るケースなど）
-  開発者は必要に応じて `make dist` を実行して図を更新します。
-  
 - 英語版マニュアル（必要に応じて）
 
 * * *
