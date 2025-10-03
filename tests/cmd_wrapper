@@ -6,8 +6,13 @@ use File::Basename ;
 
 my @args = @ARGV;
 
+if( ! defined( $ENV{ 'TEST_TARGET_CMD' } ) ){
+    print STDERR ( qq{$0: error: \$ENV{ 'TEST_TARGET_CMD' } = undef\n} );
+    exit( 1 );
+}
+
 my $apppath = dirname( $0 );
-my $targcmd = "$apppath/../fill";
+my $targcmd = "$apppath/../$ENV{ 'TEST_TARGET_CMD' }";
 
 my $exit_status = -1;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){

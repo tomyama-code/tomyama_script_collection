@@ -3,7 +3,7 @@
 * * *
 # NAME
 
-build_script.sh - manual page for build_script.sh 1.2)
+build_script.sh - manual page for build_script.sh 1.3)
 
 # DESCRIPTION
 
@@ -12,7 +12,8 @@ build_script.sh -- A script that describes the build steps
 A  script  describing the build steps in an environment that uses ’autotools’ and ’custom scripts that
 generate autotools input files.’
 
-(Revision: 1.2)                                  October 2025                              BUILD_SCRIPT.SH(1)
+(Revision: 1.3)                                  October 2025                              BUILD_SCRIPT.SH(1)
 
 * * *
-[CATALOG.md](CATALOG.md)
+- See '[README.md](../README.md)' for installation instructions.
+- See '[CATALOG.md](CATALOG.md)' for a list and overview of the scripts.

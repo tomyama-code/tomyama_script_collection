@@ -3,9 +3,9 @@
 ## build_script.sh -- A script that describes the build steps
 ##
 ## - A script describing the build steps in an environment
-##   that uses 'autotools' and 'custom scripts that generate autotools input files.'
+##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.

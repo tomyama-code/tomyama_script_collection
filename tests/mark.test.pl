@@ -42,24 +42,9 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 }
 
 my $apppath = dirname( $0 );
-my $MARKCMD = "$apppath/mark_wrapper.pl";
+$ENV{ 'TEST_TARGET_CMD' } = 'mark';
+my $MARKCMD = "$apppath/cmd_wrapper";
 my $cmd;
-
-subtest qq{argument} => sub{
-    $cmd = Test::Command->new( cmd => "$MARKCMD mark $apppath/../mark" );
-    $cmd->exit_is_num( 0, "normal termination" );
-    $cmd->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
-    $cmd->stdout_like( qr/=cut$/, qq{Display to the end} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => "$MARKCMD '^#!/usr' $apppath/../mark" );
-    $cmd->exit_is_num( 0, "normal termination" );
-    $cmd->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
-    $cmd->stdout_like( qr/=cut$/, qq{Display to the end} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-};
 
 subtest qq{"Usage" test} => sub{
     $cmd = Test::Command->new( cmd => "$MARKCMD" );
@@ -83,83 +68,443 @@ subtest qq{"Usage" test} => sub{
     undef( $cmd );
 };
 
-#subtest qq{debug mode} => sub{
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -d -1 123" );
-#    $cmd->exit_is_num( 0, "exit status is 0" );
-#    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-#    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD --debug -1 123" );
-#    $cmd->exit_is_num( 0, "exit status is 0" );
-#    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-#    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -dh -1 123" );
-#    $cmd->exit_is_num( 0, "exit status is 0" );
-#    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-#    $cmd->stdout_like( qr/usage: fill /, "usage output" );
-#    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-#    undef( $cmd );
-#
-#    ## テストは通せるがキャプチャできないのでSTDOUTの評価ができない。その為やる意味が無い。
-#    $cmd = Test::Command->new( cmd => "$MARKCMD --test-force-tty -2 a- 1:1 -b " );
-#    $cmd->exit_is_num( 0, "exit status is 0" );
-#    $cmd->stdout_is_eq( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
-#    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-#    undef( $cmd );
-#};
-#
-#subtest qq{"-f" option switch} => sub{
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -3 10:2" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "10\n12\n14\n", qq{"-N" option switch} );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -9 1:1" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n", "Single digit counter" );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -10 1:1" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "double-digit counter" );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -10d3 1:1" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_like( qr/1\n2\n3\n$/, "Use the last specified value." );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "$MARKCMD -0 -" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "", qq{"-0" is also allowed} );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "echo 123 | $MARKCMD -2 -" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
-#    $cmd->stderr_like( qr/^fill: STDIN=1, specified_cycle=2: /, "Show warning" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "echo 123 | $MARKCMD -1 -" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#
-#    $cmd = Test::Command->new( cmd => "echo 123 | $MARKCMD -0 -" );
-#    $cmd->exit_is_num( 0, "Always terminates normally." );
-#    $cmd->stdout_is_eq( "", "stdout is silent" );
-#    $cmd->stderr_is_eq( "", "stderr is silent" );
-#    undef( $cmd );
-#};
+subtest qq{<FILE>} => sub{
+    $cmd = Test::Command->new( cmd => "$MARKCMD mark $apppath/../mark" );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+    $cmd->stdout_like( qr/=cut$/, qq{Display to the end} );
+    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => "$MARKCMD '^#!/usr' $apppath/../mark" );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+    $cmd->stdout_like( qr/=cut$/, qq{Display to the end} );
+    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark -} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_is_eq( "123\n", qq{Only "123"} );
+    $cmd->stderr_like( qr/\n\@main::fi_in = 1\n/, qq{The number of input files is correct} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark} );
+    $cmd->exit_is_num( 0, qq{Omit the hyphen(-).} );
+    $cmd->stdout_is_eq( "123\n", qq{Only "123"} );
+    $cmd->stderr_like( qr/\n\@main::fi_in = 1\n/, qq{The number of input files is correct} );
+    $cmd->stderr_like( qr/\n\$main::fi_in\[ 0 \] = "-"\n/, qq{Hyphens(-) must be completed.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark - -} );
+    $cmd->exit_isnt_num( 0, "Returning an error" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/mark: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark - $MARKCMD -} );
+    $cmd->exit_isnt_num( 0, "Returning an error" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/mark: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD c $apppath/../mark $apppath/../mark} );
+    $cmd->exit_is_num( 0, "Allows duplicates of existing files." );
+    $cmd->stdout_like( qr/#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+    $cmd->stdout_like( qr/=cut$/, qq{Display to the end} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD c $apppath/../mark -} );
+    $cmd->exit_is_num( 0, "Allows duplicates of existing files." );
+    $cmd->stdout_like( qr/#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+    $cmd->stdout_like( qr/:123$/, qq{Display to the end} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD c NON-EXISTENT-FILE} );
+    $cmd->exit_isnt_num( 0, "Non-existent files" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/mark: "NON-EXISTENT-FILE": file not found.\n/, qq{Correct error message.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD c /etc/ssh_host_dsa_key} );
+    $cmd->exit_isnt_num( 0, "Files without read permission" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/mark: "\/etc\/ssh_host_dsa_key": permission denied.\n/, qq{Correct error message.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD c A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES} );
+    $cmd->exit_isnt_num( 0, "abnormal end" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/mark: "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES": could not open file: /, qq{Correct error message.} );
+    undef( $cmd );
+};
+
+subtest qq{'-d', '--debug' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -d '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
+    $cmd->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --debug '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
+    $cmd->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
+    undef( $cmd );
+
+};
+
+subtest qq{'-f' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\njklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\ntuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrs$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_isnt_num( 0, "Incorrect parameter specification." );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/\nmark: You have specified "-0,1," for <PATTERN>.\n/, qq{The right warning.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, qq{Do not display redundant "skip" messages.} );
+    $cmd->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f} );
+    $cmd->exit_isnt_num( 0, "An error occurs" );
+    $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
+    $cmd->stderr_like( qr/^mark: Please specify the Regular Expressions.\n/, qq{Prompt for corrective action.} );
+    undef( $cmd );
+
+};
+
+subtest qq{'-h', '--no-filename' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0h '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 --no-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --no-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+};
+
+subtest qq{'-H', '--with-filename' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -Hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 --with-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --with-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f1H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+    $cmd->stdout_like( qr/:nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklm\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+};
+
+subtest qq{'-i', '--ignore-case' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_is_eq( qq{}, qq{No lines match.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0i '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -if0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 --ignore-case '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --ignore-case -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --ignore-case --force-color -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+};
+
+subtest qq{'-n', '--line-number' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/25/, qq{Line numbers are not displayed.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 -n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -n -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 --line-number '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --line-number -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f1n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/24:nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklm\n/, qq{Display from the correct point} );
+    $cmd->stdout_like( qr/26:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno$/, qq{Display to the correct point} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+};
+
+subtest qq{'-c', '--force-color' option switch} => sub{
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_unlike( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n/, qq{Not highlighted.} );
+    $cmd->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Not highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 -c '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -c -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 --force-color '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --force-color -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 --test-force-tty '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+    $cmd->exit_is_num( 0, "normal termination" );
+    $cmd->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+    $cmd->stderr_is_eq( qq{}, qq{stderr is silent} );
+    undef( $cmd );
+
+};
 
 done_testing;
 

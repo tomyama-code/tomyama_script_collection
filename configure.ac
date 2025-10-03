@@ -1,6 +1,6 @@
 AC_PREREQ([2.72])
 
-AC_INIT([tomyama_script_collection], [0.2.1], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.2], [tomyama_code@yahoo.co.jp])
 
 AM_INIT_AUTOMAKE([foreign])
 

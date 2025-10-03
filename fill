@@ -2,6 +2,8 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
+## - $Revision: 1.1 $
+##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##

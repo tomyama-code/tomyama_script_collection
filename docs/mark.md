@@ -18,7 +18,7 @@ The specified _PATTERN_ is searched out and that part is emphasized.
 
 The _PATTERN_ can be described by the Regular-Expression equal with **Perl**.
 
-_FILE_s specifies the input file name.
+_FILE_ specifies the input file name.
 If it is a standard input, "**-**" is given.
 
 # OPTIONS
@@ -29,12 +29,14 @@ If it is a standard input, "**-**" is given.
 
 - -f \[_num-forward_\[,_num-rear_\]\]
 
-    It behaves like the filter program.
-    The back and forth 5 lines are displayed in default.
+    It works like a filter program. If you omit the value,
+    the default is to display 5 lines before and after.
+    If you specify 0 for _num_, only lines that match _PATTERN_ will be displayed.
+    If you specify 0, grep is more convenient.
 
 - --help
 
-    Display simple help and exit
+    Display simple help and exit.
 
 - -h, --no-filename
 

@@ -42,7 +42,8 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 }
 
 my $apppath = dirname( $0 );
-my $FILLCMD = "$apppath/fill_wrapper.pl";
+$ENV{ 'TEST_TARGET_CMD' } = 'fill';
+my $FILLCMD = "$apppath/cmd_wrapper";
 my $cmd;
 
 subtest qq{debug mode} => sub{

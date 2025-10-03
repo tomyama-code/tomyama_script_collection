@@ -28,7 +28,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 AC_PREREQ([2.72])
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.1], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.2], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -52,7 +52,7 @@ dist_bin_SCRIPTS = $MY_SCRIPTS$
 # make dist したときに tarball に含める追加ファイル
 # automakeが自動的に見つけるファイルは書かない方針
 # （該当ファイルは automake --help でリストを確認できる）
-EXTRA_DIST = LICENSE docs/CATALOG.md docs/Developer_Manual.md $MY_DOTS$ $MY_IMGS$ docs/img/*.jpg $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$ tests/prt
+EXTRA_DIST = LICENSE docs/CATALOG.md docs/Developer_Manual.md $MY_DOTS$ $MY_IMGS$ docs/img/*.jpg $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$ tests/prt tests/cmd_wrapper tests/testdata_uniq_line.txt
 
 SUBDIRS = $SUBDIRS$
 

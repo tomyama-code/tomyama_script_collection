@@ -9,6 +9,8 @@
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
+- $Revision: 1.1 $
+
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
@@ -26,6 +28,8 @@ emphasizes part matching a pattern
 
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
+
+- $Revision: 1.1 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -73,9 +77,9 @@ For details, please refer to [hello.sh.md](hello.sh.md).
 A script that describes the build steps
 
 - A script describing the build steps in an environment
-  that uses 'autotools' and 'custom scripts that generate autotools input files.'
+  that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.2 $
+- $Revision: 1.3 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
