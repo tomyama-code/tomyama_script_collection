@@ -24,6 +24,9 @@ sh_main()
         echo ""
         echo "A script describing the build steps in an environment"
         echo "that uses 'autotools' and 'custom scripts that generate autotools input files.'"
+        echo ""
+        echo "See Also"
+        echo "- docs/Developer_Manual.md"
         exit 0
     elif [ "$1" = '-v' -o "$1" = '--version' ]; then
         echo "$appname - ($version)"
@@ -32,7 +35,10 @@ sh_main()
 
     configure_opts=''
     if [ "$TERMUX_VERSION" != '' ]; then
-        configure_opts="--bindir=/data/data/com.termux/files/usr/local/bin"
+        ## Note:
+        ##   SHELL   : Avoid using "dash".
+        ##   --bindir: Termux has a unique directory structure.
+        configure_opts="SHELL=/data/data/com.termux/files/usr/bin/bash --bindir=/data/data/com.termux/files/usr/local/bin"
     fi
 
     force_update=0

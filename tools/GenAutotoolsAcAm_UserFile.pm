@@ -19,16 +19,21 @@ use File::Basename;
 
 my %ACAM_KYVL;
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'fill mark hello.pl hello.sh';
-$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh';
+$ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
+                            ' tools/gen_autotools_acam.pl' .
+                            ' tools/GenAutotoolsAcAm_UserFile.pm' .
+                            ' tools/create_CATALOG.sh';
 $ACAM_KYVL{ '$MY_IMG_FORMAT$' } = 'svg';
 
 my %ACAM_TMPL;
 
 $ACAM_TMPL{ 'configure.ac' } = q{dnl #
-AC_PREREQ([2.72])
+#AC_PREREQ([2.72])	## Cygwin
+#AC_PREREQ([2.69])	## CentOS Stream 9
+AC_PREREQ([2.69])
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.2], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.3], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -52,18 +57,34 @@ dist_bin_SCRIPTS = $MY_SCRIPTS$
 # make dist したときに tarball に含める追加ファイル
 # automakeが自動的に見つけるファイルは書かない方針
 # （該当ファイルは automake --help でリストを確認できる）
-EXTRA_DIST = LICENSE docs/CATALOG.md docs/Developer_Manual.md $MY_DOTS$ $MY_IMGS$ docs/img/*.jpg $MY_DOCS$ $MY_TL_DOCS$ $MY_TOOLS$ tests/prt tests/cmd_wrapper tests/testdata_uniq_line.txt
+EXTRA_DIST = LICENSE \
+  docs/CATALOG.md \
+  docs/Developer_Manual.md \
+  $MY_DOTS$ \
+  $MY_IMGS$ \
+  docs/img/*.jpg \
+  $MY_DOCS$ \
+  $MY_TL_DOCS$ \
+  $MY_TOOLS$ \
+  tests/prt \
+  tests/cmd_wrapper \
+  tests/testdata_uniq_line.txt
 
 SUBDIRS = $SUBDIRS$
 
 docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
 
+docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$ tools/create_CATALOG.sh
+
 .PHONY: catalog
 catalog: docs/CATALOG.md ;
 
 docs/img/%.$MY_IMG_FORMAT$: docs/img/%.dot
 	dot -Kdot -T$MY_IMG_FORMAT$ $< -o $@
+
+docs/img/%.png: docs/img/%.dot
+	dot -Kdot -Tpng $< -o $@
 
 docs/%.md: catalog ;
 

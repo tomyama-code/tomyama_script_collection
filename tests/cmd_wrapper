@@ -1,4 +1,38 @@
 #!/usr/bin/perl -w
+################################################################################
+## cmd_wrapper -- Record coverage rate with "Devel::Cover".
+##
+## - Environment variables set by the caller
+##
+##   - $ENV{ 'TEST_TARGET_CMD' }
+##     - This setting is required. It specifies which command it should behave as.
+##
+##         ex.)
+##         [perl]
+##         $ENV{ 'TEST_TARGET_CMD' } = 'fill';
+##         my $exit_status = system( './cmd_wrapper', '1:1' );
+##         [sh]
+##         TEST_TARGET_CMD='fill'; export TEST_TARGET_CMD
+##         ./cmd_wrapper '1:1'
+##         exit_status=$?
+##
+##   - $ENV{ 'WITH_PERL_COVERAGE' }
+##     - When measuring coverage, cmd_wrapper will be called with this environment variable set.
+##     - If defined, calls $ENV{ 'TEST_TARGET_CMD' } via "Devel::Cover".
+##       - The "cover" command is also required to summarize the measurement results.
+##       - The measurement results are saved in the "cover_db" directory.
+##       - See the "Devel::Cover" documentation for details.
+##     - If undefined, it will simply call $ENV{ 'TEST_TARGET_CMD' }.
+##
+## - $Revision: 1.1 $
+##
+## - Author: 2025, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2025, tomyama
+## All rights reserved.
+################################################################################
 
 use strict;
 use warnings 'all';
@@ -24,5 +58,5 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 }else{
     $exit_status = system( "$targcmd", @args );
 }
-# ./fill の exit code をそのまま返す
+# $targcmd の exit code をそのまま返す
 exit( $exit_status >> 8 );

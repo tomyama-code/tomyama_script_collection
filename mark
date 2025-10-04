@@ -38,6 +38,15 @@ sub pl_main()
     }
 
     my $file_num = scalar( @main::fi_in );
+    my $file_name_len_max = 0;
+    my $num_char_disp_area = 8;
+    if( $main::prt_fname ){
+        for( my $file_idx=0; $file_idx<$file_num; $file_idx++ ){
+            my $cur_len = length( $main::fi_in[ $file_idx ] );
+            $file_name_len_max = ( $cur_len > $file_name_len_max ? $cur_len : $file_name_len_max );
+        }
+        $num_char_disp_area = ( ( ( int( $file_name_len_max / 8 ) ) + 1 ) * 8 ) - 1;
+    }
     for( my $file_idx=0; $file_idx<$file_num; $file_idx++ ){
         my $opn_fname = $main::fi_in[ $file_idx ];
 
@@ -46,12 +55,8 @@ sub pl_main()
         }
 
         open( FI_IN, "<$opn_fname" ) ||
-            die( qq{$main::appname: "$opn_fname": could not open file: $!\n} );
+            die( qq{$main::appname: error: "$opn_fname": could not open file: $!\n} );
         my $nr = 0;
-        my $num = 8;
-        if( $main::prt_fname ){
-            $num = ( ( ( int( length( $opn_fname ) / 8 ) ) + 1 ) * 8 ) - 1;
-        }
         while( <FI_IN> ){
             $nr++;
             my $mybuff = $_;
@@ -118,7 +123,7 @@ sub pl_main()
                 for( my $pre_buffer_idx=0; $pre_buffer_idx<$pre_buffer_size; $pre_buffer_idx++ ){
                     ## 必要に応じてファイル名を出力
                     if( $main::prt_fname ){
-                        printf( "%-${num}s:", $opn_fname );
+                        printf( "%-${num_char_disp_area}s:", $opn_fname );
                     }
                     ## 必要に応じて行番号を出力
                     if( $main::numbering ){
@@ -135,11 +140,13 @@ sub pl_main()
 
             PRINTOUT:
             ## 必要に応じてファイル名を出力
-            printf( "%-${num}s:", $opn_fname ) if( $main::prt_fname );
-
+            if( $main::prt_fname ){
+                printf( "%-${num_char_disp_area}s:", $opn_fname );
+            }
             ## 必要に応じて行番号を出力
-            printf( "%7d:", $nr ) if( $main::numbering );
-
+            if( $main::numbering ){
+                printf( "%7d:", $nr );
+            }
             ## 出力する
             print( "$mybuff\n" );
         }
@@ -213,7 +220,7 @@ sub parse_arg()
             if( $myparam eq '-f' ){
                 if( $remainparam =~ s/^-(\d+(?:,\d+)?)([dfhHinc]*)$/-$2/o ){
                     if( $remainparam ne '-' ){
-                        unshift( @val, "-$2" );
+                        unshift( @val, $remainparam );
                     }
                     unshift( @val, "$1" );
                 }else{
@@ -260,25 +267,27 @@ sub parse_arg()
             $main::bForceColor = 1;
         }else{
             if( ! defined( $main::re ) ){
-                    $main::re = $myparam;
+                $main::re = $myparam;
             }else{
                 if( "$myparam" eq '-' ){
                     my $fi_in_max = scalar( @main::fi_in );
                     for( my $idx=0; $idx<$fi_in_max; $idx++ ){
                         if( $main::fi_in[ $idx ] eq '-' ){
-                            warn( qq{$main::appname: "STDIN(-)" cannot be specified more than once.\n} );
+                            &myerr( qq{"STDIN(-)" cannot be specified more than once.\n} );
                             exit( 1 );
                         }
                     }
-                }elsif( ! -f "$myparam" ){
+                }elsif( ( ! -f "$myparam" ) &&
+                    ( "$myparam" ne 'A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES' ) ){
                     if( "$myparam" ne 'A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES' ){
-                        warn( qq{$main::appname: "$myparam": file not found.\n} );
-                        warn( qq{$main::appname: You have specified "$main::re" for <PATTERN>.\n} );
+                        &myerr( qq{"$myparam": file not found.\n} );
+                        &myerr( qq{You have specified "$main::re" for <PATTERN>.\n} );
+                        &myerr( qq{So I think of "$myparam" as a <FILE> designation.\n} );
                         &usage( 1 );
                         exit( 1 );
                     }
                 }elsif( ! -r "$myparam" ){
-                    warn( qq{$main::appname: "$myparam": permission denied.\n} );
+                    &myerr( qq{"$myparam": permission denied.\n} );
                     &usage( 1 );
                     exit( 1 );
                 }
@@ -291,7 +300,7 @@ sub parse_arg()
     }
 
     if( ! defined( $main::re ) ){
-        warn( "$main::appname: Please specify the Regular Expressions.\n");
+        &myerr( qq{Please specify the Regular Expressions.\n} );
         &usage( 1 );
         exit( 1 );
     }
@@ -304,6 +313,16 @@ sub parse_arg()
             $main::prt_fname = 1;
         }
     }
+}
+
+sub mywarn()
+{
+    warn( qq{$main::appname: warn: }, @_ );
+}
+
+sub myerr()
+{
+    warn( qq{$main::appname: error: }, @_ );
 }
 
 ##########

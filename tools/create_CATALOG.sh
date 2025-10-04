@@ -103,8 +103,14 @@ sh_main()
         ret=$?
         update_flag=0
         if [ $ret -eq 0 ]; then
-            echo "[$targdir/$depend_base.md] Already updated."
-            update_flag=0
+            sh_isUpdateNecessary "$apppath/$appname" "$targdir/$depend_base.md"
+            if [ $? -ne 0 ]; then
+                echo "[$targdir/$depend_base.md] \"$appname\" has been updated."
+                update_flag=1
+            else
+                echo "[$targdir/$depend_base.md] Already updated."
+                update_flag=0
+            fi
         elif [ $ret -eq 1 ]; then
             echo "[$targdir/$depend_base.md] Update required."
             update_flag=1

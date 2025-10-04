@@ -12,6 +12,8 @@ build_script.sh -- A script that describes the build steps
 A  script  describing the build steps in an environment that uses ’autotools’ and ’custom scripts that
 generate autotools input files.’
 
+See Also - docs/Developer_Manual.md
+
 (Revision: 1.3)                                  October 2025                              BUILD_SCRIPT.SH(1)
 
 * * *

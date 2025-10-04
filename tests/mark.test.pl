@@ -10,7 +10,7 @@ BEGIN {
   ## https://perldoc.jp/docs/modules/Test-Simple-0.96/lib/Test/More.pod
   eval{use Test::More};     # subtest(), done_testing()
   if( $@ ){
-    print STDERR ( qq{Test::More: not found\n} );
+    print STDERR ( qq{$0: warn: "Test::More": module not found\n} );
     exit( MODULE_NOT_FOUND_STATUS );
   }
 }
@@ -19,7 +19,7 @@ BEGIN {
   ## https://metacpan.org/pod/Test::Command
   eval{use Test::Command};
   if( $@ ){
-    print STDERR ( qq{Test::Command: not found\n} );
+    print STDERR ( qq{$0: warn: "Test::Command": module not found\n} );
     exit( MODULE_NOT_FOUND_STATUS );
   }
 }
@@ -31,7 +31,7 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     my $bUnavailableCover = $?;
     #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
     if( $bUnavailableCover ){
-        print STDERR ( qq{$0: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
+        print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
         delete( $ENV{WITH_PERL_COVERAGE} );
     }
 }
@@ -50,7 +50,7 @@ subtest qq{"Usage" test} => sub{
     $cmd = Test::Command->new( cmd => "$MARKCMD" );
     $cmd->exit_isnt_num( 0, "Returning an error" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: Please specify the Regular Expressions./, qq{Usage explanation} );
+    $cmd->stderr_like( qr/mark: error: Please specify the Regular Expressions./, qq{Usage explanation} );
     $cmd->stderr_like( qr/\nUsage: mark /, qq{Usage explanation} );
     undef( $cmd );
 
@@ -99,13 +99,13 @@ subtest qq{<FILE>} => sub{
     $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark - -} );
     $cmd->exit_isnt_num( 0, "Returning an error" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
+    $cmd->stderr_like( qr/mark: error: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{echo "123" | $MARKCMD -d mark - $MARKCMD -} );
     $cmd->exit_isnt_num( 0, "Returning an error" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
+    $cmd->stderr_like( qr/mark: error: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$MARKCMD c $apppath/../mark $apppath/../mark} );
@@ -125,19 +125,19 @@ subtest qq{<FILE>} => sub{
     $cmd = Test::Command->new( cmd => qq{$MARKCMD c NON-EXISTENT-FILE} );
     $cmd->exit_isnt_num( 0, "Non-existent files" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: "NON-EXISTENT-FILE": file not found.\n/, qq{Correct error message.} );
+    $cmd->stderr_like( qr/mark: error: "NON-EXISTENT-FILE": file not found.\n/, qq{Correct error message.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$MARKCMD c /etc/ssh_host_dsa_key} );
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD c A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES} );
     $cmd->exit_isnt_num( 0, "Files without read permission" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: "\/etc\/ssh_host_dsa_key": permission denied.\n/, qq{Correct error message.} );
+    $cmd->stderr_like( qr/mark: error: "A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES": permission denied.\n/, qq{Correct error message.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$MARKCMD c A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES} );
     $cmd->exit_isnt_num( 0, "abnormal end" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/mark: "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES": could not open file: /, qq{Correct error message.} );
+    $cmd->stderr_like( qr/mark: error: "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES": could not open file: /, qq{Correct error message.} );
     undef( $cmd );
 };
 
@@ -281,7 +281,7 @@ subtest qq{'-f' option switch} => sub{
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_isnt_num( 0, "Incorrect parameter specification." );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/\nmark: You have specified "-0,1," for <PATTERN>.\n/, qq{The right warning.} );
+    $cmd->stderr_like( qr/\nmark: error: You have specified "-0,1," for <PATTERN>.\n/, qq{The right warning.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk' $apppath/testdata_uniq_line.txt} );
@@ -294,7 +294,7 @@ subtest qq{'-f' option switch} => sub{
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f} );
     $cmd->exit_isnt_num( 0, "An error occurs" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
-    $cmd->stderr_like( qr/^mark: Please specify the Regular Expressions.\n/, qq{Prompt for corrective action.} );
+    $cmd->stderr_like( qr/^mark: error: Please specify the Regular Expressions.\n/, qq{Prompt for corrective action.} );
     undef( $cmd );
 
 };

@@ -4,7 +4,7 @@
 ### Changed
 - xxx
 
-## [0.2.1] - 2025-10-02
+## [0.2.3] - 2025-10-04
 ### Added
 - Add distribution script.
   - `mark`: emphasizes part matching a pattern
@@ -17,6 +17,10 @@
 - If you prepare an image for each script, you can paste it into the document, such as a screen capture.
   - change: `tools/create_CATALOG.sh`
   - Images will also be used in `README.md`.
+- I put together a wrapper script for measuring perl coverage using "Devel::Cover".
+  - add: `tests/cmd_wrapper`
+  - delete: `tests/fill_wrapper.pl`
+  - delete: `tests/mark_wrapper.pl`
 
 ## [0.2.0] - 2025-10-01
 ### Added

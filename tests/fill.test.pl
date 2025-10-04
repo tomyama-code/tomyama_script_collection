@@ -10,7 +10,7 @@ BEGIN {
   ## https://perldoc.jp/docs/modules/Test-Simple-0.96/lib/Test/More.pod
   eval{use Test::More};     # subtest(), done_testing()
   if( $@ ){
-    print STDERR ( qq{Test::More: not found\n} );
+    print STDERR ( qq{$0: warn: "Test::More": module not found\n} );
     exit( MODULE_NOT_FOUND_STATUS );
   }
 }
@@ -19,7 +19,7 @@ BEGIN {
   ## https://metacpan.org/pod/Test::Command
   eval{use Test::Command};
   if( $@ ){
-    print STDERR ( qq{Test::Command: not found\n} );
+    print STDERR ( qq{$0: warn: "Test::Command": module not found\n} );
     exit( MODULE_NOT_FOUND_STATUS );
   }
 }
@@ -31,7 +31,7 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     my $bUnavailableCover = $?;
     #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
     if( $bUnavailableCover ){
-        print STDERR ( qq{$0: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
+        print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
         delete( $ENV{WITH_PERL_COVERAGE} );
     }
 }
