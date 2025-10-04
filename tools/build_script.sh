@@ -5,7 +5,7 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -52,8 +52,12 @@ sh_main()
     the_file_was_updated=$?
 
     need_configure=0
+    ## [ On /bin/dash ]
+    ## Accepts "backslash sequences" by default.
+    ## There is no concept of "-e".
+    echo ""
     if [ $the_file_was_updated -eq 0 -o $force_update -ne 0 ]; then
-        echo -e "\nRun autotools."
+        echo "Run autotools."
         sh_exec aclocal && \
         sh_exec autoconf && \
         sh_exec automake --add-missing --copy
@@ -61,7 +65,7 @@ sh_main()
             need_configure=1
         fi
     else
-        echo -e "\nSkip running autotools."
+        echo "Skip running autotools."
     fi
 
     if [ ! -f 'Makefile' -o $force_update -ne 0 -o $need_configure -ne 0 ]; then
@@ -109,7 +113,11 @@ sh_init()
 
 sh_exec()
 {
-    echo -e '\n$' "$@"
+    ## [ On /bin/dash ]
+    ## Accepts "backslash sequences" by default.
+    ## There is no concept of "-e".
+    echo ''
+    echo '$' "$@"
     "$@"
     status_code=$?
     echo "exit_status=$status_code"

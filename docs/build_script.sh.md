@@ -3,7 +3,7 @@
 * * *
 # NAME
 
-build_script.sh - manual page for build_script.sh 1.3)
+build_script.sh - manual page for build_script.sh 1.4)
 
 # DESCRIPTION
 
@@ -14,7 +14,7 @@ generate autotools input files.’
 
 See Also - docs/Developer_Manual.md
 
-(Revision: 1.3)                                  October 2025                              BUILD_SCRIPT.SH(1)
+(Revision: 1.4)                                  October 2025                              BUILD_SCRIPT.SH(1)
 
 * * *
 - See '[README.md](../README.md)' for installation instructions.

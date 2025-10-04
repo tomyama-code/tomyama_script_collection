@@ -3,6 +3,8 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
+## - $Revision: 1.1 $
+##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##
@@ -29,11 +31,30 @@ my %ACAM_TMPL;
 
 $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 #AC_PREREQ([2.72])	## Cygwin
-#AC_PREREQ([2.69])	## CentOS Stream 9
+##                	##   - autoscan 2.72
+##                	##   - aclocal  1.18.1
+##                	##   - autoconf 2.72
+##                	##   - automake 1.18.1
+##                	##   - /usr/share/automake-1.11
+##                	##   - /usr/share/automake-1.12
+##                	##   - /usr/share/automake-1.13
+##                	##   - /usr/share/automake-1.14
+##                	##   - /usr/share/automake-1.15
+##                	##   - /usr/share/automake-1.16
+##                	##   - /usr/share/automake-1.17
+##                	##   - /usr/share/automake-1.18
+#AC_PREREQ([2.69])	## CentOS 9 Stream
+##                	##   - autoscan 2.69
+##                	##   - aclocal  1.16.2
+##                	##   - autoconf 2.69
+##                	##   - automake 1.16.2
+##                	##   - /usr/share/automake-1.16
 AC_PREREQ([2.69])
 
+AC_REVISION($Revision: 1.1 $)
+
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.3], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.4], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 ################################################################################
 ## create_CATALOG.sh -- Script to generate a catalog of scripts.
 ##
@@ -38,26 +38,32 @@ sh_main()
     parse_input "$@"
 
     targfile="$1"
-    shift 2>/dev/null
-    if [ $? -ne 0 ]; then
+    ## Confirmation required before calling "shift" [ on /bin/dash ]
+    if [ "$targfile" = "" ]; then
         echo "No arguments specified."
         usage
         exit 1
     fi
+    shift
 
     targdir="`dirname \"$targfile\"`"
 
     sh_getMdHeader >"$targfile.new"
 
-    echo -e "# Script Catalog\n" >>"$targfile.new"
+    ## [ On /bin/dash ]
+    ## Accepts "backslash sequences" by default.
+    ## There is no concept of "-e".
+    echo "# Script Catalog" >>"$targfile.new"
+    echo ""                 >>"$targfile.new"
 
     scr_dir_last=""
     while [ 1 ]; do
         dependent_file="$1"
-        shift 2>/dev/null
-        if [ $? -ne 0 ]; then
+        ## Confirmation required before calling "shift" [ on /bin/dash ]
+        if [ "$dependent_file" = "" ]; then
             break
         fi
+        shift
 
         #echo "\$dependent_file=\"$dependent_file\""
 
@@ -70,12 +76,23 @@ sh_main()
             elif [ "$depend_dir" = "tools" ]; then
                 heading_msg="The script that manages this directory"
             fi
-            echo -e "* * *\n\n## $heading_msg\n" >>"$targfile.new"
+            ## [ On /bin/dash ]
+            ## Accepts "backslash sequences" by default.
+            ## There is no concept of "-e".
+            echo "* * *" >>"$targfile.new"
+            echo ""      >>"$targfile.new"
+            echo "## $heading_msg" >>"$targfile.new"
+            echo ""      >>"$targfile.new"
         fi
         scr_dir_last="$depend_dir"
 
-        echo -e "### $dependent_file\n" >>"$targfile.new"
+        ## [ On /bin/dash ]
+        ## Accepts "backslash sequences" by default.
+        ## There is no concept of "-e".
+        echo "### $dependent_file" >>"$targfile.new"
+        echo ""                    >>"$targfile.new"
 
+        ## ヘッダーコメントをCATALOG.mdに
         cat "$dependent_file" | awk '
             BEGIN{
                 RS = "";
@@ -94,10 +111,21 @@ sh_main()
             ' >>"$targfile.new"
 
         if [ -f "$targdir/img/$depend_base.jpg" ]; then
-            echo -e '\n!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targfile.new"
+            ## [ On /bin/dash ]
+            ## Accepts "backslash sequences" by default.
+            ## There is no concept of "-e".
+            echo '' >>"$targfile.new"
+            echo '!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targfile.new"
         fi
 
-        echo -e "\nFor details, please refer to [$depend_base.md]($depend_base.md).\n" >>"$targfile.new"
+        ## [ On /bin/dash ]
+        ## Accepts "backslash sequences" by default.
+        ## There is no concept of "-e".
+        echo "" >>"$targfile.new"
+        echo "For details, please refer to [$depend_base.md]($depend_base.md)." >>"$targfile.new"
+        echo "" >>"$targfile.new"
+
+        ## スクリプト毎のドキュメントを生成
 
         sh_isUpdateNecessary "$dependent_file" "$targdir/$depend_base.md"
         ret=$?
@@ -123,10 +151,18 @@ sh_main()
             sh_getMdHeader >"$targdir/$depend_base.md"
 
             if [ -f "$targdir/img/$depend_base.jpg" ]; then
-                echo -e '\n!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targdir/$depend_base.md"
+                ## [ On /bin/dash ]
+                ## Accepts "backslash sequences" by default.
+                ## There is no concept of "-e".
+                echo '' >>"$targdir/$depend_base.md"
+                echo '!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targdir/$depend_base.md"
             fi
 
-            echo -e "\n* * *" >>"$targdir/$depend_base.md"
+            ## [ On /bin/dash ]
+            ## Accepts "backslash sequences" by default.
+            ## There is no concept of "-e".
+            echo ""      >>"$targdir/$depend_base.md"
+            echo "* * *" >>"$targdir/$depend_base.md"
 
             filecmd_out="`file \"$dependent_file\"`"
             echo "$filecmd_out" | grep -i 'perl' 1>/dev/null
@@ -155,16 +191,24 @@ sh_main()
                 ' >>"$targdir/$depend_base.md"
             fi
 
-            echo -e "\n* * *" >>"$targdir/$depend_base.md"
-            echo -e "- See '[README.md](../README.md)' for installation instructions." >>"$targdir/$depend_base.md"
-            echo -e "- See '[CATALOG.md](CATALOG.md)' for a list and overview of the scripts." >>"$targdir/$depend_base.md"
+            ## [ On /bin/dash ]
+            ## Accepts "backslash sequences" by default.
+            ## There is no concept of "-e".
+            echo ""      >>"$targdir/$depend_base.md"
+            echo "* * *" >>"$targdir/$depend_base.md"
+            echo "- See '[README.md](../README.md)' for installation instructions." >>"$targdir/$depend_base.md"
+            echo "- See '[CATALOG.md](CATALOG.md)' for a list and overview of the scripts." >>"$targdir/$depend_base.md"
 
             sh_showMarkdownDoc "$targdir/$depend_base.md"
         fi
     done
 
-    echo -e "\n* * *" >>"$targfile.new"
-    echo -e "- See '[README.md](../README.md)' for installation instructions." >>"$targfile.new"
+    ## [ On /bin/dash ]
+    ## Accepts "backslash sequences" by default.
+    ## There is no concept of "-e".
+    echo ""      >>"$targfile.new"
+    echo "* * *" >>"$targfile.new"
+    echo "- See '[README.md](../README.md)' for installation instructions." >>"$targfile.new"
 
     if [ -f "$targfile" ]; then
         diff "$targfile" "$targfile.new" >/dev/null
@@ -202,10 +246,11 @@ parse_input()
 {
     while [ 1 ]; do
         arg="$1"
-        shift 2>/dev/null
-        if [ $? -ne 0 ]; then
+        ## Confirmation required before calling "shift" [ on /bin/dash ]
+        if [ "$arg" = "" ]; then
             break
         fi
+        shift
 
         #echo $arg
         case "$arg" in
