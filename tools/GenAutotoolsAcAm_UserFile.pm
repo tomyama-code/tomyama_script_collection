@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 1.1 $
+## - $Revision: 1.2 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -43,15 +43,21 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /usr/share/automake-1.16
 ##                	##   - /usr/share/automake-1.17
 ##                	##   - /usr/share/automake-1.18
-#AC_PREREQ([2.69])	## CentOS 9 Stream
+#AC_PREREQ([2.69])	## CentOS 9 Stream [ autoreconf -i が必須 ]
 ##                	##   - autoscan 2.69
 ##                	##   - aclocal  1.16.2
 ##                	##   - autoconf 2.69
 ##                	##   - automake 1.16.2
-##                	##   - /usr/share/automake-1.16
+##                	##   - /usr/share/automake-1.16 [ 古い ]
+#AC_PREREQ([2.72])	## android 15 on Termux
+##                	##   - autoscan 2.72
+##                	##   - aclocal  1.18.1
+##                	##   - autoconf 2.72
+##                	##   - automake 1.18.1
+##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 1.1 $)
+AC_REVISION($Revision: 1.2 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
 AC_INIT([tomyama_script_collection], [0.2.4], [tomyama_code@yahoo.co.jp])
@@ -132,6 +138,7 @@ sub getTemplates()
 
 sub setupValue()
 {
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 1.2 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
@@ -145,7 +152,6 @@ sub setupValue()
     my @subdirs = ();
     foreach my $k( sort( keys( %ACAM_TMPL ) ) ){
         if( $k =~ m!^((.*?)/?Makefile)\.am$!o ){
-            #$k =~ s/\.am$//o;
             push( @ac_cfg_files, $1 );
             if( defined( $2 ) && $2 ne '' ){
                 push( @subdirs, $2 );

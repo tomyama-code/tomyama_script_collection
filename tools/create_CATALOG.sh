@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 ################################################################################
 ## create_CATALOG.sh -- Script to generate a catalog of scripts.
 ##
@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.7 $
+## - $Revision: 1.8 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
