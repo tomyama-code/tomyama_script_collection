@@ -10,18 +10,26 @@ use warnings 'all';
 my %escapes = (
     'n' => "\n",   # 改行
     't' => "\t",   # 水平タブ
-#    'r' => "\r",   # 復帰
-#    'f' => "\f",   # 改ページ
-#    'a' => "\a",   # 警報音
-#    'e' => "\e",   # ESC
+    'r' => "\\r",   # 復帰
+    'f' => "\\f",   # 改ページ
+    'a' => "\\a",   # 警報音
+    'e' => "\\e",   # ESC
 );
 
-my $argc = scalar( @ARGV );
-for( my $idx=0; $idx<$argc; $idx++ ){
-    #print( qq{\$ARGV[ $idx ] = "$ARGV[ $idx ]"\n} );
-#    $ARGV[ $idx ] =~ s/\\n/\n/go;
-#    $ARGV[ $idx ] =~ s/\\a/\a/go;
-    $ARGV[ $idx ] =~ s/\\([nt])/$escapes{ $1 }/go;
-    #print( qq{\$ARGV[ $idx ] = "$ARGV[ $idx ]"\n} );
+my @args = @ARGV;
+
+my $argc = scalar( @args );
+if( ( $argc > 0 ) && ( $args[ 0 ] eq '-e' ) ){
+    $argc--;
+    shift( @args );
+}else{
+    $args[ $argc - 1 ] .= "\n";
 }
-print( join( ' ', @ARGV ), "\n" );
+for( my $idx=0; $idx<$argc; $idx++ ){
+    #print( qq{\$args[ $idx ] = "$args[ $idx ]"\n} );
+#    $args[ $idx ] =~ s/\\n/\n/go;
+#    $args[ $idx ] =~ s/\\a/\a/go;
+    $args[ $idx ] =~ s/\\([ntrfae])/$escapes{ $1 }/go;
+    #print( qq{\$args[ $idx ] = "$args[ $idx ]"\n} );
+}
+print( join( ' ', @args ) );

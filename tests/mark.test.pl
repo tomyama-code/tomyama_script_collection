@@ -2,7 +2,7 @@
 
 use strict;
 use warnings 'all';
-use File::Basename ;
+use File::Basename;
 
 use constant MODULE_NOT_FOUND_STATUS => 0;
 
@@ -27,18 +27,24 @@ BEGIN {
 #$ENV{WITH_PERL_COVERAGE} = 1;
 
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    `which cover 2>/dev/null`;
-    my $bUnavailableCover = $?;
-    #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
-    if( $bUnavailableCover ){
-        print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
-        delete( $ENV{WITH_PERL_COVERAGE} );
+    if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
+        $ENV{WITH_PERL_COVERAGE_OWNER} = $$;
+
+        `which cover 2>/dev/null`;
+        my $bUnavailableCover = $?;
+        #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
+        if( $bUnavailableCover ){
+            print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
+            delete( $ENV{WITH_PERL_COVERAGE} );
+        }
     }
 }
 
 my $develCoverStatus = -1;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    $develCoverStatus=`cover -delete`;
+    if( $ENV{WITH_PERL_COVERAGE_OWNER} == $$ ){
+        $develCoverStatus=`cover -delete`;
+    }
 }
 
 my $apppath = dirname( $0 );
@@ -506,8 +512,10 @@ subtest qq{'-c', '--force-color' option switch} => sub{
 
 };
 
-done_testing;
+done_testing();
 
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    $develCoverStatus=`cover`;
+    if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){
+        $develCoverStatus=`cover`;
+    }
 }

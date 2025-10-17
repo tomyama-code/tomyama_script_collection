@@ -315,10 +315,10 @@ sub parse_arg()
     }
 }
 
-sub mywarn()
-{
-    warn( qq{$main::appname: warn: }, @_ );
-}
+#sub mywarn()
+#{
+#    warn( qq{$main::appname: warn: }, @_ );
+#}
 
 sub myerr()
 {
