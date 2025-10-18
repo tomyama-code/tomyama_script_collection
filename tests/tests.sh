@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#WITH_PERL_COVERAGE=1; export WITH_PERL_COVERAGE
+WITH_PERL_COVERAGE=1; export WITH_PERL_COVERAGE
 
 sh_main()
 {
