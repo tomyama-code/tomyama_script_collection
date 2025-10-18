@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -57,7 +57,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 1.2 $)
+AC_REVISION($Revision: 1.3 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
 AC_INIT([tomyama_script_collection], [0.2.5], [tomyama_code@yahoo.co.jp])
@@ -93,16 +93,15 @@ EXTRA_DIST = LICENSE \
   $MY_DOCS$ \
   $MY_TL_DOCS$ \
   $MY_TOOLS$ \
-  tests/prt \
   tests/cmd_wrapper \
-  tests/testdata_uniq_line.txt
+  tests/prt \
+  tests/testdata_uniq_line.txt \
+  tests/tests.sh
 
 SUBDIRS = $SUBDIRS$
 
 docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
-
-docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$ tools/create_CATALOG.sh
 
 .PHONY: catalog
 catalog: docs/CATALOG.md ;
@@ -138,7 +137,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 1.2 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 1.3 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );

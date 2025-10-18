@@ -3,6 +3,7 @@
 use strict;
 use warnings 'all';
 use File::Basename;
+use Cwd 'getcwd';
 
 use constant MODULE_NOT_FOUND_STATUS => 0;
 
@@ -26,6 +27,13 @@ BEGIN {
 
 #$ENV{WITH_PERL_COVERAGE} = 1;
 
+my $apppath = dirname( $0 );
+chdir( "$apppath/../" );
+my $cur_dir = getcwd();
+$apppath = $cur_dir . '/tests';
+my $HELLOCMD = "$apppath/../hello.sh";
+
+#my $develCoverStatus = -1;
 #if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 #    if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
 #        $ENV{WITH_PERL_COVERAGE_OWNER} = $$;
@@ -36,19 +44,13 @@ BEGIN {
 #        if( $bUnavailableCover ){
 #            print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
 #            delete( $ENV{WITH_PERL_COVERAGE} );
+#            delete( $ENV{WITH_PERL_COVERAGE_OWNER} );
+#        }else{
+#            $develCoverStatus=`cover -delete`;
 #        }
 #    }
 #}
 
-#my $develCoverStatus = -1;
-#if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-#    if( $ENV{WITH_PERL_COVERAGE_OWNER} == $$ ){
-#        $develCoverStatus=`cover -delete`;
-#    }
-#}
-
-my $apppath = dirname( $0 );
-my $HELLOCMD = "$apppath/../hello.sh";
 my $cmd;
 
 subtest qq{hello.sh} => sub{
