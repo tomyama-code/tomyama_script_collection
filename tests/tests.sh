@@ -8,7 +8,7 @@ sh_main()
 
   retval=0
 
-  cd "$apppath/"
+  cd "$apppath/../"
 
   if [ "$WITH_PERL_COVERAGE" != '' ]; then
     if [ "$WITH_PERL_COVERAGE_OWNER" = '' ]; then
@@ -26,20 +26,20 @@ sh_main()
     fi
   fi
 
-  for fi in ../*; do
+  for fi in *; do
     if ! is_it_executable_file "$fi"; then
       continue
     fi
     bname="`basename \"$fi\"`"
-    tname="$bname.test.pl"
+    tname="tests/$bname.test.pl"
     if ! is_it_executable_file "$tname"; then
       continue
     fi
     #echo "F: $bname"
 
-    "./prt" -e "$bname: "
+    "$apppath/prt" -e "$bname: "
 
-    test_log="./$tname.log"
+    test_log="$tname.log"
     "./$tname" >"$test_log"
     exit_status=$?
     res='PASS'
