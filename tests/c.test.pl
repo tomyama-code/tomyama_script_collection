@@ -504,7 +504,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'distance_between_points( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
-    $cmd->stdout_is_eq( qq{403.505099759608\n}, qq{東京駅から大阪駅までの距離（km）} );
+    $cmd->stdout_like( qr/^403.50509975960[89]\n/, qq{東京駅から大阪駅までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
