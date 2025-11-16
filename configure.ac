@@ -5,7 +5,7 @@ AC_PREREQ([2.69])
 
 AC_REVISION($Revision: 1.3 $)
 
-AC_INIT([tomyama_script_collection], [0.2.5], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.6], [tomyama_code@yahoo.co.jp])
 
 AM_INIT_AUTOMAKE([foreign])
 

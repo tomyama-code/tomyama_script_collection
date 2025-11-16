@@ -5,6 +5,43 @@
 
 ## Scripts to be installed
 
+### c
+
+The Flat Text Calculator
+
+<< Doctrine of the Flat-Text Faith >>
+  - Blessed are the plain, for they shall be grepped.
+  - No markup shall obscure the meaning.
+  - Let every formula be readable, editable, and eternal.
+  - A tool that cannot be piped is not worthy of use.
+  - In text we trust.
+  - Emojis are evil.
+    (They pretend to be text, but they are pictures in disguise.)
+
+- The "c" script displays the result of the given expression.
+
+- $Revision: 3.1 $
+
+- Script Structure
+  - main
+    - FormulaEngine
+      - FormulaLexer
+      - FormulaParser
+        - FormulaStack
+      - FormulaEvaluator
+    - [ shared package ] OutputFunc, FormulaToken, TableProvider
+
+- Author: 2025, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2025, tomyama
+All rights reserved.
+
+![Image of the c command execution](img/c.jpg)
+
+For details, please refer to [c.md](c.md).
+
 ### fill
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.

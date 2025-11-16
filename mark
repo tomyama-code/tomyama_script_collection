@@ -18,6 +18,7 @@
 use strict;
 use warnings 'all';
 use File::Basename;
+#use IO::Handle;
 
 exit( &pl_main( @ARGV ) );
 
@@ -36,6 +37,8 @@ sub pl_main()
     if( $main::debug ){
         &prt_param();
     }
+
+#    STDIN->autoflush(1);
 
     my $file_num = scalar( @main::fi_in );
     my $file_name_len_max = 0;

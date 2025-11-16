@@ -2,6 +2,6 @@
 # Do not edit manually.
 # Base file: [GenAutotoolsAcAm_UserFile] is "1.3".
 
-TESTS = fill.test.pl mark.test.pl hello.pl.test.pl hello.sh.test.pl
+TESTS = c.test.pl fill.test.pl mark.test.pl hello.pl.test.pl hello.sh.test.pl
 
 dist_check_SCRIPTS = $(TESTS)

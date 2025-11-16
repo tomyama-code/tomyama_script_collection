@@ -411,7 +411,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-TESTS = fill.test.pl mark.test.pl hello.pl.test.pl hello.sh.test.pl
+TESTS = c.test.pl fill.test.pl mark.test.pl hello.pl.test.pl hello.sh.test.pl
 dist_check_SCRIPTS = $(TESTS)
 all: all-am
 
@@ -619,6 +619,13 @@ recheck: all $(dist_check_SCRIPTS)
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
+c.test.pl.log: c.test.pl
+	@p='c.test.pl'; \
+	b='c.test.pl'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 fill.test.pl.log: fill.test.pl
 	@p='fill.test.pl'; \
 	b='fill.test.pl'; \

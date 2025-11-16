@@ -2,7 +2,7 @@
 # Do not edit manually.
 # Base file: [GenAutotoolsAcAm_UserFile] is "1.3".
 
-dist_bin_SCRIPTS = fill mark hello.pl hello.sh
+dist_bin_SCRIPTS = c fill mark hello.pl hello.sh
 
 EXTRA_DIST = LICENSE \
   docs/CATALOG.md \
@@ -10,7 +10,7 @@ EXTRA_DIST = LICENSE \
   docs/img/devel_step_0.dot docs/img/devel_step_0_1.dot docs/img/devel_step_1_1.dot docs/img/devel_step_1_2.dot docs/img/devel_step_1_3.dot docs/img/devel_step_1_4.dot docs/img/README_dir_struct.dot \
   docs/img/devel_step_0.svg docs/img/devel_step_0_1.svg docs/img/devel_step_1_1.svg docs/img/devel_step_1_2.svg docs/img/devel_step_1_3.svg docs/img/devel_step_1_4.svg docs/img/README_dir_struct.svg \
   docs/img/*.jpg \
-  docs/fill.md docs/mark.md docs/hello.pl.md docs/hello.sh.md \
+  docs/c.md docs/fill.md docs/mark.md docs/hello.pl.md docs/hello.sh.md \
   docs/build_script.sh.md docs/gen_autotools_acam.pl.md docs/GenAutotoolsAcAm_UserFile.pm.md docs/create_CATALOG.sh.md \
   tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh \
   tests/cmd_wrapper \
