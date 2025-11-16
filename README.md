@@ -10,6 +10,9 @@
 
 ここでは画面キャプチャのみ貼付します。
 
+### [c](docs/c.md)
+![Image of the c command execution](docs/img/c.jpg)
+
 ### [fill](docs/fill.md)
 ![Image of the fill command execution](docs/img/fill.jpg)
 
@@ -27,12 +30,20 @@
 ./configure
 make install
 ```
-!!! `make install` は、ユーザー環境に応じて `sudo make install` としてください。!!!
+!!! `make install` は、ユーザー環境に応じて `sudo make install` とするか、
+システムではなく、ユーザー固有のパスに置くなどの工夫をしてください。 !!!
+
+↓ホームディレクトリのbin配下に置く例。
+
+```sh
+./configure --bindir=${HOME}/bin
+make install
+```
 
 ### 方法 2: 自分でパスを通す
 ```sh
-git clone https://github.com/username/script_collection.git
-cd script_collection/bin
+git clone https://github.com/tomyama-code/tomyama_script_collection
+cd tomyama_script_collection/bin
 export PATH="$PWD:$PATH"
 ```
 
@@ -41,7 +52,7 @@ export PATH="$PWD:$PATH"
 
 ```sh
 例）
-curl -o /usr/local/bin/fill 'url'
+curl -o /usr/local/bin/fill 'https://raw.githubusercontent.com/tomyama-code/tomyama_script_collection/refs/heads/main/fill'
 chmod +x /usr/local/bin/fill
 ```
 
@@ -93,7 +104,7 @@ docsディレクトリの [Developer_Manual.md](docs/Developer_Manual.md) を参
 このリポジトリ内の自作スクリプトは BSD 2-Clause ライセンスで公開しています。
 
 なお、GNU Autotools により生成される補助スクリプト
-（例: `install-sh`, `missing`, `test-driver` など）が同梱されています。  
+（例: `install-sh`, `missing`, `test-driver` など）が同梱されています。
 これらのファイルは、それぞれのファイル先頭に記載されたライセンス
-（例: GPL など）に従います。  
+（例: GPL など）に従います。
 当リポジトリの BSD 2-Clause ライセンスの対象外です。

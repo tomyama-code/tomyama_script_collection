@@ -177,8 +177,8 @@ Calculate the distance between two points.
     Madagascar:        degrees: -18.76694, 46.8691
     Galapagos Islands: degrees: -0.3831, -90.42333
 
-    $ c 'distance_between_points( deg2rad( -18.76694 ), deg2rad( 46.8691 ),
-         deg2rad( -0.3831 ), deg2rad( -90.42333 ) ) / 1000 ='
+    $ c 'distance_between_points( deg2rad( -18.76694, 46.8691 ),
+         deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
     14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
@@ -298,6 +298,14 @@ Be sure to include the sign if the value is negative.
 
     max( A,.. ). Returns the entry in the list with the highest numerical value. \[List::Util\]
 
+- `shuffle`
+
+    shuffle( A,.. ). Returns the values of the input in a random order. \[List::Util\]
+
+- `uniq`
+
+    uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. \[List::Util\]
+
 - `sum`
 
     sum( A,.. ). Returns the numerical sum of all the elements in the list. \[List::Util\]
@@ -316,11 +324,19 @@ Be sure to include the sign if the value is negative.
 
 - `deg2rad`
 
-    deg2rad( <DEGREES> ) -> <RADIANS>. \[Math::Trig\]
+    deg2rad( <DEGREES> \[, <DEGREES>..\] ) -> ( <RADIANS> \[, <RADIANS>..\] ). \[Math::Trig\]
 
 - `rad2deg`
 
     rad2deg( <RADIANS> ) -> <DEGREES>. \[Math::Trig\]
+
+- `dms`
+
+    dms( DEG, MIN, SEC ) -> decimal degrees (DD).
+
+- `dms2rad`
+
+    dms2rad( DEG, MIN, SEC \[, DEG, MIN, SEC ..\] ) -> ( <RADIANS> \[, <RADIANS>..\] ).
 
 - `sin`
 

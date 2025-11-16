@@ -472,6 +472,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25.399800000000425, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90, -25.399800000000425, 0 )'} );
+    $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90.42333, 0, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90.42333, 0, 0 )'} );
+    $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geocentric_radius( deg2rad( 0 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'geocentric_radius( deg2rad( 0 ) ) / 1000 ='} );
     $cmd->stdout_is_eq( qq{6378.137\n}, qq{地球の赤道半径（km）} );
@@ -498,6 +510,30 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( -69.00439 ), deg2rad( 39.5822 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'distance_between_points( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( -69.00439 ), deg2rad( 39.5822 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( deg2rad( 35.68129, 139.76706 ), deg2rad( -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'distance_between_points( deg2rad( 35.68129, 139.76706 ), deg2rad( -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'distance_between_points( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151 ), dms2rad( -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'distance_between_points( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151 ), dms2rad( -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'distance_between_points( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'distance_between_points( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
     $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
@@ -866,6 +902,36 @@ subtest qq{Normal} => sub{
     $cmd->exit_isnt_num( 0, qq{./c 'min() ='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
     $cmd->stderr_like( qr/^c: evaluator: error: "min": No operands\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->stdout_like( qr/^\( \d, \d, \d, \d, \d, \d, \d, \d, \d \)\n/ );
+    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min( shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'min( shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ) ='} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->stdout_is_eq( qq{( 5, 4, 3, 1, 2, 9, 8, 7, 6 )\n} );
+    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ='} );
+    $cmd->stdout_is_eq( qq{( 5, 4, 3, 1, 2, 9, 8, 7, 6 )\n} );
+    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) ='} );
+    $cmd->stdout_is_eq( qq{9\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ='} );

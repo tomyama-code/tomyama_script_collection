@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 3.1 $
+## - $Revision: 3.4 $
 ##
 ## - Script Structure
 ##   - main
@@ -83,7 +83,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 3.1 $}.qq{\n} .
+         q{  - $Revision: 3.4 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -294,7 +294,7 @@ use warnings 'all';
 use POSIX qw/hypot floor ceil/;
 use Math::BigInt;
 use Math::Trig; ## pi, rad2deg(), deg2rad()
-use List::Util; ## min(), max()
+use List::Util; ## min(), max(), shuffle(), uniq, sum()
 
 use constant {
     O_INDX => 0,
@@ -429,15 +429,17 @@ use constant {
     H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
     H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
+    H_SHFL => qq{shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]},
+    H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, \nas judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, \nand retains the first value of any duplicate set. [List::Util]},
     H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and \nless than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. \nWorks only for non-negative operands. [Perl Native]},
-    H_D2RD => qq{deg2rad( <DEGREES> ) -> <RADIANS>. [Math::Trig]},
+    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
     H_R2DG => qq{rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]},
     H_DEGM => qq{dms( DEG, MIN, SEC ) -> decimal degrees (DD).},
-    H_DD2R => qq{dms2rad( DEG, MIN, SEC ) -> <RADIANS>.},
+    H_DD2R => qq{dms2rad( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
     H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
     H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]},
@@ -484,27 +486,29 @@ use constant {
     'lcm'        => [ 28, T_FUNCTION, VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
     'min'        => [ 29, T_FUNCTION, VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
     'max'        => [ 30, T_FUNCTION, VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'sum'        => [ 31, T_FUNCTION, VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'avg'        => [ 32, T_FUNCTION, VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'rand'       => [ 33, T_FUNCTION,  1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'        => [ 34, T_FUNCTION,  1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'       => [ 35, T_FUNCTION,  1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'deg2rad'    => [ 36, T_FUNCTION,  1, H_D2RD, sub{ &Math::Trig::deg2rad( $_[ 0 ] ) } ],
-    'rad2deg'    => [ 37, T_FUNCTION,  1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'dms'        => [ 38, T_FUNCTION,  3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'dms2rad'    => [ 39, T_FUNCTION,  3, H_DD2R, sub{ &DMS2RAD( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'sin'        => [ 40, T_FUNCTION,  1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 41, T_FUNCTION,  1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 42, T_FUNCTION,  1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 43, T_FUNCTION,  1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 44, T_FUNCTION,  1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 45, T_FUNCTION,  1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 46, T_FUNCTION,  2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 47, T_FUNCTION,  2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'pow'        => [ 48, T_FUNCTION,  2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'geocentric_radius'         => [ 49, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_latitude_circle' => [ 50, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'distance_between_points'   => [ 51, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'shuffle'    => [ 31, T_FUNCTION, VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'uniq'       => [ 32, T_FUNCTION, VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'        => [ 33, T_FUNCTION, VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'avg'        => [ 34, T_FUNCTION, VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'rand'       => [ 35, T_FUNCTION,  1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'        => [ 36, T_FUNCTION,  1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'       => [ 37, T_FUNCTION,  1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'deg2rad'    => [ 38, T_FUNCTION, VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'rad2deg'    => [ 39, T_FUNCTION,  1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'dms'        => [ 40, T_FUNCTION,  3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'dms2rad'    => [ 41, T_FUNCTION, VA, H_DD2R, sub{ &DMS2RAD( @_ ) } ],
+    'sin'        => [ 42, T_FUNCTION,  1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 43, T_FUNCTION,  1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 44, T_FUNCTION,  1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 45, T_FUNCTION,  1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 46, T_FUNCTION,  1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 47, T_FUNCTION,  1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 48, T_FUNCTION,  2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 49, T_FUNCTION,  2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'pow'        => [ 50, T_FUNCTION,  2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'geocentric_radius'         => [ 51, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_latitude_circle' => [ 52, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'distance_between_points'   => [ 53, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -657,6 +661,18 @@ sub LOG( $ )
     return log( $_[ 0 ] );
 }
 
+sub DEG2RAD( @ )
+{
+    my @rad_array = ();
+    for my $deg( @_ ){
+        #print( qq{\$deg="$deg"\n} );
+        my $rad = &Math::Trig::deg2rad( $deg );
+        push( @rad_array, $rad );
+    }
+    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
+    return @rad_array;
+}
+
 sub DMS( $$$ )
 {
     my $degrees = shift( @_ );
@@ -667,10 +683,16 @@ sub DMS( $$$ )
 
 sub DMS2RAD( $$$ )
 {
-    my $degrees = shift( @_ );
-    my $min = shift( @_ );
-    my $sec = shift( @_ );
-    return &Math::Trig::deg2rad( &DMS( $degrees, $min, $sec ) );
+    my @rad_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $rad = &Math::Trig::deg2rad( &DMS( $degrees, $min, $sec ) );
+        push( @rad_array, $rad );
+    }
+    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
+    return @rad_array;
 }
 
 sub rounddown( $$ )
@@ -1459,6 +1481,7 @@ sub Input( $ )
 
     unshift( @{ $self->{RPN} }, $token );
 
+    my @tokens = ( $token );
     my $op = '';
     if( $token->IsOperand() ){
         $self->{REGISTER} = $token->data;
@@ -1550,8 +1573,9 @@ sub Input( $ )
             $self->{FORMULA} = $formula;
             ## 計算実行
             my $result = 0;
+            my @results = ();
             eval{   ## 子処理の戻り先を積んでおく（die()を補足）
-                $result = &{ $subr }( @args );
+                @results = &{ $subr }( @args );
             };
             if( $@ ){
                 my $msg = $@;
@@ -1561,15 +1585,25 @@ sub Input( $ )
                 $msg .= $self->GetUsage( $op );
                 $self->opf->Die( $msg );
             }
+            my $len = scalar( @results );
+            $result = $results[ 0 ];
+            $tokens[ 0 ] = FormulaToken::NewOperand( $result );
+            if( $len > 1 ){
+                $result = '( ' . join( ', ', @results ) . ' )';
+                for ( my $idx=1; $idx<$len; $idx++ ){
+                    my $res = $results[ $idx ];
+                    my $new = FormulaToken::NewOperand( $res );
+                    unshift( @tokens, $new );
+                }
+            }
             $self->{REGISTER} = $result;
             if( $self->{B_VERBOSEOUTPUT} ){
                 print( qq{$self->{FORMULA} = $result\n} );
             }
-            $token = FormulaToken::NewOperand( $result );
         }
     }
 
-    unshift( @{ $self->{TOKENS} }, $token );
+    unshift( @{ $self->{TOKENS} }, @tokens );
     if( ( $self->{B_VERBOSEOUTPUT} ) &&
         ( $self->{B_RPN} || $self->{DEBUG} ) ){
         print( 'Remain RPN: ' . $self->GetTokens() . "\n" );
@@ -2114,8 +2148,8 @@ Calculate the distance between two points.
   Madagascar:        degrees: -18.76694, 46.8691
   Galapagos Islands: degrees: -0.3831, -90.42333
 
-  $ c 'distance_between_points( deg2rad( -18.76694 ), deg2rad( 46.8691 ),
-       deg2rad( -0.3831 ), deg2rad( -90.42333 ) ) / 1000 ='
+  $ c 'distance_between_points( deg2rad( -18.76694, 46.8691 ),
+       deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
   14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
@@ -2241,6 +2275,14 @@ min( A,.. ). Returns the entry in the list with the lowest numerical value. [Lis
 
 max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]
 
+=item C<shuffle>
+
+shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]
+
+=item C<uniq>
+
+uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]
+
 =item C<sum>
 
 sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]
@@ -2259,11 +2301,19 @@ sqrt( N ). Return the positive square root of N. Works only for non-negative ope
 
 =item C<deg2rad>
 
-deg2rad( <DEGREES> ) -> <RADIANS>. [Math::Trig]
+deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]
 
 =item C<rad2deg>
 
 rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]
+
+=item C<dms>
+
+dms( DEG, MIN, SEC ) -> decimal degrees (DD).
+
+=item C<dms2rad>
+
+dms2rad( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( <RADIANS> [, <RADIANS>..] ).
 
 =item C<sin>
 
