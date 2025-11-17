@@ -12,6 +12,7 @@
 
 ### [c](docs/c.md)
 ![Image of the c command execution](docs/img/c.jpg)
+[blog:『計算スクリプト c』の紹介](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)
 
 ### [fill](docs/fill.md)
 ![Image of the fill command execution](docs/img/fill.jpg)
