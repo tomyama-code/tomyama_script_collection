@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 3.4 $
+## - $Revision: 4.2 $
 ##
 ## - Script Structure
 ##   - main
@@ -83,7 +83,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 3.4 $}.qq{\n} .
+         q{  - $Revision: 4.2 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -433,6 +433,7 @@ use constant {
     H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, \nas judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, \nand retains the first value of any duplicate set. [List::Util]},
     H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
+    H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). \nGenerates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. \nIf ROUND is set to true, the numbers are rounded down to integers.},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and \nless than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. \nWorks only for non-negative operands. [Perl Native]},
@@ -449,66 +450,69 @@ use constant {
     H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable \non very large or very small arguments. [POSIX]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
+    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_GERA => qq{geocentric_radius( LAT ). Given a latitude (in radians), returns \nthe distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_latitude_circle( LAT ). Given a latitude (in radians), \nreturns the radius of that parallel (in meters).},
     H_DBPT => qq{distance_between_points( ptA_lat, ptA_lon, ptB_lat, ptB_lon ). \nCalculates and returns the distance (in meters) between two points, \nlatitude and longitude must be specified in radians.},
 };
 
 %TableProvider::operators = (
-    '+'          => [  0, T_OPERATOR,  2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'          => [  1, T_OPERATOR,  2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'          => [  2, T_OPERATOR,  2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'          => [  3, T_OPERATOR,  2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'          => [  4, T_OPERATOR,  2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'         => [  5, T_OPERATOR,  2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'          => [  6, T_OPERATOR,  2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'          => [  7, T_OPERATOR,  2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'          => [  8, T_OPERATOR,  2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '~'          => [  9, T_OPERATOR,  1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('        => [ 10, T_OTHER,    -1, undef  ],
-    '('          => [ 11, T_OPERATOR,  2, H_BBEG ],
-    ','          => [ 12, T_OPERATOR, -1, H_COMA ],
-    ')'          => [ 13, T_OPERATOR,  2, H_BEND ],
-    '='          => [ 14, T_OPERATOR,  1, H_EQUA ],
-    'OPERAND'    => [ 15, T_OTHER,     0, undef  ],
-    'BEGIN'      => [ 16, T_OTHER,     0, undef  ],
-    '#'          => [ 17, T_SENTINEL, -1, undef  ],
-    'testfunc'   => [ 18, T_OTHER,     1, undef  ],
-    'abs'        => [ 19, T_FUNCTION,  1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'        => [ 20, T_FUNCTION,  1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'      => [ 21, T_FUNCTION,  1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'       => [ 22, T_FUNCTION,  1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'  => [ 23, T_FUNCTION,  2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'      => [ 24, T_FUNCTION,  2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'    => [ 25, T_FUNCTION,  2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'        => [ 26, T_FUNCTION, VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'gcd'        => [ 27, T_FUNCTION, VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'        => [ 28, T_FUNCTION, VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'min'        => [ 29, T_FUNCTION, VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'        => [ 30, T_FUNCTION, VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'    => [ 31, T_FUNCTION, VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'uniq'       => [ 32, T_FUNCTION, VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'        => [ 33, T_FUNCTION, VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'avg'        => [ 34, T_FUNCTION, VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'rand'       => [ 35, T_FUNCTION,  1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'        => [ 36, T_FUNCTION,  1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'       => [ 37, T_FUNCTION,  1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'deg2rad'    => [ 38, T_FUNCTION, VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'rad2deg'    => [ 39, T_FUNCTION,  1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'dms'        => [ 40, T_FUNCTION,  3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'dms2rad'    => [ 41, T_FUNCTION, VA, H_DD2R, sub{ &DMS2RAD( @_ ) } ],
-    'sin'        => [ 42, T_FUNCTION,  1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 43, T_FUNCTION,  1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 44, T_FUNCTION,  1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 45, T_FUNCTION,  1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 46, T_FUNCTION,  1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 47, T_FUNCTION,  1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 48, T_FUNCTION,  2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 49, T_FUNCTION,  2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'pow'        => [ 50, T_FUNCTION,  2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'geocentric_radius'         => [ 51, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_latitude_circle' => [ 52, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'distance_between_points'   => [ 53, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    '+'          => [  0, T_OPERATOR,   2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
+    '-'          => [  1, T_OPERATOR,   2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    '*'          => [  2, T_OPERATOR,   2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'          => [  3, T_OPERATOR,   2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'          => [  4, T_OPERATOR,   2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'         => [  5, T_OPERATOR,   2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'          => [  6, T_OPERATOR,   2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'          => [  7, T_OPERATOR,   2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'          => [  8, T_OPERATOR,   2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '~'          => [  9, T_OPERATOR,   1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('        => [ 10, T_OTHER,     -1, undef  ],
+    '('          => [ 11, T_OPERATOR,   2, H_BBEG ],
+    ','          => [ 12, T_OPERATOR,  -1, H_COMA ],
+    ')'          => [ 13, T_OPERATOR,   2, H_BEND ],
+    '='          => [ 14, T_OPERATOR,   1, H_EQUA ],
+    'OPERAND'    => [ 15, T_OTHER,      0, undef  ],
+    'BEGIN'      => [ 16, T_OTHER,      0, undef  ],
+    '#'          => [ 17, T_SENTINEL,  -1, undef  ],
+    'testfunc'   => [ 18, T_OTHER,      1, undef  ],
+    'abs'        => [ 19, T_FUNCTION,   1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'        => [ 20, T_FUNCTION,   1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'      => [ 21, T_FUNCTION,   1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'       => [ 22, T_FUNCTION,   1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'  => [ 23, T_FUNCTION,   2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'      => [ 24, T_FUNCTION,   2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'    => [ 25, T_FUNCTION,   2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'pct'        => [ 26, T_FUNCTION,  VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'gcd'        => [ 27, T_FUNCTION,  VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'        => [ 28, T_FUNCTION,  VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'min'        => [ 29, T_FUNCTION,  VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'        => [ 30, T_FUNCTION,  VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'    => [ 31, T_FUNCTION,  VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'uniq'       => [ 32, T_FUNCTION,  VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'        => [ 33, T_FUNCTION,  VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'avg'        => [ 34, T_FUNCTION,  VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'   => [ 35, T_FUNCTION,  VA, H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'rand'       => [ 36, T_FUNCTION,   1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'        => [ 37, T_FUNCTION,   1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'       => [ 38, T_FUNCTION,   1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'        => [ 39, T_FUNCTION,   2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'    => [ 40, T_FUNCTION,   2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'deg2rad'    => [ 41, T_FUNCTION,  VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'rad2deg'    => [ 42, T_FUNCTION,   1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'dms'        => [ 43, T_FUNCTION,   3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'dms2rad'    => [ 44, T_FUNCTION,  VA, H_DD2R, sub{ &DMS2RAD( @_ ) } ],
+    'sin'        => [ 45, T_FUNCTION,   1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 46, T_FUNCTION,   1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 47, T_FUNCTION,   1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 48, T_FUNCTION,   1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 49, T_FUNCTION,   1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 50, T_FUNCTION,   1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 51, T_FUNCTION,   2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 52, T_FUNCTION,   2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geocentric_radius'         => [ 53, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_latitude_circle' => [ 54, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'distance_between_points'   => [ 55, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -745,6 +749,40 @@ sub AVG( @ )
     my $total = List::Util::sum( @_ );
     my $len = scalar( @_ );
     return $total / $len;
+}
+
+# 機能: 下限値、上限値、分割数に基づき、等間隔の数値リストを生成する
+# 引数: $lower (下限値), $upper (上限値), $count (分割数),
+#       $bRound (省略可: 真値なら整数に丸める, デフォルトは丸めない)
+sub LINSPACE( $$$;$ )
+{
+    my( $lower, $upper, $count, $bRound ) = @_;
+
+    return $lower if( $count <= 1 );
+
+    my @list;
+    my $interval = ( $upper - $lower ) / ( $count - 1 );
+
+    for( my $i=0; $i<$count; $i++ ){
+        my $value = ( $i == $count - 1 ) ? $upper : $lower + $i * $interval;
+
+        # 第4引数 $bRound が真値であれば整数に丸める
+        if( $bRound ){
+            $value = int( $value );
+        }
+
+        push( @list, $value );
+    }
+
+    return @list;
+}
+
+sub pow_inv( $$ )
+{
+    my( $n, $x ) = @_;
+    my $y = log( $n ) / log( $x );
+    my $rounded = int( $y + 0.5 );  # 四捨五入
+    return ( $x ** $rounded == $n ) ? $rounded : $y;
 }
 
 # === 地球の中心から地表までの動径を計算する関数 ===
@@ -1431,6 +1469,7 @@ sub new {
         unshift( @{ $self->{RPN} }, $el_r );
         unshift( @{ $self->{TOKENS} }, $el_r );
         unshift( @{ $self->{TOKENS} }, $el_r );
+        $self->UpdateRegister();
         $self->Input( $el_r );
         $self->opf->dPrintf( qq{scalar( \@{ \$self->{RPN} } ) = %d\n}, scalar( @{ $self->{RPN} } ) );
         $self->opf->dPrintf( qq{scalar( \@{ \$self->{TOKENS} } ) = %d\n}, scalar( @{ $self->{TOKENS} } ) );
@@ -1503,23 +1542,30 @@ sub Input( $ )
         my $need_argc = &TableProvider::GetArgc( $op );
         my @args = ();
         ## check
-        my $argc_counter = 0;
-        my $len = scalar( @{ $self->{TOKENS} } );
+        my $arg_counter = 0;
+        my $tokens_len = scalar( @{ $self->{TOKENS} } );
         my $check_len = $need_argc;
-        $check_len = $len if( $need_argc == TableProvider::VA );
-        if( $len < $check_len ){
+        if( $need_argc =~ m/^(\d+)M$/o ){
+            $check_len = $1 + 1;
+            $need_argc = TableProvider::VA;
+            #print( qq{$need_argc: \$tokens_len="$tokens_len", \$check_len="$check_len"\n} );
+        }elsif( $need_argc == TableProvider::VA ){
+            $check_len = $tokens_len;
+#            $check_len-- if( $bFunction );
+        }
+        if( $tokens_len < $check_len ){
             my $msg = qq{"$op": Operand missing.\n};
             $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
             $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
             $msg .= $self->GetUsage( $op );
             $self->opf->Die( $msg );
         }
-        for( $argc_counter=0; $argc_counter<$check_len; $argc_counter++ ){
-            my $el = ${ $self->{TOKENS} }[ $argc_counter ];
+        for( $arg_counter=0; $arg_counter<$check_len; $arg_counter++ ){
+            my $el = ${ $self->{TOKENS} }[ $arg_counter ];
             if( !( $el->IsOperand() ) ){
                 if( &TableProvider::IsSentinel( $el->data ) ){
                     if( $need_argc == TableProvider::VA ){
-                        $need_argc = $argc_counter;
+                        $need_argc = $arg_counter;
                         $self->opf->dPrint( qq{variable arguments: \$need_argc="$need_argc"\n} );
                         if( $need_argc == 0 ){
                             my $msg = qq{"$op": No operands.\n};
@@ -1539,7 +1585,7 @@ sub Input( $ )
             }
         }
         ## calc
-        if( $argc_counter == $need_argc ){
+        if( $arg_counter == $need_argc ){
             for( my $idx=0; $idx<$need_argc; $idx++ ){
                 my $el = shift( @{ $self->{TOKENS} } );
                 unshift( @args, ( $el->data + 0 ) );
@@ -1561,8 +1607,8 @@ sub Input( $ )
             $self->RegisterClear();
             my $formula = '';
             if( &TableProvider::IsOperatorExists( $op ) ){
-                my $len = scalar( @args );
-                if( $len == 1 ){
+                my $args_len = scalar( @args );
+                if( $args_len == 1 ){
                     $formula = qq{$op$args[ 0 ]};
                 }else{
                     $formula = qq{$args[ 0 ] $op $args[ 1 ]};
@@ -1585,12 +1631,12 @@ sub Input( $ )
                 $msg .= $self->GetUsage( $op );
                 $self->opf->Die( $msg );
             }
-            my $len = scalar( @results );
+            my $results_len = scalar( @results );
             $result = $results[ 0 ];
             $tokens[ 0 ] = FormulaToken::NewOperand( $result );
-            if( $len > 1 ){
+            if( $results_len > 1 ){
                 $result = '( ' . join( ', ', @results ) . ' )';
-                for ( my $idx=1; $idx<$len; $idx++ ){
+                for ( my $idx=1; $idx<$results_len; $idx++ ){
                     my $res = $results[ $idx ];
                     my $new = FormulaToken::NewOperand( $res );
                     unshift( @tokens, $new );
@@ -1652,6 +1698,31 @@ sub GetRegister()
 {
     my $self = shift( @_ );
     return $self->{REGISTER};
+}
+
+sub UpdateRegister()
+{
+    my $self = shift( @_ );
+    my @reg_val = ();
+    my $bRemain = 0;
+    for my $item( reverse( @{ $self->{TOKENS} } ) ){
+        if( ! $item->IsOperand() ){
+            $bRemain = 1;
+            $self->opf->warnPrint( qq{There may be an error in the calculation formula.\n} );
+            $self->opf->warnPrint( qq{Remain RPN: } . $self->GetTokens() . "\n" );
+            last;
+        }
+        push( @reg_val, $item->data );
+    }
+    my $reg_len = scalar( @reg_val );
+    my $reg = $self->{REGISTER};
+    if( $reg_len > 1 ){
+        $reg = '( ' . join( ', ', @reg_val ) . ' )';
+    }
+
+    $self->{REGISTER} = $reg;
+
+    return $bRemain;
 }
 
 sub RegisterToString( $ )
@@ -1859,8 +1930,7 @@ sub Calculate( $ )
     }
 
     if( $Evaluator_remain > 1 ){
-        $self->opf->warnPrint( qq{There may be an error in the calculation formula.\n} );
-        $self->opf->warnPrint( qq{Remain RPN: } . $self->Evaluator->GetTokens() . "\n" );
+        $self->Evaluator->UpdateRegister();
     }
 
     if( $self->{B_VERBOSEOUTPUT} ){
@@ -2005,9 +2075,9 @@ PI (=3.14159265358979)
 =head2 FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, sum, avg, rand, log, sqrt, deg2rad, rad2deg, dms,
-dms2rad, sin, cos, tan, asin, acos, atan, atan2, hypot, pow,
-geocentric_radius, radius_of_latitude_circle, distance_between_points
+min, max, shuffle, uniq, sum, avg, linspace, rand, log, sqrt,
+pow, pow_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
+atan, atan2, hypot, geocentric_radius, radius_of_latitude_circle, distance_between_points
 
 =head1 OPTIONS
 
@@ -2291,6 +2361,17 @@ sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::U
 
 avg( A,.. ). Returns the average value of all elements in a list.
 
+=item C<linspace>
+
+linspace( LOWER, UPPER, COUNT [, ROUND] ).
+Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT.
+If ROUND is set to true, the numbers are rounded down to integers.
+
+=item C<rand>
+
+rand( N ).  Returns a random fractional number greater than or equal to 0 and
+less than the value of N. [Perl Native]
+
 =item C<log>
 
 log( N ). Returns the natural logarithm (base e) of N. [Perl Native]
@@ -2298,6 +2379,14 @@ log( N ). Returns the natural logarithm (base e) of N. [Perl Native]
 =item C<sqrt>
 
 sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]
+
+=item C<pow>
+
+pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]
+
+=item C<pow_inv>
+
+pow_inv( A, B ). Returns the power of A to which B is raised.
 
 =item C<deg2rad>
 
@@ -2346,10 +2435,6 @@ atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]
 =item C<hypot>
 
 hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]
-
-=item C<pow>
-
-pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]
 
 =item C<geocentric_radius>
 

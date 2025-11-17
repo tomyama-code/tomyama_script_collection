@@ -27,7 +27,7 @@ BEGIN {
 
 $ENV{ 'TEST_TARGET_CMD' } = 'c';
 
-#$ENV{WITH_PERL_COVERAGE} = 1;
+$ENV{WITH_PERL_COVERAGE} = 1;
 
 my $apppath = dirname( $0 );
 chdir( "$apppath/../" );
@@ -562,6 +562,24 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( ~0+1, 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'pow_inv( ~0+1, 2 )'} );
+    $cmd->stdout_is_eq( qq{64 ( = 0x40 )\n}, qq{64bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
+    $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( 4294967296, 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'pow_inv( 4294967296, 2 )'} );
+    $cmd->stdout_is_eq( qq{32\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( 4294967297, 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'pow_inv( 4294967297, 2 )'} );
+    $cmd->stdout_is_eq( qq{32.0000000003359\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2PI10='} );
     $cmd->exit_is_num( 0, qq{./c '2PI10='} );
     $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
@@ -907,7 +925,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
     $cmd->stdout_like( qr/^\( \d, \d, \d, \d, \d, \d, \d, \d, \d \)\n/ );
-    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min( shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ) ='} );
@@ -919,13 +937,13 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
     $cmd->stdout_is_eq( qq{( 5, 4, 3, 1, 2, 9, 8, 7, 6 )\n} );
-    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ='} );
     $cmd->stdout_is_eq( qq{( 5, 4, 3, 1, 2, 9, 8, 7, 6 )\n} );
-    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) ='} );
@@ -955,6 +973,42 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->stdout_is_eq( qq{4.5\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( 4, 10, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( 4, 10, 3 )'} );
+    $cmd->stdout_is_eq( qq{( 4, 7, 10 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 5 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 5 )'} );
+    $cmd->stdout_is_eq( qq{( -10, -5, 0, 5, 10 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( 10, -10, 5 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( 10, -10, 5 )'} );
+    $cmd->stdout_is_eq( qq{( 10, 5, 0, -5, -10 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 9 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 9 )'} );
+    $cmd->stdout_is_eq( qq{( -10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 9, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 9, 1 )'} );
+    $cmd->stdout_is_eq( qq{( -10, -7, -5, -2, 0, 2, 5, 7, 10 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 0 )'} );
+    $cmd->stdout_is_eq( qq{-10\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1022,9 +1076,8 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '( 1 + 2 + 3, 4 ) ='} );
     $cmd->exit_is_num( 0, qq{./c '( 1 + 2 + 3, 4 ) ='} );
-    $cmd->stdout_is_eq( qq{4\n} );
-    $cmd->stderr_like( qr/^c: engine: warn: There may be an error in the calculation formula\.\n/ );
-    $cmd->stderr_like( qr/\nc: engine: warn: Remain RPN: 6 4\n/ );
+    $cmd->stdout_is_eq( qq{( 6, 4 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '123' '+2=' -v} );
@@ -1080,6 +1133,7 @@ subtest qq{Normal} => sub{
     $cmd->stdout_like( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
     $cmd->stdout_like( qr/\n Result: 100\n/, qq{result: 100} );
     $cmd->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
+    $cmd->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
@@ -1097,6 +1151,7 @@ subtest qq{Normal} => sub{
     $cmd->stdout_unlike( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
     $cmd->stdout_is_eq( qq{100\n}, qq{result: 100} );
     $cmd->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
+    $cmd->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
     undef( $cmd );
 
 };
