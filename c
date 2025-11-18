@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.3 $
+## - $Revision: 4.5 $
 ##
 ## - Script Structure
 ##   - main
@@ -83,7 +83,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.3 $}.qq{\n} .
+         q{  - $Revision: 4.5 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -432,6 +432,7 @@ use constant {
     H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]},
+    H_FRST => qq{first( A,.. ). Returns the head of the set.},
     H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, \nas judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, \nand retains the first value of any duplicate set. [List::Util]},
     H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
@@ -455,7 +456,7 @@ use constant {
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_GERA => qq{geocentric_radius( LAT ). Given a latitude (in radians), returns \nthe distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_latitude_circle( LAT ). Given a latitude (in radians), \nreturns the radius of that parallel (in meters).},
-    H_DBPT => qq{distance_between_points( ptA_lat, ptA_lon, ptB_lat, ptB_lon ). \nCalculates and returns the distance (in meters) between two points, \nlatitude and longitude must be specified in radians.},
+    H_DBPT => qq{distance_between_points( A_LAT, A_LON, B_LAT, B_LON ). \nCalculates and returns the distance (in meters) from A to B. \nLatitude and longitude must be specified in radians.},
 };
 
 %TableProvider::operators = (
@@ -491,30 +492,31 @@ use constant {
     'min'        => [ 29, T_FUNCTION,   VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
     'max'        => [ 30, T_FUNCTION,   VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
     'shuffle'    => [ 31, T_FUNCTION,   VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'uniq'       => [ 32, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'        => [ 33, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'avg'        => [ 34, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'   => [ 35, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'rand'       => [ 36, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'        => [ 37, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'       => [ 38, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'        => [ 39, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'    => [ 40, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'deg2rad'    => [ 41, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'rad2deg'    => [ 42, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'dms'        => [ 43, T_FUNCTION,    3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'dms2rad'    => [ 44, T_FUNCTION, '3M', H_DD2R, sub{ &DMS2RAD( @_ ) } ],
-    'sin'        => [ 45, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 46, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 47, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 48, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 49, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 50, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 51, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 52, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geocentric_radius'         => [ 53, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_latitude_circle' => [ 54, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'distance_between_points'   => [ 55, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'first'      => [ 32, T_FUNCTION,   VA, H_FRST, sub{ &FIRST( @_ ) } ],
+    'uniq'       => [ 33, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'        => [ 34, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'avg'        => [ 35, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'   => [ 36, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'rand'       => [ 37, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'        => [ 38, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'       => [ 39, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'        => [ 40, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'    => [ 41, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'deg2rad'    => [ 42, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'rad2deg'    => [ 43, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'dms'        => [ 44, T_FUNCTION,    3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'dms2rad'    => [ 45, T_FUNCTION, '3M', H_DD2R, sub{ &DMS2RAD( @_ ) } ],
+    'sin'        => [ 46, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 47, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 48, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 49, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 50, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 51, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 52, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 53, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geocentric_radius'         => [ 54, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_latitude_circle' => [ 55, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'distance_between_points'   => [ 56, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -657,6 +659,11 @@ sub MOD( $$ )
         die( qq{"$_[0] \% $_[1]": Illegal modulus operand.\n} );
     }
     return $_[ 0 ] % $_[ 1 ];
+}
+
+sub FIRST( @ )
+{
+    return $_[ 0 ];
 }
 
 sub LOG( $ )
@@ -2122,8 +2129,8 @@ PI (=3.14159265358979)
 =head2 FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, shuffle, uniq, sum, avg, linspace, rand, log, sqrt,
-pow, pow_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
+min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
+sqrt, pow, pow_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
 atan, atan2, hypot, geocentric_radius, radius_of_latitude_circle, distance_between_points
 
 =head1 OPTIONS
@@ -2193,6 +2200,19 @@ Several functions are also available.
 
   $ c 'sqrt(power(1920,2)+power(1080,2))='
   2202.9071700823
+
+Example of using the functions.
+The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
+and the radians of an arbitrarily selected value are calculated.
+
+  $ ./c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
+  linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
+  shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
+  first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
+  deg2rad( 10 ) = 0.174532925199433
+  Formula: 'deg2rad( first( shuffle( linspace( 0 , 90 , 10 ) ) ) ) ='
+      RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
+   Result: 0.174532925199433
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -2396,6 +2416,10 @@ max( A,.. ). Returns the entry in the list with the highest numerical value. [Li
 
 shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]
 
+=item C<first>
+
+first( A,.. ). Returns the head of the set.
+
 =item C<uniq>
 
 uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]
@@ -2437,11 +2461,11 @@ pow_inv( A, B ). Returns the power of A to which B is raised.
 
 =item C<deg2rad>
 
-deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]
+deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ). [Math::Trig]
 
 =item C<rad2deg>
 
-rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]
+rad2deg( I<RADIANS> ) -> I<DEGREES>. [Math::Trig]
 
 =item C<dms>
 
@@ -2449,19 +2473,19 @@ dms( DEG, MIN, SEC ) -> decimal degrees (DD).
 
 =item C<dms2rad>
 
-dms2rad( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( <RADIANS> [, <RADIANS>..] ).
+dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
 
 =item C<sin>
 
-sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]
+sin( I<RADIANS> ). Returns the sine of I<RADIANS>. [Perl Native]
 
 =item C<cos>
 
-cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]
+cos( I<RADIANS> ). Returns the cosine of I<RADIANS>. [Perl Native]
 
 =item C<tan>
 
-tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]
+tan( I<RADIANS> ). Returns the tangent of I<RADIANS>. [Math::Trig]
 
 =item C<asin>
 
@@ -2493,7 +2517,7 @@ radius_of_latitude_circle( LAT ). Given a latitude (in radians), returns the rad
 
 =item C<distance_between_points>
 
-distance_between_points( ptA_lat, ptA_lon, ptB_lat, ptB_lon ). Calculates and returns the distance (in meters) between two points, latitude and longitude must be specified in radians.
+distance_between_points( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians.
 
 =back
 

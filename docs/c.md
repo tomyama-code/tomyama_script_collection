@@ -38,8 +38,8 @@ PI (=3.14159265358979)
 ## FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, shuffle, uniq, sum, avg, linspace, rand, log, sqrt,
-pow, pow\_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
+min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
+sqrt, pow, pow\_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
 atan, atan2, hypot, geocentric\_radius, radius\_of\_latitude\_circle, distance\_between\_points
 
 # OPTIONS
@@ -105,6 +105,19 @@ Several functions are also available.
 
     $ c 'sqrt(power(1920,2)+power(1080,2))='
     2202.9071700823
+
+Example of using the functions.
+The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
+and the radians of an arbitrarily selected value are calculated.
+
+    $ ./c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
+    linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
+    shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
+    first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
+    deg2rad( 10 ) = 0.174532925199433
+    Formula: 'deg2rad( first( shuffle( linspace( 0 , 90 , 10 ) ) ) ) ='
+        RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
+     Result: 0.174532925199433
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -302,6 +315,10 @@ Be sure to include the sign if the value is negative.
 
     shuffle( A,.. ). Returns the values of the input in a random order. \[List::Util\]
 
+- `first`
+
+    first( A,.. ). Returns the head of the set.
+
 - `uniq`
 
     uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. \[List::Util\]
@@ -343,11 +360,11 @@ Be sure to include the sign if the value is negative.
 
 - `deg2rad`
 
-    deg2rad( <DEGREES> \[, <DEGREES>..\] ) -> ( <RADIANS> \[, <RADIANS>..\] ). \[Math::Trig\]
+    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ). \[Math::Trig\]
 
 - `rad2deg`
 
-    rad2deg( <RADIANS> ) -> <DEGREES>. \[Math::Trig\]
+    rad2deg( _RADIANS_ ) -> _DEGREES_. \[Math::Trig\]
 
 - `dms`
 
@@ -355,19 +372,19 @@ Be sure to include the sign if the value is negative.
 
 - `dms2rad`
 
-    dms2rad( DEG, MIN, SEC \[, DEG, MIN, SEC ..\] ) -> ( <RADIANS> \[, <RADIANS>..\] ).
+    dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
 
 - `sin`
 
-    sin( <RADIANS> ). Returns the sine of <RADIANS>. \[Perl Native\]
+    sin( _RADIANS_ ). Returns the sine of _RADIANS_. \[Perl Native\]
 
 - `cos`
 
-    cos( <RADIANS> ). Returns the cosine of <RADIANS>. \[Perl Native\]
+    cos( _RADIANS_ ). Returns the cosine of _RADIANS_. \[Perl Native\]
 
 - `tan`
 
-    tan( <RADIANS> ). Returns the tangent of <RADIANS>. \[Math::Trig\]
+    tan( _RADIANS_ ). Returns the tangent of _RADIANS_. \[Math::Trig\]
 
 - `asin`
 
@@ -399,7 +416,7 @@ Be sure to include the sign if the value is negative.
 
 - `distance_between_points`
 
-    distance\_between\_points( ptA\_lat, ptA\_lon, ptB\_lat, ptB\_lon ). Calculates and returns the distance (in meters) between two points, latitude and longitude must be specified in radians.
+    distance\_between\_points( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians.
 
 # SEE ALSO
 

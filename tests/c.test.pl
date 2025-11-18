@@ -982,6 +982,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
+    $cmd->stdout_is_eq( qq{5\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ='} );
     $cmd->stdout_is_eq( qq{45\n} );
