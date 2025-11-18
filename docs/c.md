@@ -38,9 +38,9 @@ PI (=3.14159265358979)
 ## FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, sum, avg, rand, log, sqrt, deg2rad, rad2deg, dms,
-dms2rad, sin, cos, tan, asin, acos, atan, atan2, hypot, pow,
-geocentric\_radius, radius\_of\_latitude\_circle, distance\_between\_points
+min, max, shuffle, uniq, sum, avg, linspace, rand, log, sqrt,
+pow, pow\_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
+atan, atan2, hypot, geocentric\_radius, radius\_of\_latitude\_circle, distance\_between\_points
 
 # OPTIONS
 
@@ -314,6 +314,17 @@ Be sure to include the sign if the value is negative.
 
     avg( A,.. ). Returns the average value of all elements in a list.
 
+- `linspace`
+
+    linspace( LOWER, UPPER, COUNT \[, ROUND\] ).
+    Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT.
+    If ROUND is set to true, the numbers are rounded down to integers.
+
+- `rand`
+
+    rand( N ).  Returns a random fractional number greater than or equal to 0 and
+    less than the value of N. \[Perl Native\]
+
 - `log`
 
     log( N ). Returns the natural logarithm (base e) of N. \[Perl Native\]
@@ -321,6 +332,14 @@ Be sure to include the sign if the value is negative.
 - `sqrt`
 
     sqrt( N ). Return the positive square root of N. Works only for non-negative operands. \[Perl Native\]
+
+- `pow`
+
+    pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 \*\* 3". \[Perl Native\]
+
+- `pow_inv`
+
+    pow\_inv( A, B ). Returns the power of A to which B is raised.
 
 - `deg2rad`
 
@@ -369,10 +388,6 @@ Be sure to include the sign if the value is negative.
 - `hypot`
 
     hypot( X, Y ). Equivalent to "sqrt( X \* X + Y \* Y )" except more stable on very large or very small arguments. \[POSIX\]
-
-- `pow`
-
-    pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 \*\* 3". \[Perl Native\]
 
 - `geocentric_radius`
 

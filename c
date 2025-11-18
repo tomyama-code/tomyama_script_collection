@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.2 $
+## - $Revision: 4.3 $
 ##
 ## - Script Structure
 ##   - main
@@ -83,7 +83,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.2 $}.qq{\n} .
+         q{  - $Revision: 4.3 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -350,6 +350,8 @@ sub new {
     if( $self->{B_TEST} ){
         my $opeIdx = &GetOperatorsInfo( '_', O_INDX );
         $TableProvider::opf->dPrint( qq{test: \$opeIdx="$opeIdx"\n} );
+        my $bSentinel = &IsSentinel( '_' );
+        $TableProvider::opf->dPrint( qq{test: \$bSentinel="$bSentinel"\n} );
         $self->Reset();
     }
     return $self;               # 無名ハッシュ参照を返す
@@ -457,59 +459,59 @@ use constant {
 };
 
 %TableProvider::operators = (
-    '+'          => [  0, T_OPERATOR,   2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'          => [  1, T_OPERATOR,   2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'          => [  2, T_OPERATOR,   2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'          => [  3, T_OPERATOR,   2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'          => [  4, T_OPERATOR,   2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'         => [  5, T_OPERATOR,   2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'          => [  6, T_OPERATOR,   2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'          => [  7, T_OPERATOR,   2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'          => [  8, T_OPERATOR,   2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '~'          => [  9, T_OPERATOR,   1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('        => [ 10, T_OTHER,     -1, undef  ],
-    '('          => [ 11, T_OPERATOR,   2, H_BBEG ],
-    ','          => [ 12, T_OPERATOR,  -1, H_COMA ],
-    ')'          => [ 13, T_OPERATOR,   2, H_BEND ],
-    '='          => [ 14, T_OPERATOR,   1, H_EQUA ],
-    'OPERAND'    => [ 15, T_OTHER,      0, undef  ],
-    'BEGIN'      => [ 16, T_OTHER,      0, undef  ],
-    '#'          => [ 17, T_SENTINEL,  -1, undef  ],
-    'testfunc'   => [ 18, T_OTHER,      1, undef  ],
-    'abs'        => [ 19, T_FUNCTION,   1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'        => [ 20, T_FUNCTION,   1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'      => [ 21, T_FUNCTION,   1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'       => [ 22, T_FUNCTION,   1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'  => [ 23, T_FUNCTION,   2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'      => [ 24, T_FUNCTION,   2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'    => [ 25, T_FUNCTION,   2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'        => [ 26, T_FUNCTION,  VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'gcd'        => [ 27, T_FUNCTION,  VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'        => [ 28, T_FUNCTION,  VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'min'        => [ 29, T_FUNCTION,  VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'        => [ 30, T_FUNCTION,  VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'    => [ 31, T_FUNCTION,  VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'uniq'       => [ 32, T_FUNCTION,  VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'        => [ 33, T_FUNCTION,  VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'avg'        => [ 34, T_FUNCTION,  VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'   => [ 35, T_FUNCTION,  VA, H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'rand'       => [ 36, T_FUNCTION,   1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'        => [ 37, T_FUNCTION,   1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'       => [ 38, T_FUNCTION,   1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'        => [ 39, T_FUNCTION,   2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'    => [ 40, T_FUNCTION,   2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'deg2rad'    => [ 41, T_FUNCTION,  VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'rad2deg'    => [ 42, T_FUNCTION,   1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'dms'        => [ 43, T_FUNCTION,   3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'dms2rad'    => [ 44, T_FUNCTION,  VA, H_DD2R, sub{ &DMS2RAD( @_ ) } ],
-    'sin'        => [ 45, T_FUNCTION,   1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 46, T_FUNCTION,   1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 47, T_FUNCTION,   1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 48, T_FUNCTION,   1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 49, T_FUNCTION,   1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 50, T_FUNCTION,   1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 51, T_FUNCTION,   2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 52, T_FUNCTION,   2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    '+'          => [  0, T_OPERATOR,    2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
+    '-'          => [  1, T_OPERATOR,    2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    '*'          => [  2, T_OPERATOR,    2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'          => [  3, T_OPERATOR,    2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'          => [  4, T_OPERATOR,    2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'         => [  5, T_OPERATOR,    2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'          => [  6, T_OPERATOR,    2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'          => [  7, T_OPERATOR,    2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'          => [  8, T_OPERATOR,    2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '~'          => [  9, T_OPERATOR,    1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('        => [ 10, T_OTHER,      -1, undef  ],
+    '('          => [ 11, T_OPERATOR,    2, H_BBEG ],
+    ','          => [ 12, T_OPERATOR,   -1, H_COMA ],
+    ')'          => [ 13, T_OPERATOR,    2, H_BEND ],
+    '='          => [ 14, T_OPERATOR,    1, H_EQUA ],
+    'OPERAND'    => [ 15, T_OTHER,       0, undef  ],
+    'BEGIN'      => [ 16, T_OTHER,       0, undef  ],
+    '#'          => [ 17, T_SENTINEL,   -1, undef  ],
+    'testfunc'   => [ 18, T_OTHER,       1, undef  ],
+    'abs'        => [ 19, T_FUNCTION,    1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'        => [ 20, T_FUNCTION,    1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'      => [ 21, T_FUNCTION,    1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'       => [ 22, T_FUNCTION,    1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'  => [ 23, T_FUNCTION,    2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'      => [ 24, T_FUNCTION,    2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'    => [ 25, T_FUNCTION,    2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'pct'        => [ 26, T_FUNCTION,   VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'gcd'        => [ 27, T_FUNCTION,   VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'        => [ 28, T_FUNCTION,   VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'min'        => [ 29, T_FUNCTION,   VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'        => [ 30, T_FUNCTION,   VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'    => [ 31, T_FUNCTION,   VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'uniq'       => [ 32, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'        => [ 33, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'avg'        => [ 34, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'   => [ 35, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'rand'       => [ 36, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'        => [ 37, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'       => [ 38, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'        => [ 39, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'    => [ 40, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'deg2rad'    => [ 41, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'rad2deg'    => [ 42, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'dms'        => [ 43, T_FUNCTION,    3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'dms2rad'    => [ 44, T_FUNCTION, '3M', H_DD2R, sub{ &DMS2RAD( @_ ) } ],
+    'sin'        => [ 45, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 46, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 47, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 48, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 49, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 50, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 51, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 52, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
     'geocentric_radius'         => [ 53, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_latitude_circle' => [ 54, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
     'distance_between_points'   => [ 55, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
@@ -1470,7 +1472,11 @@ sub new {
         unshift( @{ $self->{TOKENS} }, $el_r );
         unshift( @{ $self->{TOKENS} }, $el_r );
         $self->UpdateRegister();
-        $self->Input( $el_r );
+        $@ = '';
+        eval{
+            $self->Input( $el_r );
+        };
+        print STDERR ( $@ );
         $self->opf->dPrintf( qq{scalar( \@{ \$self->{RPN} } ) = %d\n}, scalar( @{ $self->{RPN} } ) );
         $self->opf->dPrintf( qq{scalar( \@{ \$self->{TOKENS} } ) = %d\n}, scalar( @{ $self->{TOKENS} } ) );
         my $usage = $self->GetUsage( 'none-operator' );
@@ -1513,6 +1519,16 @@ sub Inputs( @ )
     }
     return $tokens_len;
 }
+use constant {
+    C_OPENUM => 0,
+    C_FNCNUM => 1,
+    C_FNCRAN => 2,
+    C_FNCVAR => 3,
+    C_FNCMLT => 4,
+};
+use constant C_CASES => qw(
+    C_OPENUM C_FNCNUM C_FNCRAN C_FNCVAR C_FNCMLT
+);
 sub Input( $ )
 {
     my $self = shift( @_ );
@@ -1533,33 +1549,65 @@ sub Input( $ )
         $op = $token->data;
         my $bFunction = $token->IsFunction();
         $self->opf->dPrint( qq{Input(): \$op="$op"\n} );
-        if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '~' ) ){
+        if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '^' ) || ( $op eq '~' ) ){
             $self->{FLAGS} |= BIT_DISP_HEX;
         }
         my $subr = &TableProvider::GetSubroutine( $op );
         ## GetSubroutine() で undef になるオペレーターは
         ## Parser もしくは この手前で（例えばsentinel）フィルター済み
-        my $need_argc = &TableProvider::GetArgc( $op );
-        my @args = ();
-        ## check
-        my $arg_counter = 0;
+        my $argc = &TableProvider::GetArgc( $op );
         my $tokens_len = scalar( @{ $self->{TOKENS} } );
-        my $check_len = $need_argc;
-        if( $need_argc =~ m/^(\d+)M$/o ){
-            $check_len = $1 + 1;
+        ## check
+        my $case = -1;
+        my $need_argc = -1;
+        my $argc_min = -1;
+        my $argc_max = -1;
+        my $check_len = -1;
+        if( $argc =~ m/^(\d+)M$/o ){
+            $case = C_FNCMLT;
             $need_argc = TableProvider::VA;
-            #print( qq{$need_argc: \$tokens_len="$tokens_len", \$check_len="$check_len"\n} );
-        }elsif( $need_argc == TableProvider::VA ){
+            $argc_min = $1;
+            $argc_max = $tokens_len - 1;
             $check_len = $tokens_len;
-#            $check_len-- if( $bFunction );
+        }elsif( $argc =~ m/^(\d+)\-(\d+)$/o ){
+            $case = C_FNCRAN;
+            $need_argc = TableProvider::VA;
+            $argc_min = $1;
+            $argc_max = $2;
+            $check_len = $argc_max + 1;
+        }elsif( $argc == TableProvider::VA ){
+            $case = C_FNCVAR;
+            $need_argc = TableProvider::VA;
+            $argc_min = 1;
+            $argc_max = $tokens_len - 1;
+            $check_len = $tokens_len;
+        }elsif( $bFunction ){
+            $case = C_FNCNUM;
+            $need_argc = $argc;
+            $argc_min = $argc;
+            $argc_max = $argc;
+            $check_len = $argc_max + 1;
+        }else{
+            $case = C_OPENUM;
+            $need_argc = $argc;
+            $argc_min = $argc;
+            $argc_max = $argc;
+            $check_len = $argc_max;
         }
-        if( $tokens_len < $check_len ){
+        my $b_tokens_len_check = 0;
+        my $token_len_chk = $argc_min + 1;
+        $token_len_chk = $argc_min if( $case == C_OPENUM );
+        $b_tokens_len_check = 1 if( $tokens_len < $token_len_chk );
+#        printf( qq{\$case="%s", \$tokens_len="$tokens_len", \$need_argc="$need_argc", \$argc_min="$argc_min", \$argc_max="$argc_max", \$check_len="$check_len", \$b_tokens_len_check="$b_tokens_len_check"\n},
+#            ( C_CASES )[ $case ] );
+        if( $b_tokens_len_check ){
             my $msg = qq{"$op": Operand missing.\n};
             $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
             $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
             $msg .= $self->GetUsage( $op );
             $self->opf->Die( $msg );
         }
+        my $arg_counter = 0;
         for( $arg_counter=0; $arg_counter<$check_len; $arg_counter++ ){
             my $el = ${ $self->{TOKENS} }[ $arg_counter ];
             if( !( $el->IsOperand() ) ){
@@ -1567,85 +1615,84 @@ sub Input( $ )
                     if( $need_argc == TableProvider::VA ){
                         $need_argc = $arg_counter;
                         $self->opf->dPrint( qq{variable arguments: \$need_argc="$need_argc"\n} );
-                        if( $need_argc == 0 ){
-                            my $msg = qq{"$op": No operands.\n};
-                            $msg .= $self->GetUsage( $op );
-                            $self->opf->Die( $msg );
-                        }
                         last;
-                    }else{
-                        my $msg = qq{"$op": Not enough operands.\n};
-                        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-                        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
-                        $msg .= $self->GetUsage( $op );
-                        $self->opf->Die( $msg );
                     }
+                }else{
+                    my $msg = qq{"$op": Unexpected errors.\n};
+                    $self->opf->Die( $msg );
                 }
                 last;
             }
         }
         ## calc
-        if( $arg_counter == $need_argc ){
-            for( my $idx=0; $idx<$need_argc; $idx++ ){
-                my $el = shift( @{ $self->{TOKENS} } );
-                unshift( @args, ( $el->data + 0 ) );
-            }
-            if( $bFunction ){
-                my $sentinel = shift( @{ $self->{TOKENS} } );
-#                printf( qq{E: 0x%X, "%s"\n}, $sentinel->flags, $sentinel->data );
-                if( &TableProvider::IsSentinel( $sentinel->data ) ){
-                    $self->opf->dPrint( qq{\$need_argc="$need_argc": Retrieve sentinel.\n} );
-                }else{
-                    unshift( @{ $self->{TOKENS} }, $sentinel );
-                    my $msg = qq{"$op": The number of arguments is incorrect.\n};
-                    $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-                    $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
-                    $msg .= $self->GetUsage( $op );
-                    $self->opf->Die( $msg );
-                }
-            }
-            $self->RegisterClear();
-            my $formula = '';
-            if( &TableProvider::IsOperatorExists( $op ) ){
-                my $args_len = scalar( @args );
-                if( $args_len == 1 ){
-                    $formula = qq{$op$args[ 0 ]};
-                }else{
-                    $formula = qq{$args[ 0 ] $op $args[ 1 ]};
-                }
+        my @args = ();
+        my $b_args_len_check = 0;
+        my $msg = '';
+        if( $case == C_FNCMLT ){
+            $b_args_len_check = 1 if( ($arg_counter % $argc_min ) != 0 );
+            $msg = qq{$op: \$arg_counter="$arg_counter": Not a multiple of $argc_min.\n};
+        }else{
+            $b_args_len_check = 1 if( $arg_counter < $argc_min || $argc_max < $arg_counter );
+            $msg = qq{$op: \$arg_counter="$arg_counter": The number of operands is incorrect.\n};
+        }
+#        printf( qq{\$b_args_len_check="$b_args_len_check", \$arg_counter="$arg_counter"\n} );
+        if( $b_args_len_check ){
+            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
+            $msg .= $self->GetUsage( $op );
+            $self->opf->Die( $msg );
+        }
+        for( my $idx=0; $idx<$need_argc; $idx++ ){
+            my $el = shift( @{ $self->{TOKENS} } );
+            unshift( @args, ( $el->data + 0 ) );
+        }
+        if( $bFunction ){
+            my $sentinel = shift( @{ $self->{TOKENS} } );
+            #printf( qq{E: 0x%X, "%s"\n}, $sentinel->flags, $sentinel->data );
+            $self->opf->dPrintf( qq{\$need_argc="$need_argc": "%s": Retrieve sentinel.\n},
+                $sentinel->data );
+        }
+        $self->RegisterClear();
+        my $formula = '';
+        if( &TableProvider::IsOperatorExists( $op ) ){
+            my $args_len = scalar( @args );
+            if( $args_len == 1 ){
+                $formula = qq{$op$args[ 0 ]};
             }else{
-                $formula = qq{$op( } . join( ', ', @args ) . qq{ )};
+                $formula = qq{$args[ 0 ] $op $args[ 1 ]};
             }
-            $self->{FORMULA} = $formula;
-            ## 計算実行
-            my $result = 0;
-            my @results = ();
-            eval{   ## 子処理の戻り先を積んでおく（die()を補足）
-                @results = &{ $subr }( @args );
-            };
-            if( $@ ){
-                my $msg = $@;
-                $msg =~ s/ at .*\d\.$/./;
-                $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-                $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
-                $msg .= $self->GetUsage( $op );
-                $self->opf->Die( $msg );
+        }else{
+            $formula = qq{$op( } . join( ', ', @args ) . qq{ )};
+        }
+        $self->{FORMULA} = $formula;
+        ## 計算実行
+        my $result = 0;
+        my @results = ();
+        eval{   ## 子処理の戻り先を積んでおく（die()を補足）
+            @results = &{ $subr }( @args );
+        };
+        if( $@ ){
+            my $msg = $@;
+            $msg =~ s/ at .*\d\.$/./;
+            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
+            $msg .= $self->GetUsage( $op );
+            $self->opf->Die( $msg );
+        }
+        my $results_len = scalar( @results );
+        $result = $results[ 0 ];
+        $tokens[ 0 ] = FormulaToken::NewOperand( $result );
+        if( $results_len > 1 ){
+            $result = '( ' . join( ', ', @results ) . ' )';
+            for ( my $idx=1; $idx<$results_len; $idx++ ){
+                my $res = $results[ $idx ];
+                my $new = FormulaToken::NewOperand( $res );
+                unshift( @tokens, $new );
             }
-            my $results_len = scalar( @results );
-            $result = $results[ 0 ];
-            $tokens[ 0 ] = FormulaToken::NewOperand( $result );
-            if( $results_len > 1 ){
-                $result = '( ' . join( ', ', @results ) . ' )';
-                for ( my $idx=1; $idx<$results_len; $idx++ ){
-                    my $res = $results[ $idx ];
-                    my $new = FormulaToken::NewOperand( $res );
-                    unshift( @tokens, $new );
-                }
-            }
-            $self->{REGISTER} = $result;
-            if( $self->{B_VERBOSEOUTPUT} ){
-                print( qq{$self->{FORMULA} = $result\n} );
-            }
+        }
+        $self->{REGISTER} = $result;
+        if( $self->{B_VERBOSEOUTPUT} ){
+            print( qq{$self->{FORMULA} = $result\n} );
         }
     }
 

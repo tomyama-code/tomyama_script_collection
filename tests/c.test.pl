@@ -27,7 +27,7 @@ BEGIN {
 
 $ENV{ 'TEST_TARGET_CMD' } = 'c';
 
-$ENV{WITH_PERL_COVERAGE} = 1;
+#$ENV{WITH_PERL_COVERAGE} = 1;
 
 my $apppath = dirname( $0 );
 chdir( "$apppath/../" );
@@ -182,6 +182,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '5 ^ 3 ='} );
+    $cmd->exit_is_num( 0, qq{./c '5 ^ 3 ='} );
+    $cmd->stdout_is_eq( qq{6 ( = 0x6 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1+1='} );
     $cmd->exit_is_num( 0, qq{./c '~1+1='} );
     $cmd->stdout_is_eq( qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
@@ -276,7 +282,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2,100)+power(2,100))='} );
     $cmd->exit_isnt_num( 0, qq{./c 'sqrt(power(2,100)+power(2,100))='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: "pow": Not enough operands\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: pow: \$arg_counter="1": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2, 100))='} );
@@ -482,6 +488,30 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90.42333, 0, 0 )'} );
     $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25, -23.9880000000255, -90, -25, -23.9880000000255 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90, -25, -23.9880000000255, -90, -25, -23.9880000000255 )'} );
+    $cmd->stdout_is_eq( qq{( -1.57818482911736, -1.57818482911736 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25, -23.9880000000255, -90, -25 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'dms2rad( -90, -25, -23.9880000000255, -90, -25 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="5": Not a multiple of 3\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'dms2rad( -90, -25 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: "dms2rad": Operand missing\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '1 + ( 2 + ( 3 + dms2rad( -90, -25 ) ) )'} );
+    $cmd->exit_isnt_num( 0, qq{./c '1 + ( 2 + ( 3 + dms2rad( -90, -25 ) ) )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="2": Not a multiple of 3\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geocentric_radius( deg2rad( 0 ) ) / 1000 ='} );
@@ -853,7 +883,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct()'} );
     $cmd->exit_isnt_num( 0, qq{./c 'pct()'} );
     $cmd->stdout_is_eq( qq{} );
-    $cmd->stderr_like( qr/^c: evaluator: error: "pct": No operands.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: "pct": Operand missing\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 0 )'} );
@@ -919,7 +949,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min() ='} );
     $cmd->exit_isnt_num( 0, qq{./c 'min() ='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: "min": No operands\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: "min": Operand missing\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
@@ -1010,6 +1040,18 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 0 )'} );
     $cmd->stdout_is_eq( qq{-10\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'linspace( -10, 10 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: "linspace": Operand missing\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 3, 1, 0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'linspace( -10, 10, 3, 1, 0 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: linspace: \$arg_counter="5": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
@@ -1109,7 +1151,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
     $cmd->exit_isnt_num( 0, qq{./c 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: "sqrt": The number of arguments is incorrect\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: sqrt: \$arg_counter="2": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(-1)'} );
@@ -1124,16 +1166,18 @@ subtest qq{Normal} => sub{
     $cmd->stdout_like( qr/\nengine: \$help_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
     ## TableProvider
     $cmd->stdout_like( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
+    $cmd->stdout_like( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
     ## FormulaStack
     $cmd->stdout_like( qr/Pop\(\): enmpy/, 'FormulaStack' );
     $cmd->stdout_like( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
     ## FormulaEvaluator
     $cmd->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{RPN\} \} \) = 3\n/, 'FormulaEvaluator' );
-    $cmd->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{TOKENS\} \} \) = 3\n/, 'FormulaEvaluator' );
+    $cmd->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{TOKENS\} \} \) = 2\n/, 'FormulaEvaluator' );
     $cmd->stdout_like( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
     $cmd->stdout_like( qr/\n Result: 100\n/, qq{result: 100} );
     $cmd->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
     $cmd->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
+    $cmd->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
@@ -1142,16 +1186,18 @@ subtest qq{Normal} => sub{
     $cmd->stdout_unlike( qr/\nengine: \$help_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
     ## TableProvider
     $cmd->stdout_unlike( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
+    $cmd->stdout_unlike( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
     ## FormulaStack
     $cmd->stdout_unlike( qr/Pop\(\): enmpy/, 'FormulaStack' );
     $cmd->stdout_unlike( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
     ## FormulaEvaluator
     $cmd->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::RPN \) = 3\n/, 'FormulaEvaluator' );
-    $cmd->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::Tokens \) = 3\n/, 'FormulaEvaluator' );
+    $cmd->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::Tokens \) = 2\n/, 'FormulaEvaluator' );
     $cmd->stdout_unlike( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
     $cmd->stdout_is_eq( qq{100\n}, qq{result: 100} );
     $cmd->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
     $cmd->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
+    $cmd->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
     undef( $cmd );
 
 };

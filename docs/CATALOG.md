@@ -20,7 +20,7 @@ The Flat Text Calculator
 
 - The "c" script displays the result of the given expression.
 
-- $Revision: 3.4 $
+- $Revision: 4.3 $
 
 - Script Structure
   - main
