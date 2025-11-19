@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.5 $
+## - $Revision: 4.6 $
 ##
 ## - Script Structure
 ##   - main
@@ -83,7 +83,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.5 $}.qq{\n} .
+         q{  - $Revision: 4.6 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -440,10 +440,11 @@ use constant {
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and \nless than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. \nWorks only for non-negative operands. [Perl Native]},
-    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
     H_R2DG => qq{rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]},
-    H_DEGM => qq{dms( DEG, MIN, SEC ) -> decimal degrees (DD).},
-    H_DD2R => qq{dms2rad( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
+    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
+    H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
+    H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> ) -> decimal degrees (DD).},
+    H_D2DM => qq{deg2dms( <DEGREES> ) -> ( <DEG>, <MIN>, <SEC> ).},
     H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
     H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
     H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]},
@@ -454,9 +455,9 @@ use constant {
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable \non very large or very small arguments. [POSIX]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
-    H_GERA => qq{geocentric_radius( LAT ). Given a latitude (in radians), returns \nthe distance from the center of the Earth to its surface (in meters).},
-    H_LATC => qq{radius_of_latitude_circle( LAT ). Given a latitude (in radians), \nreturns the radius of that parallel (in meters).},
-    H_DBPT => qq{distance_between_points( A_LAT, A_LON, B_LAT, B_LON ). \nCalculates and returns the distance (in meters) from A to B. \nLatitude and longitude must be specified in radians.},
+    H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns \nthe distance from the center of the Earth to its surface (in meters).},
+    H_LATC => qq{radius_of_lat_circle( LAT ). Given a latitude (in radians), \nreturns the radius of that parallel (in meters).},
+    H_DBPT => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). \nCalculates and returns the distance (in meters) from A to B. \nLatitude and longitude must be specified in radians.},
 };
 
 %TableProvider::operators = (
@@ -502,21 +503,22 @@ use constant {
     'sqrt'       => [ 39, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
     'pow'        => [ 40, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
     'pow_inv'    => [ 41, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'deg2rad'    => [ 42, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'rad2deg'    => [ 43, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'dms'        => [ 44, T_FUNCTION,    3, H_DEGM, sub{ &DMS( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'dms2rad'    => [ 45, T_FUNCTION, '3M', H_DD2R, sub{ &DMS2RAD( @_ ) } ],
-    'sin'        => [ 46, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 47, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 48, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 49, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 50, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 51, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 52, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 53, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geocentric_radius'         => [ 54, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_latitude_circle' => [ 55, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'distance_between_points'   => [ 56, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'rad2deg'    => [ 42, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'deg2rad'    => [ 43, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'    => [ 44, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'    => [ 45, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'deg2dms'    => [ 46, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'sin'        => [ 47, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 48, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 49, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 50, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 51, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 52, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 53, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 54, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geo_radius'           => [ 55, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat_circle' => [ 56, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 57, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -686,7 +688,7 @@ sub DEG2RAD( @ )
     return @rad_array;
 }
 
-sub DMS( $$$ )
+sub DMS2DEG( $$$ )
 {
     my $degrees = shift( @_ );
     my $min = shift( @_ );
@@ -701,11 +703,22 @@ sub DMS2RAD( $$$ )
         my $degrees = shift( @_ );
         my $min = shift( @_ );
         my $sec = shift( @_ );
-        my $rad = &Math::Trig::deg2rad( &DMS( $degrees, $min, $sec ) );
+        my $rad = &Math::Trig::deg2rad( &DMS2DEG( $degrees, $min, $sec ) );
         push( @rad_array, $rad );
     }
     return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
     return @rad_array;
+}
+
+sub DEG2DMS( $ )
+{
+    my $deg = shift( @_ );
+    my $d = int( $deg );
+    $d = '-0' if( $d == 0 && $deg < 0 );
+    my $m_raw = ( $deg - $d ) * 60;
+    my $m = int( $m_raw );
+    my $s = ( $m_raw - $m ) * 60;
+    return ( $d, $m, $s );
 }
 
 sub rounddown( $$ )
@@ -2130,8 +2143,8 @@ PI (=3.14159265358979)
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
 min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
-sqrt, pow, pow_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
-atan, atan2, hypot, geocentric_radius, radius_of_latitude_circle, distance_between_points
+sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
+acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance
 
 =head1 OPTIONS
 
@@ -2285,14 +2298,14 @@ Calculate the distance between two points.
   Madagascar:        degrees: -18.76694, 46.8691
   Galapagos Islands: degrees: -0.3831, -90.42333
 
-  $ c 'distance_between_points( deg2rad( -18.76694, 46.8691 ),
+  $ c 'geo_distance( deg2rad( -18.76694, 46.8691 ),
        deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
   14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-  $ c 'distance_between_points( ' \
+  $ c 'geo_distance( ' \
       'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
       'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) / 1000 ='
   14907.357977036
@@ -2459,21 +2472,25 @@ pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Nati
 
 pow_inv( A, B ). Returns the power of A to which B is raised.
 
-=item C<deg2rad>
-
-deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ). [Math::Trig]
-
 =item C<rad2deg>
 
 rad2deg( I<RADIANS> ) -> I<DEGREES>. [Math::Trig]
 
-=item C<dms>
+=item C<deg2rad>
 
-dms( DEG, MIN, SEC ) -> decimal degrees (DD).
+deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ). [Math::Trig]
 
 =item C<dms2rad>
 
 dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+
+=item C<dms2deg>
+
+dms2deg( I<DEG>, I<MIN>, I<SEC> ) -> decimal degrees (DD).
+
+=item C<deg2dms>
+
+deg2dms( I<DEGREES> ) -> ( I<DEG>, I<MIN>, I<SEC> ).
 
 =item C<sin>
 
@@ -2507,17 +2524,17 @@ atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]
 
 hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]
 
-=item C<geocentric_radius>
+=item C<geo_radius>
 
-geocentric_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
-=item C<radius_of_latitude_circle>
+=item C<radius_of_lat_circle>
 
-radius_of_latitude_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
-=item C<distance_between_points>
+=item C<geo_distance>
 
-distance_between_points( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians.
+geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians.
 
 =back
 

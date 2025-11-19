@@ -39,8 +39,8 @@ PI (=3.14159265358979)
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
 min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
-sqrt, pow, pow\_inv, deg2rad, rad2deg, dms, dms2rad, sin, cos, tan, asin, acos,
-atan, atan2, hypot, geocentric\_radius, radius\_of\_latitude\_circle, distance\_between\_points
+sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
+acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance
 
 # OPTIONS
 
@@ -190,14 +190,14 @@ Calculate the distance between two points.
     Madagascar:        degrees: -18.76694, 46.8691
     Galapagos Islands: degrees: -0.3831, -90.42333
 
-    $ c 'distance_between_points( deg2rad( -18.76694, 46.8691 ),
+    $ c 'geo_distance( deg2rad( -18.76694, 46.8691 ),
          deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
     14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-    $ c 'distance_between_points( ' \
+    $ c 'geo_distance( ' \
         'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
         'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) / 1000 ='
     14907.357977036
@@ -358,21 +358,25 @@ Be sure to include the sign if the value is negative.
 
     pow\_inv( A, B ). Returns the power of A to which B is raised.
 
-- `deg2rad`
-
-    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ). \[Math::Trig\]
-
 - `rad2deg`
 
     rad2deg( _RADIANS_ ) -> _DEGREES_. \[Math::Trig\]
 
-- `dms`
+- `deg2rad`
 
-    dms( DEG, MIN, SEC ) -> decimal degrees (DD).
+    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ). \[Math::Trig\]
 
 - `dms2rad`
 
     dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+
+- `dms2deg`
+
+    dms2deg( _DEG_, _MIN_, _SEC_ ) -> decimal degrees (DD).
+
+- `deg2dms`
+
+    deg2dms( _DEGREES_ ) -> ( _DEG_, _MIN_, _SEC_ ).
 
 - `sin`
 
@@ -406,17 +410,17 @@ Be sure to include the sign if the value is negative.
 
     hypot( X, Y ). Equivalent to "sqrt( X \* X + Y \* Y )" except more stable on very large or very small arguments. \[POSIX\]
 
-- `geocentric_radius`
+- `geo_radius`
 
-    geocentric\_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+    geo\_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
-- `radius_of_latitude_circle`
+- `radius_of_lat_circle`
 
-    radius\_of\_latitude\_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+    radius\_of\_lat\_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
-- `distance_between_points`
+- `geo_distance`
 
-    distance\_between\_points( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians.
+    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians.
 
 # SEE ALSO
 

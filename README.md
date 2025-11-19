@@ -19,6 +19,7 @@
 
 ### [mark](docs/mark.md)
 ![Image of the mark command execution](docs/img/mark.jpg)
+[blog: 検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)
 
 * * *
 
