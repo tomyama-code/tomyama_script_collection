@@ -37,10 +37,9 @@ PI (=3.14159265358979)
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
-sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
-acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance
+abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
+linspace, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
+acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km
 
 # OPTIONS
 
@@ -190,17 +189,32 @@ Calculate the distance between two points.
     Madagascar:        degrees: -18.76694, 46.8691
     Galapagos Islands: degrees: -0.3831, -90.42333
 
-    $ c 'geo_distance( deg2rad( -18.76694, 46.8691 ),
-         deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
+    $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
+         deg2rad( -0.3831, -90.42333 ) ) ='
     14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-    $ c 'geo_distance( ' \
+    $ c 'geo_distance_km( ' \
         'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
-        'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) / 1000 ='
+        'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
     14907.357977036
+
+If you record the calculation as shown below,
+you can save not only the calculation results but also the calculation method,
+which I think will be easy to reuse and convenient.
+This is one of the reasons why I wrote this tool.
+
+    $ Madagascar_coord='-18.76694, 46.8691'
+    $ Galapagos_Islands_coord='-0.3831, -90.42333'
+    $ c "geo_distance_km(
+    >      deg2rad(
+    >        $Madagascar_coord, $Galapagos_Islands_coord
+    >      )
+    >    )"
+    14907.357977036
+    $
 
 # OPERATORS
 
@@ -420,7 +434,15 @@ Be sure to include the sign if the value is negative.
 
 - `geo_distance`
 
-    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians.
+    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m().
+
+- `geo_distance_m`
+
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance().
+
+- `geo_distance_km`
+
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000.
 
 # SEE ALSO
 

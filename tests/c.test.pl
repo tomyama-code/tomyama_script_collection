@@ -616,6 +616,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'abs(-29.3577535427913)='} );
     $cmd->exit_is_num( 0, qq{./c 'abs(-29.3577535427913)='} );
     $cmd->stdout_is_eq( qq{29.3577535427913\n} );

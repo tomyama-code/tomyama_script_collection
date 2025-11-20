@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.8 $
+## - $Revision: 4.9 $
 ##
 ## - Script Structure
 ##   - main
@@ -87,7 +87,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.8 $}.qq{\n} .
+         q{  - $Revision: 4.9 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -513,7 +513,9 @@ use constant {
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
-    H_DBPT => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians.},
+    H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
+    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance().},
+    H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.},
 };
 
 %TableProvider::operators = (
@@ -574,7 +576,9 @@ use constant {
     'hypot'      => [ 54, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
     'geo_radius'           => [ 55, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_lat_circle' => [ 56, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 57, T_FUNCTION, 4, H_DBPT, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance'         => [ 57, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 58, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 59, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -938,6 +942,10 @@ sub distance_between_points( $$$$ )
     return $distance_m;
 }
 
+sub distance_between_points_km( $$$$ )
+{
+    return &distance_between_points( @_ ) / 1000;
+}
 
 package FormulaParser;
 use strict;
@@ -1790,7 +1798,7 @@ sub GetUsage( $ )
     my $help = &TableProvider::GetHelp( $op );
     if( defined( $help ) ){
         $usage = $help;
-        $usage =~ s/\n//go;
+#        $usage =~ s/\n//go;
         $usage = 'usage: ' . $usage;
         $info = $self->opf->GenMsg( 'info', $usage ) . "\n";
     }
@@ -2197,10 +2205,9 @@ PI (=3.14159265358979)
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm,
-min, max, shuffle, first, uniq, sum, avg, linspace, rand, log,
-sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
-acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance
+abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
+linspace, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
+acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m, geo_distance_km
 
 =head1 OPTIONS
 
@@ -2354,17 +2361,32 @@ Calculate the distance between two points.
   Madagascar:        degrees: -18.76694, 46.8691
   Galapagos Islands: degrees: -0.3831, -90.42333
 
-  $ c 'geo_distance( deg2rad( -18.76694, 46.8691 ),
-       deg2rad( -0.3831, -90.42333 ) ) / 1000 ='
+  $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
+       deg2rad( -0.3831, -90.42333 ) ) ='
   14907.357977036
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-  $ c 'geo_distance( ' \
+  $ c 'geo_distance_km( ' \
       'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
-      'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) / 1000 ='
+      'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
   14907.357977036
+
+If you record the calculation as shown below,
+you can save not only the calculation results but also the calculation method,
+which I think will be easy to reuse and convenient.
+This is one of the reasons why I wrote this tool.
+
+  $ Madagascar_coord='-18.76694, 46.8691'
+  $ Galapagos_Islands_coord='-0.3831, -90.42333'
+  $ c "geo_distance_km(
+  >      deg2rad(
+  >        $Madagascar_coord, $Galapagos_Islands_coord
+  >      )
+  >    )"
+  14907.357977036
+  $
 
 =head1 OPERATORS
 
@@ -2590,7 +2612,15 @@ radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius o
 
 =item C<geo_distance>
 
-geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians.
+geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().
+
+=item C<geo_distance_m>
+
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance().
+
+=item C<geo_distance_km>
+
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.
 
 =back
 
