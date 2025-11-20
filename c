@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.9 $
+## - $Revision: 4.11 $
 ##
 ## - Script Structure
 ##   - main
@@ -36,7 +36,7 @@
 package OutputFunc;
 use strict;
 use warnings 'all';
-use Term::ReadKey;  ## GetTerminalSize()
+#use Term::ReadKey;  ## GetTerminalSize()
 
 $OutputFunc::counter = 0;
 
@@ -66,8 +66,21 @@ sub Usage( $ )
 {
     my $self = shift( @_ );
 
-    my( $trm_columns, $trm_lines,
-        $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+    #my( $trm_columns, $trm_lines,
+    #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+    # ▼ 幅を固定値にする理由
+    # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
+    # インストール時に C コンパイラが必要となる環境もある。
+    # 「ヘルプ整形」程度でビルド要件を増やすのは避けたいので、
+    # 幅は固定値とする。
+    # ▼ 代表的な歴史的/実用的な幅
+    #   72 : GNU 系コマンド／メール折り返しの伝統
+    #   76 : perldoc が使用
+    #   78 : 80 の“2字控え”として昔使われた妥協値
+    #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
+    #
+    # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
+    my $trm_columns = 80;
     #print( qq{$trm_columns, $trm_lines\n} );
 
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -87,7 +100,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.9 $}.qq{\n} .
+         q{  - $Revision: 4.11 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -2624,19 +2637,66 @@ geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and return
 
 =back
 
+=head1 Environmental requirements
+
+=head2 List of modules used
+
+=over 4
+
+=item * Class::Struct — first included in perl 5.004
+
+=item * constant — first included in perl 5.004
+
+=item * Encode — first included in perl v5.7.3
+
+=item * File::Basename — first included in perl 5
+
+=item * List::Util — first included in perl v5.7.3
+
+=item * Math::BigInt — first included in perl 5
+
+=item * Math::Trig — first included in perl 5.004
+
+=item * POSIX — first included in perl 5
+
+=item * strict — first included in perl 5
+
+=item * utf8 — first included in perl v5.6.0
+
+=item * warnings — first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+- Preparation:
+
+  $ target_script=c
+
+- 1st. column:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+- 2nd. column:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
 =head1 SEE ALSO
 
 =over 4
 
 =item L<perl>(1)
 
-=item L<POSIX>
+=item L<List::Util>
 
 =item L<Math::BigInt>
 
 =item L<Math::Trig>
 
-=item L<List::Util>
+=item L<POSIX>
 
 =back
 

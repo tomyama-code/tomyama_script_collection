@@ -444,13 +444,46 @@ This is one of the reasons why I wrote this tool.
 
     geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000.
 
+# Environmental requirements
+
+## List of modules used
+
+- Class::Struct — first included in perl 5.004
+- constant — first included in perl 5.004
+- Encode — first included in perl v5.7.3
+- File::Basename — first included in perl 5
+- List::Util — first included in perl v5.7.3
+- Math::BigInt — first included in perl 5
+- Math::Trig — first included in perl 5.004
+- POSIX — first included in perl 5
+- strict — first included in perl 5
+- utf8 — first included in perl v5.6.0
+- warnings — first included in perl v5.6.0
+
+## Survey methodology
+
+\- Preparation:
+
+    $ target_script=c
+
+\- 1st. column:
+
+    $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+        sort | uniq | tee ${target_script}.uselist
+
+\- 2nd. column:
+
+    $ cat ${target_script}.uselist | while read line; do
+        corelist $line
+      done
+
 # SEE ALSO
 
 - [perl](https://metacpan.org/pod/perl)(1)
-- [POSIX](https://metacpan.org/pod/POSIX)
+- [List::Util](https://metacpan.org/pod/List%3A%3AUtil)
 - [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt)
 - [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig)
-- [List::Util](https://metacpan.org/pod/List%3A%3AUtil)
+- [POSIX](https://metacpan.org/pod/POSIX)
 
 # AUTHOR
 
