@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.6 $
+## - $Revision: 4.8 $
 ##
 ## - Script Structure
 ##   - main
@@ -36,6 +36,7 @@
 package OutputFunc;
 use strict;
 use warnings 'all';
+use Term::ReadKey;  ## GetTerminalSize()
 
 $OutputFunc::counter = 0;
 
@@ -65,25 +66,28 @@ sub Usage( $ )
 {
     my $self = shift( @_ );
 
+    my( $trm_columns, $trm_lines,
+        $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+    #print( qq{$trm_columns, $trm_lines\n} );
+
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
-    my $fns = join( ', ', &TableProvider::GetFunctionsList() );
-    $fns =~ s!(([a-z0-9]+, ){10})!$1\n    !go;
+    my $fns = &ArrayFitToDeviceWidth( $trm_columns, 4, &TableProvider::GetFunctionsList() );
 
     my $ops_help = qq{<OPERATORS>\n};
     for my $op( &TableProvider::GetOperatorsList() ){
-        $ops_help .= &FmtHelp( $op );
+        $ops_help .= &FmtHelp( $trm_columns, $op );
     }
 
     my $fns_help = qq{<FUNCTIONS>\n};
     for my $fn( &TableProvider::GetFunctionsList() ){
-        $fns_help .= &FmtHelp( $fn );
+        $fns_help .= &FmtHelp( $trm_columns, $fn );
     }
 
     my $msg = "Usage: " .
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.6 $}.qq{\n} .
+         q{  - $Revision: 4.8 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -96,7 +100,7 @@ sub Usage( $ )
         qq{    $ops\n} .
         qq{\n} .
         qq{  <FUNCTIONS>:\n} .
-        qq{    $fns\n} .
+        qq{$fns\n} .
         qq{\n} .
         qq{<OPTIONS>:\n} .
         qq{  -v, --verbose:\n} .
@@ -123,7 +127,12 @@ sub Usage( $ )
 
 sub FmtHelp( $ )
 {
+    my $trm_columns = shift( @_ );
     my $ope = shift( @_ );
+    my $indent_len = 8;
+
+    my $fmt_text = '';
+    my $line = '';
 
     ##1234567890
     ##  1234567
@@ -131,17 +140,65 @@ sub FmtHelp( $ )
     ##        to the given numerical argument. [POSIX]
     ##  $ope  $help
     my $ope_len = length( $ope );
-    my $fmt = qq{  %-5s %s\n};
-    $fmt = qq{  %s\n        %s\n} if( $ope_len > 5 );
+    my $padding_len = $indent_len - ( 2 + $ope_len );
+    if( $padding_len > 0 ){
+        $line = "  $ope" . ' ' x $padding_len;
+    }else{
+        $fmt_text = "  $ope" . "\n";
+        $line = ' ' x $indent_len;
+    }
+
     my $help = &TableProvider::GetHelp( $ope );
     if( !defined( $help ) ){
         $help = '';
-        $fmt = qq{  %s%s\n};
-    }else{
-        $help =~ s/\n/\n        /go;
     }
 
-    return sprintf( $fmt, $ope, $help );
+    my @help_tokens = split( / +/, $help );
+    for my $token( @help_tokens ){
+        my $text_len = length( $line );
+        my $token_len = length( $token );
+        if( ( $text_len + 1 + $token_len ) > $trm_columns ){
+            $fmt_text .= $line . "\n";
+            $line = ' ' x $indent_len . $token;
+        }else{
+            my $sep = " ";
+            $sep = '' if( $line =~ m/ $/o );
+            $line .= $sep . $token;
+        }
+    }
+    $fmt_text .= $line;
+    $fmt_text =~ s/ *$//o;
+    $fmt_text .= "\n";
+
+    return $fmt_text;
+}
+
+sub ArrayFitToDeviceWidth( $$ )
+{
+    my $trm_columns = shift( @_ );
+    my $indent_len = shift( @_ );
+    my @items = @_;
+
+    my $item_len = scalar( @items );
+
+    my $fmt_text = '';
+    my $line = ' ' x $indent_len;
+    for my $item( @items ){
+        my $text_len = length( $line );
+        my $item_len = length( $item );
+        if( ( $text_len + 2 + $item_len + 1 ) > $trm_columns ){
+            $fmt_text .= $line . ",\n";
+            $line = ' ' x $indent_len . $item;
+        }else{
+            my $sep = ", ";
+            $sep = '' if( $line =~ m/^ +$/o );
+            $line .= $sep . $item;
+        }
+    }
+    $fmt_text .= $line;
+    $fmt_text =~ s/, *$//o;
+
+    return $fmt_text;
 }
 
 sub SetDebug()
@@ -417,29 +474,28 @@ use constant {
     H_BBEG => qq{A symbol that controls the priority of calculations.},
     H_COMA => qq{The separator that separates function arguments.},
     H_BEND => qq{A symbol that controls the priority of calculations.},
-    H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating \n} .
-              qq{the calculation formula, but it is not necessary. \n"1 + 2 =". Similarly, "1 + 2".},
+    H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
     H_ABS_ => qq{abs( N ). Returns the absolute value of its argument. [Perl Native]},
     H_INT_ => qq{int( N ). Returns the integer portion of N. [Perl Native]},
-    H_FLOR => qq{floor( N ). Returning the largest integer value less than or equal \nto the numerical argument. [POSIX]},
-    H_CEIL => qq{ceil( N ). Returning the smallest integer value greater than or equal \nto the given numerical argument. [POSIX]},
+    H_FLOR => qq{floor( N ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
+    H_CEIL => qq{ceil( N ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
     H_RODD => qq{rounddown( A, B ). Returns the value of A truncated to B decimal places.},
     H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
-    H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). \nReturns the percentage, rounding the number if DECIMAL_PLACES is specified.},
-    H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest \npositive integer that divides each of the operands. [Math::BigInt::bgcd()]},
+    H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
+    H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
     H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]},
     H_FRST => qq{first( A,.. ). Returns the head of the set.},
-    H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, \nas judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, \nand retains the first value of any duplicate set. [List::Util]},
+    H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
     H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
-    H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). \nGenerates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. \nIf ROUND is set to true, the numbers are rounded down to integers.},
-    H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and \nless than the value of N. [Perl Native]},
+    H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. If ROUND is set to true, the numbers are rounded down to integers.},
+    H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
-    H_SQRT => qq{sqrt( N ). Return the positive square root of N. \nWorks only for non-negative operands. [Perl Native]},
+    H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
     H_R2DG => qq{rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]},
     H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
@@ -452,12 +508,12 @@ use constant {
     H_ACOS => qq{acos( N ). The arcus (also known as the inverse) functions of the cosine. [Math::Trig]},
     H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]},
     H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
-    H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable \non very large or very small arguments. [POSIX]},
+    H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
-    H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns \nthe distance from the center of the Earth to its surface (in meters).},
-    H_LATC => qq{radius_of_lat_circle( LAT ). Given a latitude (in radians), \nreturns the radius of that parallel (in meters).},
-    H_DBPT => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). \nCalculates and returns the distance (in meters) from A to B. \nLatitude and longitude must be specified in radians.},
+    H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
+    H_LATC => qq{radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
+    H_DBPT => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians.},
 };
 
 %TableProvider::operators = (
@@ -1890,8 +1946,8 @@ sub new {
 #    $self->Reset();
 #    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaEngine: create\n} );
     if( $self->{B_TEST} ){
-        my $help_unknown_operator = &OutputFunc::FmtHelp( '***' );
-        $self->opf->dPrint( qq{\$help_unknown_operator="$help_unknown_operator"\n} );
+        my $help_of_unknown_operator = &OutputFunc::FmtHelp( 100, '***' );
+        $self->opf->dPrint( qq{\$help_of_unknown_operator="$help_of_unknown_operator"\n} );
         $self->Reset();
         my $tblProvider2 = TableProvider->new( $self->{APPNAME}, $self->{DEBUG}, $self->{B_TEST} );
         $tblProvider2 = undef;

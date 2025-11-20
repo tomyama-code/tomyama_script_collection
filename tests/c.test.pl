@@ -1217,7 +1217,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     $cmd->exit_is_num( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     ## OutputFunc
-    $cmd->stdout_like( qr/\nengine: \$help_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
+    $cmd->stdout_like( qr/\nengine: \$help_of_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
     ## TableProvider
     $cmd->stdout_like( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
     $cmd->stdout_like( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );

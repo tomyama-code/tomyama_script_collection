@@ -49,7 +49,7 @@ cd tomyama_script_collection/bin
 export PATH="$PWD:$PATH"
 ```
 
-### 方法 3: 手動コピー
+### 方法 3: 一部を手動でコピーする
 お好みの方法で、必要なスクリプトを `$PATH` の通ったディレクトリに配置してください。
 
 ```sh
