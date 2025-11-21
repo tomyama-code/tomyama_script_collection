@@ -20,7 +20,7 @@ The Flat Text Calculator
 
 - The "c" script displays the result of the given expression.
 
-- $Revision: 4.13 $
+- $Revision: 4.14 $
 
 - Script Structure
   - main
@@ -79,32 +79,6 @@ All rights reserved.
 
 For details, please refer to [mark.md](mark.md).
 
-### hello.pl
-
-sample script
-
-- Author: 2025, tomyama
-- A test script for creating directories that serves as a template for the script collection.
-
-BSD 2-Clause License:
-Copyright (c) 2025, tomyama
-All rights reserved.
-
-For details, please refer to [hello.pl.md](hello.pl.md).
-
-### hello.sh
-
-sample script
-
-- Author: 2025, tomyama
-- A test script for creating directories that serves as a template for the script collection.
-
-BSD 2-Clause License:
-Copyright (c) 2025, tomyama
-All rights reserved.
-
-For details, please refer to [hello.sh.md](hello.sh.md).
-
 * * *
 
 ## The script that manages this directory
@@ -154,7 +128,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.6 $
+- $Revision: 2.7 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

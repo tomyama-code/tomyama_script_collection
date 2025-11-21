@@ -208,9 +208,9 @@ The straight-line distance between Madagascar and the Galapagos Islands was foun
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-    $ c 'geo_distance_km( ' \
-        'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
-        'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
+    $ c 'geo_distance_km(
+         dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
+         dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
     14907.357977036
 
 If you record the calculation as shown below,
@@ -221,10 +221,10 @@ This is one of the reasons why I wrote this tool.
     $ Madagascar_coord='-18.76694, 46.8691'
     $ Galapagos_Islands_coord='-0.3831, -90.42333'
     $ c "geo_distance_km(
-    >      deg2rad(
-    >        $Madagascar_coord, $Galapagos_Islands_coord
-    >      )
-    >    )"
+           deg2rad(
+             $Madagascar_coord, $Galapagos_Islands_coord
+           )
+         )"
     14907.357977036
     $
 

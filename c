@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.13 $
+## - $Revision: 4.14 $
 ##
 ## - Script Structure
 ##   - main
@@ -87,7 +87,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.13 $}.qq{\n} .
+         q{  - $Revision: 4.14 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -128,7 +128,7 @@ sub Usage( $ )
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
 # インストール時に C コンパイラが必要となる環境もある。
 # ビルド要件を増やしたくない場合にこのサブルーチンを使用するという前提。
-## Revision: 1.1
+## Revision: 1.2
 sub GetTerminalWidth()
 {
     # Try stty
@@ -143,14 +143,13 @@ sub GetTerminalWidth()
         }
     }
 
-    # Fall back to environment
-    return $ENV{COLUMNS} // 80;
     # ▼ 代表的な歴史的/実用的な幅
     #   72 : GNU 系コマンド／メール折り返しの伝統
     #   76 : perldoc が使用
     #   78 : 80 の“2字控え”として昔使われた妥協値
     #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
     # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
+    return $ENV{COLUMNS} // 80;     # Fall back to environment
 }
 
 sub FmtHelp( $ )
@@ -2415,9 +2414,9 @@ The straight-line distance between Madagascar and the Galapagos Islands was foun
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-  $ c 'geo_distance_km( ' \
-      'dms2rad( -18, -46, -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ), ' \
-      'dms2rad( -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
+  $ c 'geo_distance_km(
+       dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
+       dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
   14907.357977036
 
 If you record the calculation as shown below,
@@ -2428,10 +2427,10 @@ This is one of the reasons why I wrote this tool.
   $ Madagascar_coord='-18.76694, 46.8691'
   $ Galapagos_Islands_coord='-0.3831, -90.42333'
   $ c "geo_distance_km(
-  >      deg2rad(
-  >        $Madagascar_coord, $Galapagos_Islands_coord
-  >      )
-  >    )"
+         deg2rad(
+           $Madagascar_coord, $Galapagos_Islands_coord
+         )
+       )"
   14907.357977036
   $
 
