@@ -65,6 +65,8 @@ acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, g
 
 # ADVANCED USAGE
 
+## BASIC USE CASE
+
 When you provide a calculation formula, it will display the result.
 
     $ c 123456-59+123.456*2=
@@ -130,6 +132,8 @@ However, you can display it by performing a bitwise '_|\[OR\]_' operation with 0
     $ c '100|0'
     100 ( = 0x64 )
 
+## STANDARD INPUT (STDIN) MODE
+
 If no calculation formula is specified as an argument,
 the program will wait for input from STDIN.
 To exit, send an End Of File signal (for example, press Ctrl + D).
@@ -183,15 +187,23 @@ It might be convenient to register it as an alias:
     ex.) ~/.bashrc
     alias ctax="cat - | sed -u 's/^\(.*\)$/round( (\1+0) * 1.1 , 0 ) =/' | c"
 
-Calculate the distance between two points.
+## COORDINATE CALCULATION
+
+I think this is a feature that anyone who likes looking at maps will want to use.
+
+Here we use the following coordinates (latitude and longitude):
 
     ex)
     Madagascar:        degrees: -18.76694, 46.8691
     Galapagos Islands: degrees: -0.3831, -90.42333
 
+Calculate the distance between two points.
+
     $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
          deg2rad( -0.3831, -90.42333 ) ) ='
     14907.357977036
+
+The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
@@ -215,6 +227,12 @@ This is one of the reasons why I wrote this tool.
     >    )"
     14907.357977036
     $
+
+The **c** script was created with the following in mind:
+
+\- It will run with just Perl.
+
+\- The calculation formulas are easy to understand even when read later.
 
 # OPERATORS
 

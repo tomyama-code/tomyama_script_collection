@@ -1390,6 +1390,34 @@ subtest qq{-h, --help} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD --test-test --help} );
+    $cmd->exit_is_num( 0, qq{./c --test-test --help} );
+    $cmd->stdout_like( qr/^Usage: c / );
+    $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{export PATH="./tests:\$PATH" && $TARGCMD --test-test --help} );
+    $cmd->exit_is_num( 0, qq{export PATH="./tests:\$PATH" && ./c --test-test --help} );
+    $cmd->stdout_like( qr/^Usage: c / );
+    $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{export COLUMNS="70" && $TARGCMD --help} );
+    $cmd->exit_is_num( 0, qq{export COLUMNS="70" && ./c --help} );
+    $cmd->stdout_like( qr/^Usage: c / );
+    $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{unset COLUMNS && $TARGCMD --help} );
+    $cmd->exit_is_num( 0, qq{unset COLUMNS && ./c --help} );
+    $cmd->stdout_like( qr/^Usage: c / );
+    $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
 };
 
 subtest qq{STDIN} => sub{

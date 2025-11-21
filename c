@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.11 $
+## - $Revision: 4.13 $
 ##
 ## - Script Structure
 ##   - main
@@ -49,6 +49,7 @@ sub new {
     $self->{APPNAME} = shift( @_ );
     $self->{DEBUG} = shift( @_ );
     $self->{LABEL} = shift( @_ );
+    $self::bIsStdoutATty = -t STDOUT;
     $self->Reset();
     $OutputFunc::counter++;
 #    $self->dPrint( qq{OutputFunc: label="$label": instance is generated: \$counter=$OutputFunc::counter\n} );
@@ -66,21 +67,7 @@ sub Usage( $ )
 {
     my $self = shift( @_ );
 
-    #my( $trm_columns, $trm_lines,
-    #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
-    # ▼ 幅を固定値にする理由
-    # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
-    # インストール時に C コンパイラが必要となる環境もある。
-    # 「ヘルプ整形」程度でビルド要件を増やすのは避けたいので、
-    # 幅は固定値とする。
-    # ▼ 代表的な歴史的/実用的な幅
-    #   72 : GNU 系コマンド／メール折り返しの伝統
-    #   76 : perldoc が使用
-    #   78 : 80 の“2字控え”として昔使われた妥協値
-    #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
-    #
-    # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
-    my $trm_columns = 80;
+    my $trm_columns = &GetTerminalWidth();
     #print( qq{$trm_columns, $trm_lines\n} );
 
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -100,7 +87,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.11 $}.qq{\n} .
+         q{  - $Revision: 4.13 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -136,6 +123,34 @@ sub Usage( $ )
 #    }
 
     return 0;
+}
+
+# 端末幅を取得するための Term::ReadKey は非コアモジュールで、
+# インストール時に C コンパイラが必要となる環境もある。
+# ビルド要件を増やしたくない場合にこのサブルーチンを使用するという前提。
+## Revision: 1.1
+sub GetTerminalWidth()
+{
+    # Try stty
+    if( $self::bIsStdoutATty ){
+        #my( $trm_columns, $trm_lines,
+        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+        # 「ヘルプ整形」程度でビルド要件を増やすのは避けたいので、使用しないことに。
+
+        my $stty_out = `stty size 2>/dev/null`;
+        if( $stty_out =~ m/^\s*(\d+)\s+(\d+)/ ){
+            return $2;
+        }
+    }
+
+    # Fall back to environment
+    return $ENV{COLUMNS} // 80;
+    # ▼ 代表的な歴史的/実用的な幅
+    #   72 : GNU 系コマンド／メール折り返しの伝統
+    #   76 : perldoc が使用
+    #   78 : 80 の“2字控え”として昔使われた妥協値
+    #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
+    # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
 }
 
 sub FmtHelp( $ )
@@ -218,6 +233,12 @@ sub SetDebug()
 {
     my $self = shift( @_ );
     $self->{DEBUG} = shift( @_ );
+}
+
+sub SetTest()
+{
+    my $self = shift( @_ );
+    $self::bIsStdoutATty = shift( @_ );
 }
 
 sub dPrint( @ )
@@ -2170,6 +2191,7 @@ sub parse_arg()
             $main::bVerboseOutput = 1;
         }elsif( $myparam eq '--test-test' ){
             $main::bTest = 1;
+            $opf->SetTest( $main::bTest );
         }else{
             push( @main::expressions_raw, $myparam );
         }
@@ -2250,6 +2272,8 @@ acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_di
 
 =head1 ADVANCED USAGE
 
+=head2 BASIC USE CASE
+
 When you provide a calculation formula, it will display the result.
 
   $ c 123456-59+123.456*2=
@@ -2315,6 +2339,8 @@ However, you can display it by performing a bitwise 'I<|[OR]>' operation with 0.
   $ c '100|0'
   100 ( = 0x64 )
 
+=head2 STANDARD INPUT (STDIN) MODE
+
 If no calculation formula is specified as an argument,
 the program will wait for input from STDIN.
 To exit, send an End Of File signal (for example, press Ctrl + D).
@@ -2368,15 +2394,23 @@ It might be convenient to register it as an alias:
   ex.) ~/.bashrc
   alias ctax="cat - | sed -u 's/^\(.*\)$/round( (\1+0) * 1.1 , 0 ) =/' | c"
 
-Calculate the distance between two points.
+=head2 COORDINATE CALCULATION
+
+I think this is a feature that anyone who likes looking at maps will want to use.
+
+Here we use the following coordinates (latitude and longitude):
 
   ex)
   Madagascar:        degrees: -18.76694, 46.8691
   Galapagos Islands: degrees: -0.3831, -90.42333
 
+Calculate the distance between two points.
+
   $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
        deg2rad( -0.3831, -90.42333 ) ) ='
   14907.357977036
+
+The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
@@ -2400,6 +2434,12 @@ This is one of the reasons why I wrote this tool.
   >    )"
   14907.357977036
   $
+
+The B<c> script was created with the following in mind:
+
+- It will run with just Perl.
+
+- The calculation formulas are easy to understand even when read later.
 
 =head1 OPERATORS
 
