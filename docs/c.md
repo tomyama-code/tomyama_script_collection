@@ -38,8 +38,9 @@ PI (=3.14159265358979)
 ## FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
-linspace, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
-acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km
+linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
+tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m,
+geo\_distance\_km
 
 # OPTIONS
 
@@ -365,9 +366,13 @@ The **c** script was created with the following in mind:
 
 - `linspace`
 
-    linspace( LOWER, UPPER, COUNT \[, ROUND\] ).
-    Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT.
-    If ROUND is set to true, the numbers are rounded down to integers.
+    linspace( _LOWER_, _UPPER_, _COUNT_ \[, _ROUND_\] ).
+    Generates a list of numbers from _LOWER_ to _UPPER_ divided into equal intervals by _COUNT_.
+    If _ROUND_ is set to true, the numbers are rounded down to integers.
+
+- `linstep`
+
+    linstep( _START_, _STEP_, _COUNT_ ). Generates a list of _COUNT_ numbers that increase from _START_ by _STEP_.
 
 - `rand`
 

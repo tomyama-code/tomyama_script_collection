@@ -4,59 +4,60 @@ WITH_PERL_COVERAGE=1; export WITH_PERL_COVERAGE
 
 sh_main()
 {
-  sh_init "$@"
+    sh_init "$@"
 
-  retval=0
+    retval=0
 
-  cd "$apppath/../"
+    cd "$apppath/../"
 
-  if [ "$WITH_PERL_COVERAGE" != '' ]; then
-    if [ "$WITH_PERL_COVERAGE_OWNER" = '' ]; then
-      WITH_PERL_COVERAGE_OWNER=$$; export WITH_PERL_COVERAGE_OWNER
+    if [ "$WITH_PERL_COVERAGE" != '' ]; then
+        if [ "$WITH_PERL_COVERAGE_OWNER" = '' ]; then
+            WITH_PERL_COVERAGE_OWNER=$$; export WITH_PERL_COVERAGE_OWNER
 
-      which cover 1>/dev/null 2>&1
-      bUnavailableCover=$?;
-      if [ $bUnavailableCover -ne 0 ]; then
-        echo "$0: warn: \"cover\" command not found: \$WITH_PERL_COVERAGE: ignore" 1>&2
-        unset WITH_PERL_COVERAGE
-        unset WITH_PERL_COVERAGE_OWNER
-      else
-        cover -delete
-      fi
+            which cover 1>/dev/null 2>&1
+            bUnavailableCover=$?;
+            if [ $bUnavailableCover -ne 0 ]; then
+                echo "$0: warn: \"cover\" command not found: \$WITH_PERL_COVERAGE: ignore" 1>&2
+                unset WITH_PERL_COVERAGE
+                unset WITH_PERL_COVERAGE_OWNER
+            else
+                cover -delete
+            fi
+        fi
     fi
-  fi
 
-  for fi in *; do
-    if ! is_it_executable_file "$fi"; then
-      continue
+    for fi in *; do
+        if ! is_it_executable_file "$fi"; then
+            continue
+        fi
+        bname="`basename \"$fi\"`"
+        tname="tests/$bname.test.pl"
+        if ! is_it_executable_file "$tname"; then
+            continue
+        fi
+        #echo "F: $bname"
+
+        "$apppath/prt" -e "$bname: "
+
+        test_log="$tname.log"
+        "./$tname" >"$test_log"
+        exit_status=$?
+        res='PASS'
+        if [ $exit_status -ne 0 ]; then
+            res='FAIL'
+            retval=`expr "$retval" '+' '1'`
+        fi
+        echo "$res: exit_status=$exit_status"
+    done
+
+    if [ "$WITH_PERL_COVERAGE" != '' ]; then
+        if [ "$WITH_PERL_COVERAGE_OWNER" = "$$" ]; then
+            cover
+            sh_edit_coverage_html "$apppath" 'cover_db/coverage.html'
+        fi
     fi
-    bname="`basename \"$fi\"`"
-    tname="tests/$bname.test.pl"
-    if ! is_it_executable_file "$tname"; then
-      continue
-    fi
-    #echo "F: $bname"
 
-    "$apppath/prt" -e "$bname: "
-
-    test_log="$tname.log"
-    "./$tname" >"$test_log"
-    exit_status=$?
-    res='PASS'
-    if [ $exit_status -ne 0 ]; then
-      res='FAIL'
-      retval=`expr "$retval" '+' '1'`
-    fi
-    echo "$res: exit_status=$exit_status"
-  done
-
-  if [ "$WITH_PERL_COVERAGE" != '' ]; then
-    if [ "$WITH_PERL_COVERAGE_OWNER" = "$$" ]; then
-      cover
-    fi
-  fi
-
-  return $retval
+    return $retval
 }
 
 ## script setup
@@ -75,15 +76,54 @@ is_it_executable_file()
 {
     #echo "Check: $1"
     if [ ! -f "$1" ]; then
-      return 1
+        return 1
     fi
     if [ ! -r "$1" ]; then
-      return 1
+        return 1
     fi
     if [ ! -x "$1" ]; then
-      return 1
+        return 1
     fi
     return 0
+}
+
+sh_edit_coverage_html()
+{
+    perl -e '
+        my $apppath = shift( @ARGV );
+        my $target = shift( @ARGV );
+        my $proj_name = $apppath;
+        $proj_name =~ s!^.*/([^/]+)/tests$!$1!;
+        #print( qq{ok: $proj_name, $target\n} );
+
+        if( ! -f "$target" ){
+            die( "$target: file not found.\n " );
+        }elsif( ! -r "$target" ){
+            die( "$target: unable to read file.\n" );
+        }
+
+        open( COVHTML_R, "<", "$target" ) ||
+            die( "$target: could not open file.: $!" );
+        my $buff = "";
+        while( <COVHTML_R> ){
+            my $line = $_;
+            $line =~ s!\r?\n$!!o;
+
+            if( $line =~ s!/\S+($proj_name/cover_db)!$1!go ){
+                print( qq{edit: $line\n} );
+            }
+
+            $buff .= $line . "\n";
+        }
+        close( COVHTML_R );
+
+        #my $dist = "$target.new.html";
+        my $dist = "$target";
+        open( COVHTML_W, ">", "$dist" ) ||
+            die( "$dist: could not open file: $!" );
+        print COVHTML_W ( $buff );
+        close( COVHTML_W );
+    ' "$@"
 }
 
 sh_main "$@"

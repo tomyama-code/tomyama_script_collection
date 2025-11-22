@@ -13,7 +13,7 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.14 $
+## - $Revision: 4.16 $
 ##
 ## - Script Structure
 ##   - main
@@ -87,7 +87,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.14 $}.qq{\n} .
+         q{  - $Revision: 4.16 $}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -526,6 +526,7 @@ use constant {
     H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
     H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. If ROUND is set to true, the numbers are rounded down to integers.},
+    H_LNST => qq{linstep( START, STEP, COUNT ). Generates a list of COUNT numbers that increase from START by STEP.},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
@@ -589,29 +590,30 @@ use constant {
     'sum'        => [ 34, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
     'avg'        => [ 35, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
     'linspace'   => [ 36, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'rand'       => [ 37, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'        => [ 38, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'       => [ 39, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'        => [ 40, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'    => [ 41, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'    => [ 42, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'deg2rad'    => [ 43, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'    => [ 44, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'    => [ 45, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'deg2dms'    => [ 46, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
-    'sin'        => [ 47, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'        => [ 48, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'        => [ 49, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'       => [ 50, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'       => [ 51, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'       => [ 52, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'      => [ 53, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'      => [ 54, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geo_radius'           => [ 55, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat_circle' => [ 56, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 57, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'       => [ 58, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'      => [ 59, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'linstep'    => [ 37, T_FUNCTION,    3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'rand'       => [ 38, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'        => [ 39, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'       => [ 40, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'        => [ 41, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'    => [ 42, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'    => [ 43, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'deg2rad'    => [ 44, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'    => [ 45, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'    => [ 46, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'deg2dms'    => [ 47, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'sin'        => [ 48, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'        => [ 49, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'        => [ 50, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'       => [ 51, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'       => [ 52, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'       => [ 53, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'      => [ 54, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'      => [ 55, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geo_radius'           => [ 56, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat_circle' => [ 57, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 58, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 59, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 60, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -878,14 +880,34 @@ sub LINSPACE( $$$;$ )
     my @list;
     my $interval = ( $upper - $lower ) / ( $count - 1 );
 
-    for( my $i=0; $i<$count; $i++ ){
-        my $value = ( $i == $count - 1 ) ? $upper : $lower + $i * $interval;
+    for( my $idx=0; $idx<$count; $idx++ ){
+        my $value = ( $idx == $count - 1 ) ? $upper : $lower + $idx * $interval;
 
         # 第4引数 $bRound が真値であれば整数に丸める
         if( $bRound ){
             $value = int( $value );
         }
 
+        push( @list, $value );
+    }
+
+    return @list;
+}
+
+# 機能: 開始値、ステップ幅、個数に基づき、等間隔の数値リストを生成する
+# 引数: $start (開始値), $step (ステップ幅), $count (個数),
+sub LINSTEP( $$$ )
+{
+    my( $start, $step, $count ) = @_;
+
+    return $start if( $count <= 1 );
+
+    my @list;
+    my $cycle = $count - 1;
+    my $value = $start;
+    push( @list, $value );
+    for( my $idx=0; $idx<$cycle; $idx++ ){
+        $value += $step;
         push( @list, $value );
     }
 
@@ -1578,6 +1600,7 @@ sub new {
     $self->{B_TEST} = shift( @_ );
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
     $self->{B_RPN} = shift( @_ );
+    $self->{INT_BASIC_BIT_W} = log( ~0 + 1 ) / log( 2 );  # 64 or 32: '~0+1': perlの整数は固定幅ではないので桁溢れしない。
     $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'evaluator' );
 #    $self->Reset();
 #    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaEvaluator: create\n} );
@@ -1920,9 +1943,10 @@ sub RegisterToString( $ )
 
     my $hexadecimal = '';
     if( $self->{FLAGS} & BIT_DISP_HEX ){
-        ## 負数の場合
-        if( $register & ( 1 << 63 ) ){
-            $hexadecimal .= sprintf( qq{ ( = %d )}, $register - ( 1 << 64 ) );
+        ## 負数とみなせる場合
+        if( $register & ( 1 << ( $self->{INT_BASIC_BIT_W} - 1 ) ) ){
+            $hexadecimal .= sprintf( qq{ ( = %d )},
+                $register - ( 1 << $self->{INT_BASIC_BIT_W} ) );
         }
         $hexadecimal .= sprintf( qq{ ( = 0x%X )}, $register );
     }
@@ -2240,8 +2264,9 @@ PI (=3.14159265358979)
 =head2 FUNCTIONS
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
-linspace, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin,
-acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m, geo_distance_km
+linspace, linstep, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
+tan, asin, acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m,
+geo_distance_km
 
 =head1 OPTIONS
 
@@ -2577,9 +2602,13 @@ avg( A,.. ). Returns the average value of all elements in a list.
 
 =item C<linspace>
 
-linspace( LOWER, UPPER, COUNT [, ROUND] ).
-Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT.
-If ROUND is set to true, the numbers are rounded down to integers.
+linspace( I<LOWER>, I<UPPER>, I<COUNT> [, I<ROUND>] ).
+Generates a list of numbers from I<LOWER> to I<UPPER> divided into equal intervals by I<COUNT>.
+If I<ROUND> is set to true, the numbers are rounded down to integers.
+
+=item C<linstep>
+
+linstep( I<START>, I<STEP>, I<COUNT> ). Generates a list of I<COUNT> numbers that increase from I<START> by I<STEP>.
 
 =item C<rand>
 

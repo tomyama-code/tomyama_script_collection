@@ -29,6 +29,9 @@ $ENV{ 'TEST_TARGET_CMD' } = 'c';
 
 #$ENV{WITH_PERL_COVERAGE} = 1;
 
+my $int_basic_bit = log( ~0 + 1 ) / log( 2 );   # perlの整数は固定幅ではないので桁溢れしない。
+#print( qq{\$int_basic_bit="$int_basic_bit"\n} );
+
 my $apppath = dirname( $0 );
 chdir( "$apppath/../" );
 my $cur_dir = getcwd();
@@ -190,31 +193,51 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1+1='} );
     $cmd->exit_is_num( 0, qq{./c '~1+1='} );
-    $cmd->stdout_is_eq( qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
+    my $expect = qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{4294967295 \( = -1 \) \( = 0xFFFFFFFF \)\n};
+    }
+    $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+~1='} );
     $cmd->exit_is_num( 0, qq{./c '1+~1='} );
-    $cmd->stdout_is_eq( qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
+    $expect = qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{4294967295 \( = -1 \) \( = 0xFFFFFFFF \)\n};
+    }
+    $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1*2='} );
     $cmd->exit_is_num( 0, qq{./c '~1*2='} );
-    $cmd->stdout_is_eq( qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
+    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+    }
+    $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2*~1='} );
     $cmd->exit_is_num( 0, qq{./c '2*~1='} );
-    $cmd->stdout_is_eq( qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
+    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+    }
+    $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2' '~1='} );
     $cmd->exit_is_num( 0, qq{./c '2' '~1='} );
-    $cmd->stdout_is_eq( qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n} );
+    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+    }
+    $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -648,13 +671,21 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(~0+1)/log(2)='} );
     $cmd->exit_is_num( 0, qq{./c 'log(~0+1)/log(2)='} );
-    $cmd->stdout_is_eq( qq{64 ( = 0x40 )\n}, qq{64bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
+    $expect = qq{64 ( = 0x40 )\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{32 ( = 0x20 )\n};
+    }
+    $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( ~0+1, 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'pow_inv( ~0+1, 2 )'} );
-    $cmd->stdout_is_eq( qq{64 ( = 0x40 )\n}, qq{64bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
+    $expect = qq{64 ( = 0x40 )\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{32 ( = 0x20 )\n};
+    }
+    $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     undef( $cmd );
 
@@ -1120,6 +1151,30 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: linspace: \$arg_counter="5": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( 4, 10, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( 4, 10, 3 )'} );
+    $cmd->stdout_is_eq( qq{( 4, 14, 24 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( 4, -10, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( 4, -10, 3 )'} );
+    $cmd->stdout_is_eq( qq{( 4, -6, -16 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( 4, -10, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( 4, -10, 0 )'} );
+    $cmd->stdout_is_eq( qq{4\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( -1.1, -1 sqrt( 2 ), 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( -1.1, -1 sqrt( 2 ), 3 )'} );
+    $cmd->stdout_is_eq( qq{( -1.1, -2.5142135623731, -3.92842712474619 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
     $cmd->stdout_like( qr/\n    RPN: '# # 10 rand # 10 rand # 10 rand # 10 rand # 10 rand min'\n/ );
@@ -1406,7 +1461,7 @@ subtest qq{-h, --help} => sub{
 
     $cmd = Test::Command->new( cmd => qq{export COLUMNS="70" && $TARGCMD --help} );
     $cmd->exit_is_num( 0, qq{export COLUMNS="70" && ./c --help} );
-    $cmd->stdout_like( qr/^Usage: c / );
+    $cmd->stdout_like( qr/^Usage: c /, qq{Specified character width.} );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
