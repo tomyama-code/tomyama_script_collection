@@ -137,7 +137,7 @@ https://pjcj.net
 <tr><td class="h"><a id="L1876">1876</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $help)</td></tr>
 <tr><td class="h"><a id="L1921">1921</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($item-&gt;IsOperand)</td></tr>
 <tr><td class="h"><a id="L1928">1928</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (&amp;NumberToString($reg_raw, \$reg_str))</td></tr>
-<tr><td class="h"><a id="L1933">1933</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (&amp;NumberToHex($reg_str, $self-&gt;{&#39;INT_BASIC_BIT_W&#39;}, \$reg_hxa, \$reg_mns))</td></tr>
+<tr><td class="h"><a id="L1933">1933</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (&amp;NumberToHex($reg_str, \$reg_hxa, \$reg_mns))</td></tr>
 <tr><td class="h"><a id="L1944">1944</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $reg_len &gt; 1</td></tr>
 <tr><td class="h"><a id="L1945">1945</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($reg_len == 0)</td></tr>
 <tr><td class="h"><a id="L1950">1950</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($self-&gt;{&#39;B_VERBOSEOUTPUT&#39;} and $bDispRaw)</td></tr>
@@ -148,8 +148,8 @@ https://pjcj.net
 <tr><td class="h"><a id="L1965">1965</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $reg_len &gt; 1</td></tr>
 <tr><td class="h"><a id="L1983">1983</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($number =~ /e\-(\d+)$/) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($number =~ /e\+(\d+)$/) { }</td></tr>
-<tr><td class="h"><a id="L2012">2012</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($number =~ /\d\.\d/o)</td></tr>
-<tr><td class="h"><a id="L2014">2014</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($number &amp; 1 &lt;&lt; $int_basic_bit_w - 1)</td></tr>
+<tr><td class="h"><a id="L2011">2011</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($number =~ /\d\.\d/o)</td></tr>
+<tr><td class="h"><a id="L2015">2015</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($number != $signed_int)</td></tr>
 <tr><td class="h"><a id="L2081">2081</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($self-&gt;{&#39;B_TEST&#39;})</td></tr>
 <tr><td class="h"><a id="L2133">2133</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($expr eq &#39;&#39;) { }</td></tr>
 <tr><td class="h"><a id="L2140">2140</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($bReadStdin)</td></tr>

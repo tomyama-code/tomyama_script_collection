@@ -215,7 +215,7 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c '~1*2='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -225,7 +225,7 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c '2*~1='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -235,7 +235,7 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c '2' '~1='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -693,7 +693,7 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c 'linstep( ~0, -1, 2 )'} );
     $expect = qq{( 18446744073709551615, 18446744073709551614 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFE ) ]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{32 [ = 0x20 ]\n};
+        $expect = qq{( 4294967295, 4294967294 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFF, 0xFFFFFFFE ) ]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );

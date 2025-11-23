@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.20 $
+## - $Revision: 4.21 $
 ##
 ## - Script Structure
 ##   - main
@@ -130,7 +130,7 @@ sub Usage( $ )
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.20 $};
+    my $rev = q{$Revision: 4.21 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -139,11 +139,11 @@ sub GetVersion()
 {
     my $rev = &GetRevision();
 
-    my $v = 1;
-    my( $rev1, $rev2 ) = split( /\./, $rev );
-    my $ver = sprintf( '%d.%02d.%03d', $v, $rev1, $rev2 );
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
 
-    return $ver;
+    return $version;
 }
 
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
@@ -1621,7 +1621,7 @@ sub new {
     $self->{B_TEST} = shift( @_ );
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
     $self->{B_RPN} = shift( @_ );
-    $self->{INT_BASIC_BIT_W} = log( ~0 + 1 ) / log( 2 );  # 64 or 32: '~0+1': perlの整数は固定幅ではないので桁溢れしない。
+#    $self->{INT_BASIC_BIT_W} = log( ~0 + 1 ) / log( 2 );  # 64 or 32: '~0+1': perlの整数は固定幅ではないので桁溢れしない。
     $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'evaluator' );
 #    $self->Reset();
 #    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaEvaluator: create\n} );
@@ -1930,7 +1930,7 @@ sub ResultPrint()
         }
         my $reg_hxa = undef;
         my $reg_mns = undef;
-        if( &NumberToHex( $reg_str, $self->{INT_BASIC_BIT_W}, \$reg_hxa, \$reg_mns ) ){
+        if( &NumberToHex( $reg_str, \$reg_hxa, \$reg_mns ) ){
             $bDispMns = 1;
         }
         push( @raw_vals, $reg_raw );
@@ -2002,7 +2002,6 @@ sub NumberToString( $ )
 sub NumberToHex( $ )
 {
     my $number = shift( @_ );
-    my $int_basic_bit_w = shift( @_ );
     my $ref_hxa = shift( @_ );
     my $ref_mns = shift( @_ );
     $$ref_hxa = $number;
@@ -2011,10 +2010,11 @@ sub NumberToHex( $ )
 
     if( !( $number =~ m/\d\.\d/o ) ){
         ## 負数とみなせる場合
-        if( $number & ( 1 << ( $int_basic_bit_w - 1 ) ) ){
+        my $signed_int = sprintf( '%d', $number );
+        #print( qq{\$number="$number", \$signed_int="$signed_int"\n} );
+        if( $number != $signed_int ){
             $bRet = 1;
-            my $mns = sprintf( '%d', $number - ( 1 << $int_basic_bit_w ) );
-            &NumberToString( $mns, $ref_mns );
+            &NumberToString( $signed_int, $ref_mns );
         }
         $$ref_hxa = sprintf( qq{0x%X}, $number );
     }
