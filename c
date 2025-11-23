@@ -13,7 +13,8 @@
 ##
 ## - The "c" script displays the result of the given expression.
 ##
-## - $Revision: 4.16 $
+## - Version: 1
+## - $Revision: 4.20 $
 ##
 ## - Script Structure
 ##   - main
@@ -67,6 +68,8 @@ sub Usage( $ )
 {
     my $self = shift( @_ );
 
+    my $ver = &GetVersion();
+
     my $trm_columns = &GetTerminalWidth();
     #print( qq{$trm_columns, $trm_lines\n} );
 
@@ -87,7 +90,7 @@ sub Usage( $ )
         qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
-         q{  - $Revision: 4.16 $}.qq{\n} .
+        qq{  - Version: $ver}.qq{\n} .
         qq{\n} .
         qq{<EXPRESSIONS>: Specify the expression.\n} .
         qq{\n} .
@@ -123,6 +126,24 @@ sub Usage( $ )
 #    }
 
     return 0;
+}
+
+sub GetRevision()
+{
+    my $rev = q{$Revision: 4.20 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+
+sub GetVersion()
+{
+    my $rev = &GetRevision();
+
+    my $v = 1;
+    my( $rev1, $rev2 ) = split( /\./, $rev );
+    my $ver = sprintf( '%d.%02d.%03d', $v, $rev1, $rev2 );
+
+    return $ver;
 }
 
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
@@ -1611,7 +1632,7 @@ sub new {
         unshift( @{ $self->{RPN} }, $el_r );
         unshift( @{ $self->{TOKENS} }, $el_r );
         unshift( @{ $self->{TOKENS} }, $el_r );
-        $self->UpdateRegister();
+        $self->ResultPrint();   # "There may be an error in the calculation formula"
         $@ = '';
         eval{
             $self->Input( $el_r );
@@ -1887,73 +1908,120 @@ sub GetRegister()
     return $self->{REGISTER};
 }
 
-sub UpdateRegister()
+sub ResultPrint()
 {
     my $self = shift( @_ );
-    my @reg_val = ();
-    my $bRemain = 0;
+    my @reg_vals = ();
+    my @raw_vals = ();
+    my @mns_vals = ();
+    my @hxa_vals = ();
+    my $bDispRaw = 0;
+    my $bDispMns = 0;
     for my $item( reverse( @{ $self->{TOKENS} } ) ){
         if( ! $item->IsOperand() ){
-            $bRemain = 1;
             $self->opf->warnPrint( qq{There may be an error in the calculation formula.\n} );
             $self->opf->warnPrint( qq{Remain RPN: } . $self->GetTokens() . "\n" );
             last;
         }
-        push( @reg_val, $item->data );
+        my $reg_raw = $item->data;
+        my $reg_str = undef;
+        if( &NumberToString( $reg_raw, \$reg_str ) ){
+            $bDispRaw = 1;
+        }
+        my $reg_hxa = undef;
+        my $reg_mns = undef;
+        if( &NumberToHex( $reg_str, $self->{INT_BASIC_BIT_W}, \$reg_hxa, \$reg_mns ) ){
+            $bDispMns = 1;
+        }
+        push( @raw_vals, $reg_raw );
+        push( @reg_vals, $reg_str );
+        push( @mns_vals, $reg_mns );
+        push( @hxa_vals, $reg_hxa );
     }
-    my $reg_len = scalar( @reg_val );
-    my $reg = $self->{REGISTER};
-    if( $reg_len > 1 ){
-        $reg = '( ' . join( ', ', @reg_val ) . ' )';
+    my $reg_len = scalar( @reg_vals );
+
+    my $reg = join( ', ', @reg_vals );
+    $reg = '( ' . $reg . ' )' if( $reg_len > 1 );
+    if( $reg_len == 0 ){
+        $reg = $self->GetRegister();
     }
 
-    $self->{REGISTER} = $reg;
+    my $raw = '';
+    if( $self->{B_VERBOSEOUTPUT} && $bDispRaw ){
+        $raw = join( ', ', @raw_vals );
+        $raw = '( ' . $raw . ' )' if( $reg_len > 1 );
+        $raw = " [ = $raw ]";
+    }
 
-    return $bRemain;
+    my $hxa = '';
+    my $mns = '';
+    if( $self->{FLAGS} & BIT_DISP_HEX ){
+        if( $bDispMns ){
+            $mns = join( ', ', @mns_vals );
+            $mns = '( ' . $mns . ' )' if( $reg_len > 1 );
+            $mns = " [ = $mns ]";
+        }
+        $hxa = join( ', ', @hxa_vals );
+        $hxa = '( ' . $hxa . ' )' if( $reg_len > 1 );
+        $hxa = " [ = $hxa ]";
+    }
+
+    $self->{REGISTER} = "$reg$raw$mns$hxa";
+
+    return $self->{REGISTER};
 }
 
-sub RegisterToString( $ )
+sub NumberToString( $ )
 {
-    my $self = shift( @_ );
-    my $register = $self->GetRegister();
+    my $number = shift( @_ );
+    my $ref_str = shift( @_ );
 
-    my $ret_val = $register;
-    my $raw_str = '';
+    $$ref_str = $number;
+    my $bRet = 0;
 
     ## ex) 2.2e-07 -> 0.00000022
-    if( $register =~ m/e\-(\d+)$/ ){
-        if( $self->{B_VERBOSEOUTPUT} ){
-            $raw_str = qq{ ( = $register )};
-        }
+    if( $number =~ m/e\-(\d+)$/ ){
         my $width = $1 + 1;
-        $self->opf->dPrint( qq{\$width="$width"\n} );
-        $ret_val = sprintf( qq{%.${width}f}, $register );
+#        $self->opf->dPrint( qq{\$width="$width"\n} );
+        $$ref_str = sprintf( qq{%.${width}f}, $number );
+        $bRet = 1;
     ## ex) 1.59226291813144e+15 -> 1592262918131443.25
-    }elsif( $register =~ m/e\+(\d+)$/ ){
-        if( $self->{B_VERBOSEOUTPUT} ){
-            $raw_str = qq{ ( = $register )};
-        }
+    }elsif( $number =~ m/e\+(\d+)$/ ){
         my $width = 20;
-        $ret_val = sprintf( qq{%.${width}f}, $register );
-        $self->opf->dPrint( qq{\$width="$width" -> "$ret_val"\n} );
-        $ret_val =~ s!\.?0+$!!o;
+        $$ref_str = sprintf( qq{%.${width}f}, $number );
+#        $self->opf->dPrint( qq{\$width="$width" -> "$$ref_str"\n} );
+        $$ref_str =~ s!\.?0+$!!o;
+        $bRet = 1;
     }else{
-        $ret_val = sprintf( qq{%s}, $register );
+        $$ref_str = sprintf( qq{%s}, $number );
     }
 
-    my $hexadecimal = '';
-    if( $self->{FLAGS} & BIT_DISP_HEX ){
+    return $bRet;
+}
+
+sub NumberToHex( $ )
+{
+    my $number = shift( @_ );
+    my $int_basic_bit_w = shift( @_ );
+    my $ref_hxa = shift( @_ );
+    my $ref_mns = shift( @_ );
+    $$ref_hxa = $number;
+    $$ref_mns = '-';
+    my $bRet = 0;
+
+    if( !( $number =~ m/\d\.\d/o ) ){
         ## 負数とみなせる場合
-        if( $register & ( 1 << ( $self->{INT_BASIC_BIT_W} - 1 ) ) ){
-            $hexadecimal .= sprintf( qq{ ( = %d )},
-                $register - ( 1 << $self->{INT_BASIC_BIT_W} ) );
+        if( $number & ( 1 << ( $int_basic_bit_w - 1 ) ) ){
+            $bRet = 1;
+            my $mns = sprintf( '%d', $number - ( 1 << $int_basic_bit_w ) );
+            &NumberToString( $mns, $ref_mns );
         }
-        $hexadecimal .= sprintf( qq{ ( = 0x%X )}, $register );
+        $$ref_hxa = sprintf( qq{0x%X}, $number );
     }
 
-    $ret_val = qq{$ret_val$raw_str$hexadecimal};
+    #$$ref_str = qq{$$ref_str$hex_str$hexadecimal};
 
-    return $ret_val;
+    return $bRet;
 }
 
 
@@ -2117,10 +2185,6 @@ sub Calculate( $ )
         $Evaluator_remain = $self->Evaluator->Inputs( @evaluator_queue );
     }
 
-    if( $Evaluator_remain > 1 ){
-        $self->Evaluator->UpdateRegister();
-    }
-
     if( $self->{B_VERBOSEOUTPUT} ){
         print( qq{Formula: '} . $self->Lexer->GetFormula() . qq{'\n} );
         print( qq{    RPN: '} . $self->Evaluator->GetRpn() . qq{'\n} );
@@ -2129,9 +2193,9 @@ sub Calculate( $ )
     if( $self->{B_RPN} ){
         print( $self->Evaluator->GetRpn() . "\n" );
     }elsif( $self->{B_VERBOSEOUTPUT} ){
-        print( qq{ Result: } . $self->Evaluator->RegisterToString() . "\n" );
+        print( qq{ Result: } . $self->Evaluator->ResultPrint() . "\n" );
     }else{
-        print( $self->Evaluator->RegisterToString() . "\n" );
+        print( $self->Evaluator->ResultPrint() . "\n" );
     }
 
     return 0;

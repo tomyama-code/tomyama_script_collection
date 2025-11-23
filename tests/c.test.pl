@@ -133,69 +133,69 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '3+0xf*2='} );
     $cmd->exit_is_num( 0, qq{./c '3+0xf*2='} );
-    $cmd->stdout_is_eq( qq{33 \( = 0x21 \)\n} );
+    $cmd->stdout_is_eq( qq{33 \[ = 0x21 \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x0055**2-0XC-2='} );
     $cmd->exit_is_num( 0, qq{./c '0x0055**2-0XC-2='} );
-    $cmd->stdout_is_eq( qq{7211 \( = 0x1C2B \)\n} );
+    $cmd->stdout_is_eq( qq{7211 \[ = 0x1C2B \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x9+0xc&0xe='} );
     $cmd->exit_is_num( 0, qq{./c '0x9+0xc&0xe='} );
-    $cmd->stdout_is_eq( qq{4 \( = 0x4 \)\n} );
+    $cmd->stdout_is_eq( qq{4 \[ = 0x4 \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x9&0xc+0xe='} );
     $cmd->exit_is_num( 0, qq{./c '0x9&0xc+0xe='} );
-    $cmd->stdout_is_eq( qq{8 \( = 0x8 \)\n} );
+    $cmd->stdout_is_eq( qq{8 \[ = 0x8 \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x9+0xc|0xe='} );
     $cmd->exit_is_num( 0, qq{./c '0x9+0xc|0xe='} );
-    $cmd->stdout_is_eq( qq{31 \( = 0x1F \)\n} );
+    $cmd->stdout_is_eq( qq{31 \[ = 0x1F \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x9|0xc+0xe='} );
     $cmd->exit_is_num( 0, qq{./c '0x9|0xc+0xe='} );
-    $cmd->stdout_is_eq( qq{27 \( = 0x1B \)\n} );
+    $cmd->stdout_is_eq( qq{27 \[ = 0x1B \]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x1 ^ 0x2 ='} );
     $cmd->exit_is_num( 0, qq{./c '0x1 ^ 0x2 ='} );
-    $cmd->stdout_is_eq( qq{3 ( = 0x3 )\n} );
+    $cmd->stdout_is_eq( qq{3 [ = 0x3 ]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x3 ^ 0x2 ='} );
     $cmd->exit_is_num( 0, qq{./c '0x3 ^ 0x2 ='} );
-    $cmd->stdout_is_eq( qq{1 ( = 0x1 )\n} );
+    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x3 ^ 0x3 ='} );
     $cmd->exit_is_num( 0, qq{./c '0x3 ^ 0x3 ='} );
-    $cmd->stdout_is_eq( qq{0 ( = 0x0 )\n} );
+    $cmd->stdout_is_eq( qq{0 [ = 0x0 ]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '5 ^ 3 ='} );
     $cmd->exit_is_num( 0, qq{./c '5 ^ 3 ='} );
-    $cmd->stdout_is_eq( qq{6 ( = 0x6 )\n} );
+    $cmd->stdout_is_eq( qq{6 [ = 0x6 ]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1+1='} );
     $cmd->exit_is_num( 0, qq{./c '~1+1='} );
-    my $expect = qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    my $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{4294967295 \( = -1 \) \( = 0xFFFFFFFF \)\n};
+        $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -203,9 +203,9 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+~1='} );
     $cmd->exit_is_num( 0, qq{./c '1+~1='} );
-    $expect = qq{18446744073709551615 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{4294967295 \( = -1 \) \( = 0xFFFFFFFF \)\n};
+        $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -213,9 +213,9 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1*2='} );
     $cmd->exit_is_num( 0, qq{./c '~1*2='} );
-    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -223,9 +223,9 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2*~1='} );
     $cmd->exit_is_num( 0, qq{./c '2*~1='} );
-    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -233,9 +233,9 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2' '~1='} );
     $cmd->exit_is_num( 0, qq{./c '2' '~1='} );
-    $expect = qq{36893488147419103232 \( = -1 \) \( = 0xFFFFFFFFFFFFFFFF \)\n};
+    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{8589934588 \( = -1 \) \( = 0x1FFFFFFFC \)\n};
+        $expect = qq{8589934588 \[ = -1 \] \[ = 0x1FFFFFFFC \]\n};
     }
     $cmd->stdout_is_eq( $expect );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
@@ -244,7 +244,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0xfc & 0x10  ~0x1 | 0x8 =' -v} );
     $cmd->exit_is_num( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 =' -v} );
     $cmd->stdout_like( qr/\n    RPN: '252 16 1 ~ \* & 8 \|'\n/ );
-    $cmd->stdout_like( qr/\n Result: 252 \( = 0xFC \)\n/ );
+    $cmd->stdout_like( qr/\n Result: 252 \[ = 0xFC \]\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -310,7 +310,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2, 100))='} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt(power(2, 100)+power(2, 100))='} );
-    $cmd->stdout_is_eq( qq{1592262918131443.25\n} );    ## 1592262918131443.1411559535896932
+    $cmd->stdout_is_eq( qq{1592262918131443.25\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -340,7 +340,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0.22*10**(-6)='} );
     $cmd->exit_is_num( 0, qq{./c '0.22*10**(-6)='} );
-    $cmd->stdout_is_eq( qq{0.00000022\n} );             ## 0.00000022
+    $cmd->stdout_is_eq( qq{0.00000022\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -671,9 +671,9 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(~0+1)/log(2)='} );
     $cmd->exit_is_num( 0, qq{./c 'log(~0+1)/log(2)='} );
-    $expect = qq{64 ( = 0x40 )\n};
+    $expect = qq{64 [ = 0x40 ]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{32 ( = 0x20 )\n};
+        $expect = qq{32 [ = 0x20 ]\n};
     }
     $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
@@ -681,12 +681,22 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( ~0+1, 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'pow_inv( ~0+1, 2 )'} );
-    $expect = qq{64 ( = 0x40 )\n};
+    $expect = qq{64 [ = 0x40 ]\n};
     if( $int_basic_bit == 32 ){
-        $expect = qq{32 ( = 0x20 )\n};
+        $expect = qq{32 [ = 0x20 ]\n};
     }
     $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( ~0, -1, 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( ~0, -1, 2 )'} );
+    $expect = qq{( 18446744073709551615, 18446744073709551614 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFE ) ]\n};
+    if( $int_basic_bit == 32 ){
+        $expect = qq{32 [ = 0x20 ]\n};
+    }
+    $cmd->stdout_is_eq( $expect );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( 4294967296, 2 )'} );
@@ -1133,6 +1143,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( 0x64, 0xff, 5 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( 0x64, 0xff, 5 )'} );
+    $cmd->stdout_is_eq( qq{( 100, 138.75, 177.5, 216.25, 255 ) [ = ( 0x64, 138.75, 177.5, 216.25, 0xFF ) ]\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 0 )'} );
     $cmd->stdout_is_eq( qq{-10\n} );
@@ -1359,19 +1375,19 @@ subtest qq{-v, --verbose} => sub{
     $cmd->exit_is_num( 0, qq{./c 'sqrt(2**100)=' -v} );
     $cmd->stdout_like( qr/^2 \*\* 100 = 1\.26765060022823e\+30\n/ );
     $cmd->stdout_like( qr/\nsqrt\( 1\.26765060022823e\+30 \) = 1\.12589990684262e\+15\n/ );
-    $cmd->stdout_like( qr/\n Result: 1125899906842624 \( = 1\.12589990684262e\+15 \)\n/ );
+    $cmd->stdout_like( qr/\n Result: 1125899906842624 \[ = 1\.12589990684262e\+15 \]\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2, 100))=' --verbose} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt(power(2, 100)+power(2, 100))=' --verbose} );
-    $cmd->stdout_like( qr/\n Result: 1592262918131443\.25 \( = 1\.59226291813144e\+15 \)\n/ );  ## 1592262918131443.1411559535896932
+    $cmd->stdout_like( qr/\n Result: 1592262918131443\.25 \[ = 1\.59226291813144e\+15 \]\n/ );  ## 1592262918131443.1411559535896932
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '0.22*10**(-6)=' --verbose} );
     $cmd->exit_is_num( 0, qq{./c '0.22*10**(-6)=' --verbose} );
-    $cmd->stdout_like( qr/\n Result: 0.00000022 \( = 2\.2e\-07 \)\n/ );            ## 0.00000022
+    $cmd->stdout_like( qr/\n Result: 0.00000022 \[ = 2\.2e\-07 \]\n/ );            ## 0.00000022
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1401,7 +1417,13 @@ subtest qq{-v, --verbose} => sub{
     $cmd->stdout_like( qr/^13 \* 255 = 3315\n/ );
     $cmd->stdout_like( qr/\n\-5 \* \-13 = 65\n/ );
     $cmd->stdout_like( qr/\n3315 \/ 65 = 51\n/ );
-    $cmd->stdout_like( qr/\n Result: 51 \( = 0x33 \)\n/ );
+    $cmd->stdout_like( qr/\n Result: 51 \[ = 0x33 \]\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( 0.00000022, -1, 2 )' -v} );
+    $cmd->exit_is_num( 0, qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
+    $cmd->stdout_like( qr/\n Result: \( 0\.00000022, \-0\.99999978 \) \[ = \( 2\.2e\-07, \-0\.99999978 \) \]\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
