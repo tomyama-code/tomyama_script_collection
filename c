@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.23 $
+## - $Revision: 4.24 $
 ##
 ## - Script Structure
 ##   - main
@@ -115,6 +115,7 @@ sub GetHelpMsg()
         qq{    Decimal:  0, -1, 100 ...\n} .
         qq{    Hexadecimal: 0xf, -0x1, 0x0064 ...\n} .
         qq{    Constant: PI (=3.14159265358979)\n} .
+        qq{              TIME (=CURRENT-TIME)\n} .
         qq{\n} .
         qq{  <OPERATORS>:\n} .
         qq{    $ops\n} .
@@ -141,7 +142,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.23 $};
+    my $rev = q{$Revision: 4.24 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -407,6 +408,7 @@ use POSIX qw/hypot floor ceil/;
 use Math::BigInt;
 use Math::Trig; ## pi, rad2deg(), deg2rad()
 use List::Util; ## min(), max(), shuffle(), uniq, sum()
+use Time::Local;    # timelocal(), timegm()
 
 use constant {
     O_INDX => 0,
@@ -570,6 +572,11 @@ use constant {
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.},
+    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch.},
+    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch.},
+    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
+    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ).},
+    H_DHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
 };
 
 %TableProvider::operators = (
@@ -634,6 +641,11 @@ use constant {
     'geo_distance'         => [ 58, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_m'       => [ 59, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_km'      => [ 60, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'local2epoch' => [ 61, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'   => [ 62, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local' => [ 63, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'   => [ 64, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'    => [ 65, T_FUNCTION,     1, H_DHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1022,6 +1034,74 @@ sub distance_between_points_km( $$$$ )
     return &distance_between_points( @_ ) / 1000;
 }
 
+sub local2epoch( $$$;$$$ )
+{
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+#    $year -= 1900; # 4桁の西暦を解釈できる。4桁で渡すべき。
+    $month -= 1;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
+    my $epoch = Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
+    return $epoch;
+}
+
+sub gmt2epoch( $$$;$$$ )
+{
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+#    $year -= 1900; # 4桁の西暦を解釈できる。4桁で渡すべき。
+    $month -= 1;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
+    my $epoch = Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
+    return $epoch;
+}
+
+sub epoch2local( $ )
+{
+    my $epoch = shift( @_ );
+    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $epoch );
+    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
+    $month += 1;
+    return ( $year, $month, $mday, $hour, $minute, $sec );
+}
+
+sub epoch2gmt( $ )
+{
+    my $epoch = shift( @_ );
+    my( $sec, $minute, $hour, $mday, $month, $year ) = gmtime( $epoch );
+    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
+    $month += 1;
+    return ( $year, $month, $mday, $hour, $minute, $sec );
+}
+
+sub sec2dhms( $ )
+{
+    my $duration = shift( @_ );
+    #print( qq{\$duration="$duration"\n} );
+
+    my $bNeg = ( $duration < 0 ? 1 : 0 );
+    my $duration_abs = abs( $duration );
+
+    my $sec = $duration_abs % 60;
+    my $remain = int( $duration_abs / 60 );
+    my $minute = $remain % 60;
+    $remain = int( $remain / 60 );
+    my $hour = $remain % 24;
+    my $days = int( $remain / 24 );
+
+    if( $bNeg ){
+        $sec *= -1;
+        $minute *= -1;
+        $hour *= -1;
+        $days *= -1;
+    }
+
+    return ( $days, $hour, $minute, $sec );
+}
+
+
 package FormulaParser;
 use strict;
 use warnings 'all';
@@ -1327,7 +1407,7 @@ sub GetToken( \$ )
             $self->unshift( $el_d );
             $ret_obj = $el_d;
 
-        }elsif( $$ref_expr =~ s!^(pi)(?=[^a-z])!!o ){
+        }elsif( $$ref_expr =~ s!^(pi|time)(?=[^a-z])!!o ){
             $operand = eval( $1 );
             my $el_d = &FormulaToken::NewOperand( $operand );
             ## 必要であれば暗黙の乗算子を挿入
@@ -2356,7 +2436,9 @@ $ c [I<OPTIONS...>] I<EXPRESSIONS>
 
 =head3 Constant:
 
-PI (=3.14159265358979)
+- PI (=3.14159265358979)
+
+- TIME (=CURRENT-TIME)
 
 =head2 OPERATORS
 
@@ -2367,7 +2449,7 @@ PI (=3.14159265358979)
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
 linspace, linstep, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
 tan, asin, acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m,
-geo_distance_km
+geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms
 
 =head1 OPTIONS
 
@@ -2518,6 +2600,23 @@ It might be convenient to register it as an alias:
 
   ex.) ~/.bashrc
   alias ctax="cat - | sed -u 's/^\(.*\)$/round( (\1+0) * 1.1 , 0 ) =/' | c"
+
+=head2 TIME CALCULATIONS
+
+Current time in seconds since the epoch:
+
+  $ c time
+  1764003197
+
+Time until target date:
+
+  $ c 'sec2dhms( local2epoch( 2030, 01, 01 ) - time )'
+  ( 1497, 22, 14, 38 )
+
+Time zone difference:
+
+  $ c 'sec2dhms( time - local2epoch( epoch2gmt( time ) ) )'
+  ( 0, 9, 0, 0 )
 
 =head2 COORDINATE CALCULATION
 
@@ -2804,6 +2903,26 @@ geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns
 
 geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.
 
+=item C<local2epoch>
+
+local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ). Returns the local time in seconds since the epoch.
+
+=item C<gmt2epoch>
+
+gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ). Returns the GMT time in seconds since the epoch.
+
+=item C<epoch2local>
+
+epoch2local( I<EPOCH> ). Returns the local time. ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+=item C<epoch2gmt>
+
+epoch2gmt( I<EPOCH> ). Returns the GMT time. ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+=item C<sec2dhms>
+
+sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+
 =back
 
 =head1 Environmental requirements
@@ -2811,6 +2930,8 @@ geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and return
 =head2 List of modules used
 
 =over 4
+
+=item * base - first included in perl 5.00405
 
 =item * Class::Struct — first included in perl 5.004
 
@@ -2829,6 +2950,8 @@ geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and return
 =item * POSIX — first included in perl 5
 
 =item * strict — first included in perl 5
+
+=item * Time::Local - first included in perl 5
 
 =item * utf8 — first included in perl v5.6.0
 
@@ -2866,6 +2989,8 @@ geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and return
 =item L<Math::Trig>
 
 =item L<POSIX>
+
+=item L<Time::Local>
 
 =back
 

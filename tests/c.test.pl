@@ -652,6 +652,48 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2local( 1763999942 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'epoch2local( 1763999942 )'} );
+    $cmd->stdout_is_eq( qq{( 2025, 11, 25, 0, 59, 2 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2gmt( 1763999942 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'epoch2gmt( 1763999942 )'} );
+    $cmd->stdout_is_eq( qq{( 2025, 11, 24, 15, 59, 2 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'local2epoch( 2000, 12, 31, 23, 59, 59 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'local2epoch( 2000, 12, 31, 23, 59, 59 )'} );
+    $cmd->stdout_is_eq( qq{978274799\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gmt2epoch( 2000, 12, 31, 23, 59, 59 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gmt2epoch( 2000, 12, 31, 23, 59, 59 )'} );
+    $cmd->stdout_is_eq( qq{978307199\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( local2epoch( 2030, 1, 1 ) - time )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2030, 1, 1 ) - time )'} );
+    $cmd->stdout_like( qr/^\( \d+, \d+, \d+, \d+ \)\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( gmt2epoch( 2020, 1, 1 ) - time )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2020, 1, 1 ) - time )'} );
+    $cmd->stdout_like( qr/^\( \-\d+, \-?\d+, \-?\d+, \-?\d+ \)\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 0, 0 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'abs(-29.3577535427913)='} );
     $cmd->exit_is_num( 0, qq{./c 'abs(-29.3577535427913)='} );
     $cmd->stdout_is_eq( qq{29.3577535427913\n} );

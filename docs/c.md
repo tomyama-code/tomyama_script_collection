@@ -29,7 +29,9 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ### Constant:
 
-PI (=3.14159265358979)
+\- PI (=3.14159265358979)
+
+\- TIME (=CURRENT-TIME)
 
 ## OPERATORS
 
@@ -40,7 +42,7 @@ PI (=3.14159265358979)
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
 linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
 tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m,
-geo\_distance\_km
+geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms
 
 # OPTIONS
 
@@ -187,6 +189,23 @@ It might be convenient to register it as an alias:
 
     ex.) ~/.bashrc
     alias ctax="cat - | sed -u 's/^\(.*\)$/round( (\1+0) * 1.1 , 0 ) =/' | c"
+
+## TIME CALCULATIONS
+
+Current time in seconds since the epoch:
+
+    $ c time
+    1764003197
+
+Time until target date:
+
+    $ c 'sec2dhms( local2epoch( 2030, 01, 01 ) - time )'
+    ( 1497, 22, 14, 38 )
+
+Time zone difference:
+
+    $ c 'sec2dhms( time - local2epoch( epoch2gmt( time ) ) )'
+    ( 0, 9, 0, 0 )
 
 ## COORDINATE CALCULATION
 
@@ -467,10 +486,31 @@ The **c** script was created with the following in mind:
 
     geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000.
 
+- `local2epoch`
+
+    local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ). Returns the local time in seconds since the epoch.
+
+- `gmt2epoch`
+
+    gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ). Returns the GMT time in seconds since the epoch.
+
+- `epoch2local`
+
+    epoch2local( _EPOCH_ ). Returns the local time. ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+- `epoch2gmt`
+
+    epoch2gmt( _EPOCH_ ). Returns the GMT time. ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+- `sec2dhms`
+
+    sec2dhms( _DURATION\_SEC_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+
 # Environmental requirements
 
 ## List of modules used
 
+- base - first included in perl 5.00405
 - Class::Struct — first included in perl 5.004
 - constant — first included in perl 5.004
 - Encode — first included in perl v5.7.3
@@ -480,6 +520,7 @@ The **c** script was created with the following in mind:
 - Math::Trig — first included in perl 5.004
 - POSIX — first included in perl 5
 - strict — first included in perl 5
+- Time::Local - first included in perl 5
 - utf8 — first included in perl v5.6.0
 - warnings — first included in perl v5.6.0
 
@@ -507,6 +548,7 @@ The **c** script was created with the following in mind:
 - [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt)
 - [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig)
 - [POSIX](https://metacpan.org/pod/POSIX)
+- [Time::Local](https://metacpan.org/pod/Time%3A%3ALocal)
 
 # AUTHOR
 
