@@ -28,6 +28,7 @@ BEGIN {
 $ENV{ 'TEST_TARGET_CMD' } = 'c';
 
 #$ENV{WITH_PERL_COVERAGE} = 1;
+$ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @ARGV ) > 0 );
 
 my $int_basic_bit = log( ~0 + 1 ) / log( 2 );   # perlの整数は固定幅ではないので桁溢れしない。
 #print( qq{\$int_basic_bit="$int_basic_bit"\n} );

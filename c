@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.21 $
+## - $Revision: 4.23 $
 ##
 ## - Script Structure
 ##   - main
@@ -23,7 +23,8 @@
 ##       - FormulaParser
 ##         - FormulaStack
 ##       - FormulaEvaluator
-##     - [ shared package ] OutputFunc, FormulaToken, TableProvider
+##     - [   Base Package ] OutputFunc
+##     - [ shared package ] CAppConfig, FormulaToken, TableProvider
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -39,21 +40,16 @@ use strict;
 use warnings 'all';
 #use Term::ReadKey;  ## GetTerminalSize()
 
-$OutputFunc::counter = 0;
-
 # OutputFunc コンストラクタ
 sub new {
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
+    $self->{APPCONFIG} = shift( @_ );
     $self->{LABEL} = shift( @_ );
-    $self::bIsStdoutATty = -t STDOUT;
     $self->Reset();
-    $OutputFunc::counter++;
-#    $self->dPrint( qq{OutputFunc: label="$label": instance is generated: \$counter=$OutputFunc::counter\n} );
+#    $self->dPrint( qq{OutputFunc: label="$label": instance is generated\n} );
     return $self;               # 無名ハッシュ参照を返す
 }
 
@@ -62,15 +58,36 @@ sub Reset()
     my $self = shift( @_ );
 }
 
+sub SetLabel()
+{
+    my $self = shift( @_ );
+    $self->{LABEL} = shift( @_ );
+}
+
 ##########
 ## 書式表示
-sub Usage( $ )
+sub PrintHelp( $ )
+{
+    my $self = shift( @_ );
+
+    my $msg = $self->GetHelpMsg();
+
+#    if( $_[0] ){
+#        print STDERR ( $msg );
+#    }else{
+        print STDOUT ( $msg );
+#    }
+
+    return 0;
+}
+
+sub GetHelpMsg()
 {
     my $self = shift( @_ );
 
     my $ver = &GetVersion();
 
-    my $trm_columns = &GetTerminalWidth();
+    my $trm_columns = $self->GetTerminalWidth();
     #print( qq{$trm_columns, $trm_lines\n} );
 
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -87,7 +104,7 @@ sub Usage( $ )
     }
 
     my $msg = "Usage: " .
-        qq{$self->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
+        qq{$self->{APPCONFIG}->{APPNAME} [<OPTIONS...>] [<EXPRESSIONS...>]\n} .
         qq{\n} .
         qq{  - The c script displays the result of the given expression.\n} .
         qq{  - Version: $ver}.qq{\n} .
@@ -117,20 +134,14 @@ sub Usage( $ )
         qq{\n} .
         qq{$fns_help} .
         qq{\n} .
-        qq{Try "perldoc $self->{APPNAME}" for more information.\n};
+        qq{Try "perldoc $self->{APPCONFIG}->{APPNAME}" for more information.\n};
 
-#    if( $_[0] ){
-#        print STDERR ( $msg );
-#    }else{
-        print STDOUT ( $msg );
-#    }
-
-    return 0;
+    return $msg;
 }
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.21 $};
+    my $rev = q{$Revision: 4.23 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -152,10 +163,12 @@ sub GetVersion()
 ## Revision: 1.2
 sub GetTerminalWidth()
 {
+    my $self = shift( @_ );
+
     # Try stty
-    if( $self::bIsStdoutATty ){
-        #my( $trm_columns, $trm_lines,
-        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+    if( $self->{APPCONFIG}->GetBIsStdoutTty() ){
+        #my( $trm_columns, $trm_lines, $trm_width, $trm_height ) =
+        #    &Term::ReadKey::GetTerminalSize();
         # 「ヘルプ整形」程度でビルド要件を増やすのは避けたいので、使用しないことに。
 
         my $stty_out = `stty size 2>/dev/null`;
@@ -249,22 +262,10 @@ sub ArrayFitToDeviceWidth( $$ )
     return $fmt_text;
 }
 
-sub SetDebug()
-{
-    my $self = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-}
-
-sub SetTest()
-{
-    my $self = shift( @_ );
-    $self::bIsStdoutATty = shift( @_ );
-}
-
 sub dPrint( @ )
 {
     my $self = shift( @_ );
-    if( $self->{DEBUG} ){
+    if( $self->{APPCONFIG}->GetDebug() ){
         print( $self->{LABEL} . ': ' );
         print( @_ );
     }
@@ -273,7 +274,7 @@ sub dPrint( @ )
 sub dPrintf( @ )
 {
     my $self = shift( @_ );
-    if( $self->{DEBUG} ){
+    if( $self->{APPCONFIG}->GetDebug() ){
         print( $self->{LABEL} . ': ' );
         printf( @_ );
     }
@@ -306,8 +307,8 @@ sub warnPrint()
 sub GenMsg()
 {
     my $self = shift( @_ );
-    my $label = shift( @_ );
-    my $msg = qq{$self->{APPNAME}: $self->{LABEL}: $label: } .
+    my $level = shift( @_ );
+    my $msg = qq{$self->{APPCONFIG}->{APPNAME}: $self->{LABEL}: $level: } .
         join( ' ', @_ );
     return $msg;
 }
@@ -451,14 +452,12 @@ sub new {
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{B_TEST} = shift( @_ );
+    $TableProvider::CAppConfig = shift( @_ );
     if( !defined( $TableProvider::opf ) ){
-        $TableProvider::opf = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'tbl_prvdr' );
+        $TableProvider::opf = OutputFunc->new( $TableProvider::CAppConfig, 'tbl_prvdr' );
     }
     $self->Reset();
-    if( $self->{B_TEST} ){
+    if( $TableProvider::CAppConfig->GetBTest() ){
         my $opeIdx = &GetOperatorsInfo( '_', O_INDX );
         $TableProvider::opf->dPrint( qq{test: \$opeIdx="$opeIdx"\n} );
         my $bSentinel = &IsSentinel( '_' );
@@ -1026,6 +1025,7 @@ sub distance_between_points_km( $$$$ )
 package FormulaParser;
 use strict;
 use warnings 'all';
+use base qq{OutputFunc};
 use utf8;
 use Encode;
 
@@ -1036,13 +1036,11 @@ sub new {
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
     $self->{HELPER} = shift( @_ );
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{B_TEST} = shift( @_ );
-    $self->{STACK} = FormulaStack->new( $self->{APPNAME}, $self->{DEBUG}, $self->{B_TEST} );
-    $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'parser' );
+    $self->{APPCONFIG} = shift( @_ );
+    $self->{STACK} = FormulaStack->new( $self->{APPCONFIG} );
+    $self->SetLabel( 'parser' );
 #    $self->Reset();
-#    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaParser: create\n} );
+#    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaParser: create\n} );
     return $self;               # 無名ハッシュ参照を返す
 }
 
@@ -1054,11 +1052,6 @@ sub Reset()
     $self->Stack->Push( $el_r );
 }
 
-sub opf()
-{
-    my $self = shift( @_ );
-    return $self->{OPF};
-}
 sub Stack()
 {
     my $self = shift( @_ );
@@ -1080,7 +1073,7 @@ sub FormulaNormalization( @ )
         $formula_raw = $formula_raw . '=';
     }
 
-    $self->opf->dPrint( qq{FormulaNormalization(): "$formula_raw"\n} );
+    $self->dPrint( qq{FormulaNormalization(): "$formula_raw"\n} );
     return $formula_raw;
 }
 
@@ -1113,7 +1106,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!power!pow!go;
 #    $expr =~ s!pow\(\s*([^,]+)\s*,\s*([^)]+)\)!($1^$2)!go;
 
-    $self->opf->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
+    $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
 }
 
@@ -1156,21 +1149,21 @@ sub RouteDetermination()
         }
     }elsif( $act == TableProvider::E_REMV ){
         $self->Stack->Pop();
-        $self->opf->dPrintf( qq{delete "%s" xxx "%s"\n}, $tokenL, $tokenR );
+        $self->dPrintf( qq{delete "%s" xxx "%s"\n}, $tokenL, $tokenR );
         if( $tokenL eq 'BEGIN' ){
             $bFormulaFin = 1;
-            $self->opf->dPrint( qq{Check the end of the calculation formula.\n} );
+            $self->dPrint( qq{Check the end of the calculation formula.\n} );
         }
     }elsif( $act == TableProvider::E_FUNC ){
         my $stack_out = $self->Stack->Pop();
-        $self->opf->dPrintf( qq{queing "%s", delete "%s"\n}, $tokenL, $tokenR );
+        $self->dPrintf( qq{queing "%s", delete "%s"\n}, $tokenL, $tokenR );
         $self->Queuing( $ref_parser_output, $stack_out, $act );
     }elsif( $act == TableProvider::E_IGNR ){
     }else{
         my $msg = qq{"$tokenL", "$tokenR": Wrong combination.\n};
-        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $curr_token->id ) . "\n" );
-        $self->opf->Die( $msg );
+        $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+        $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $curr_token->id ) . "\n" );
+        $self->Die( $msg );
     }
 
     return $bFormulaFin;
@@ -1201,23 +1194,23 @@ sub Queuing( \@$$ )
             my $msg = '';
             if( $simple_name eq '(' ){
                 $msg = qq{The position of the ")" is incorrect.\n};
-                $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-                $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $item->id ) . "\n" );
+                $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+                $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $item->id ) . "\n" );
             }else{
                 $msg = qq{"$simple_name": There is a problem with the calculation formula.\n};
             }
-            $self->opf->Die( qq{$msg} );
+            $self->Die( qq{$msg} );
         }
     }
 
     if( $bFunc && $act != TableProvider::E_FUNC ){
         my $msg = qq{"$simple_name(": ")" may be incorrect.\n};
-        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-        $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $item->id ) . "\n" );
-        $self->opf->warnPrint( $msg );
+        $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+        $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $item->id ) . "\n" );
+        $self->warnPrint( $msg );
     }
 
-    $self->opf->dPrintf( qq{Queuing: 0x%04X, "%s"\n}, $newitem->flags, $newitem->data );
+    $self->dPrintf( qq{Queuing: 0x%04X, "%s"\n}, $newitem->flags, $newitem->data );
     push( @$ref_array, $newitem );
 }
 
@@ -1257,6 +1250,7 @@ sub p2str
 package FormulaLexer;
 use strict;
 use warnings 'all';
+use base qq{OutputFunc};
 use Math::Trig qw/pi/;
 
 #use constant SHIFT_REG_LEN => 2;
@@ -1267,11 +1261,10 @@ sub new {
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'lexer' );
+    $self->{APPCONFIG} = shift( @_ );
+    $self->SetLabel( 'lexer' );
 #    $self->Reset();
-#    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaLexer: create\n} );
+#    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaLexer: create\n} );
     return $self;               # 無名ハッシュ参照を返す
 }
 
@@ -1279,12 +1272,6 @@ sub Reset()
 {
     my $self = shift( @_ );
     @{ $self->{TOKENS} } = ();
-}
-
-sub opf()
-{
-    my $self = shift( @_ );
-    return $self->{OPF};
 }
 
 ## 式を分解してトークンを返す
@@ -1314,7 +1301,7 @@ sub GetToken( \$ )
                 $operand = hex( $operand );
                 $bHex = 1;
             }
-            $el_d = FormulaToken::NewOperand( "$operator$operand", $bHex );
+            $el_d = &FormulaToken::NewOperand( "$operator$operand", $bHex );
 
             ## オペレータとオペランドの間にスペースを付加して式を組み立てなおす
             if( $self->IsNeedInsert( $operator, $el_d, " $operand_raw $$ref_expr", $ref_expr ) ){
@@ -1332,7 +1319,7 @@ sub GetToken( \$ )
                 $operand = hex( $operand );
                 $bHex = 1;
             }
-            $el_d = FormulaToken::NewOperand( $operand, $bHex );
+            $el_d = &FormulaToken::NewOperand( $operand, $bHex );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -1342,7 +1329,7 @@ sub GetToken( \$ )
 
         }elsif( $$ref_expr =~ s!^(pi)(?=[^a-z])!!o ){
             $operand = eval( $1 );
-            my $el_d = FormulaToken::NewOperand( $operand );
+            my $el_d = &FormulaToken::NewOperand( $operand );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -1359,13 +1346,13 @@ sub GetToken( \$ )
                 if( ! &TableProvider::IsFunctionExists( $funcname ) ){
                     my $fns = join( ', ', &TableProvider::GetFunctionsList() );
                     $fns =~ s!(([a-z0-9]+, ){10})!$1\n    !go;
-                    my $info = $self->opf->GenMsg( 'info', qq{Supported functions:\n    $fns\n} );
-                    $self->opf->Die( qq{"$funcname()": unknown function.\n$info} );
+                    my $info = $self->GenMsg( 'info', qq{Supported functions:\n    $fns\n} );
+                    $self->Die( qq{"$funcname()": unknown function.\n$info} );
                 }
                 $bFunction = 1;
             }
 
-            my $el_r = FormulaToken::NewOperator( $operator, $bFunction );
+            my $el_r = &FormulaToken::NewOperator( $operator, $bFunction );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -1388,13 +1375,13 @@ sub GetToken( \$ )
                 $operator = $1;
                 if( ! &TableProvider::IsOperatorExists( $operator ) ){
                     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
-                    my $info = $self->opf->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
-                    $self->opf->Die( qq{"$operator": unknown operator.\n$info} );
+                    my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
+                    $self->Die( qq{"$operator": unknown operator.\n$info} );
                 }
                 $$ref_expr = substr( $$ref_expr, 1 );
                 $b_operator_is_confirmed = 1;
             }
-            my $el_r = FormulaToken::NewOperator( $operator );
+            my $el_r = &FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -1404,12 +1391,12 @@ sub GetToken( \$ )
         }
     }
 
-    if( $self->{DEBUG} ){
+    if( $self->{APPCONFIG}->GetDebug() ){
         my $token_data = 'undef';
         if( defined( $ret_obj ) ){
             $token_data = $ret_obj->data;
         }
-        $self->opf->dPrint( qq{GetToken="$token_data", remain="$$ref_expr"\n} );
+        $self->dPrint( qq{GetToken="$token_data", remain="$$ref_expr"\n} );
     }
     return $ret_obj;
 }
@@ -1445,7 +1432,7 @@ sub IsNeedInsert( $$$\$ )
         )
     ){
         $$ref_expr = "$operator$expr_value";
-        $self->opf->dPrint( qq{IsNeedInsert(): \$operator="$operator", \$\$ref_expr="$$ref_expr"\n} );
+        $self->dPrint( qq{IsNeedInsert(): \$operator="$operator", \$\$ref_expr="$$ref_expr"\n} );
         $bInsert = 1;
     }
 
@@ -1505,6 +1492,7 @@ sub GetHere()
 package FormulaStack;
 use strict;
 use warnings 'all';
+use base qq{OutputFunc};
 
 # FormulaStack コンストラクタ
 sub new {
@@ -1512,13 +1500,11 @@ sub new {
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{B_TEST} = shift( @_ );
-    $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'stack' );
+    $self->{APPCONFIG} = shift( @_ );
+    $self->SetLabel( 'stack' );
 #    $self->Reset();
-#    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaStack: create\n} );
-    if( $self->{B_TEST} ){
+#    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaStack: create\n} );
+    if( $self->{APPCONFIG}->GetBTest() ){
         $self->Reset();
         $self->Pop();
         $self->GetNewer();
@@ -1533,12 +1519,6 @@ sub Reset()
     @{ $self->{TOKENS} } = ();
 }
 
-sub opf()
-{
-    my $self = shift( @_ );
-    return $self->{OPF};
-}
-
 ## 名前はPush()だが実際にはunshift()を使っている
 sub Push( $ )
 {
@@ -1547,7 +1527,7 @@ sub Push( $ )
 
     unshift( @{ $self->{TOKENS} }, $item );
 
-    $self->opf->dPrintf( qq{Push(): [%d] %s\n},
+    $self->dPrintf( qq{Push(): [%d] %s\n},
         scalar( @{ $self->{TOKENS} } ),
         $self->GetItems() );
     return;
@@ -1564,11 +1544,11 @@ sub Pop()
     if( scalar( @{ $self->{TOKENS} } ) ){
         $ret_item = shift( @{ $self->{TOKENS} } );
 
-        $self->opf->dPrintf( qq{Pop(): [%d] %s -> "%s"\n},
+        $self->dPrintf( qq{Pop(): [%d] %s -> "%s"\n},
             scalar( @{ $self->{TOKENS} } ),
             $self->GetItems(), $ret_item->data );
     }else{
-        $self->opf->dPrint( qq{Pop(): enmpy!\n} );
+        $self->dPrint( qq{Pop(): enmpy!\n} );
     }
 
     return $ret_item;
@@ -1594,7 +1574,7 @@ sub GetNewer()
     if( scalar( @{ $self->{TOKENS} } ) ){
         $ret_item = ${ $self->{TOKENS} }[ 0 ];
     }else{
-        $self->opf->dPrint( qq{GetNewer(): enmpy!\n} );
+        $self->dPrint( qq{GetNewer(): enmpy!\n} );
     }
 
     return $ret_item;
@@ -1604,6 +1584,7 @@ sub GetNewer()
 package FormulaEvaluator;
 use strict;
 use warnings 'all';
+use base qq{OutputFunc};
 
 use constant {
     BIT_DISP_HEX => 0x1,
@@ -1616,16 +1597,11 @@ sub new {
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
     $self->{HELPER} = shift( @_ );
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{B_TEST} = shift( @_ );
-    $self->{B_VERBOSEOUTPUT} = shift( @_ );
-    $self->{B_RPN} = shift( @_ );
-#    $self->{INT_BASIC_BIT_W} = log( ~0 + 1 ) / log( 2 );  # 64 or 32: '~0+1': perlの整数は固定幅ではないので桁溢れしない。
-    $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'evaluator' );
+    $self->{APPCONFIG} = shift( @_ );
+    $self->SetLabel( 'evaluator' );
 #    $self->Reset();
-#    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaEvaluator: create\n} );
-    if( $self->{B_TEST} ){
+#    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaEvaluator: create\n} );
+    if( $self->{APPCONFIG}->GetBTest() ){
         $self->Reset();
         my $el_r = FormulaToken::NewOperator( '*' );
         unshift( @{ $self->{RPN} }, $el_r );
@@ -1638,10 +1614,10 @@ sub new {
             $self->Input( $el_r );
         };
         print STDERR ( $@ );
-        $self->opf->dPrintf( qq{scalar( \@{ \$self->{RPN} } ) = %d\n}, scalar( @{ $self->{RPN} } ) );
-        $self->opf->dPrintf( qq{scalar( \@{ \$self->{TOKENS} } ) = %d\n}, scalar( @{ $self->{TOKENS} } ) );
+        $self->dPrintf( qq{scalar( \@{ \$self->{RPN} } ) = %d\n}, scalar( @{ $self->{RPN} } ) );
+        $self->dPrintf( qq{scalar( \@{ \$self->{TOKENS} } ) = %d\n}, scalar( @{ $self->{TOKENS} } ) );
         my $usage = $self->GetUsage( 'none-operator' );
-        $self->opf->dPrintf( qq{GetUsage() test: \$usage="$usage"\n} );
+        $self->dPrintf( qq{GetUsage() test: \$usage="$usage"\n} );
         $self->Reset();
     }
     return $self;               # 無名ハッシュ参照を返す
@@ -1661,12 +1637,6 @@ sub RegisterClear()
     my $self = shift( @_ );
     $self->{FORMULA} = '';      # 最後に計算した時の式
     $self->{REGISTER} = 0;      # 最後に計算した時の計算結果
-}
-
-sub opf()
-{
-    my $self = shift( @_ );
-    return $self->{OPF};
 }
 
 # 評価機に入力→必要に応じて計算を実行する
@@ -1709,7 +1679,7 @@ sub Input( $ )
     }else{
         $op = $token->data;
         my $bFunction = $token->IsFunction();
-        $self->opf->dPrint( qq{Input(): \$op="$op"\n} );
+        $self->dPrint( qq{Input(): \$op="$op"\n} );
         if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '^' ) || ( $op eq '~' ) ){
             $self->{FLAGS} |= BIT_DISP_HEX;
         }
@@ -1763,10 +1733,10 @@ sub Input( $ )
 #            ( C_CASES )[ $case ] );
         if( $b_tokens_len_check ){
             my $msg = qq{"$op": Operand missing.\n};
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
             $msg .= $self->GetUsage( $op );
-            $self->opf->Die( $msg );
+            $self->Die( $msg );
         }
         my $arg_counter = 0;
         for( $arg_counter=0; $arg_counter<$check_len; $arg_counter++ ){
@@ -1775,12 +1745,12 @@ sub Input( $ )
                 if( &TableProvider::IsSentinel( $el->data ) ){
                     if( $need_argc == TableProvider::VA ){
                         $need_argc = $arg_counter;
-                        $self->opf->dPrint( qq{variable arguments: \$need_argc="$need_argc"\n} );
+                        $self->dPrint( qq{variable arguments: \$need_argc="$need_argc"\n} );
                         last;
                     }
                 }else{
                     my $msg = qq{"$op": Unexpected errors.\n};
-                    $self->opf->Die( $msg );
+                    $self->Die( $msg );
                 }
                 last;
             }
@@ -1798,10 +1768,10 @@ sub Input( $ )
         }
 #        printf( qq{\$b_args_len_check="$b_args_len_check", \$arg_counter="$arg_counter"\n} );
         if( $b_args_len_check ){
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
             $msg .= $self->GetUsage( $op );
-            $self->opf->Die( $msg );
+            $self->Die( $msg );
         }
         for( my $idx=0; $idx<$need_argc; $idx++ ){
             my $el = shift( @{ $self->{TOKENS} } );
@@ -1810,7 +1780,7 @@ sub Input( $ )
         if( $bFunction ){
             my $sentinel = shift( @{ $self->{TOKENS} } );
             #printf( qq{E: 0x%X, "%s"\n}, $sentinel->flags, $sentinel->data );
-            $self->opf->dPrintf( qq{\$need_argc="$need_argc": "%s": Retrieve sentinel.\n},
+            $self->dPrintf( qq{\$need_argc="$need_argc": "%s": Retrieve sentinel.\n},
                 $sentinel->data );
         }
         $self->RegisterClear();
@@ -1835,10 +1805,10 @@ sub Input( $ )
         if( $@ ){
             my $msg = $@;
             $msg =~ s/ at .*\d\.$/./;
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
-            $msg .= $self->opf->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetFormula() . "\n" );
+            $msg .= $self->GenMsg( 'info', $self->{HELPER}->GetHere( $token->id ) . "\n" );
             $msg .= $self->GetUsage( $op );
-            $self->opf->Die( $msg );
+            $self->Die( $msg );
         }
         my $results_len = scalar( @results );
         $result = $results[ 0 ];
@@ -1852,14 +1822,14 @@ sub Input( $ )
             }
         }
         $self->{REGISTER} = $result;
-        if( $self->{B_VERBOSEOUTPUT} ){
+        if( $self->{APPCONFIG}->GetBVerboseOutput() ){
             print( qq{$self->{FORMULA} = $result\n} );
         }
     }
 
     unshift( @{ $self->{TOKENS} }, @tokens );
-    if( ( $self->{B_VERBOSEOUTPUT} ) &&
-        ( $self->{B_RPN} || $self->{DEBUG} ) ){
+    if( ( $self->{APPCONFIG}->GetBVerboseOutput() ) &&
+        ( $self->{APPCONFIG}->GetBRpn() || $self->{APPCONFIG}->GetDebug() ) ){
         print( 'Remain RPN: ' . $self->GetTokens() . "\n" );
     }
 
@@ -1875,9 +1845,8 @@ sub GetUsage( $ )
     my $help = &TableProvider::GetHelp( $op );
     if( defined( $help ) ){
         $usage = $help;
-#        $usage =~ s/\n//go;
         $usage = 'usage: ' . $usage;
-        $info = $self->opf->GenMsg( 'info', $usage ) . "\n";
+        $info = $self->GenMsg( 'info', $usage ) . "\n";
     }
     return $info;
 }
@@ -1919,8 +1888,8 @@ sub ResultPrint()
     my $bDispMns = 0;
     for my $item( reverse( @{ $self->{TOKENS} } ) ){
         if( ! $item->IsOperand() ){
-            $self->opf->warnPrint( qq{There may be an error in the calculation formula.\n} );
-            $self->opf->warnPrint( qq{Remain RPN: } . $self->GetTokens() . "\n" );
+            $self->warnPrint( qq{There may be an error in the calculation formula.\n} );
+            $self->warnPrint( qq{Remain RPN: } . $self->GetTokens() . "\n" );
             last;
         }
         my $reg_raw = $item->data;
@@ -1947,7 +1916,7 @@ sub ResultPrint()
     }
 
     my $raw = '';
-    if( $self->{B_VERBOSEOUTPUT} && $bDispRaw ){
+    if( $self->{APPCONFIG}->GetBVerboseOutput() && $bDispRaw ){
         $raw = join( ', ', @raw_vals );
         $raw = '( ' . $raw . ' )' if( $reg_len > 1 );
         $raw = " [ = $raw ]";
@@ -1982,14 +1951,14 @@ sub NumberToString( $ )
     ## ex) 2.2e-07 -> 0.00000022
     if( $number =~ m/e\-(\d+)$/ ){
         my $width = $1 + 1;
-#        $self->opf->dPrint( qq{\$width="$width"\n} );
+#        $self->dPrint( qq{\$width="$width"\n} );
         $$ref_str = sprintf( qq{%.${width}f}, $number );
         $bRet = 1;
     ## ex) 1.59226291813144e+15 -> 1592262918131443.25
     }elsif( $number =~ m/e\+(\d+)$/ ){
         my $width = 20;
         $$ref_str = sprintf( qq{%.${width}f}, $number );
-#        $self->opf->dPrint( qq{\$width="$width" -> "$$ref_str"\n} );
+#        $self->dPrint( qq{\$width="$width" -> "$$ref_str"\n} );
         $$ref_str =~ s!\.?0+$!!o;
         $bRet = 1;
     }else{
@@ -2055,6 +2024,7 @@ sub GetHere()
 package FormulaEngine;
 use strict;
 use warnings 'all';
+use base qq{OutputFunc};
 
 # FormulaEngine コンストラクタ
 sub new {
@@ -2062,27 +2032,20 @@ sub new {
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
-    $self->{APPNAME} = shift( @_ );
-    $self->{DEBUG} = shift( @_ );
-    $self->{B_TEST} = shift( @_ );
-    $self->{B_VERBOSEOUTPUT} = shift( @_ );
-    $self->{B_RPN} = shift( @_ );
-    $self->{OPF} = OutputFunc->new( $self->{APPNAME}, $self->{DEBUG}, 'engine' );
-    $self->{TBL_PROVIDER} = TableProvider->new( $self->{APPNAME},
-        $self->{DEBUG}, $self->{B_TEST} );
-    $self->{LEXER} = FormulaLexer->new( $self->{APPNAME}, $self->{DEBUG} );
+    $self->{APPCONFIG} = shift( @_ );
+    $self->SetLabel( 'engine' );
+    $self->{TBL_PROVIDER} = TableProvider->new( $self->{APPCONFIG} );
+    $self->{LEXER} = FormulaLexer->new( $self->{APPCONFIG} );
     $self->{HELPER} = FormulaHelper->new( $self->{LEXER} );
-    $self->{PARSER} = FormulaParser->new( $self->{HELPER}, $self->{APPNAME}, $self->{DEBUG}, $self->{B_TEST} );
-    $self->{EVALUATOR} = FormulaEvaluator->new( $self->{HELPER}, $self->{APPNAME},
-        $self->{DEBUG}, $self->{B_TEST},
-        $self->{B_VERBOSEOUTPUT}, $self->{B_RPN} );
+    $self->{PARSER} = FormulaParser->new( $self->{HELPER}, $self->{APPCONFIG} );
+    $self->{EVALUATOR} = FormulaEvaluator->new( $self->{HELPER}, $self->{APPCONFIG} );
 #    $self->Reset();
-#    $self->opf->dPrint( qq{$self->{APPNAME}: FormulaEngine: create\n} );
-    if( $self->{B_TEST} ){
+#    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaEngine: create\n} );
+    if( $self->{APPCONFIG}->GetBTest() ){
         my $help_of_unknown_operator = &OutputFunc::FmtHelp( 100, '***' );
-        $self->opf->dPrint( qq{\$help_of_unknown_operator="$help_of_unknown_operator"\n} );
+        $self->dPrint( qq{\$help_of_unknown_operator="$help_of_unknown_operator"\n} );
         $self->Reset();
-        my $tblProvider2 = TableProvider->new( $self->{APPNAME}, $self->{DEBUG}, $self->{B_TEST} );
+        my $tblProvider2 = TableProvider->new( $self->{APPCONFIG} );
         $tblProvider2 = undef;
         $self->Reset();
     }
@@ -2096,12 +2059,6 @@ sub Reset()
     $self->Parser->Reset();
     $self->Lexer->Reset();
     $self->Evaluator->Reset();
-}
-
-sub opf()
-{
-    my $self = shift( @_ );
-    return $self->{OPF};
 }
 
 sub Parser()
@@ -2131,7 +2088,7 @@ sub Run( @ )
     my $status = 0;
     my $bReadStdin = ! -t STDIN;
     if( $expr eq '' ){
-        $self->opf->dPrint( qq{\$expr is empty\n} );
+        $self->dPrint( qq{\$expr is empty\n} );
         $bReadStdin = 1;
     }else{
         $status = $self->Calculate( $expr );
@@ -2176,7 +2133,7 @@ sub Calculate( $ )
         }
         if( $bParserFinish ){
             my $msg = sprintf( qq{"%s$expr"}, $curr_token->data );
-            $self->opf->warnPrint( qq{$msg: Ignore. The calculation process has been completed.\n} );
+            $self->warnPrint( qq{$msg: Ignore. The calculation process has been completed.\n} );
             return -1;
         }
 
@@ -2185,20 +2142,95 @@ sub Calculate( $ )
         $Evaluator_remain = $self->Evaluator->Inputs( @evaluator_queue );
     }
 
-    if( $self->{B_VERBOSEOUTPUT} ){
+    if( $self->{APPCONFIG}->GetBVerboseOutput() ){
         print( qq{Formula: '} . $self->Lexer->GetFormula() . qq{'\n} );
         print( qq{    RPN: '} . $self->Evaluator->GetRpn() . qq{'\n} );
     }
 
-    if( $self->{B_RPN} ){
+    if( $self->{APPCONFIG}->GetBRpn() ){
         print( $self->Evaluator->GetRpn() . "\n" );
-    }elsif( $self->{B_VERBOSEOUTPUT} ){
+    }elsif( $self->{APPCONFIG}->GetBVerboseOutput() ){
         print( qq{ Result: } . $self->Evaluator->ResultPrint() . "\n" );
     }else{
         print( $self->Evaluator->ResultPrint() . "\n" );
     }
 
     return 0;
+}
+
+
+package CAppConfig;
+use strict;
+use warnings 'all';
+
+# CAppConfig コンストラクタ
+sub new {
+    my( $class, $name ) = shift( @_ );
+    my $self = {};              # 無名ハッシュ参照
+    bless( $self, $class );     # クラス名を関連付け
+    $self->{NAME} = $name;
+    $self->{APPNAME} = shift( @_ );
+    $self->{DEBUG} = shift( @_ );
+    $self->{B_TEST} = shift( @_ );
+    $self->{B_VERBOSEOUTPUT} = shift( @_ );
+    $self->{B_RPN} = shift( @_ );
+    $self->{B_IS_STDOUT_TTY} = shift( @_ );
+    return $self;               # 無名ハッシュ参照を返す
+}
+
+sub SetDebug( $ )
+{
+    my $self = shift( @_ );
+    $self->{DEBUG} = shift( @_ );
+}
+sub GetDebug( $ )
+{
+    my $self = shift( @_ );
+    return $self->{DEBUG};
+}
+
+sub SetBTest( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_TEST} = shift( @_ );
+}
+sub GetBTest( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_TEST};
+}
+
+sub SetBVerboseOutput( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_VERBOSEOUTPUT} = shift( @_ );
+}
+sub GetBVerboseOutput( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_VERBOSEOUTPUT};
+}
+
+sub SetBRpn( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_RPN} = shift( @_ );
+}
+sub GetBRpn( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_RPN};
+}
+
+sub SetBIsStdoutTty( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_IS_STDOUT_TTY} = shift( @_ );
+}
+sub GetBIsStdoutTty( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_IS_STDOUT_TTY};
 }
 
 
@@ -2216,13 +2248,12 @@ exit( &pl_main( @ARGV ) );
 sub pl_main( @ )
 {
     ## 初期化処理
-    &init_script();
+    my $conf = &init_script();
 
     ## 引数解析
-    &parse_arg( @_ );
+    &parse_arg( $conf, @_ );
 
-    my $fEngine = FormulaEngine->new( $main::appname, $main::debug, $main::bTest,
-        $main::bVerboseOutput, $main::bRpn );
+    my $fEngine = FormulaEngine->new( $conf );
     my $status = $fEngine->Run( @main::expressions_raw );
 
     return $status;
@@ -2234,24 +2265,31 @@ sub pl_main( @ )
 sub init_script()
 {
     ### GLOBAL ###
-#    $main::apppath = dirname( $0 );
-    $main::appname = basename( $0 );
-    $main::debug = 0;
-#    $main::debug = 1;
-    $main::bTest = 0;
-    $main::bVerboseOutput = 0;
-    $main::bRpn = 0;
-#    $main::bIsStdoutATty = -t STDOUT;
     @main::expressions_raw = ();
     ##############
 
-    $opf = OutputFunc->new( $main::appname, $main::debug, 'dbg' );
+#    my apppath = dirname( $0 );
+    my $appname = basename( $0 );
+    my $debug = 0;
+#    my $debug = 1;
+    my $bTest = 0;
+    my $bVerboseOutput = 0;
+    my $bRpn = 0;
+    my $bIsStdoutTty = -t STDOUT;
+
+    my $config = CAppConfig->new( $appname, $debug,
+        $bTest, $bVerboseOutput, $bRpn, $bIsStdoutTty );
+
+    $opf = OutputFunc->new( $config, 'dbg' );
+
+    return $config;
 }
 
 ##########
 ## 引数解析
 sub parse_arg()
 {
+    my $conf = shift( @_ );
     my @val = @_;
 
     ## 引数分のループを回す
@@ -2266,19 +2304,18 @@ sub parse_arg()
 
         ## デバッグモードOn
         if    ( $myparam eq '-d' || $myparam eq '--debug' ){
-            $main::debug = 1;
-            $opf->SetDebug( $main::debug );
-            $main::bVerboseOutput = 1;
+            $conf->SetDebug( 1 );
+            $conf->SetBVerboseOutput( 1 );
         }elsif( $myparam eq '-h' || $myparam eq '--help' ){
-            $opf->Usage( 0 );
+            $opf->PrintHelp( 0 );
             exit( 0 );
         }elsif( $myparam eq '-r' || $myparam eq '--rpn' ){
-            $main::bRpn = 1;
+            $conf->SetBRpn( 1 );
         }elsif( $myparam eq '-v' || $myparam eq '--verbose' ){
-            $main::bVerboseOutput = 1;
+            $conf->SetBVerboseOutput( 1 );
         }elsif( $myparam eq '--test-test' ){
-            $main::bTest = 1;
-            $opf->SetTest( $main::bTest );
+            $conf->SetBTest( 1 );
+            $conf->SetBIsStdoutTty( 1 );
         }else{
             push( @main::expressions_raw, $myparam );
         }
