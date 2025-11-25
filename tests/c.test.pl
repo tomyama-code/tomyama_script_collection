@@ -39,6 +39,8 @@ my $cur_dir = getcwd();
 $apppath = $cur_dir . '/tests';
 my $TARGCMD = "./tests/cmd_wrapper";
 
+my $test_beg = `./c 'time'`;
+
 my $develCoverStatus = -1;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
@@ -1042,6 +1044,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ratio_scaling( 3, 10, 20 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'ratio_scaling( 3, 10, 20 )'} );
+    $cmd->stdout_is_eq( qq{66.6666666666667\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ratio_scaling( 3, 10, 20, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'ratio_scaling( 3, 10, 20, 1 )'} );
+    $cmd->stdout_is_eq( qq{66.7\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 138 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'gcd( 138 ) ='} );
     $cmd->stdout_is_eq( qq{138\n} );
@@ -1570,3 +1584,10 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
         $develCoverStatus=`cover`;
     }
 }
+
+my $test_end = `./c 'time'`;
+my $test_duration = $test_end - $test_beg;
+print( qq{$ENV{ 'TEST_TARGET_CMD' }: test: Begin: } . `./c 'epoch2local( $test_beg )'` );
+print( qq{$ENV{ 'TEST_TARGET_CMD' }: test:   End: } . `./c 'epoch2local( $test_end )'` );
+print( qq{$ENV{ 'TEST_TARGET_CMD' }: test: Elaps: } . `./c 'sec2dhms( $test_duration )'` );
+exit( 0 );

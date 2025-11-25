@@ -39,10 +39,10 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
-linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
-tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m,
-geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
+abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, gcd, lcm, min, max, shuffle, first,
+uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg,
+deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance,
+geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -217,6 +217,14 @@ Time interval:
     $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45, 0 ) )'
     ( 2020, 1, 3, 13, 15, 0 )
 
+If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
+
+    $ c 'epoch2local(
+           local2epoch( 2025, 11, 25, 09, 00 ) +
+           ratio_scaling( 3, dhms2sec( 0, 1, 18, 0 ), 15 )
+         )'
+    ( 2025, 11, 25, 15, 30, 0 )
+
 ## COORDINATE CALCULATION
 
 I think this is a feature that anyone who likes looking at maps will want to use.
@@ -355,7 +363,11 @@ The **c** script was created with the following in mind:
 
 - `pct`
 
-    pct( NUMERATOR, DENOMINATOR \[, DECIMAL\_PLACES \] ). Returns the percentage, rounding the number if DECIMAL\_PLACES is specified.
+    pct( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ). Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified.
+
+- `ratio_scaling`
+
+    ratio\_scaling( _A_, _B_, _C_ \[, DECIMAL\_PLACES \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified.
 
 - `gcd`
 
