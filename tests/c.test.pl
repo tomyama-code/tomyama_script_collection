@@ -694,6 +694,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
+    $cmd->stdout_is_eq( qq{( 2019, 12, 30, 17, 56, 5 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'abs(-29.3577535427913)='} );
     $cmd->exit_is_num( 0, qq{./c 'abs(-29.3577535427913)='} );
     $cmd->stdout_is_eq( qq{29.3577535427913\n} );

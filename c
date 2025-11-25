@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.24 $
+## - $Revision: 4.26 $
 ##
 ## - Script Structure
 ##   - main
@@ -142,7 +142,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.24 $};
+    my $rev = q{$Revision: 4.26 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -576,7 +576,8 @@ use constant {
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch.},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
     H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ).},
-    H_DHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
+    H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
+    H_HMSS => qq{dhms2sec( D, H, M, S ) --Convert-to--> ( DURATION_SEC ).},
 };
 
 %TableProvider::operators = (
@@ -645,7 +646,8 @@ use constant {
     'gmt2epoch'   => [ 62, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
     'epoch2local' => [ 63, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
     'epoch2gmt'   => [ 64, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'    => [ 65, T_FUNCTION,     1, H_DHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'sec2dhms'    => [ 65, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'    => [ 66, T_FUNCTION,     4, H_HMSS, sub{ &dhms2sec( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1099,6 +1101,19 @@ sub sec2dhms( $ )
     }
 
     return ( $days, $hour, $minute, $sec );
+}
+
+sub dhms2sec( $$$$ )
+{
+    my( $days, $hour, $minute, $sec ) = @_;
+
+    my $duration_sec = 0;
+    $duration_sec += 86400 * $days;
+    $duration_sec +=  3600 * $hour;
+    $duration_sec +=    60 * $minute;
+    $duration_sec +=         $sec;
+
+    return $duration_sec;
 }
 
 
@@ -2449,7 +2464,7 @@ $ c [I<OPTIONS...>] I<EXPRESSIONS>
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
 linspace, linstep, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
 tan, asin, acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m,
-geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms
+geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 =head1 OPTIONS
 
@@ -2608,15 +2623,25 @@ Current time in seconds since the epoch:
   $ c time
   1764003197
 
-Time until target date:
+In an easy-to-understand format:
 
-  $ c 'sec2dhms( local2epoch( 2030, 01, 01 ) - time )'
-  ( 1497, 22, 14, 38 )
+  $ c 'epoch2local( time )'
+  ( 2025, 11, 25, 1, 53, 17 )
 
-Time zone difference:
+Time elapsed since a specified date:
 
-  $ c 'sec2dhms( time - local2epoch( epoch2gmt( time ) ) )'
-  ( 0, 9, 0, 0 )
+  $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
+  ( 5372, 15, 51, 18 )
+
+Time interval:
+
+  $ c 'sec2dhms( local2epoch( 2024, 01, 01, 16, 10 ) - local2epoch( 2011, 03, 11, 14, 46 ) )'
+  ( 4679, 1, 24, 0 )
+
+1 hour and 45 minutes before two days later:
+
+  $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45, 0 ) )'
+  ( 2020, 1, 3, 13, 15, 0 )
 
 =head2 COORDINATE CALCULATION
 
@@ -2922,6 +2947,10 @@ epoch2gmt( I<EPOCH> ). Returns the GMT time. ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S
 =item C<sec2dhms>
 
 sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+
+=item C<dhms2sec>
+
+dhms2sec( I<D>, I<H>, I<M>, I<S> ) --Convert-to--> ( I<DURATION_SEC> ).
 
 =back
 

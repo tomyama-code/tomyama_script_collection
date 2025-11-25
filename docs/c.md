@@ -42,7 +42,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 abs, int, floor, ceil, rounddown, round, roundup, pct, gcd, lcm, min, max, shuffle, first, uniq, sum, avg,
 linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos,
 tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m,
-geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms
+geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -197,15 +197,25 @@ Current time in seconds since the epoch:
     $ c time
     1764003197
 
-Time until target date:
+In an easy-to-understand format:
 
-    $ c 'sec2dhms( local2epoch( 2030, 01, 01 ) - time )'
-    ( 1497, 22, 14, 38 )
+    $ c 'epoch2local( time )'
+    ( 2025, 11, 25, 1, 53, 17 )
 
-Time zone difference:
+Time elapsed since a specified date:
 
-    $ c 'sec2dhms( time - local2epoch( epoch2gmt( time ) ) )'
-    ( 0, 9, 0, 0 )
+    $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
+    ( 5372, 15, 51, 18 )
+
+Time interval:
+
+    $ c 'sec2dhms( local2epoch( 2024, 01, 01, 16, 10 ) - local2epoch( 2011, 03, 11, 14, 46 ) )'
+    ( 4679, 1, 24, 0 )
+
+1 hour and 45 minutes before two days later:
+
+    $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45, 0 ) )'
+    ( 2020, 1, 3, 13, 15, 0 )
 
 ## COORDINATE CALCULATION
 
@@ -505,6 +515,10 @@ The **c** script was created with the following in mind:
 - `sec2dhms`
 
     sec2dhms( _DURATION\_SEC_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+
+- `dhms2sec`
+
+    dhms2sec( _D_, _H_, _M_, _S_ ) --Convert-to--> ( _DURATION\_SEC_ ).
 
 # Environmental requirements
 
