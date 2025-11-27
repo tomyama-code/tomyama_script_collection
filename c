@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.27 $
+## - $Revision: 4.30 $
 ##
 ## - Script Structure
 ##   - main
@@ -142,7 +142,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.27 $};
+    my $rev = q{$Revision: 4.30 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -538,7 +538,7 @@ use constant {
     H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
     H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
-    H_RASC => qq{ratio_scaling( A, B, C ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified.},
+    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified.},
     H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
     H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
@@ -578,7 +578,7 @@ use constant {
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
     H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ).},
     H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
-    H_HMSS => qq{dhms2sec( D, H, M, S ) --Convert-to--> ( DURATION_SEC ).},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( DURATION_SEC ).},
 };
 
 %TableProvider::operators = (
@@ -649,7 +649,7 @@ use constant {
     'epoch2local' => [ 64, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
     'epoch2gmt'   => [ 65, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
     'sec2dhms'    => [ 66, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'    => [ 67, T_FUNCTION,     4, H_HMSS, sub{ &dhms2sec( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'dhms2sec'    => [ 67, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1119,9 +1119,12 @@ sub sec2dhms( $ )
     return ( $days, $hour, $minute, $sec );
 }
 
-sub dhms2sec( $$$$ )
+sub dhms2sec( $;$$$ )
 {
     my( $days, $hour, $minute, $sec ) = @_;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
 
     my $duration_sec = 0;
     $duration_sec += 86400 * $days;
@@ -1374,6 +1377,7 @@ sub new {
     $self->{NAME} = $name;
     $self->{APPCONFIG} = shift( @_ );
     $self->SetLabel( 'lexer' );
+    $self->LoadUserConstants( \%{ $self->{CONSTANTS} } );
 #    $self->Reset();
 #    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaLexer: create\n} );
     return $self;               # 無名ハッシュ参照を返す
@@ -1383,6 +1387,68 @@ sub Reset()
 {
     my $self = shift( @_ );
     @{ $self->{TOKENS} } = ();
+}
+
+sub LoadUserConstants( $\$ )
+{
+    my $self = shift( @_ );
+    my $ref_user_const = shift( @_ );
+
+    my $constantFileName = ".c.constant";
+    for my $dir( $self->{APPCONFIG}->{APPPATH},
+                 $ENV{HOME} ){
+        my $cfile = "$dir/$constantFileName";
+        if( ! -f $cfile ){
+            next;
+        }
+        $self->LoadUserConstant( $cfile, $ref_user_const );
+    }
+
+    return 0;
+}
+
+sub LoadUserConstant( $\$ )
+{
+    my $self = shift( @_ );
+    my $constant_file = shift( @_ );
+    my $ref_user_const = shift( @_ );
+
+    my %UCONST = do $constant_file;
+    if( $@ ){
+        $self->Die( "$constant_file: Failed to run the script: " . $@ );
+#    }elsif( $! ){
+#        $self->warnPrint( "$constant_file: The script was not found: " . $! );
+#        return -1;
+    }
+
+    for my $KEY( sort( keys( %UCONST ) ) ){
+        my $k = lc( $KEY );
+        if( $self->{APPCONFIG}->GetBVerboseOutput() ){
+            if( exists( $$ref_user_const{$k} ) ){
+                $self->warnPrint( qq{"$KEY": "$$ref_user_const{$k}" -> "$UCONST{$KEY}": Overwrites the existing definition.\n} );
+            }
+        }
+        $$ref_user_const{$k} = $UCONST{$KEY};
+    }
+
+    return 0;
+}
+
+sub IsTokenUserConstant( \$\$ )
+{
+    my $ref_str = shift( @_ );
+    my $ref_user_const = shift( @_ );
+    my $bRet = 0;
+    if( $$ref_str =~ m!^([a-z_][a-z0-9_]+)(?=[^a-z])!o ){
+        my $key = $1;
+        #print( qq{\$\$ref_str="$$ref_str", \$key="$key"\n} );
+        if( exists( $$ref_user_const{$key} ) ){
+            my $len = length( $key );
+            $$ref_str = $$ref_user_const{$key} . substr( $$ref_str, $len );
+            $bRet = 1;
+        }
+    }
+    return $bRet;
 }
 
 ## 式を分解してトークンを返す
@@ -1400,8 +1466,10 @@ sub GetToken( \$ )
         my $operator = '';
         my $operand = 0;
 
+        if( &IsTokenUserConstant( $ref_expr, \%{ $self->{CONSTANTS} } ) ){
+            # nothing to do.
         ## オペランド
-        if( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+)!!o ) ||
+        }elsif( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+)!!o ) ||
             ( $$ref_expr =~ s!^([\-\+])(\d+\.?\d*)!!o ) ){
             $operator = $1;
             my $operand_raw = $2;
@@ -2280,6 +2348,7 @@ sub new {
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
+    $self->{APPPATH} = shift( @_ );
     $self->{APPNAME} = shift( @_ );
     $self->{DEBUG} = shift( @_ );
     $self->{B_TEST} = shift( @_ );
@@ -2379,7 +2448,7 @@ sub init_script()
     @main::expressions_raw = ();
     ##############
 
-#    my apppath = dirname( $0 );
+    my $apppath = dirname( $0 );
     my $appname = basename( $0 );
     my $debug = 0;
 #    my $debug = 1;
@@ -2388,7 +2457,7 @@ sub init_script()
     my $bRpn = 0;
     my $bIsStdoutTty = -t STDOUT;
 
-    my $config = CAppConfig->new( $appname, $debug,
+    my $config = CAppConfig->new( $apppath, $appname, $debug,
         $bTest, $bVerboseOutput, $bRpn, $bIsStdoutTty );
 
     $opf = OutputFunc->new( $config, 'dbg' );
@@ -2556,7 +2625,7 @@ Example of using the functions.
 The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
 and the radians of an arbitrarily selected value are calculated.
 
-  $ ./c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
+  $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
   linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
   shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
   first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
@@ -2656,14 +2725,14 @@ Time interval:
 
 1 hour and 45 minutes before two days later:
 
-  $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45, 0 ) )'
+  $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45 ) )'
   ( 2020, 1, 3, 13, 15, 0 )
 
 If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
 
   $ c 'epoch2local(
          local2epoch( 2025, 11, 25, 09, 00 ) +
-         ratio_scaling( 3, dhms2sec( 0, 1, 18, 0 ), 15 )
+         ratio_scaling( 3, dhms2sec( 0, 1, 18 ), 15 )
        )'
   ( 2025, 11, 25, 15, 30, 0 )
 
@@ -2680,7 +2749,7 @@ Here we use the following coordinates (latitude and longitude):
 Calculate the distance between two points.
 
   $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
-       deg2rad( -0.3831, -90.42333 ) ) ='
+         deg2rad( -0.3831, -90.42333 ) ) ='
   14907.357977036
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
@@ -2689,8 +2758,8 @@ If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
   $ c 'geo_distance_km(
-       dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
-       dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
+         dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
+         dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
   14907.357977036
 
 If you record the calculation as shown below,
@@ -2815,7 +2884,7 @@ pct( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percenta
 
 =item C<ratio_scaling>
 
-ratio_scaling( I<A>, I<B>, I<C> [, DECIMAL_PLACES ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified.
+ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified.
 
 =item C<gcd>
 
@@ -2978,7 +3047,7 @@ sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 
 =item C<dhms2sec>
 
-dhms2sec( I<D>, I<H>, I<M>, I<S> ) --Convert-to--> ( I<DURATION_SEC> ).
+dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
 
 =back
 

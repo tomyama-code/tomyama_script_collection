@@ -114,7 +114,7 @@ Example of using the functions.
 The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
 and the radians of an arbitrarily selected value are calculated.
 
-    $ ./c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
+    $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
     linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
     shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
     first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
@@ -214,14 +214,14 @@ Time interval:
 
 1 hour and 45 minutes before two days later:
 
-    $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45, 0 ) )'
+    $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45 ) )'
     ( 2020, 1, 3, 13, 15, 0 )
 
 If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
 
     $ c 'epoch2local(
            local2epoch( 2025, 11, 25, 09, 00 ) +
-           ratio_scaling( 3, dhms2sec( 0, 1, 18, 0 ), 15 )
+           ratio_scaling( 3, dhms2sec( 0, 1, 18 ), 15 )
          )'
     ( 2025, 11, 25, 15, 30, 0 )
 
@@ -238,7 +238,7 @@ Here we use the following coordinates (latitude and longitude):
 Calculate the distance between two points.
 
     $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
-         deg2rad( -0.3831, -90.42333 ) ) ='
+           deg2rad( -0.3831, -90.42333 ) ) ='
     14907.357977036
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
@@ -247,8 +247,8 @@ If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
     $ c 'geo_distance_km(
-         dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
-         dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
+           dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
+           dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
     14907.357977036
 
 If you record the calculation as shown below,
@@ -367,7 +367,7 @@ The **c** script was created with the following in mind:
 
 - `ratio_scaling`
 
-    ratio\_scaling( _A_, _B_, _C_ \[, DECIMAL\_PLACES \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified.
+    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified.
 
 - `gcd`
 
@@ -530,7 +530,7 @@ The **c** script was created with the following in mind:
 
 - `dhms2sec`
 
-    dhms2sec( _D_, _H_, _M_, _S_ ) --Convert-to--> ( _DURATION\_SEC_ ).
+    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _DURATION\_SEC_ ).
 
 # Environmental requirements
 

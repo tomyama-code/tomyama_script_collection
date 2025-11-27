@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.14 $
+## - $Revision: 2.15 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -57,10 +57,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.14 $)
+AC_REVISION($Revision: 2.15 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.21], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.22], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -93,9 +93,11 @@ EXTRA_DIST = LICENSE \
   $MY_DOCS$ \
   $MY_TL_DOCS$ \
   $MY_TOOLS$ \
+  .c.constant \
   tests/cmd_wrapper \
   tests/prt \
   tests/testdata_uniq_line.txt \
+  tests/c.constant.tar.gz \
   tests/tests.sh
 
 SUBDIRS = $SUBDIRS$
@@ -137,7 +139,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.14 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.15 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );

@@ -696,6 +696,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 10 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 10 ) )'} );
+    $cmd->stdout_is_eq( qq{( 2020, 1, 11, 15, 0, 0 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
     $cmd->stdout_is_eq( qq{( 2019, 12, 30, 17, 56, 5 )\n} );
@@ -1056,6 +1062,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ratio_scaling( 0, 10, 20 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'ratio_scaling( 0, 10, 20 )'} );
+    $cmd->stdout_is_eq( qq{} );
+    $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 138 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'gcd( 138 ) ='} );
     $cmd->stdout_is_eq( qq{138\n} );
@@ -1398,6 +1410,48 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
     $cmd->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
     $cmd->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
+    undef( $cmd );
+
+};
+
+subtest qq{user-constant} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_is_eq( qq{403.505099759608\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    `rm -f .c.constant`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: lexer: error: "t": unknown operator\.\n/ );
+    undef( $cmd );
+
+    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.failed && mv .c.constant.failed .c.constant`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.constant: Failed to run the script: / );
+    undef( $cmd );
+
+    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.duplicate && mv .c.constant.duplicate .c.constant`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->stdout_like( qr/\n Result: 403\.505099759608\n/ );
+    $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
+    undef( $cmd );
+
+    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.deploy && mv .c.constant.deploy .c.constant`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->stdout_like( qr/\n Result: 403\.505099759608\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
 };
