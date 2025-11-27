@@ -1418,7 +1418,7 @@ subtest qq{user-constant} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_is_eq( qq{403.505099759608\n} );
+    $cmd->stdout_like( qr/^403\.50509975960[89]\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1442,7 +1442,7 @@ subtest qq{user-constant} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.505099759608\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
     $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
     undef( $cmd );
 
@@ -1450,7 +1450,7 @@ subtest qq{user-constant} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.505099759608\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

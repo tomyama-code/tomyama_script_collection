@@ -60,7 +60,7 @@ AC_PREREQ([2.69])
 AC_REVISION($Revision: 2.15 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.22], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.23], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
