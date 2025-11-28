@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.30 $
+## - $Revision: 4.33 $
 ##
 ## - Script Structure
 ##   - main
@@ -116,6 +116,9 @@ sub GetHelpMsg()
         qq{    Hexadecimal: 0xf, -0x1, 0x0064 ...\n} .
         qq{    Constant: PI (=3.14159265358979)\n} .
         qq{              TIME (=CURRENT-TIME)\n} .
+        qq{              User-defined-file:\n} .
+        qq{                ".c.constant" should be placed in the same directory\n} .
+        qq{                as "c script" or in "\$HOME".\n} .
         qq{\n} .
         qq{  <OPERATORS>:\n} .
         qq{    $ops\n} .
@@ -142,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.30 $};
+    my $rev = q{$Revision: 4.33 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -488,24 +491,26 @@ sub GetPriorityOrderBetweenTokens( $$ )
 #    print( qq{bef: \$last="$last", \$curr="$curr"\n} );
 
     my @token_precedence_table = (
-        # '+'     '-'     '*'     '/'     '%'     '**'    '|'     '&'     '^'     '~'     'fn('   '('     ','     ')'     '='     OPERAND END
-        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
-        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 '-'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 '*'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 '/'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '%'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '**'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '|'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '&'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '^'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '~'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 10 'fn('
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 11 '('
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 12 ','
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 13 ')'
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 14 '='
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 15 OPERAND
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 16 BEGIN
+        # '+'     '-'     '*'     '/'     '%'     '**'    '|'     '&'     '^'     '<<'    '>>'    '~'     'fn('   '('     ','     ')'     '='     OPERAND END
+        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
+        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 '-'
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 '*'
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 '/'
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '%'
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '**'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '|'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '&'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '^'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '<<'
+        [ E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 10 '>>'
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 11 '~'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 12 'fn('
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 13 '('
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 14 ','
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 15 ')'
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 16 '='
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 17 OPERAND
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 18 BEGIN
     );
 
     my $numLast = &TableProvider::GetTokenTblIdx( $last );
@@ -522,9 +527,11 @@ use constant {
     H_DIVI => qq{Division. "1 / 2" -> 0.5.},
     H_MODU => qq{Modulo arithmetic. "5 % 3" -> 2.},
     H_EXPO => qq{Exponentiation. "2 ** 3" -> 8. Similarly, "pow( 2, 3 )".},
-    H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 ( = 0x6 )".},
-    H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 ( = 0x4 )".},
-    H_BWEO => qq{Bitwise exclusive or. "0x6 ^ 0x4" -> "2 ( = 0x2 )".},
+    H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 [ = 0x6 ]".},
+    H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 [ = 0x4 ]".},
+    H_BWEO => qq{Bitwise exclusive or. "0x6 ^ 0x4" -> "2 [ = 0x2 ]".},
+    H_SHTL => qq{Bitwise left shift. "0x6 << 1" -> "12 [ = 0xC ]".},
+    H_SHTR => qq{Bitwise right shift. "0x6 >> 1" -> "3 [ = 0x3 ]".},
     H_BWIV => qq{Bitwise inversion. "~0" -> 0xFFFFFFFFFFFFFFFFFF.},
     H_BBEG => qq{A symbol that controls the priority of calculations.},
     H_COMA => qq{The separator that separates function arguments.},
@@ -539,6 +546,7 @@ use constant {
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
     H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
     H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified.},
+    H_PRIM => qq{is_prime( NUM ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
     H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
@@ -591,65 +599,68 @@ use constant {
     '|'            => [  6, T_OPERATOR,    2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
     '&'            => [  7, T_OPERATOR,    2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
     '^'            => [  8, T_OPERATOR,    2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '~'            => [  9, T_OPERATOR,    1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('          => [ 10, T_OTHER,      -1, undef  ],
-    '('            => [ 11, T_OPERATOR,    2, H_BBEG ],
-    ','            => [ 12, T_OPERATOR,   -1, H_COMA ],
-    ')'            => [ 13, T_OPERATOR,    2, H_BEND ],
-    '='            => [ 14, T_OPERATOR,    1, H_EQUA ],
-    'OPERAND'      => [ 15, T_OTHER,       0, undef  ],
-    'BEGIN'        => [ 16, T_OTHER,       0, undef  ],
-    '#'            => [ 17, T_SENTINEL,   -1, undef  ],
-    'testfunc'     => [ 18, T_OTHER,       1, undef  ],
-    'abs'          => [ 19, T_FUNCTION,    1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'          => [ 20, T_FUNCTION,    1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'        => [ 21, T_FUNCTION,    1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'         => [ 22, T_FUNCTION,    1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'    => [ 23, T_FUNCTION,    2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'        => [ 24, T_FUNCTION,    2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'      => [ 25, T_FUNCTION,    2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'          => [ 26, T_FUNCTION,   VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'=> [ 27, T_FUNCTION,'3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'gcd'          => [ 28, T_FUNCTION,   VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'          => [ 29, T_FUNCTION,   VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'min'          => [ 30, T_FUNCTION,   VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'          => [ 31, T_FUNCTION,   VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'      => [ 32, T_FUNCTION,   VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'        => [ 33, T_FUNCTION,   VA, H_FRST, sub{ &FIRST( @_ ) } ],
-    'uniq'         => [ 34, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'          => [ 35, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'avg'          => [ 36, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'     => [ 37, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'linstep'      => [ 38, T_FUNCTION,    3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'rand'         => [ 39, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'          => [ 40, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'         => [ 41, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'          => [ 42, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'      => [ 43, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'      => [ 44, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'deg2rad'      => [ 45, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'      => [ 46, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'      => [ 47, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'deg2dms'      => [ 48, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
-    'sin'          => [ 49, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'          => [ 50, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'          => [ 51, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'         => [ 52, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'         => [ 53, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'         => [ 54, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'        => [ 55, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'        => [ 56, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geo_radius'           => [ 57, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat_circle' => [ 58, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 59, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'       => [ 60, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'      => [ 61, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'local2epoch' => [ 62, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'   => [ 63, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local' => [ 64, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'   => [ 65, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'    => [ 66, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'    => [ 67, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    '<<'           => [  9, T_OPERATOR,    2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'           => [ 10, T_OPERATOR,    2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'            => [ 11, T_OPERATOR,    1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('          => [ 12, T_OTHER,      -1, undef  ],
+    '('            => [ 13, T_OPERATOR,    2, H_BBEG ],
+    ','            => [ 14, T_OPERATOR,   -1, H_COMA ],
+    ')'            => [ 15, T_OPERATOR,    2, H_BEND ],
+    '='            => [ 16, T_OPERATOR,    1, H_EQUA ],
+    'OPERAND'      => [ 17, T_OTHER,       0, undef  ],
+    'BEGIN'        => [ 18, T_OTHER,       0, undef  ],
+    '#'            => [ 19, T_SENTINEL,   -1, undef  ],
+    'testfunc'     => [ 20, T_OTHER,       1, undef  ],
+    'abs'          => [ 21, T_FUNCTION,    1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'          => [ 22, T_FUNCTION,    1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'        => [ 23, T_FUNCTION,    1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'         => [ 24, T_FUNCTION,    1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'    => [ 25, T_FUNCTION,    2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'        => [ 26, T_FUNCTION,    2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'      => [ 27, T_FUNCTION,    2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'pct'          => [ 28, T_FUNCTION,   VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'=> [ 29, T_FUNCTION,'3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'     => [ 30, T_FUNCTION,    1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
+    'gcd'          => [ 31, T_FUNCTION,   VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'          => [ 32, T_FUNCTION,   VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'min'          => [ 33, T_FUNCTION,   VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'          => [ 34, T_FUNCTION,   VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'      => [ 35, T_FUNCTION,   VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'        => [ 36, T_FUNCTION,   VA, H_FRST, sub{ &FIRST( @_ ) } ],
+    'uniq'         => [ 37, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'          => [ 38, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'avg'          => [ 39, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'     => [ 40, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'linstep'      => [ 41, T_FUNCTION,    3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'rand'         => [ 42, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'          => [ 43, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'         => [ 44, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'          => [ 45, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'      => [ 46, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'      => [ 47, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'deg2rad'      => [ 48, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'      => [ 49, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'      => [ 50, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'deg2dms'      => [ 51, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'sin'          => [ 52, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'          => [ 53, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'          => [ 54, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'         => [ 55, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'         => [ 56, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'         => [ 57, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'        => [ 58, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'        => [ 59, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geo_radius'           => [ 60, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat_circle' => [ 61, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 62, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 63, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 64, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'local2epoch' => [ 65, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'   => [ 66, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local' => [ 67, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'   => [ 68, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'    => [ 69, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'    => [ 70, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -909,6 +920,27 @@ sub ratio_scaling( $$$;$ )
         $forecast_quantity = &round( $forecast_quantity, $decimal_places );
     }
     return $forecast_quantity;
+}
+
+sub is_prime_num( $ )
+{
+    my $targ_num = shift( @_ );
+
+    ## 2未満の数は素数ではない
+    return 0 if( $targ_num < 2 );
+    ## 2は素数
+    return 1 if( $targ_num == 2 );
+    ## 2以外の偶数は素数ではない
+    return 0 if( !( $targ_num & 0x1 ) );
+#    return 0 if( ( $targ_num & 0x1 ) ^ 0x1 );
+
+    ## 3から$targ_numの平方根まで奇数で割ってみる
+    for( my $i=3; $i * $i <= $targ_num; $i += 2 ){
+        ## 割り切れたら素数ではない
+        return 0 if( $targ_num % $i == 0 );
+    }
+    ## 割り切れる数がなければ素数
+    return 1;
 }
 
 sub AVG( @ )
@@ -1415,9 +1447,9 @@ sub LoadUserConstant( $\$ )
 
     my %UCONST = do $constant_file;
     if( $@ ){
-        $self->Die( "$constant_file: Failed to run the script: " . $@ );
+        $self->Die( "$constant_file: Failed to load user constant file: " . $@ );
 #    }elsif( $! ){
-#        $self->warnPrint( "$constant_file: The script was not found: " . $! );
+#        $self->warnPrint( "$constant_file: Failed to access user constant file: " . $! );
 #        return -1;
     }
 
@@ -1430,6 +1462,9 @@ sub LoadUserConstant( $\$ )
         }
         $$ref_user_const{$k} = $UCONST{$KEY};
     }
+
+    $self->dPrintf( qq{$constant_file: constant definitions=%d\n},
+        scalar( %{ $ref_user_const } ) );
 
     return 0;
 }
@@ -1859,7 +1894,7 @@ sub Input( $ )
         $op = $token->data;
         my $bFunction = $token->IsFunction();
         $self->dPrint( qq{Input(): \$op="$op"\n} );
-        if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '^' ) || ( $op eq '~' ) ){
+        if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '^' ) || ( $op eq '<<' ) || ( $op eq '>>' ) || ( $op eq '~' ) ){
             $self->{FLAGS} |= BIT_DISP_HEX;
         }
         my $subr = &TableProvider::GetSubroutine( $op );
@@ -2536,20 +2571,54 @@ $ c [I<OPTIONS...>] I<EXPRESSIONS>
 
 =head3 Constant:
 
-- PI (=3.14159265358979)
+=over 4
 
-- TIME (=CURRENT-TIME)
+=item PI
+
+3.14159265358979
+
+=item TIME
+
+CURRENT-TIME
+
+=item User-defined-file
+
+".c.constant" should be placed in the same directory as "c script" or in "$HOME".
+
+  [ .c.constant ]
+  ## - ".c.constant" should be placed
+  ##   in the same directory as "c script" or in "$HOME".
+  ##
+  ## - "c script" is not case-sensitive.
+  ## - All keys are converted to lowercase.
+  ## - If you create definitions with different case, they will be overwritten by definitions loaded later.
+
+  my %user_constant;
+
+  ## ex.) $ ./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'
+  ##      403.505099759608
+  $user_constant{TOKYO_ST_COORD} = 'deg2rad( 35.68129, 139.76706 )';
+  $user_constant{OSAKA_ST_COORD} = 'deg2rad( 34.70248, 135.49595 )';
+  ## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
+  ##      14907.357977036
+  $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
+  $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
+
+  return %user_constant;
+
+=back
 
 =head2 OPERATORS
 
-+ - * / % ** | & ^ ~ ( , ) =
++ - * / % ** | & ^ E<lt>E<lt> E<gt>E<gt> ~ ( , ) =
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, gcd, lcm, min, max, shuffle, first,
-uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg,
-deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo_radius, radius_of_lat_circle, geo_distance,
-geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
+abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, gcd, lcm, min, max,
+shuffle, first, uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad,
+dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo_radius,
+radius_of_lat_circle, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec
 
 =head1 OPTIONS
 
@@ -2813,15 +2882,23 @@ Exponentiation. C<2 ** 3> -> C<8>. Similarly, C<pow( 2, 3 )>.
 
 =item C<|>
 
-Bitwise OR. C<0x2 | 0x4> -> C<6 ( = 0x6 )>.
+Bitwise OR. C<0x2 | 0x4> -> C<6 [ = 0x6 ]>.
 
 =item C<&>
 
-Bitwise AND. C<0x6 & 0x4> -> C<4 ( = 0x4 )>.
+Bitwise AND. C<0x6 & 0x4> -> C<4 [ = 0x4 ]>.
 
 =item C<^>
 
-Bitwise exclusive or. C<0x6 ^ 0x4> -> C<2 ( = 0x2 )>.
+Bitwise exclusive or. C<0x6 ^ 0x4> -> C<2 [ = 0x2 ]>.
+
+=item C<E<lt>E<lt>>
+
+Bitwise left shift. C<0x6 E<lt>E<lt> 1> -> C<12 [ = 0xC ]>.
+
+=item C<E<gt>E<gt>>
+
+Bitwise right shift. C<0x6 E<gt>E<gt> 1> -> C<3 [ = 0x3 ]>.
 
 =item C<~>
 
@@ -2885,6 +2962,10 @@ pct( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percenta
 =item C<ratio_scaling>
 
 ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified.
+
+=item C<is_prime>
+
+is_prime( I<NUM> ). Prime number test. Returns 1 if I<NUM> is prime, otherwise returns 0.
 
 =item C<gcd>
 

@@ -61,6 +61,8 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 
 my $cmd;
 
+`gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.deploy && mv .c.constant.deploy .c.constant`;
+
 subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{echo | $TARGCMD} );
     $cmd->exit_is_num( 0, qq{echo | ./c} );
@@ -191,6 +193,30 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '5 ^ 3 ='} );
     $cmd->exit_is_num( 0, qq{./c '5 ^ 3 ='} );
     $cmd->stdout_is_eq( qq{6 [ = 0x6 ]\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x6 << 1'} );
+    $cmd->exit_is_num( 0, qq{./c '0x6 << 1'} );
+    $cmd->stdout_is_eq( qq{12 [ = 0xC ]\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '0x6 >> 1'} );
+    $cmd->exit_is_num( 0, qq{./c '0x6 >> 1'} );
+    $cmd->stdout_is_eq( qq{3 [ = 0x3 ]\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '1 << 32'} );
+    $cmd->exit_is_num( 0, qq{./c '1 << 32'} );
+    $cmd->stdout_is_eq( qq{4294967296 [ = 0x100000000 ]\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '4294967296 >> 32'} );
+    $cmd->exit_is_num( 0, qq{./c '4294967296 >> 32'} );
+    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1068,6 +1094,36 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( -2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( -2 )'} );
+    $cmd->stdout_is_eq( qq{0\n}, qq{2未満の数は素数ではない} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 2 )'} );
+    $cmd->stdout_is_eq( qq{1\n}, qq{2は素数} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 4 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 4 )'} );
+    $cmd->stdout_is_eq( qq{0\n}, qq{2以外の偶数は素数ではない} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 0xfffffffb )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 0xfffffffb )'} );
+    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n}, qq{32bitクラスの整数} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 0xfffffffd )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 0xfffffffd )'} );
+    $cmd->stdout_is_eq( qq{0 [ = 0x0 ]\n}, qq{32bitクラスの整数} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 138 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'gcd( 138 ) ='} );
     $cmd->stdout_is_eq( qq{138\n} );
@@ -1435,7 +1491,7 @@ subtest qq{user-constant} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.constant: Failed to run the script: / );
+    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.constant: Failed to load user constant file: / );
     undef( $cmd );
 
     `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.duplicate && mv .c.constant.duplicate .c.constant`;

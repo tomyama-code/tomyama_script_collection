@@ -1,12 +1,18 @@
-
-## - c scripts are not case-sensitive.
+## - ".c.constant" should be placed
+##   in the same directory as "c script" or in "$HOME".
+##
+## - "c script" is not case-sensitive.
 ## - All keys are converted to lowercase.
 ## - If you create definitions with different case, they will be overwritten by definitions loaded later.
 
 my %user_constant;
 
+## ex.) $ ./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'
+##      403.505099759608
 $user_constant{TOKYO_ST_COORD} = 'deg2rad( 35.68129, 139.76706 )';
 $user_constant{OSAKA_ST_COORD} = 'deg2rad( 34.70248, 135.49595 )';
+## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
+##      14907.357977036
 $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
 $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
 

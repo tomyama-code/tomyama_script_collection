@@ -29,20 +29,50 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ### Constant:
 
-\- PI (=3.14159265358979)
+- PI
 
-\- TIME (=CURRENT-TIME)
+    3.14159265358979
+
+- TIME
+
+    CURRENT-TIME
+
+- User-defined-file
+
+    ".c.constant" should be placed in the same directory as "c script" or in "$HOME".
+
+        [ .c.constant ]
+        ## - ".c.constant" should be placed
+        ##   in the same directory as "c script" or in "$HOME".
+        ##
+        ## - "c script" is not case-sensitive.
+        ## - All keys are converted to lowercase.
+        ## - If you create definitions with different case, they will be overwritten by definitions loaded later.
+
+        my %user_constant;
+
+        ## ex.) $ ./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'
+        ##      403.505099759608
+        $user_constant{TOKYO_ST_COORD} = 'deg2rad( 35.68129, 139.76706 )';
+        $user_constant{OSAKA_ST_COORD} = 'deg2rad( 34.70248, 135.49595 )';
+        ## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
+        ##      14907.357977036
+        $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
+        $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
+
+        return %user_constant;
 
 ## OPERATORS
 
-\+ - \* / % \*\* | & ^ ~ ( , ) =
+\+ - \* / % \*\* | & ^ << >> ~ ( , ) =
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, gcd, lcm, min, max, shuffle, first,
-uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg,
-deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo\_radius, radius\_of\_lat\_circle, geo\_distance,
-geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
+abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, gcd, lcm, min, max,
+shuffle, first, uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad,
+dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo\_radius,
+radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -300,15 +330,23 @@ The **c** script was created with the following in mind:
 
 - `|`
 
-    Bitwise OR. `0x2 | 0x4` -> `6 ( = 0x6 )`.
+    Bitwise OR. `0x2 | 0x4` -> `6 [ = 0x6 ]`.
 
 - `&`
 
-    Bitwise AND. `0x6 & 0x4` -> `4 ( = 0x4 )`.
+    Bitwise AND. `0x6 & 0x4` -> `4 [ = 0x4 ]`.
 
 - `^`
 
-    Bitwise exclusive or. `0x6 ^ 0x4` -> `2 ( = 0x2 )`.
+    Bitwise exclusive or. `0x6 ^ 0x4` -> `2 [ = 0x2 ]`.
+
+- `<<`
+
+    Bitwise left shift. `0x6 << 1` -> `12 [ = 0xC ]`.
+
+- `>>`
+
+    Bitwise right shift. `0x6 >> 1` -> `3 [ = 0x3 ]`.
 
 - `~`
 
@@ -368,6 +406,10 @@ The **c** script was created with the following in mind:
 - `ratio_scaling`
 
     ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified.
+
+- `is_prime`
+
+    is\_prime( _NUM_ ). Prime number test. Returns 1 if _NUM_ is prime, otherwise returns 0.
 
 - `gcd`
 
