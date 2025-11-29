@@ -68,11 +68,11 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, gcd, lcm, min, max,
-shuffle, first, uniq, sum, avg, linspace, linstep, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad,
-dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, geo\_radius,
-radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec
+abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
+get\_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
+pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
+geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -152,6 +152,32 @@ and the radians of an arbitrarily selected value are calculated.
     Formula: 'deg2rad( first( shuffle( linspace( 0 , 90 , 10 ) ) ) ) ='
         RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
      Result: 0.174532925199433
+
+\[ radical (of n) \] Eliminate duplicates of each prime factor and take the product:
+
+    ## Prime factorization...
+    $ c 'prime_factorize( 164 )'
+    ( 2, 2, 41 )
+
+    ## Eliminate duplicates…
+    $ c 'uniq( prime_factorize( 164 ) )'
+    ( 2, 41 )
+
+    ## Take the product of each value
+    $ c 'prod( uniq( prime_factorize( 164 ) ) )'
+    82
+
+Please try using it creatively.
+
+    $ c 'prod( uniq( prime_factorize( prod( linstep( 1, 2, 10 ) ) ) ) )' -v
+    linstep( 1, 2, 10 ) = ( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 )
+    prod( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ) = 654729075
+    prime_factorize( 654729075 ) = ( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 )
+    uniq( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 ) = ( 3, 5, 7, 11, 13, 17, 19 )
+    prod( 3, 5, 7, 11, 13, 17, 19 ) = 4849845
+    Formula: 'prod( uniq( prime_factorize( prod( linstep( 1 , 2 , 10 ) ) ) ) ) ='
+        RPN: '# # # # # 1 2 10 linstep prod prime_factorize uniq prod'
+     Result: 4849845
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -411,6 +437,14 @@ The **c** script was created with the following in mind:
 
     is\_prime( _NUM_ ). Prime number test. Returns 1 if _NUM_ is prime, otherwise returns 0.
 
+- `prime_factorize`
+
+    prime\_factorize( _NUM_ ). Do prime factorization. _NUM_ is an integer greater than or equal to 2.
+
+- `get_prime`
+
+    get\_prime( _BIT\_WIDTH_ ). Returns a random prime number within the range of _BIT\_WIDTH_, where _BIT\_WIDTH_ is an integer between 4 and 32, inclusive.
+
 - `gcd`
 
     gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. \[Math::BigInt::bgcd()\]
@@ -442,6 +476,10 @@ The **c** script was created with the following in mind:
 - `sum`
 
     sum( A,.. ). Returns the numerical sum of all the elements in the list. \[List::Util\]
+
+- `prod`
+
+    prod( A,.. ). Returns the product of each value.
 
 - `avg`
 

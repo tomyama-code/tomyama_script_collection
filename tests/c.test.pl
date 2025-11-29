@@ -30,8 +30,8 @@ $ENV{ 'TEST_TARGET_CMD' } = 'c';
 #$ENV{WITH_PERL_COVERAGE} = 1;
 $ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @ARGV ) > 0 );
 
-my $int_basic_bit = log( ~0 + 1 ) / log( 2 );   # perlの整数は固定幅ではないので桁溢れしない。
-#print( qq{\$int_basic_bit="$int_basic_bit"\n} );
+my $UV_bit_width = log( ~0 + 1 ) / log( 2 );    # perlの整数は固定幅ではないので桁溢れしない。
+#print( qq{\$UV_bit_width="$UV_bit_width"\n} );
 
 my $apppath = dirname( $0 );
 chdir( "$apppath/../" );
@@ -208,22 +208,30 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD '1 << 32'} );
-    $cmd->exit_is_num( 0, qq{./c '1 << 32'} );
-    $cmd->stdout_is_eq( qq{4294967296 [ = 0x100000000 ]\n} );
+    my $num_of_shifts = $UV_bit_width - 1;
+    my $expect_L = qq{9223372036854775808 [ = -9223372036854775808 ] [ = 0x8000000000000000 ]};
+    my $arg_R = 9223372036854775808;
+    if( $UV_bit_width == 32 ){
+        $expect_L = qq{2147483648 [ = -2147483648 ] [ = 0x80000000 ]};
+        $arg_R = 2147483648;
+    }
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '1 << $num_of_shifts'} );
+    $cmd->exit_is_num( 0, qq{./c '1 << $num_of_shifts'} );
+    $cmd->stdout_is_eq( qq{$expect_L\n}, qq{UVの最大シフト数: $num_of_shifts} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD '4294967296 >> 32'} );
-    $cmd->exit_is_num( 0, qq{./c '4294967296 >> 32'} );
-    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '$arg_R >> $num_of_shifts'} );
+    $cmd->exit_is_num( 0, qq{./c '$arg_R >> $num_of_shifts'} );
+    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n}, qq{UVの最大シフト数: $num_of_shifts} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1+1='} );
     $cmd->exit_is_num( 0, qq{./c '~1+1='} );
     my $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -233,7 +241,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+~1='} );
     $cmd->exit_is_num( 0, qq{./c '1+~1='} );
     $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -243,7 +251,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '~1*2='} );
     $cmd->exit_is_num( 0, qq{./c '~1*2='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -253,7 +261,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2*~1='} );
     $cmd->exit_is_num( 0, qq{./c '2*~1='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -263,7 +271,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2' '~1='} );
     $cmd->exit_is_num( 0, qq{./c '2' '~1='} );
     $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -755,27 +763,27 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(~0+1)/log(2)='} );
     $cmd->exit_is_num( 0, qq{./c 'log(~0+1)/log(2)='} );
     $expect = qq{64 [ = 0x40 ]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{32 [ = 0x20 ]\n};
     }
-    $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
+    $cmd->stdout_is_eq( $expect, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( ~0+1, 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'pow_inv( ~0+1, 2 )'} );
     $expect = qq{64 [ = 0x40 ]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{32 [ = 0x20 ]\n};
     }
-    $cmd->stdout_is_eq( $expect, qq{${int_basic_bit}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
+    $cmd->stdout_is_eq( $expect, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( ~0, -1, 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'linstep( ~0, -1, 2 )'} );
     $expect = qq{( 18446744073709551615, 18446744073709551614 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFE ) ]\n};
-    if( $int_basic_bit == 32 ){
+    if( $UV_bit_width == 32 ){
         $expect = qq{( 4294967295, 4294967294 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFF, 0xFFFFFFFE ) ]\n};
     }
     $cmd->stdout_is_eq( $expect );
@@ -1124,6 +1132,78 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( 1234567890 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prime_factorize( 1234567890 )'} );
+    $cmd->stdout_is_eq( qq{( 2, 3, 3, 5, 3607, 3803 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( 2 ** 32 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prime_factorize( 2 ** 32 )'} );
+    $cmd->stdout_is_eq( qq{( 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( ( 2 ** 32 ) - 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prime_factorize( ( 2 ** 32 ) - 1 )'} );
+    $cmd->stdout_is_eq( qq{( 3, 5, 17, 257, 65537 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prime_factorize( 2 )'} );
+    $cmd->stdout_is_eq( qq{2\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( -10 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'prime_factorize( -10 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: prime_factorize: \-10: Cannot be less than 2\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prime_factorize( 2.345 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'prime_factorize( 2.345 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: prime_factorize: 2\.345: Decimals cannot be specified\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 32.1 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'get_prime( 32.1 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: get_prime: 32\.1: Decimals cannot be specified\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 64 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'get_prime( 64 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: get_prime: 64: Cannot specify a value greater than 32\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 32 )|0'} );
+    $cmd->exit_is_num( 0, qq{./c 'get_prime( 32 )|0'} );
+    $cmd->stdout_like( qr/^\d+ \[ = 0x[\dA-F]{1,8} \]\n$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 16 )|0'} );
+    $cmd->exit_is_num( 0, qq{./c 'get_prime( 16 )|0'} );
+    $cmd->stdout_like( qr/^\d+ \[ = 0x[\dA-F]{1,4} \]\n$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 4 )|0'} );
+    $cmd->exit_is_num( 0, qq{./c 'get_prime( 4 )|0'} );
+    $cmd->stdout_like( qr/^\d+ \[ = 0x[\dA-F]{1} \]\n$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 3 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'get_prime( 3 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: get_prime: 3: Cannot specify a value less than 4\.\n/ );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 138 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'gcd( 138 ) ='} );
     $cmd->stdout_is_eq( qq{138\n} );
@@ -1229,6 +1309,24 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sum( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'sum( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->stdout_is_eq( qq{22.5\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prod( linstep( 1, 1, 10 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prod( linstep( 1, 1, 10 ) )'} );
+    $cmd->stdout_is_eq( qq{3628800\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prod( linstep( 0, 1, 11 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prod( linstep( 0, 1, 11 ) )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'prod( linstep( -1, 2, 6 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'prod( linstep( -1, 2, 6 ) )'} );
+    $cmd->stdout_is_eq( qq{-945\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
