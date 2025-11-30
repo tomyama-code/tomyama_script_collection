@@ -39,10 +39,10 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 - User-defined-file
 
-    ".c.constant" should be placed in the same directory as "c script" or in "$HOME".
+    ".c.rc" should be placed in the same directory as "c script" or in "$HOME".
 
-        [ .c.constant ]
-        ## - ".c.constant" should be placed
+        [ .c.rc ]
+        ## - ".c.rc" should be placed
         ##   in the same directory as "c script" or in "$HOME".
         ##
         ## - "c script" is not case-sensitive.
@@ -153,43 +153,50 @@ and the radians of an arbitrarily selected value are calculated.
         RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
      Result: 0.174532925199433
 
-\[ radical (of n) \] Eliminate duplicates of each prime factor and take the product:
-
-    ## Prime factorization...
-    $ c 'prime_factorize( 164 )'
-    ( 2, 2, 41 )
-
-    ## Eliminate duplicates…
-    $ c 'uniq( prime_factorize( 164 ) )'
-    ( 2, 41 )
-
-    ## Take the product of each value
-    $ c 'prod( uniq( prime_factorize( 164 ) ) )'
-    82
-
-Please try using it creatively.
-
-    $ c 'prod( uniq( prime_factorize( prod( linstep( 1, 2, 10 ) ) ) ) )' -v
-    linstep( 1, 2, 10 ) = ( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 )
-    prod( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ) = 654729075
-    prime_factorize( 654729075 ) = ( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 )
-    uniq( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 ) = ( 3, 5, 7, 11, 13, 17, 19 )
-    prod( 3, 5, 7, 11, 13, 17, 19 ) = 4849845
-    Formula: 'prod( uniq( prime_factorize( prod( linstep( 1 , 2 , 10 ) ) ) ) ) ='
-        RPN: '# # # # # 1 2 10 linstep prod prime_factorize uniq prod'
-     Result: 4849845
-
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
 
-    $ c '0xfc & 0x10 ='
-    16 ( = 0x10 )
+    $ c '0xfc & 0x3f'
+    60 [ = 0x3C ]
+
+    $ c '0xfc | 0x3f'
+    255 [ = 0xFF ]
+
+    $ c '0xfc ^ 0x3f'
+    195 [ = 0xC3 ]
+
+    $ c '~0x1 & 0x3f'
+    62 [ = 0x3E ]
 
 There is no option switch to display the calculation results in hexadecimal.
 However, you can display it by performing a bitwise '_|\[OR\]_' operation with 0.
 
     $ c '100|0'
-    100 ( = 0x64 )
+    100 [ = 0x64 ]
+
+\[ radical (of n) \] Eliminate duplicates of each prime factor and take the product:
+
+    ## Prime factorization...
+    $ c 'prime_factorize( 4428 )'
+    ( 2, 2, 3, 3, 3, 41 )
+
+    ## Eliminate duplicates…
+    $ c 'uniq( prime_factorize( 4428 ) )'
+    ( 2, 3, 41 )
+
+    ## Take the product of each value
+    $ c 'prod( uniq( prime_factorize( 4428 ) ) )'
+    246
+
+You can also:
+
+    ## Generate prime numbers in 16-bit width
+    $ c 'prod( get_prime( 16 ), get_prime( 16 ) )'
+    1691574281
+
+    ## check
+    $ c 'prime_factorize( 1691574281 )|0'
+    ( 29303, 57727 ) [ = ( 0x7277, 0xE17F ) ]
 
 ## STANDARD INPUT (STDIN) MODE
 
@@ -208,7 +215,7 @@ Example of running with the _-v_ or _--verbose_ option:
     0.22 * 1e-06 = 2.2e-07
     Formula: '0.22 * 10 ** ( -6 ) ='
         RPN: '0.22 10 -6 ** *'
-     Result: 0.00000022 ( = 2.2e-07 )
+     Result: 0.00000022 [ = 2.2e-07 ]
     <-- INPUT FROM KEYBOARD
 
     sqrt(2)=    <-- INPUT FROM KEYBOARD
@@ -256,12 +263,12 @@ Current time in seconds since the epoch:
 In an easy-to-understand format:
 
     $ c 'epoch2local( time )'
-    ( 2025, 11, 25, 1, 53, 17 )
+    ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
 Time elapsed since a specified date:
 
     $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
-    ( 5372, 15, 51, 18 )
+    ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 Time interval:
 
@@ -293,8 +300,10 @@ Here we use the following coordinates (latitude and longitude):
 
 Calculate the distance between two points.
 
-    $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
-           deg2rad( -0.3831, -90.42333 ) ) ='
+    $ c 'geo_distance_km(
+           deg2rad( -18.76694, 46.8691 ),
+           deg2rad( -0.3831, -90.42333 )
+         ) ='
     14907.357977036
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.

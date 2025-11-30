@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.34 $
+## - $Revision: 4.38 $
 ##
 ## - Script Structure
 ##   - main
@@ -117,7 +117,7 @@ sub GetHelpMsg()
         qq{    Constant: PI (=3.14159265358979)\n} .
         qq{              TIME (=CURRENT-TIME)\n} .
         qq{              User-defined-file:\n} .
-        qq{                ".c.constant" should be placed in the same directory\n} .
+        qq{                ".c.rc" should be placed in the same directory\n} .
         qq{                as "c script" or in "\$HOME".\n} .
         qq{\n} .
         qq{  <OPERATORS>:\n} .
@@ -145,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.34 $};
+    my $rev = q{$Revision: 4.38 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1486,7 +1486,7 @@ sub new {
     $self->{NAME} = $name;
     $self->{APPCONFIG} = shift( @_ );
     $self->SetLabel( 'lexer' );
-    $self->LoadUserConstants( \%{ $self->{CONSTANTS} } );
+    $self->LoadUserRcFiles( \%{ $self->{CONSTANTS} } );
 #    $self->Reset();
 #    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaLexer: create\n} );
     return $self;               # 無名ハッシュ参照を返す
@@ -1498,35 +1498,35 @@ sub Reset()
     @{ $self->{TOKENS} } = ();
 }
 
-sub LoadUserConstants( $\$ )
+sub LoadUserRcFiles( $\$ )
 {
     my $self = shift( @_ );
     my $ref_user_const = shift( @_ );
 
-    my $constantFileName = ".c.constant";
+    my $rcFileName = ".c.rc";
     for my $dir( $self->{APPCONFIG}->{APPPATH},
                  $ENV{HOME} ){
-        my $cfile = "$dir/$constantFileName";
+        my $cfile = "$dir/$rcFileName";
         if( ! -f $cfile ){
             next;
         }
-        $self->LoadUserConstant( $cfile, $ref_user_const );
+        $self->LoadUserRc( $cfile, $ref_user_const );
     }
 
     return 0;
 }
 
-sub LoadUserConstant( $\$ )
+sub LoadUserRc( $\$ )
 {
     my $self = shift( @_ );
-    my $constant_file = shift( @_ );
+    my $rc_file = shift( @_ );
     my $ref_user_const = shift( @_ );
 
-    my %UCONST = do $constant_file;
+    my %UCONST = do $rc_file;
     if( $@ ){
-        $self->Die( "$constant_file: Failed to load user constant file: " . $@ );
+        $self->Die( "$rc_file: Failed to load user rc file: " . $@ );
 #    }elsif( $! ){
-#        $self->warnPrint( "$constant_file: Failed to access user constant file: " . $! );
+#        $self->warnPrint( "$rc_file: Failed to access user rc file: " . $! );
 #        return -1;
     }
 
@@ -1540,7 +1540,7 @@ sub LoadUserConstant( $\$ )
         $$ref_user_const{$k} = $UCONST{$KEY};
     }
 
-    $self->dPrintf( qq{$constant_file: constant definitions=%d\n},
+    $self->dPrintf( qq{$rc_file: constant definitions=%d\n},
         scalar( %{ $ref_user_const } ) );
 
     return 0;
@@ -1561,6 +1561,29 @@ sub IsTokenUserConstant( \$\$ )
         }
     }
     return $bRet;
+}
+
+sub IsTokenOperator( \$\$ )
+{
+    my $ref_str = shift( @_ );
+    my $ref_ope = shift( @_ );
+    my $operator = '';
+    if( $$ref_str =~ m!^([\S]{2})!o ){
+        $operator = $1;
+        if( &TableProvider::IsOperatorExists( $operator ) ){
+            $$ref_str = substr( $$ref_str, 2 );
+            $$ref_ope = $operator;
+            return 1;
+        }
+    }
+    $$ref_str =~ m!^([\S])!o;
+    $operator = $1;
+    if( &TableProvider::IsOperatorExists( $operator ) ){
+        $$ref_str = substr( $$ref_str, 1 );
+        $$ref_ope = $operator;
+        return 1;
+    }
+    return 0;
 }
 
 ## 式を分解してトークンを返す
@@ -1636,8 +1659,7 @@ sub GetToken( \$ )
             if( $operator ne '(' ){
                 if( ! &TableProvider::IsFunctionExists( $funcname ) ){
                     my $fns = join( ', ', &TableProvider::GetFunctionsList() );
-                    $fns =~ s!(([a-z0-9]+, ){10})!$1\n    !go;
-                    my $info = $self->GenMsg( 'info', qq{Supported functions:\n    $fns\n} );
+                    my $info = $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
                     $self->Die( qq{"$funcname()": unknown function.\n$info} );
                 }
                 $bFunction = 1;
@@ -1651,27 +1673,8 @@ sub GetToken( \$ )
             $self->unshift( $el_r );
             $ret_obj = $el_r;
 
-        }else{
-            ## 先頭の半角スペースは除去されていて文字数ゼロでもない状態
-            my $b_operator_is_confirmed = 0;
-            if( $$ref_expr =~ m!^([\S]{2})!o ){
-                $operator = $1;
-                if( &TableProvider::IsOperatorExists( $operator ) ){
-                    $$ref_expr = substr( $$ref_expr, 2 );
-                    $b_operator_is_confirmed = 1;
-                }
-            }
-            if( !$b_operator_is_confirmed ){
-                $$ref_expr =~ m!^([\S])!o;
-                $operator = $1;
-                if( ! &TableProvider::IsOperatorExists( $operator ) ){
-                    my $ops = join( ' ', &TableProvider::GetOperatorsList() );
-                    my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
-                    $self->Die( qq{"$operator": unknown operator.\n$info} );
-                }
-                $$ref_expr = substr( $$ref_expr, 1 );
-                $b_operator_is_confirmed = 1;
-            }
+        ## 先頭の半角スペースは除去されていて文字数ゼロでもない状態
+        }elsif( &IsTokenOperator( $ref_expr, \$operator ) ){
             my $el_r = &FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
@@ -1679,6 +1682,13 @@ sub GetToken( \$ )
             }
             $self->unshift( $el_r );
             $ret_obj = $el_r;
+
+        }else{
+            my $ops = join( ' ', &TableProvider::GetOperatorsList() );
+            my $fns = join( ', ', &TableProvider::GetFunctionsList() );
+            my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
+            $info .= $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
+            $self->Die( qq{"$$ref_expr": Could not interpret.\n$info} );
         }
     }
 
@@ -2660,10 +2670,10 @@ CURRENT-TIME
 
 =item User-defined-file
 
-".c.constant" should be placed in the same directory as "c script" or in "$HOME".
+".c.rc" should be placed in the same directory as "c script" or in "$HOME".
 
-  [ .c.constant ]
-  ## - ".c.constant" should be placed
+  [ .c.rc ]
+  ## - ".c.rc" should be placed
   ##   in the same directory as "c script" or in "$HOME".
   ##
   ## - "c script" is not case-sensitive.
@@ -2780,43 +2790,50 @@ and the radians of an arbitrarily selected value are calculated.
       RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
    Result: 0.174532925199433
 
-[ radical (of n) ] Eliminate duplicates of each prime factor and take the product:
-
-  ## Prime factorization...
-  $ c 'prime_factorize( 164 )'
-  ( 2, 2, 41 )
-
-  ## Eliminate duplicates…
-  $ c 'uniq( prime_factorize( 164 ) )'
-  ( 2, 41 )
-
-  ## Take the product of each value
-  $ c 'prod( uniq( prime_factorize( 164 ) ) )'
-  82
-
-Please try using it creatively.
-
-  $ c 'prod( uniq( prime_factorize( prod( linstep( 1, 2, 10 ) ) ) ) )' -v
-  linstep( 1, 2, 10 ) = ( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 )
-  prod( 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ) = 654729075
-  prime_factorize( 654729075 ) = ( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 )
-  uniq( 3, 3, 3, 3, 5, 5, 7, 11, 13, 17, 19 ) = ( 3, 5, 7, 11, 13, 17, 19 )
-  prod( 3, 5, 7, 11, 13, 17, 19 ) = 4849845
-  Formula: 'prod( uniq( prime_factorize( prod( linstep( 1 , 2 , 10 ) ) ) ) ) ='
-      RPN: '# # # # # 1 2 10 linstep prod prime_factorize uniq prod'
-   Result: 4849845
-
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
 
-  $ c '0xfc & 0x10 ='
-  16 ( = 0x10 )
+  $ c '0xfc & 0x3f'
+  60 [ = 0x3C ]
+
+  $ c '0xfc | 0x3f'
+  255 [ = 0xFF ]
+
+  $ c '0xfc ^ 0x3f'
+  195 [ = 0xC3 ]
+
+  $ c '~0x1 & 0x3f'
+  62 [ = 0x3E ]
 
 There is no option switch to display the calculation results in hexadecimal.
 However, you can display it by performing a bitwise 'I<|[OR]>' operation with 0.
 
   $ c '100|0'
-  100 ( = 0x64 )
+  100 [ = 0x64 ]
+
+[ radical (of n) ] Eliminate duplicates of each prime factor and take the product:
+
+  ## Prime factorization...
+  $ c 'prime_factorize( 4428 )'
+  ( 2, 2, 3, 3, 3, 41 )
+
+  ## Eliminate duplicates…
+  $ c 'uniq( prime_factorize( 4428 ) )'
+  ( 2, 3, 41 )
+
+  ## Take the product of each value
+  $ c 'prod( uniq( prime_factorize( 4428 ) ) )'
+  246
+
+You can also:
+
+  ## Generate prime numbers in 16-bit width
+  $ c 'prod( get_prime( 16 ), get_prime( 16 ) )'
+  1691574281
+
+  ## check
+  $ c 'prime_factorize( 1691574281 )|0'
+  ( 29303, 57727 ) [ = ( 0x7277, 0xE17F ) ]
 
 =head2 STANDARD INPUT (STDIN) MODE
 
@@ -2835,7 +2852,7 @@ Example of running with the I<-v> or I<--verbose> option:
   0.22 * 1e-06 = 2.2e-07
   Formula: '0.22 * 10 ** ( -6 ) ='
       RPN: '0.22 10 -6 ** *'
-   Result: 0.00000022 ( = 2.2e-07 )
+   Result: 0.00000022 [ = 2.2e-07 ]
   <-- INPUT FROM KEYBOARD
 
   sqrt(2)=    <-- INPUT FROM KEYBOARD
@@ -2883,12 +2900,12 @@ Current time in seconds since the epoch:
 In an easy-to-understand format:
 
   $ c 'epoch2local( time )'
-  ( 2025, 11, 25, 1, 53, 17 )
+  ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
 Time elapsed since a specified date:
 
   $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
-  ( 5372, 15, 51, 18 )
+  ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 Time interval:
 
@@ -2920,8 +2937,10 @@ Here we use the following coordinates (latitude and longitude):
 
 Calculate the distance between two points.
 
-  $ c 'geo_distance_km( deg2rad( -18.76694, 46.8691 ),
-         deg2rad( -0.3831, -90.42333 ) ) ='
+  $ c 'geo_distance_km(
+         deg2rad( -18.76694, 46.8691 ),
+         deg2rad( -0.3831, -90.42333 )
+       ) ='
   14907.357977036
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.

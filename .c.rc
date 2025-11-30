@@ -1,4 +1,4 @@
-## - ".c.constant" should be placed
+## - ".c.rc" should be placed
 ##   in the same directory as "c script" or in "$HOME".
 ##
 ## - "c script" is not case-sensitive.

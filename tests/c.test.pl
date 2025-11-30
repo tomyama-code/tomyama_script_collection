@@ -61,7 +61,7 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
 
 my $cmd;
 
-`gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.deploy && mv .c.constant.deploy .c.constant`;
+`gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
 
 subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{echo | $TARGCMD} );
@@ -941,7 +941,7 @@ subtest qq{Normal} => sub{
     $cmd->exit_isnt_num( 0, qq{./c 'unknownfunc(10)='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
     $cmd->stderr_like( qr/^c: lexer: error: "unknownfunc\(\)": unknown function\.\n/ );
-    $cmd->stderr_like( qr/\nc: lexer: info: Supported functions:\n/ );
+    $cmd->stderr_like( qr/\nc: lexer: info: Supported functions: / );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg(atan2(100, 200='} );
@@ -1471,15 +1471,17 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1_2='} );
     $cmd->exit_isnt_num( 0, qq{./c '1_2='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: lexer: error: "_": unknown operator\.\n/ );
+    $cmd->stderr_like( qr/^c: lexer: error: "_2=": Could not interpret\.\n/ );
     $cmd->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $cmd->stderr_like( qr/\nc: lexer: info: Supported functions: / );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(#)='} );
     $cmd->exit_isnt_num( 0, qq{./c 'sqrt(#)='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: lexer: error: "#": unknown operator\.\n/ );
+    $cmd->stderr_like( qr/^c: lexer: error: "#\)=": Could not interpret\.\n/ );
     $cmd->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $cmd->stderr_like( qr/\nc: lexer: info: Supported functions: / );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '( 1 + 2 + 3, 4 ) ='} );
@@ -1568,7 +1570,7 @@ subtest qq{Normal} => sub{
 
 };
 
-subtest qq{user-constant} => sub{
+subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
@@ -1576,23 +1578,23 @@ subtest qq{user-constant} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    `rm -f .c.constant`;
+    `rm -f .c.rc`;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: lexer: error: "t": unknown operator\.\n/ );
+    $cmd->stderr_like( qr/^c: lexer: error: "tokyo_st_coord, osaka_st_coord \)=": Could not interpret\.\n/ );
     undef( $cmd );
 
-    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.failed && mv .c.constant.failed .c.constant`;
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.failed && mv .c.rc.failed .c.rc`;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.constant: Failed to load user constant file: / );
+    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.rc: Failed to load user rc file: / );
     undef( $cmd );
 
-    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.duplicate && mv .c.constant.duplicate .c.constant`;
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
@@ -1600,7 +1602,7 @@ subtest qq{user-constant} => sub{
     $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
     undef( $cmd );
 
-    `gzip -dc tests/c.constant.tar.gz | tar xf - .c.constant.deploy && mv .c.constant.deploy .c.constant`;
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
