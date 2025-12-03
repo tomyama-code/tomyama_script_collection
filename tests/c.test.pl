@@ -634,8 +634,8 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'radius_of_lat_circle( deg2rad( 35.68129 ) ) / 1000 ='} );
-    $cmd->exit_is_num( 0, qq{./c 'radius_of_lat_circle( deg2rad( 35.68129 ) ) / 1000 ='} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
+    $cmd->exit_is_num( 0, qq{./c 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
     $cmd->stdout_is_eq( qq{5186.70483557997\n}, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
@@ -682,8 +682,20 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
+    $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
@@ -1102,6 +1114,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rs( 3, 10, 20 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'rs( 3, 10, 20 )'} );
+    $cmd->stdout_is_eq( qq{66.6666666666667\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( -2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'is_prime( -2 )'} );
     $cmd->stdout_is_eq( qq{0\n}, qq{2未満の数は素数ではない} );
@@ -1166,6 +1184,12 @@ subtest qq{Normal} => sub{
     $cmd->exit_isnt_num( 0, qq{./c 'prime_factorize( 2.345 )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
     $cmd->stderr_like( qr/^c: evaluator: error: prime_factorize: 2\.345: Decimals cannot be specified\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pf( 1234567890 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'pf( 1234567890 )'} );
+    $cmd->stdout_is_eq( qq{( 2, 3, 3, 5, 3607, 3803 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 32.1 )'} );
@@ -1570,48 +1594,6 @@ subtest qq{Normal} => sub{
 
 };
 
-subtest qq{user-rc ( Run Command )} => sub{
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_like( qr/^403\.50509975960[89]\n/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-    `rm -f .c.rc`;
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: lexer: error: "tokyo_st_coord, osaka_st_coord \)=": Could not interpret\.\n/ );
-    undef( $cmd );
-
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.failed && mv .c.rc.failed .c.rc`;
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.rc: Failed to load user rc file: / );
-    undef( $cmd );
-
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
-    $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
-    undef( $cmd );
-
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-};
-
 subtest qq{-d, --debug} => sub{
 
     $cmd = Test::Command->new( cmd => qq{echo | $TARGCMD -d} );
@@ -1765,6 +1747,70 @@ subtest qq{-h, --help} => sub{
     $cmd->exit_is_num( 0, qq{unset COLUMNS && ./c --help} );
     $cmd->stdout_like( qr/^Usage: c / );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+};
+
+subtest qq{user-rc ( Run Command )} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_like( qr/^403\.50509975960[89]\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    `rm -f .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: lexer: error: "tokyo_st_coord, osaka_st_coord \)=": Could not interpret\.\n/ );
+    undef( $cmd );
+
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.failed && mv .c.rc.failed .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/c: lexer: error: \.\/tests\/\.\.\/\.c\.rc: Failed to load user rc file: / );
+    undef( $cmd );
+
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
+    $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
+    undef( $cmd );
+
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $cmd->stdout_like( qr/\n Result: 403\.50509975960[89]\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+};
+
+subtest qq{-u, --user-defined} => sub{
+
+    `rm -f .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD -u} );
+    $cmd->exit_is_num( 0, qq{./c -u} );
+    $cmd->stdout_like( qr/^=== User Defined ===\n/ );
+    $cmd->stdout_like( qr/\n====================\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD --user-defined} );
+    $cmd->exit_is_num( 0, qq{./c --user-defined} );
+    $cmd->stdout_like( qr/^=== User Defined ===\n/ );
+    $cmd->stdout_like( qr/\n====================\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

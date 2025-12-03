@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.38 $
+## - $Revision: 4.42 $
 ##
 ## - Script Structure
 ##   - main
@@ -145,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.38 $};
+    my $rev = q{$Revision: 4.42 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -545,9 +545,9 @@ use constant {
     H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
     H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
-    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified.},
+    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
     H_PRIM => qq{is_prime( NUM ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
-    H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2.},
+    H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
     H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
@@ -580,10 +580,10 @@ use constant {
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
-    H_LATC => qq{radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
+    H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
-    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance().},
-    H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.},
+    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().},
+    H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch.},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch.},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
@@ -593,80 +593,80 @@ use constant {
 };
 
 %TableProvider::operators = (
-    '+'               => [  0, T_OPERATOR,    2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'               => [  1, T_OPERATOR,    2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'               => [  2, T_OPERATOR,    2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'               => [  3, T_OPERATOR,    2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'               => [  4, T_OPERATOR,    2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'              => [  5, T_OPERATOR,    2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'               => [  6, T_OPERATOR,    2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'               => [  7, T_OPERATOR,    2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'               => [  8, T_OPERATOR,    2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '<<'              => [  9, T_OPERATOR,    2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
-    '>>'              => [ 10, T_OPERATOR,    2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
-    '~'               => [ 11, T_OPERATOR,    1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('             => [ 12, T_OTHER,      -1, undef  ],
-    '('               => [ 13, T_OPERATOR,    2, H_BBEG ],
-    ','               => [ 14, T_OPERATOR,   -1, H_COMA ],
-    ')'               => [ 15, T_OPERATOR,    2, H_BEND ],
-    '='               => [ 16, T_OPERATOR,    1, H_EQUA ],
-    'OPERAND'         => [ 17, T_OTHER,       0, undef  ],
-    'BEGIN'           => [ 18, T_OTHER,       0, undef  ],
-    '#'               => [ 19, T_SENTINEL,   -1, undef  ],
-    'testfunc'        => [ 20, T_OTHER,       1, undef  ],
-    'abs'             => [ 21, T_FUNCTION,    1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'             => [ 22, T_FUNCTION,    1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'           => [ 23, T_FUNCTION,    1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'            => [ 24, T_FUNCTION,    1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'       => [ 25, T_FUNCTION,    2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'           => [ 26, T_FUNCTION,    2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'         => [ 27, T_FUNCTION,    2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'             => [ 28, T_FUNCTION,   VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'   => [ 29, T_FUNCTION,'3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'        => [ 30, T_FUNCTION,    1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
-    'prime_factorize' => [ 31, T_FUNCTION,    1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'       => [ 32, T_FUNCTION,    1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'             => [ 33, T_FUNCTION,   VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'             => [ 34, T_FUNCTION,   VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'min'             => [ 35, T_FUNCTION,   VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'             => [ 36, T_FUNCTION,   VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'         => [ 37, T_FUNCTION,   VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'           => [ 38, T_FUNCTION,   VA, H_FRST, sub{ &FIRST( @_ ) } ],
-    'uniq'            => [ 39, T_FUNCTION,   VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'             => [ 40, T_FUNCTION,   VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'            => [ 41, T_FUNCTION,   VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'             => [ 42, T_FUNCTION,   VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'        => [ 43, T_FUNCTION,'3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'linstep'         => [ 44, T_FUNCTION,    3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'rand'            => [ 45, T_FUNCTION,    1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'             => [ 46, T_FUNCTION,    1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'            => [ 47, T_FUNCTION,    1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'             => [ 48, T_FUNCTION,    2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'         => [ 49, T_FUNCTION,    2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'         => [ 50, T_FUNCTION,    1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'deg2rad'         => [ 51, T_FUNCTION,   VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'         => [ 52, T_FUNCTION, '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'         => [ 53, T_FUNCTION,    3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'deg2dms'         => [ 54, T_FUNCTION,    1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
-    'sin'             => [ 55, T_FUNCTION,    1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'             => [ 56, T_FUNCTION,    1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'             => [ 57, T_FUNCTION,    1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'            => [ 58, T_FUNCTION,    1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'            => [ 59, T_FUNCTION,    1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'            => [ 60, T_FUNCTION,    1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'           => [ 61, T_FUNCTION,    2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'           => [ 62, T_FUNCTION,    2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geo_radius'           => [ 63, T_FUNCTION, 1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat_circle' => [ 64, T_FUNCTION, 1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 65, T_FUNCTION, 4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'       => [ 66, T_FUNCTION, 4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'      => [ 67, T_FUNCTION, 4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'local2epoch' => [ 68, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'   => [ 69, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local' => [ 70, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'   => [ 71, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'    => [ 72, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'    => [ 73, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    '+'               => [   0, T_OPERATOR,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
+    '-'               => [   1, T_OPERATOR,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    '*'               => [   2, T_OPERATOR,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'               => [   3, T_OPERATOR,     2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'               => [   4, T_OPERATOR,     2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'              => [   5, T_OPERATOR,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'               => [   6, T_OPERATOR,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'               => [   7, T_OPERATOR,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'               => [   8, T_OPERATOR,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '<<'              => [   9, T_OPERATOR,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'              => [  10, T_OPERATOR,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'               => [  11, T_OPERATOR,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('             => [  12, T_OTHER,       -1, undef  ],
+    '('               => [  13, T_OPERATOR,     2, H_BBEG ],
+    ','               => [  14, T_OPERATOR,    -1, H_COMA ],
+    ')'               => [  15, T_OPERATOR,     2, H_BEND ],
+    '='               => [  16, T_OPERATOR,     1, H_EQUA ],
+    'OPERAND'         => [  17, T_OTHER,        0, undef  ],
+    'BEGIN'           => [  18, T_OTHER,        0, undef  ],
+    '#'               => [  19, T_SENTINEL,    -1, undef  ],
+    'testfunc'        => [  20, T_OTHER,        1, undef  ],
+    'abs'             => [  30, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'             => [  40, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'           => [  50, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'            => [  60, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'       => [  70, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'           => [  80, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'         => [  90, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'pct'             => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'   => [ 110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'        => [ 120, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
+    'prime_factorize' => [ 130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'       => [ 140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
+    'gcd'             => [ 150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'             => [ 160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'min'             => [ 170, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'             => [ 180, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'         => [ 190, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'           => [ 200, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
+    'uniq'            => [ 210, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'             => [ 220, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'            => [ 230, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'             => [ 240, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'        => [ 250, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'linstep'         => [ 260, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'rand'            => [ 270, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'             => [ 280, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'            => [ 290, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'             => [ 300, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'         => [ 310, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'         => [ 320, T_FUNCTION,     1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'deg2rad'         => [ 330, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'         => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'         => [ 350, T_FUNCTION,     3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'deg2dms'         => [ 360, T_FUNCTION,     1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'sin'             => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'             => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'             => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'            => [ 400, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'            => [ 410, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'            => [ 420, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'           => [ 430, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'           => [ 440, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'geo_radius'      => [ 450, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'   => [ 460, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'    => [ 470, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'  => [ 480, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km' => [ 490, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'local2epoch'     => [ 500, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'       => [ 510, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'     => [ 520, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'       => [ 530, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'        => [ 540, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'        => [ 550, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1327,7 +1327,10 @@ sub FormulaNormalizationOneLine( $ )
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
     $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
     $expr =~ s!power!pow!go;
-#    $expr =~ s!pow\(\s*([^,]+)\s*,\s*([^)]+)\)!($1^$2)!go;
+    $expr =~ s!rs\(!ratio_scaling(!go;
+    $expr =~ s!pf\(!prime_factorize(!go;
+    $expr =~ s!gd_m\(!geo_distance_m(!go;
+    $expr =~ s!gd_km\(!geo_distance_km(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -1487,6 +1490,10 @@ sub new {
     $self->{APPCONFIG} = shift( @_ );
     $self->SetLabel( 'lexer' );
     $self->LoadUserRcFiles( \%{ $self->{CONSTANTS} } );
+    if( $self->{APPCONFIG}->GetBPrintUserDefined() ){
+        $self->PrintUserDefined();
+        exit( 0 );
+    }
 #    $self->Reset();
 #    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaLexer: create\n} );
     return $self;               # 無名ハッシュ参照を返す
@@ -1544,6 +1551,26 @@ sub LoadUserRc( $\$ )
         scalar( %{ $ref_user_const } ) );
 
     return 0;
+}
+
+sub GetConstants()
+{
+    my $self = shift( @_ );
+    my @kvs = ();
+    for my $key( sort( keys( %{ $self->{CONSTANTS} } ) ) ){
+        my $kv = sprintf( '%s = "%s"', $key, ${ $self->{CONSTANTS} }{ $key } );
+        push( @kvs, $kv );
+    }
+    return @kvs;
+}
+
+sub PrintUserDefined()
+{
+    my $self = shift( @_ );
+    print( "=== User Defined ===\n" );
+    print( join( "\n", $self->GetConstants() ) . "\n" );
+    print( "====================\n" );
+    return;
 }
 
 sub IsTokenUserConstant( \$\$ )
@@ -2477,6 +2504,7 @@ sub new {
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
     $self->{B_RPN} = shift( @_ );
     $self->{B_IS_STDOUT_TTY} = shift( @_ );
+    $self->{B_PRINT_USER_DEFINED} = shift( @_ );
     return $self;               # 無名ハッシュ参照を返す
 }
 
@@ -2535,6 +2563,16 @@ sub GetBIsStdoutTty( $ )
     return $self->{B_IS_STDOUT_TTY};
 }
 
+sub SetBPrintUserDefined( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_PRINT_USER_DEFINED} = shift( @_ );
+}
+sub GetBPrintUserDefined( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_PRINT_USER_DEFINED};
+}
 
 package main;
 
@@ -2578,9 +2616,10 @@ sub init_script()
     my $bVerboseOutput = 0;
     my $bRpn = 0;
     my $bIsStdoutTty = -t STDOUT;
+    my $bPrintUserDefined = 0;
 
     my $config = CAppConfig->new( $apppath, $appname, $debug,
-        $bTest, $bVerboseOutput, $bRpn, $bIsStdoutTty );
+        $bTest, $bVerboseOutput, $bRpn, $bIsStdoutTty, $bPrintUserDefined );
 
     $opf = OutputFunc->new( $config, 'dbg' );
 
@@ -2598,7 +2637,7 @@ sub parse_arg()
     while( my $myparam = shift( @val ) ){
 
         ## アルファベットは1文字ずつ分割
-        if( $myparam =~ s/^-([dhrv])(\S+)$/-$1/o ){
+        if( $myparam =~ s/^-([dhrvu])(\S+)$/-$1/o ){
             my $remainparam = "-$2";
             $opf->dPrintf( qq{\$myparam="%s", \$remainparam="%s"\n}, $myparam, $remainparam );
             unshift( @val, $remainparam );
@@ -2615,6 +2654,8 @@ sub parse_arg()
             $conf->SetBRpn( 1 );
         }elsif( $myparam eq '-v' || $myparam eq '--verbose' ){
             $conf->SetBVerboseOutput( 1 );
+        }elsif( $myparam eq '-u' || $myparam eq '--user-defined' ){
+            $conf->SetBPrintUserDefined( 1 );
         }elsif( $myparam eq '--test-test' ){
             $conf->SetBTest( 1 );
             $conf->SetBIsStdoutTty( 1 );
@@ -2704,7 +2745,7 @@ CURRENT-TIME
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
 get_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
 pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-geo_radius, radius_of_lat_circle, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch,
+geo_radius, radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 =head1 OPTIONS
@@ -2832,7 +2873,7 @@ You can also:
   1691574281
 
   ## check
-  $ c 'prime_factorize( 1691574281 )|0'
+  $ c 'pf( 1691574281 )|0'  ## pf() is an alias for prime_factorize().
   ( 29303, 57727 ) [ = ( 0x7277, 0xE17F ) ]
 
 =head2 STANDARD INPUT (STDIN) MODE
@@ -2948,7 +2989,8 @@ The straight-line distance between Madagascar and the Galapagos Islands was foun
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-  $ c 'geo_distance_km(
+  # gd_km() is an alias for geo_distance_km().
+  $ c 'gd_km(
          dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
          dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
   14907.357977036
@@ -3083,7 +3125,7 @@ pct( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percenta
 
 =item C<ratio_scaling>
 
-ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified.
+ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified. alias: rs().
 
 =item C<is_prime>
 
@@ -3091,7 +3133,7 @@ is_prime( I<NUM> ). Prime number test. Returns 1 if I<NUM> is prime, otherwise r
 
 =item C<prime_factorize>
 
-prime_factorize( I<NUM> ). Do prime factorization. I<NUM> is an integer greater than or equal to 2.
+prime_factorize( I<NUM> ). Do prime factorization. I<NUM> is an integer greater than or equal to 2. alias: pf().
 
 =item C<get_prime>
 
@@ -3224,9 +3266,9 @@ hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very 
 
 geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
-=item C<radius_of_lat_circle>
+=item C<radius_of_lat>
 
-radius_of_lat_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 =item C<geo_distance>
 
@@ -3234,11 +3276,11 @@ geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns t
 
 =item C<geo_distance_m>
 
-geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance().
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().
 
 =item C<geo_distance_km>
 
-geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000.
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().
 
 =item C<local2epoch>
 
