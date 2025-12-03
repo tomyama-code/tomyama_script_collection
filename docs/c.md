@@ -71,7 +71,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
 get\_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
 pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-geo\_radius, radius\_of\_lat\_circle, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch,
+geo\_radius, radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
@@ -195,7 +195,7 @@ You can also:
     1691574281
 
     ## check
-    $ c 'prime_factorize( 1691574281 )|0'
+    $ c 'pf( 1691574281 )|0'  ## pf() is an alias for prime_factorize().
     ( 29303, 57727 ) [ = ( 0x7277, 0xE17F ) ]
 
 ## STANDARD INPUT (STDIN) MODE
@@ -311,7 +311,8 @@ The straight-line distance between Madagascar and the Galapagos Islands was foun
 If you want to specify latitude and longitude in DMS, use dms2rad().
 Be sure to include the sign if the value is negative.
 
-    $ c 'geo_distance_km(
+    # gd_km() is an alias for geo_distance_km().
+    $ c 'gd_km(
            dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
            dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
     14907.357977036
@@ -440,7 +441,7 @@ The **c** script was created with the following in mind:
 
 - `ratio_scaling`
 
-    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified.
+    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified. alias: rs().
 
 - `is_prime`
 
@@ -448,7 +449,7 @@ The **c** script was created with the following in mind:
 
 - `prime_factorize`
 
-    prime\_factorize( _NUM_ ). Do prime factorization. _NUM_ is an integer greater than or equal to 2.
+    prime\_factorize( _NUM_ ). Do prime factorization. _NUM_ is an integer greater than or equal to 2. alias: pf().
 
 - `get_prime`
 
@@ -581,9 +582,9 @@ The **c** script was created with the following in mind:
 
     geo\_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
-- `radius_of_lat_circle`
+- `radius_of_lat`
 
-    radius\_of\_lat\_circle( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+    radius\_of\_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 - `geo_distance`
 
@@ -591,11 +592,11 @@ The **c** script was created with the following in mind:
 
 - `geo_distance_m`
 
-    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance().
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance(). alias: gd\_m().
 
 - `geo_distance_km`
 
-    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000.
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000. alias: gd\_km().
 
 - `local2epoch`
 

@@ -7,6 +7,19 @@
 ### Changed
 - xxx
 
+## [0.2.26] - 2025-12-03
+### Added
+- `c` [1.04.041]: "-u", "--user-defined": Added options to output values ​​defined in the ".c.rc" file.
+- `c` [1.04.039]: Added the ability to use abbreviations (aliases) for some functions.
+  - rs() -> ratio_scaling()
+  - pf() -> prime_factorize()
+  - gd_m() -> geo_distance_m()
+  - gd_km() -> geo_distance_km()
+
+### Changed
+- `c` [1.04.042]: Added examples of POD usage using abbreviations (alias).
+- `c` [1.04.040]: Shortened function name: radius_of_lat_circle() -> radius_of_lat()
+
 ## [0.2.25] - 2025-12-01
 ### Changed
 - `c` [1.04.038]:
