@@ -1,10 +1,13 @@
 #!/bin/sh
 
 WITH_PERL_COVERAGE=1; export WITH_PERL_COVERAGE
+test_summary='./test_summary.txt'
 
 sh_main()
 {
     sh_init "$@"
+
+    beg=`sh_get_epoch`
 
     retval=0
 
@@ -26,6 +29,8 @@ sh_main()
         fi
     fi
 
+    targets=''
+    echo '' >"$test_summary"
     for fi in *; do
         if ! is_it_executable_file "$fi"; then
             continue
@@ -36,8 +41,10 @@ sh_main()
             continue
         fi
         #echo "F: $bname"
+        targets="$targets $bname"
 
-        "$apppath/prt" -e "$bname: "
+        #"$apppath/prt" -e "$bname: "
+        printf '%-6s: ' "$bname"
 
         test_log="$tname.log"
         "./$tname" >"$test_log"
@@ -47,15 +54,19 @@ sh_main()
             res='FAIL'
             retval=`expr "$retval" '+' '1'`
         fi
-        echo "$res: exit_status=$exit_status"
+        echo "$res: exit_status=$exit_status: $test_log"
+        printf "%-6s: $res: exit_status=$exit_status: $test_log\n" "$bname" >>"$test_summary"
     done
 
     if [ "$WITH_PERL_COVERAGE" != '' ]; then
         if [ "$WITH_PERL_COVERAGE_OWNER" = "$$" ]; then
-            cover
+            cover | sh_summary_cov_filter "$targets" | tee -a "$test_summary"
             sh_edit_coverage_html "$apppath" 'cover_db/coverage.html'
         fi
     fi
+
+    end=`sh_get_epoch`
+    sh_prt_timestamp "$beg" "$end" | tee -a "$test_summary"
 
     return $retval
 }
@@ -87,6 +98,47 @@ is_it_executable_file()
     return 0
 }
 
+sh_summary_cov_filter()
+{
+    perl -e '
+        my $targets = shift( @ARGV );
+        $targets =~ s/^\s+//;
+        my @files = split( /[ \t\n]+/, $targets );
+
+        my %sz;
+        $sz{Total} = 0;
+        for my $targ( @files ){
+            $sz{$targ} = `stat --format="%s" $targ` + 0;
+            #print( qq{$targ: "$sz{$targ}"\n} );
+            $sz{Total} += $sz{$targ};
+        }
+
+        my $counter = 0;
+        while( <STDIN> ){
+            my $line = $_;
+            $line =~ s/\r?\n$//o;
+            if( $line eq "----- ------ ------ ------ ------ ------ ------ ------" ){
+                $counter++;
+                $line .= "  ------ ------";
+            }
+            if( $counter == 3 ){
+                $counter = 0;
+            }elsif( $counter > 0 ){
+                my @field = split( /\s+/, $line );
+                if( $field[ 0 ] eq 'File' ){
+                    $line = "$line    size      %";
+                }elsif( $field[ 0 ] eq 'Total' ){
+                    $line = sprintf( qq{$line  %6d  100.0}, $sz{ 'Total' } );
+                }elsif( exists( $sz{ $field[ 0 ] } ) ){
+                    $line = sprintf( qq{$line  %6d  %5.1f},
+                        $sz{ $field[ 0 ] }, $sz{ $field[ 0 ] } * 100 / $sz{Total} );
+                }
+            }
+            print( qq{$line\n} );
+        }
+    ' "$1"
+}
+
 sh_edit_coverage_html()
 {
     perl -e '
@@ -102,15 +154,14 @@ sh_edit_coverage_html()
             die( "$target: unable to read file.\n" );
         }
 
-        open( COVHTML_R, "<", "$target" ) ||
-            die( "$target: could not open file.: $!" );
+        open( COVHTML_R, "<", "$target" ) || die( "$target: could not open file.: $!" );
         my $buff = "";
         while( <COVHTML_R> ){
             my $line = $_;
             $line =~ s!\r?\n$!!o;
 
             if( $line =~ s!/\S+($proj_name/cover_db)!$1!go ){
-                print( qq{edit: $line\n} );
+                print( qq{edit: $1\n} );
             }
 
             $buff .= $line . "\n";
@@ -119,10 +170,41 @@ sh_edit_coverage_html()
 
         #my $dist = "$target.new.html";
         my $dist = "$target";
-        open( COVHTML_W, ">", "$dist" ) ||
-            die( "$dist: could not open file: $!" );
+        open( COVHTML_W, ">", "$dist" ) || die( "$dist: could not open file: $!" );
         print COVHTML_W ( $buff );
         close( COVHTML_W );
+    ' "$@"
+}
+
+sh_get_epoch()
+{
+    perl -e 'print( time() );'
+}
+sh_prt_timestamp()
+{
+    perl -e '
+        my $beg = shift( @ARGV );
+        my $end = shift( @ARGV );
+        my $elaps = $end - $beg;
+        #print( qq{\$beg="$beg"\n} );
+        &prt_time( "Start", $beg );
+        &prt_time( "  End", $end );
+
+        my $S = $elaps % 60;
+        $elaps = ( $elaps - $S ) / 60;
+        my $M = $elaps % 60;
+        my $H = ( $elaps - $M ) / 60;
+        printf( qq{Elaps:            %02d:%02d:%02d\n}, $H, $M, $S );
+
+        sub prt_time()
+        {
+            my $l = shift( @_ );
+            my $t = shift( @_ );
+            my( $S, $M, $H, $d, $m, $Y ) = localtime( $t );
+            $Y += 1900;
+            $m += 1;
+            printf( qq{$l: %04d-%02d-%02d %02d:%02d:%02d\n}, $Y, $m, $d, $H, $M, $S );
+        }
     ' "$@"
 }
 

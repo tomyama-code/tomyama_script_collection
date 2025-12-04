@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.27] - 2025-12-05
+### Changed
+- `tests/tests.sh`:
+  - Added file size ratio to the coverage measurement result table.
+  - Execution time is also output.
+  - It is now also output to the file "test_summary.txt".
+
 ## [0.2.26] - 2025-12-03
 ### Added
 - `c` [1.04.041]: "-u", "--user-defined": Added options to output values ​​defined in the ".c.rc" file.
