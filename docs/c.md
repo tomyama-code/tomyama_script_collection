@@ -156,15 +156,27 @@ and the radians of an arbitrarily selected value are calculated.
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
 
+    # Bitwise AND
     $ c '0xfc & 0x3f'
     60 [ = 0x3C ]
 
+    # Bitwise OR
     $ c '0xfc | 0x3f'
     255 [ = 0xFF ]
 
+    # Bitwise Exclusive OR
     $ c '0xfc ^ 0x3f'
     195 [ = 0xC3 ]
 
+    # Bitwise left shift
+    $ c '0x3c << 1'
+    120 [ = 0x78 ]
+
+    # Bitwise right shift
+    $ c '0x3c >> 1'
+    30 [ = 0x1E ]
+
+    # Bitwise Inversion
     $ c '~0x1 & 0x3f'
     62 [ = 0x3E ]
 
@@ -176,11 +188,11 @@ However, you can display it by performing a bitwise '_|\[OR\]_' operation with 0
 
 \[ radical (of n) \] Eliminate duplicates of each prime factor and take the product:
 
-    ## Prime factorization...
+    ## Factorize any given number into prime factors...
     $ c 'prime_factorize( 4428 )'
     ( 2, 2, 3, 3, 3, 41 )
 
-    ## Eliminate duplicates…
+    ## Eliminate duplicates...
     $ c 'uniq( prime_factorize( 4428 ) )'
     ( 2, 3, 41 )
 
@@ -374,7 +386,7 @@ The **c** script was created with the following in mind:
 
 - `^`
 
-    Bitwise exclusive or. `0x6 ^ 0x4` -> `2 [ = 0x2 ]`.
+    Bitwise Exclusive OR. `0x6 ^ 0x4` -> `2 [ = 0x2 ]`.
 
 - `<<`
 
@@ -386,7 +398,7 @@ The **c** script was created with the following in mind:
 
 - `~`
 
-    Bitwise inversion. `~0` -> `0xFFFFFFFFFFFFFFFFFF`.
+    Bitwise Inversion. `~0` -> `0xFFFFFFFFFFFFFFFFFF`.
 
 - `(`
 

@@ -1204,9 +1204,15 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: get_prime: 64: Cannot specify a value greater than 32\.\n/ );
     undef( $cmd );
 
+    ## 64bit: 3473826439 [ = 0xCF0E6287 ]
+    ## 32bit: 2942933887 [ = -1352033409 ] [ = 0xAF699B7F ]
+    my $gp32_expect = qr/^\d+ \[ = 0x[\dA-F]{1,8} \]\n$/;
+    if( $UV_bit_width == 32 ){
+        $gp32_expect = qr/^\d+(?: \[ = \-\d+ \])? \[ = 0x[\dA-F]{1,8} \]\n$/;
+    }
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 32 )|0'} );
     $cmd->exit_is_num( 0, qq{./c 'get_prime( 32 )|0'} );
-    $cmd->stdout_like( qr/^\d+ \[ = 0x[\dA-F]{1,8} \]\n$/ );
+    $cmd->stdout_like( $gp32_expect, qq{\$UV_bit_width="$UV_bit_width"} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1703,6 +1709,17 @@ subtest qq{-r, --rpn} => sub{
     $cmd->stdout_like( qr/^Remain RPN: 10\n/ );
     $cmd->stdout_like( qr/\nRemain RPN: 150 \-4 2\n/ );
     $cmd->stdout_like( qr/\n10 \-3 \* \-5 \* \-4 2 \/ \+\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+};
+
+subtest qq{--version} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD --version} );
+    $cmd->exit_is_num( 0, qq{./c --version} );
+    $cmd->stdout_like( qr/^Version: \d/ );
+    $cmd->stdout_like( qr/\n   Perl: v\d/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

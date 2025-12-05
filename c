@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.42 $
+## - $Revision: 4.44 $
 ##
 ## - Script Structure
 ##   - main
@@ -145,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.42 $};
+    my $rev = q{$Revision: 4.44 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -159,6 +159,16 @@ sub GetVersion()
     my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
 
     return $version;
+}
+
+sub PrintVersion()
+{
+    my $self = shift( @_ );
+
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
 
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
@@ -529,10 +539,10 @@ use constant {
     H_EXPO => qq{Exponentiation. "2 ** 3" -> 8. Similarly, "pow( 2, 3 )".},
     H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 [ = 0x6 ]".},
     H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 [ = 0x4 ]".},
-    H_BWEO => qq{Bitwise exclusive or. "0x6 ^ 0x4" -> "2 [ = 0x2 ]".},
+    H_BWEO => qq{Bitwise Exclusive OR. "0x6 ^ 0x4" -> "2 [ = 0x2 ]".},
     H_SHTL => qq{Bitwise left shift. "0x6 << 1" -> "12 [ = 0xC ]".},
     H_SHTR => qq{Bitwise right shift. "0x6 >> 1" -> "3 [ = 0x3 ]".},
-    H_BWIV => qq{Bitwise inversion. "~0" -> 0xFFFFFFFFFFFFFFFFFF.},
+    H_BWIV => qq{Bitwise Inversion. "~0" -> 0xFFFFFFFFFFFFFFFFFF.},
     H_BBEG => qq{A symbol that controls the priority of calculations.},
     H_COMA => qq{The separator that separates function arguments.},
     H_BEND => qq{A symbol that controls the priority of calculations.},
@@ -2654,6 +2664,9 @@ sub parse_arg()
             $conf->SetBRpn( 1 );
         }elsif( $myparam eq '-v' || $myparam eq '--verbose' ){
             $conf->SetBVerboseOutput( 1 );
+        }elsif( $myparam eq '--version' ){
+            $opf->PrintVersion();
+            exit( 0 );
         }elsif( $myparam eq '-u' || $myparam eq '--user-defined' ){
             $conf->SetBPrintUserDefined( 1 );
         }elsif( $myparam eq '--test-test' ){
@@ -2834,15 +2847,27 @@ and the radians of an arbitrarily selected value are calculated.
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
 
+  # Bitwise AND
   $ c '0xfc & 0x3f'
   60 [ = 0x3C ]
 
+  # Bitwise OR
   $ c '0xfc | 0x3f'
   255 [ = 0xFF ]
 
+  # Bitwise Exclusive OR
   $ c '0xfc ^ 0x3f'
   195 [ = 0xC3 ]
 
+  # Bitwise left shift
+  $ c '0x3c << 1'
+  120 [ = 0x78 ]
+
+  # Bitwise right shift
+  $ c '0x3c >> 1'
+  30 [ = 0x1E ]
+
+  # Bitwise Inversion
   $ c '~0x1 & 0x3f'
   62 [ = 0x3E ]
 
@@ -2854,11 +2879,11 @@ However, you can display it by performing a bitwise 'I<|[OR]>' operation with 0.
 
 [ radical (of n) ] Eliminate duplicates of each prime factor and take the product:
 
-  ## Prime factorization...
+  ## Factorize any given number into prime factors...
   $ c 'prime_factorize( 4428 )'
   ( 2, 2, 3, 3, 3, 41 )
 
-  ## Eliminate duplicates…
+  ## Eliminate duplicates...
   $ c 'uniq( prime_factorize( 4428 ) )'
   ( 2, 3, 41 )
 
@@ -3054,7 +3079,7 @@ Bitwise AND. C<0x6 & 0x4> -> C<4 [ = 0x4 ]>.
 
 =item C<^>
 
-Bitwise exclusive or. C<0x6 ^ 0x4> -> C<2 [ = 0x2 ]>.
+Bitwise Exclusive OR. C<0x6 ^ 0x4> -> C<2 [ = 0x2 ]>.
 
 =item C<E<lt>E<lt>>
 
@@ -3066,7 +3091,7 @@ Bitwise right shift. C<0x6 E<gt>E<gt> 1> -> C<3 [ = 0x3 ]>.
 
 =item C<~>
 
-Bitwise inversion. C<~0> -> C<0xFFFFFFFFFFFFFFFFFF>.
+Bitwise Inversion. C<~0> -> C<0xFFFFFFFFFFFFFFFFFF>.
 
 =item C<(>
 
