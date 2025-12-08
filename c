@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.44 $
+## - $Revision: 4.46 $
 ##
 ## - Script Structure
 ##   - main
@@ -145,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.44 $};
+    my $rev = q{$Revision: 4.46 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1320,11 +1320,16 @@ sub FormulaNormalizationOneLine( $ )
     ##########
     ## コーディングが面倒になるので全角文字はこの区間内に留める事。
     $expr = &str2p( $expr );
-    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，．＋＊・･／＾（）＝!a-za-z0-9,.+***/^()=!;
+    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　!a-za-z0-9,,.+***/^()= !;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
     $expr =~ s!√!sqrt!go;
     $expr =~ s!π!pi!go;
+    $expr =~ s!(?:北緯|東経)(\d+(?:\.\d+)?)[度°]!deg2rad( $1 )!go;
+    $expr =~ s!(?:南緯|西経)(\d+(?:\.\d+)?)[度°]!deg2rad( -$1 )!go;
+    ## ex.) 35°12'34"N 139°40'56"E
+    $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[NE]!dms2rad( $1, $2, $3 )!go;
+    $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[SW]!dms2rad( -$1, -$2, -$3 )!go;
     $expr = &p2str( $expr );
     ##########
 

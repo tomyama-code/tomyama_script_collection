@@ -7,13 +7,18 @@
 ### Changed
 - xxx
 
+## [0.2.29] - 2025-12-08
+### Changed
+- `c` [1.04.046]: Added latitude and longitude rules to full-width character to half-width character conversion.
+- `tests/tests.sh`: Fixed issue where file sizes were not being linked to coverage results table in other development directories.
+
 ## [0.2.28] - 2025-12-06
 ### Added
 - `c` [1.04.044]: Added "--version" option.
 
 ### Changed
 - `c` [1.04.043]: Updated POD.
-  - `tests/c.test.pl`: "./c 'get_prime( 32 )|0'": The regular expression for the expected value has been corrected since it can sometimes result in a negative value in a 32-bit environment (Termux).
+- `tests/c.test.pl`: "./c 'get_prime( 32 )|0'": The regular expression for the expected value has been corrected since it can sometimes result in a negative value in a 32-bit environment (Termux).
 
 ## [0.2.27] - 2025-12-05
 ### Changed

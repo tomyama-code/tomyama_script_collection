@@ -118,6 +118,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'round( geo_distance_km( 北緯５１．５０３２４度、西経０．１１３４度,　南緯６９．００４３９°，東経３９．５８２２° ), 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'round( geo_distance_km( 北緯５１．５０３２４度、西経０．１１３４度,　南緯６９．００４３９°，東経３９．５８２２° ), 0 )'} );
+    $cmd->stdout_is_eq( qq{13803\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD "round( geo_distance_km( 51°30'11.6639999999933\\"N, 0°6'48.24\\"W,　69°0'15.8040000000028\\"S，39°34'55.920000000001\\"E ), 0 )"} );
+    $cmd->exit_is_num( 0, qq{./c "round( geo_distance_km( 51°30'11.6639999999933\\"N, 0°6'48.24\\"W,　69°0'15.8040000000028\\"S，39°34'55.920000000001\\"E ), 0 )"} );
+    $cmd->stdout_is_eq( qq{13803\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2--10='} );
     $cmd->exit_is_num( 0, qq{./c '2--10='} );
     $cmd->stdout_is_eq( qq{12\n} );
@@ -1213,6 +1225,12 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 32 )|0'} );
     $cmd->exit_is_num( 0, qq{./c 'get_prime( 32 )|0'} );
     $cmd->stdout_like( $gp32_expect, qq{\$UV_bit_width="$UV_bit_width"} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'get_prime( 24 )|0'} );
+    $cmd->exit_is_num( 0, qq{./c 'get_prime( 24 )|0'} );
+    $cmd->stdout_like( qr/^\d+ \[ = 0x[\dA-F]{1,6} \]\n$/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

@@ -3,6 +3,7 @@
 WITH_PERL_COVERAGE=1; export WITH_PERL_COVERAGE
 test_summary='./test_summary.txt'
 
+## script entry point
 sh_main()
 {
     sh_init "$@"
@@ -72,6 +73,7 @@ sh_main()
 }
 
 ## script setup
+## Revision: 1.1
 sh_init()
 {
     di_work="`pwd`"
@@ -83,14 +85,15 @@ sh_init()
         sed 's/^.*$R/R/' | sed 's/ *\$$//'`
 }
 
+## Revision: 1.1
 is_it_executable_file()
 {
     #echo "Check: $1"
     if [ ! -f "$1" ]; then
-        return 1
+        return 3
     fi
     if [ ! -r "$1" ]; then
-        return 1
+        return 2
     fi
     if [ ! -x "$1" ]; then
         return 1
@@ -117,7 +120,7 @@ sh_summary_cov_filter()
         while( <STDIN> ){
             my $line = $_;
             $line =~ s/\r?\n$//o;
-            if( $line eq "----- ------ ------ ------ ------ ------ ------ ------" ){
+            if( $line =~ m/^\-+ \-\-\-\-\-\- \-\-\-\-\-\- \-\-\-\-\-\- \-\-\-\-\-\- \-\-\-\-\-\- \-\-\-\-\-\- \-\-\-\-\-\-$/ ){
                 $counter++;
                 $line .= "  ------ ------";
             }
