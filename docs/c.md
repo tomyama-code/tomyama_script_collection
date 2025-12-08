@@ -71,8 +71,9 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
 get\_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
 pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-geo\_radius, radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec
+slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat,
+geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec
 
 # OPTIONS
 
@@ -589,6 +590,22 @@ The **c** script was created with the following in mind:
 - `hypot`
 
     hypot( X, Y ). Equivalent to "sqrt( X \* X + Y \* Y )" except more stable on very large or very small arguments. \[POSIX\]
+
+- `slope_deg`
+
+    slope\_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).
+
+- `dist_between_points`
+
+    dist\_between\_points( X1, Y1, X2, Y2 ) or dist\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().
+
+- `midpt_between_points`
+
+    midpt\_between\_points( X1, Y1, X2, Y2 ) or midpt\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().
+
+- `angle_between_points`
+
+    angle\_between\_points( X1, Y1, X2, Y2 ) or angle\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().
 
 - `geo_radius`
 

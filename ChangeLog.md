@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.30] - 2025-12-09
+### Added
+- `c` [1.04.047]: Add a function.
+  - slope_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).
+  - dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().
+  - midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().
+  - angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().
+
 ## [0.2.29] - 2025-12-08
 ### Changed
 - `c` [1.04.046]: Added latitude and longitude rules to full-width character to half-width character conversion.

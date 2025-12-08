@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.46 $
+## - $Revision: 4.48 $
 ##
 ## - Script Structure
 ##   - main
@@ -145,7 +145,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.46 $};
+    my $rev = q{$Revision: 4.48 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -574,6 +574,8 @@ use constant {
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
+    H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
+    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_R2DG => qq{rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]},
     H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
@@ -587,8 +589,10 @@ use constant {
     H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]},
     H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
-    H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
-    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
+    H_SLPD => qq{slope_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).},
+    H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
+    H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
+    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
@@ -603,80 +607,84 @@ use constant {
 };
 
 %TableProvider::operators = (
-    '+'               => [   0, T_OPERATOR,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'               => [   1, T_OPERATOR,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'               => [   2, T_OPERATOR,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'               => [   3, T_OPERATOR,     2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'               => [   4, T_OPERATOR,     2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'              => [   5, T_OPERATOR,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'               => [   6, T_OPERATOR,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'               => [   7, T_OPERATOR,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'               => [   8, T_OPERATOR,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '<<'              => [   9, T_OPERATOR,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
-    '>>'              => [  10, T_OPERATOR,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
-    '~'               => [  11, T_OPERATOR,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('             => [  12, T_OTHER,       -1, undef  ],
-    '('               => [  13, T_OPERATOR,     2, H_BBEG ],
-    ','               => [  14, T_OPERATOR,    -1, H_COMA ],
-    ')'               => [  15, T_OPERATOR,     2, H_BEND ],
-    '='               => [  16, T_OPERATOR,     1, H_EQUA ],
-    'OPERAND'         => [  17, T_OTHER,        0, undef  ],
-    'BEGIN'           => [  18, T_OTHER,        0, undef  ],
-    '#'               => [  19, T_SENTINEL,    -1, undef  ],
-    'testfunc'        => [  20, T_OTHER,        1, undef  ],
-    'abs'             => [  30, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'             => [  40, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'           => [  50, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'            => [  60, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'       => [  70, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'           => [  80, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'         => [  90, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'             => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'   => [ 110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'        => [ 120, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
-    'prime_factorize' => [ 130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'       => [ 140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'             => [ 150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'             => [ 160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'min'             => [ 170, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'             => [ 180, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'         => [ 190, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'           => [ 200, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
-    'uniq'            => [ 210, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'             => [ 220, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'            => [ 230, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'             => [ 240, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'        => [ 250, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'linstep'         => [ 260, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'rand'            => [ 270, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'             => [ 280, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'            => [ 290, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'             => [ 300, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'         => [ 310, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'         => [ 320, T_FUNCTION,     1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
-    'deg2rad'         => [ 330, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'         => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'         => [ 350, T_FUNCTION,     3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'deg2dms'         => [ 360, T_FUNCTION,     1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
-    'sin'             => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'             => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'             => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'            => [ 400, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'            => [ 410, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'            => [ 420, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'           => [ 430, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'           => [ 440, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'geo_radius'      => [ 450, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'   => [ 460, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'    => [ 470, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'  => [ 480, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km' => [ 490, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'local2epoch'     => [ 500, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'       => [ 510, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'     => [ 520, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'       => [ 530, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'        => [ 540, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'        => [ 550, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    '+'                    => [   0, T_OPERATOR,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
+    '-'                    => [   1, T_OPERATOR,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    '*'                    => [   2, T_OPERATOR,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'                    => [   3, T_OPERATOR,     2, H_DIVI, sub{ &DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'                    => [   4, T_OPERATOR,     2, H_MODU, sub{ &MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'                   => [   5, T_OPERATOR,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'                    => [   6, T_OPERATOR,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'                    => [   7, T_OPERATOR,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'                    => [   8, T_OPERATOR,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '<<'                   => [   9, T_OPERATOR,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'                   => [  10, T_OPERATOR,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'                    => [  11, T_OPERATOR,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('                  => [  12, T_OTHER,       -1, undef  ],
+    '('                    => [  13, T_OPERATOR,     2, H_BBEG ],
+    ','                    => [  14, T_OPERATOR,    -1, H_COMA ],
+    ')'                    => [  15, T_OPERATOR,     2, H_BEND ],
+    '='                    => [  16, T_OPERATOR,     1, H_EQUA ],
+    'OPERAND'              => [  17, T_OTHER,        0, undef  ],
+    'BEGIN'                => [  18, T_OTHER,        0, undef  ],
+    '#'                    => [  19, T_SENTINEL,    -1, undef  ],
+    'testfunc'             => [  20, T_OTHER,        1, undef  ],
+    'abs'                  => [  30, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'                  => [  40, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'                => [  50, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'                 => [  60, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'            => [  70, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'                => [  80, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'              => [  90, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'pct'                  => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'        => [ 110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'             => [ 120, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
+    'prime_factorize'      => [ 130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'            => [ 140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
+    'gcd'                  => [ 150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'                  => [ 160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'min'                  => [ 170, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'                  => [ 180, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'              => [ 190, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'                => [ 200, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
+    'uniq'                 => [ 210, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                  => [ 220, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                 => [ 230, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                  => [ 240, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'             => [ 250, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'linstep'              => [ 260, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'rand'                 => [ 270, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'                  => [ 280, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'                 => [ 290, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'                  => [ 300, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'              => [ 310, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'              => [ 320, T_FUNCTION,     1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'deg2rad'              => [ 330, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'              => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'              => [ 350, T_FUNCTION,     3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'deg2dms'              => [ 360, T_FUNCTION,     1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'sin'                  => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'                  => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'                  => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'                 => [ 400, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'                 => [ 410, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'                 => [ 420, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'                => [ 430, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                => [ 440, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'slope_deg'            => [ 450, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
+    'dist_between_points'  => [ 460, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points' => [ 470, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points' => [ 480, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'geo_radius'           => [ 490, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'        => [ 500, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 510, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 520, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 530, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'local2epoch'          => [ 540, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'            => [ 550, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'          => [ 560, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'            => [ 570, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'             => [ 580, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'             => [ 590, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1091,6 +1099,88 @@ sub pow_inv( $$ )
     return ( $x ** $rounded == $n ) ? $rounded : $y;
 }
 
+sub slope_deg( $$ )
+{
+    my $x = shift( @_ );
+    my $y = shift( @_ );
+    return &angle_between_points( 0, 0, $x, $y );
+}
+
+sub dist_between_points( $$$$;$$ )
+{
+    my $argc = scalar( @_ );
+    my $b3d = 0;
+    if( $argc == 5 ){
+        die( qq{dist_between_points: \$argc=$argc: Invalid number of arguments.\n} );
+    }elsif( $argc == 6 ){
+        $b3d = 1;
+    }
+
+    my $ret_val = 0;
+    if( $b3d ){
+        my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
+        $ret_val = sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                         ( ( $p2y - $p1y ) ** 2 ) +
+                         ( ( $p2z - $p1z ) ** 2 ) );
+    }else{
+        my( $p1x, $p1y, $p2x, $p2y ) = @_;
+        $ret_val = sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                         ( ( $p2y - $p1y ) ** 2 ) );
+    }
+
+    return $ret_val;
+}
+
+sub midpt_between_points( $$$$;$$ )
+{
+    my $argc = scalar( @_ );
+    my $b3d = 0;
+    if( $argc == 5 ){
+        die( qq{midpt_between_points: \$argc=$argc: Invalid number of arguments.\n} );
+    }elsif( $argc == 6 ){
+        $b3d = 1;
+    }
+
+    my @ret_val = ();
+    if( $b3d ){
+        my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
+        my $px1c2 = $p1x + ( ( $p2x - $p1x ) / 2 );
+        my $py1c2 = $p1y + ( ( $p2y - $p1y ) / 2 );
+        my $pz1c2 = $p1z + ( ( $p2z - $p1z ) / 2 );
+        @ret_val = ( $px1c2, $py1c2, $pz1c2 );
+    }else{
+        my( $p1x, $p1y, $p2x, $p2y ) = @_;
+        my $px1c2 = $p1x + ( ( $p2x - $p1x ) / 2 );
+        my $py1c2 = $p1y + ( ( $p2y - $p1y ) / 2 );
+        @ret_val = ( $px1c2, $py1c2 );
+    }
+
+    return @ret_val;
+}
+
+sub angle_between_points( $$$$;$$ )
+{
+    my $argc = scalar( @_ );
+    my $b3d = 0;
+    if( $argc == 5 ){
+        die( qq{angle_between_points: \$argc=$argc: Invalid number of arguments.\n} );
+    }elsif( $argc == 6 ){
+        $b3d = 1;
+    }
+
+    my $ret_val = 0;
+    if( $b3d ){
+        my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
+        my $hypotenuse_x_y = &dist_between_points( $p1x, $p1y, $p2x, $p2y );
+        $ret_val = rad2deg( atan2( $p2z - $p1z, $hypotenuse_x_y ) );
+    }else{
+        my( $p1x, $p1y, $p2x, $p2y ) = @_;
+        $ret_val = rad2deg( atan2( $p2y - $p1y, $p2x - $p1x ) );
+    }
+
+    return $ret_val;
+}
+
 # === 地球の中心から地表までの動径を計算する関数 ===
 # 引数: 緯度（ラジアン）
 # 戻り値: 動径 (メートル)
@@ -1342,8 +1432,12 @@ sub FormulaNormalizationOneLine( $ )
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
     $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
     $expr =~ s!power!pow!go;
+    ## alias
     $expr =~ s!rs\(!ratio_scaling(!go;
     $expr =~ s!pf\(!prime_factorize(!go;
+    $expr =~ s!dist\(!dist_between_points(!go;
+    $expr =~ s!midpt\(!midpt_between_points(!go;
+    $expr =~ s!angle\(!angle_between_points(!go;
     $expr =~ s!gd_m\(!geo_distance_m(!go;
     $expr =~ s!gd_km\(!geo_distance_km(!go;
 
@@ -2763,8 +2857,9 @@ CURRENT-TIME
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
 get_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
 pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-geo_radius, radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec
+slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius, radius_of_lat,
+geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec
 
 =head1 OPTIONS
 
@@ -3291,6 +3386,22 @@ atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]
 =item C<hypot>
 
 hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]
+
+=item C<slope_deg>
+
+slope_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).
+
+=item C<dist_between_points>
+
+dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().
+
+=item C<midpt_between_points>
+
+midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().
+
+=item C<angle_between_points>
+
+angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().
 
 =item C<geo_radius>
 
