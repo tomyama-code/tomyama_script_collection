@@ -33,7 +33,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
     3.14159265358979
 
-- TIME
+- NOW
 
     CURRENT-TIME
 
@@ -92,6 +92,10 @@ dhms2sec
 
         If you want to display the calculation result,
         please use the --verbose option as well.
+
+- --version
+
+    Print the version of this script and Perl and exit.
 
 - -h, --help
 
@@ -270,17 +274,17 @@ It might be convenient to register it as an alias:
 
 Current time in seconds since the epoch:
 
-    $ c time
+    $ c now
     1764003197
 
 In an easy-to-understand format:
 
-    $ c 'epoch2local( time )'
+    $ c 'epoch2local( now )'
     ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
 Time elapsed since a specified date:
 
-    $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
+    $ c 'sec2dhms( now - local2epoch( 2011, 03, 11, 14, 46 ) )'
     ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 Time interval:

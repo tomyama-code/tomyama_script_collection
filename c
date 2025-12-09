@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.48 $
+## - $Revision: 4.52 $
 ##
 ## - Script Structure
 ##   - main
@@ -115,7 +115,7 @@ sub GetHelpMsg()
         qq{    Decimal:  0, -1, 100 ...\n} .
         qq{    Hexadecimal: 0xf, -0x1, 0x0064 ...\n} .
         qq{    Constant: PI (=3.14159265358979)\n} .
-        qq{              TIME (=CURRENT-TIME)\n} .
+        qq{              NOW (=CURRENT-TIME)\n} .
         qq{              User-defined-file:\n} .
         qq{                ".c.rc" should be placed in the same directory\n} .
         qq{                as "c script" or in "\$HOME".\n} .
@@ -132,6 +132,7 @@ sub GetHelpMsg()
         qq{  -r, --rpn:\n} .
         qq{    The expression will be displayed in Reverse Polish Notation,\n} .
         qq{    but the calculation result will not be shown.\n} .
+        qq{  --version: Print the version of this script and Perl and exit.\n} .
         qq{  -h, --help: Display this help and exit.\n} .
         qq{\n} .
         qq{$ops_help} .
@@ -145,7 +146,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.48 $};
+    my $rev = q{$Revision: 4.52 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1410,16 +1411,24 @@ sub FormulaNormalizationOneLine( $ )
     ##########
     ## コーディングが面倒になるので全角文字はこの区間内に留める事。
     $expr = &str2p( $expr );
-    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　!a-za-z0-9,,.+***/^()= !;
+    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　”゛“’!a-za-z0-9,,.+***/^()= """'!;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
     $expr =~ s!√!sqrt!go;
     $expr =~ s!π!pi!go;
+    $expr =~ s!(?:北緯|東経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( $1, $2, $3 )!go;
+    $expr =~ s!(?:南緯|西経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( -$1, -$2, -$3 )!go;
+    $expr =~ s!(?:北緯|東経)(\d+)°(\d+(?:\.\d+)?)'!dms2rad( $1, $2, 0 )!go;
+    $expr =~ s!(?:南緯|西経)(\d+)°(\d+(?:\.\d+)?)'!dms2rad( -$1, -$2, 0 )!go;
     $expr =~ s!(?:北緯|東経)(\d+(?:\.\d+)?)[度°]!deg2rad( $1 )!go;
     $expr =~ s!(?:南緯|西経)(\d+(?:\.\d+)?)[度°]!deg2rad( -$1 )!go;
     ## ex.) 35°12'34"N 139°40'56"E
     $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[NE]!dms2rad( $1, $2, $3 )!go;
     $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[SW]!dms2rad( -$1, -$2, -$3 )!go;
+    $expr =~ s!(\d+)°(\d+(?:\.\d+)?)'[NE]!dms2rad( $1, $2, 0 )!go;
+    $expr =~ s!(\d+)°(\d+(?:\.\d+)?)'[SW]!dms2rad( -$1, -$2, 0 )!go;
+    $expr =~ s!(\d+(?:\.\d+)?)°[NE]!deg2rad( $1 )!go;
+    $expr =~ s!(\d+(?:\.\d+)?)°[SW]!deg2rad( -$1 )!go;
     $expr = &p2str( $expr );
     ##########
 
@@ -1433,6 +1442,9 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
     $expr =~ s!power!pow!go;
     ## alias
+    ## (?<!..): 否定的後読み
+    ## (?!..) : 否定的先読み
+    $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
     $expr =~ s!rs\(!ratio_scaling(!go;
     $expr =~ s!pf\(!prime_factorize(!go;
     $expr =~ s!dist\(!dist_between_points(!go;
@@ -2817,7 +2829,7 @@ $ c [I<OPTIONS...>] I<EXPRESSIONS>
 
 3.14159265358979
 
-=item TIME
+=item NOW
 
 CURRENT-TIME
 
@@ -2880,6 +2892,10 @@ dhms2sec
 
   If you want to display the calculation result,
   please use the --verbose option as well.
+
+=item --version
+
+Print the version of this script and Perl and exit.
 
 =item -h, --help
 
@@ -3060,17 +3076,17 @@ It might be convenient to register it as an alias:
 
 Current time in seconds since the epoch:
 
-  $ c time
+  $ c now
   1764003197
 
 In an easy-to-understand format:
 
-  $ c 'epoch2local( time )'
+  $ c 'epoch2local( now )'
   ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
 Time elapsed since a specified date:
 
-  $ c 'sec2dhms( time - local2epoch( 2011, 03, 11, 14, 46 ) )'
+  $ c 'sec2dhms( now - local2epoch( 2011, 03, 11, 14, 46 ) )'
   ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 Time interval:

@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.48 $
+- $Revision: 4.52 $
 
 - Script Structure
   - main
@@ -48,7 +48,7 @@ For details, please refer to [c.md](c.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.1 $
+- $Revision: 1.3 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -68,7 +68,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 1.2 $
+- $Revision: 2.3 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -130,7 +130,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.24 $
+- $Revision: 2.25 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

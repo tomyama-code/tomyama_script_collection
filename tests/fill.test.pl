@@ -116,6 +116,22 @@ subtest qq{"Usage" test} => sub{
     undef( $cmd );
 };
 
+subtest qq{"-v", "--version" option} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$FILLCMD --version} );
+    $cmd->exit_is_num( 0, qq{./fill --version} );
+    $cmd->stdout_like( qr/^Version: \d/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$FILLCMD -v} );
+    $cmd->exit_is_num( 0, qq{./fill -v} );
+    $cmd->stdout_like( qr/^Version: \d/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
+    undef( $cmd );
+
+};
+
 subtest qq{Counter format} => sub{
     subtest qq{Counter format: counter} => sub{
         $cmd = Test::Command->new( cmd => "$FILLCMD 1:1" );

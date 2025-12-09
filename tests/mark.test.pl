@@ -395,6 +395,22 @@ subtest qq{'-H', '--with-filename' option switch} => sub{
 
 };
 
+subtest qq{'-v', '--version' option switch} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD --version} );
+    $cmd->exit_is_num( 0, qq{./mark --version} );
+    $cmd->stdout_like( qr/^Version: \d/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$MARKCMD -v} );
+    $cmd->exit_is_num( 0, qq{./mark -v} );
+    $cmd->stdout_like( qr/^Version: \d/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
+    undef( $cmd );
+
+};
+
 subtest qq{'-i', '--ignore-case' option switch} => sub{
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );

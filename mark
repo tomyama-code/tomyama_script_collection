@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 1.2 $
+## - $Revision: 2.3 $
 ##
 ## - Author: 2006-2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -217,11 +217,11 @@ sub parse_arg()
     ## 引数分のループを回す
     while( my $myparam = shift( @val ) ){
         ## アルファベットは1文字ずつ（-d, -h, -w）
-        if( $myparam =~ s/^-([dfhHinc])([dfhHinc\d,]+)$/-$1/o ){
+        if( $myparam =~ s/^-([dfhHvinc])([dfhHvinc\d,]+)$/-$1/o ){
             my $remainparam = "-$2";
             ## （"(\d+)"の部分はperlの最大マッチに依存した記述。変更時は注意）
             if( $myparam eq '-f' ){
-                if( $remainparam =~ s/^-(\d+(?:,\d+)?)([dfhHinc]*)$/-$2/o ){
+                if( $remainparam =~ s/^-(\d+(?:,\d+)?)([dfhHvinc]*)$/-$2/o ){
                     if( $remainparam ne '-' ){
                         unshift( @val, $remainparam );
                     }
@@ -261,6 +261,9 @@ sub parse_arg()
             $opt_nofname = 1;
         }elsif( $myparam eq '--help' ){
             &usage( 0 );
+            exit( 0 );
+        }elsif( $myparam eq '-v' || $myparam eq '--version' ){
+            &PrintVersion();
             exit( 0 );
         }elsif( $myparam eq '-i' || $myparam eq '--ignore-case' ){
             $main::ignorecase = 1;
@@ -328,6 +331,31 @@ sub myerr()
     warn( qq{$main::appname: error: }, @_ );
 }
 
+## Revision: 1.1
+sub GetRevision()
+{
+    my $rev = q{$Revision: 2.3 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+sub GetVersion()
+{
+    my $rev = &GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    return $version;
+}
+sub PrintVersion()
+{
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
+}
+
 ##########
 ## 書式表示
 sub usage( $ )
@@ -355,6 +383,8 @@ sub usage( $ )
         qq{    Prefix each line of output with the line number within its input file.\n} .
         qq{  -c, --force-color:\n} .
         qq{    Enable highlighting even if STDOUT is not a TTY (pipe, redirect).\n} .
+        qq{  -v, --version:\n} .
+        qq{    Print the version of this script and Perl and exit.\n} .
         qq{  --help: Display this help and exit.\n} .
         qq{\n} .
         qq{Try "perldoc $main::apppath/$main::appname" for more information.\n};
@@ -407,6 +437,10 @@ If you specify 0, grep is more convenient.
 =item --help
 
 Display simple help and exit.
+
+=item -v, --version
+
+Print the version of this script and Perl and exit.
 
 =item -h, --no-filename
 

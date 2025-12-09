@@ -64,9 +64,13 @@ Notes:
 
     Enable debug output.
 
+- -v, --version
+
+    Print the version of this script and Perl and exit.
+
 - -h, --help
 
-    Display simple help and exit
+    Display simple help and exit.
 
 - -_N_
 

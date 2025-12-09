@@ -7,6 +7,19 @@
 ### Changed
 - xxx
 
+## [0.2.31] - 2025-12-10
+### Added
+- `fill` [1.01.002]: Added "--version" option.
+- `mark` [1.02.002]: Added "--version" option.
+
+### Changed
+- `c` [1.04.052]: The latitude and longitude format conversion section has been enhanced.
+- `c` [1.04.051]: "TIME", which indicates the current time, was difficult to understand, so it was changed to use "NOW".
+- Added --version option to help display and POD.
+  - `c` [1.04.049]
+  - `fill` [1.01.003]
+  - `mark` [1.02.003]
+
 ## [0.2.30] - 2025-12-09
 ### Added
 - `c` [1.04.047]: Add a function.

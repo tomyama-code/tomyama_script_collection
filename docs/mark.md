@@ -38,6 +38,10 @@ If it is a standard input, "**-**" is given.
 
     Display simple help and exit.
 
+- -v, --version
+
+    Print the version of this script and Perl and exit.
+
 - -h, --no-filename
 
     Suppress the prefixing of filenames on output when multiple files are searched.

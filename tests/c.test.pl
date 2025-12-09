@@ -39,7 +39,7 @@ my $cur_dir = getcwd();
 $apppath = $cur_dir . '/tests';
 my $TARGCMD = "./tests/cmd_wrapper";
 
-my $test_beg = `./c 'time'`;
+my $test_beg = `./c 'now'`;
 
 my $develCoverStatus = -1;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
@@ -784,14 +784,14 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( local2epoch( 2030, 1, 1 ) - time )'} );
-    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2030, 1, 1 ) - time )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( local2epoch( 2030, 1, 1 ) - now )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2030, 1, 1 ) - now )'} );
     $cmd->stdout_like( qr/^\( \d+, \d+, \d+, \d+ \)\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( gmt2epoch( 2020, 1, 1 ) - time )'} );
-    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2020, 1, 1 ) - time )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( gmt2epoch( 2020, 1, 1 ) - now )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( local2epoch( 2020, 1, 1 ) - now )'} );
     $cmd->stdout_like( qr/^\( \-\d+, \-?\d+, \-?\d+, \-?\d+ \)\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
@@ -1958,7 +1958,7 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $test_end = `./c 'time'`;
+my $test_end = `./c 'now'`;
 my $test_duration = $test_end - $test_beg;
 print( qq{$ENV{ 'TEST_TARGET_CMD' }: test: Begin: } . `./c 'epoch2local( $test_beg )'` );
 print( qq{$ENV{ 'TEST_TARGET_CMD' }: test:   End: } . `./c 'epoch2local( $test_end )'` );
