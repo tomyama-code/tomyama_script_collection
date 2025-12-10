@@ -7,15 +7,23 @@
 ### Changed
 - xxx
 
+## [0.2.32] - 2025-12-11
+### Changed
+- `c` [1.04.057]: The arguments of dms2deg() have been made variable so that they can be processed together.
+- `c` [1.04.056]: The arguments of rad2deg() and deg2dms() have been made variable so that they can be processed together.
+- `c` [1.04.054]: When it is judged as "Could not interpret", the user-defined value is also output.
+- `c` [1.04.053]: Added -u, --user-defined option to help display and POD.
+
 ## [0.2.31] - 2025-12-10
 ### Added
-- `fill` [1.01.002]: Added "--version" option.
-- `mark` [1.02.002]: Added "--version" option.
+- Added "--version" option.
+  - `fill` [1.01.002]
+  - `mark` [1.02.002]
 
 ### Changed
 - `c` [1.04.052]: The latitude and longitude format conversion section has been enhanced.
 - `c` [1.04.051]: "TIME", which indicates the current time, was difficult to understand, so it was changed to use "NOW".
-- Added --version option to help display and POD.
+- Added "--version" option to help display and POD.
   - `c` [1.04.049]
   - `fill` [1.01.003]
   - `mark` [1.02.003]

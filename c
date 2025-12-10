@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.52 $
+## - $Revision: 4.57 $
 ##
 ## - Script Structure
 ##   - main
@@ -132,6 +132,8 @@ sub GetHelpMsg()
         qq{  -r, --rpn:\n} .
         qq{    The expression will be displayed in Reverse Polish Notation,\n} .
         qq{    but the calculation result will not be shown.\n} .
+        qq{  -u, --user-defined:\n} .
+        qq{    Outputs a list of user-defined values ​​defined in ".c.rc".\n} .
         qq{  --version: Print the version of this script and Perl and exit.\n} .
         qq{  -h, --help: Display this help and exit.\n} .
         qq{\n} .
@@ -146,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.52 $};
+    my $rev = q{$Revision: 4.57 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -577,11 +579,11 @@ use constant {
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
-    H_R2DG => qq{rad2deg( <RADIANS> ) -> <DEGREES>. [Math::Trig]},
+    H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ). [Math::Trig]},
     H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
-    H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> ) -> decimal degrees (DD).},
-    H_D2DM => qq{deg2dms( <DEGREES> ) -> ( <DEG>, <MIN>, <SEC> ).},
+    H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
+    H_D2DM => qq{deg2dms( <DEGREES> [, <DEGREES>..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
     H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
     H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
     H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]},
@@ -658,11 +660,11 @@ use constant {
     'sqrt'                 => [ 290, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
     'pow'                  => [ 300, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
     'pow_inv'              => [ 310, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'              => [ 320, T_FUNCTION,     1, H_R2DG, sub{ &Math::Trig::rad2deg( $_[ 0 ] ) } ],
+    'rad2deg'              => [ 320, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
     'deg2rad'              => [ 330, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
     'dms2rad'              => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'              => [ 350, T_FUNCTION,     3, H_DEGM, sub{ &DMS2DEG( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'deg2dms'              => [ 360, T_FUNCTION,     1, H_D2DM, sub{ &DEG2DMS( $_[ 0 ] ) } ],
+    'dms2deg'              => [ 350, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'              => [ 360, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
     'sin'                  => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
     'cos'                  => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
     'tan'                  => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
@@ -843,6 +845,18 @@ sub LOG( $ )
     return log( $_[ 0 ] );
 }
 
+sub RAD2DEG( @ )
+{
+    my @deg_array = ();
+    for my $rad( @_ ){
+        #print( qq{\$rad="$rad"\n} );
+        my $deg = &Math::Trig::rad2deg( $rad );
+        push( @deg_array, $deg );
+    }
+    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
+    return @deg_array;
+}
+
 sub DEG2RAD( @ )
 {
     my @rad_array = ();
@@ -857,10 +871,16 @@ sub DEG2RAD( @ )
 
 sub DMS2DEG( $$$ )
 {
-    my $degrees = shift( @_ );
-    my $min = shift( @_ );
-    my $sec = shift( @_ );
-    return $degrees + ( $min / 60 ) + ( $sec / 3600 );
+    my @deg_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $deg = $degrees + ( $min / 60 ) + ( $sec / 3600 );
+        push( @deg_array, $deg );
+    }
+    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
+    return @deg_array;
 }
 
 sub DMS2RAD( $$$ )
@@ -879,13 +899,17 @@ sub DMS2RAD( $$$ )
 
 sub DEG2DMS( $ )
 {
-    my $deg = shift( @_ );
-    my $d = int( $deg );
-    $d = '-0' if( $d == 0 && $deg < 0 );
-    my $m_raw = ( $deg - $d ) * 60;
-    my $m = int( $m_raw );
-    my $s = ( $m_raw - $m ) * 60;
-    return ( $d, $m, $s );
+    my @dms_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $deg = shift( @_ );
+        my $d = int( $deg );
+        $d = '-0' if( $d == 0 && $deg < 0 );
+        my $m_raw = ( $deg - $d ) * 60;
+        my $m = int( $m_raw );
+        my $s = ( $m_raw - $m ) * 60;
+        push( @dms_array, $d, $m, $s );
+    }
+    return @dms_array;
 }
 
 sub rounddown( $$ )
@@ -1411,7 +1435,7 @@ sub FormulaNormalizationOneLine( $ )
     ##########
     ## コーディングが面倒になるので全角文字はこの区間内に留める事。
     $expr = &str2p( $expr );
-    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　”゛“’!a-za-z0-9,,.+***/^()= """'!;
+    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　”゛“’′!a-za-z0-9,,.+***/^()= """''!;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
     $expr =~ s!√!sqrt!go;
@@ -1836,6 +1860,10 @@ sub GetToken( \$ )
             my $fns = join( ', ', &TableProvider::GetFunctionsList() );
             my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
             $info .= $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
+            $info .= $self->GenMsg( 'info', qq{User Defined:\n} );
+            for my $ud( $self->GetConstants() ){
+                $info .= $self->GenMsg( 'info', $ud . "\n" );
+            }
             $self->Die( qq{"$$ref_expr": Could not interpret.\n$info} );
         }
     }
@@ -2732,7 +2760,6 @@ sub init_script()
     my $apppath = dirname( $0 );
     my $appname = basename( $0 );
     my $debug = 0;
-#    my $debug = 1;
     my $bTest = 0;
     my $bVerboseOutput = 0;
     my $bRpn = 0;
@@ -2843,7 +2870,8 @@ CURRENT-TIME
   ##
   ## - "c script" is not case-sensitive.
   ## - All keys are converted to lowercase.
-  ## - If you create definitions with different case, they will be overwritten by definitions loaded later.
+  ## - If you create definitions with different case,
+  ##   they will be overwritten by definitions loaded later.
 
   my %user_constant;
 
@@ -2892,6 +2920,10 @@ dhms2sec
 
   If you want to display the calculation result,
   please use the --verbose option as well.
+
+=item -u, --user-defined
+
+Outputs a list of user-defined values ​​defined in ".c.rc".
 
 =item --version
 
@@ -3353,7 +3385,7 @@ pow_inv( A, B ). Returns the power of A to which B is raised.
 
 =item C<rad2deg>
 
-rad2deg( I<RADIANS> ) -> I<DEGREES>. [Math::Trig]
+rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ). [Math::Trig]
 
 =item C<deg2rad>
 
@@ -3365,11 +3397,11 @@ dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> 
 
 =item C<dms2deg>
 
-dms2deg( I<DEG>, I<MIN>, I<SEC> ) -> decimal degrees (DD).
+dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
 
 =item C<deg2dms>
 
-deg2dms( I<DEGREES> ) -> ( I<DEG>, I<MIN>, I<SEC> ).
+deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
 
 =item C<sin>
 

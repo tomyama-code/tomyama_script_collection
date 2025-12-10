@@ -47,7 +47,8 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
         ##
         ## - "c script" is not case-sensitive.
         ## - All keys are converted to lowercase.
-        ## - If you create definitions with different case, they will be overwritten by definitions loaded later.
+        ## - If you create definitions with different case,
+        ##   they will be overwritten by definitions loaded later.
 
         my %user_constant;
 
@@ -92,6 +93,10 @@ dhms2sec
 
         If you want to display the calculation result,
         please use the --verbose option as well.
+
+- -u, --user-defined
+
+    Outputs a list of user-defined values ​​defined in ".c.rc".
 
 - --version
 
@@ -545,7 +550,7 @@ The **c** script was created with the following in mind:
 
 - `rad2deg`
 
-    rad2deg( _RADIANS_ ) -> _DEGREES_. \[Math::Trig\]
+    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ). \[Math::Trig\]
 
 - `deg2rad`
 
@@ -557,11 +562,11 @@ The **c** script was created with the following in mind:
 
 - `dms2deg`
 
-    dms2deg( _DEG_, _MIN_, _SEC_ ) -> decimal degrees (DD).
+    dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
 
 - `deg2dms`
 
-    deg2dms( _DEGREES_ ) -> ( _DEG_, _MIN_, _SEC_ ).
+    deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
 
 - `sin`
 

@@ -507,6 +507,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg( 2.26892802759263, 2.0943951023932 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'rad2deg( 2.26892802759263, 2.0943951023932 )'} );
+    $cmd->stdout_is_eq( qq{( 130, 120 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1920*tan(deg2rad(29.3577535427913))='} );
     $cmd->exit_is_num( 0, qq{./c '1920*tan(deg2rad(29.3577535427913))='} );
     $cmd->stdout_is_eq( qq{1080\n} );
@@ -555,6 +561,12 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( -90, -25, -23.9880000000255 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( -90, -25, -23.9880000000255 )'} );
     $cmd->stdout_is_eq( qq{-90.42333\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 35, 40, 52, 139, 46, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2deg( 35, 40, 52, 139, 46, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 35.6811111111111, 139.766666666667 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -691,6 +703,12 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( deg2dms( 0.3831 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( deg2dms( 0.3831 ) )'} );
     $cmd->stdout_is_eq( qq{0.3831\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( 40.6983333333333, 143.595 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'deg2dms( 40.6983333333333, 143.595 )'} );
+    $cmd->stdout_is_eq( qq{( 40, 41, 53.9999999998878, 143, 35, 41.9999999999959 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
