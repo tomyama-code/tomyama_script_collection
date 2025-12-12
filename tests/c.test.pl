@@ -712,6 +712,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2dms( -0.3831, 0, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2dms( -0.3831, 0, 0 )'} );
+    $cmd->stdout_is_eq( qq{( -0, -22, -59.16 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2dms( 0.3831, 0, 0, -69.00439, 0, 0, 39.5822, 0, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2dms( 0.3831, 0, 0, -69.00439, 0, 0, 39.5822, 0, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 22, 59.16, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_radius( deg2rad( 0 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'geo_radius( deg2rad( 0 ) ) / 1000 ='} );
     $cmd->stdout_is_eq( qq{6378.137\n}, qq{地球の赤道半径（km）} );

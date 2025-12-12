@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.33] - 2025-12-12
+### Added
+- `c` [1.04.059]: Add a function.
+  - dms2dms( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).
+
+### Changed
+- `c` [1.04.060]: Slightly corrected the notation of POD.
+
 ## [0.2.32] - 2025-12-11
 ### Changed
 - `c` [1.04.057]: The arguments of dms2deg() have been made variable so that they can be processed together.

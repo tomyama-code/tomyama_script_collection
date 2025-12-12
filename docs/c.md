@@ -71,10 +71,10 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
 get\_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
-pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat,
-geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec
+pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
+radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -431,31 +431,31 @@ The **c** script was created with the following in mind:
 
 - `abs`
 
-    abs( N ). Returns the absolute value of its argument. \[Perl Native\]
+    abs( _N_ ). Returns the absolute value of its argument. \[Perl Native\]
 
 - `int`
 
-    int( N ). Returns the integer portion of N. \[Perl Native\]
+    int( _N_ ). Returns the integer portion of _N_. \[Perl Native\]
 
 - `floor`
 
-    floor( N ). Returning the largest integer value less than or equal to the numerical argument. \[POSIX\]
+    floor( _N_ ). Returning the largest integer value less than or equal to the numerical argument. \[POSIX\]
 
 - `ceil`
 
-    ceil( N ). Returning the smallest integer value greater than or equal to the given numerical argument. \[POSIX\]
+    ceil( _N_ ). Returning the smallest integer value greater than or equal to the given numerical argument. \[POSIX\]
 
 - `rounddown`
 
-    rounddown( A, B ). Returns the value of A truncated to B decimal places.
+    rounddown( _A_, _B_ ). Returns the value of _A_ truncated to _B_ decimal places.
 
 - `round`
 
-    round( A, B ). Returns the value of A rounded to B decimal places.
+    round( _A_, _B_ ). Returns the value of _A_ rounded to _B_ decimal places.
 
 - `roundup`
 
-    roundup( A, B ). Returns the value of A rounded up to B decimal places.
+    roundup( _A_, _B_ ). Returns the value of _A_ rounded up to _B_ decimal places.
 
 - `pct`
 
@@ -479,43 +479,43 @@ The **c** script was created with the following in mind:
 
 - `gcd`
 
-    gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. \[Math::BigInt::bgcd()\]
+    gcd( _NUMBER1_,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. \[Math::BigInt::bgcd()\]
 
 - `lcm`
 
-    lcm( A,.. ). Returns the least common multiple (LCM). \[Math::BigInt::blcm()\]
+    lcm( _NUMBER1_,.. ). Returns the least common multiple (LCM). \[Math::BigInt::blcm()\]
 
 - `min`
 
-    min( A,.. ). Returns the entry in the list with the lowest numerical value. \[List::Util\]
+    min( _NUMBER1_,.. ). Returns the entry in the list with the lowest numerical value. \[List::Util\]
 
 - `max`
 
-    max( A,.. ). Returns the entry in the list with the highest numerical value. \[List::Util\]
+    max( _NUMBER1_,.. ). Returns the entry in the list with the highest numerical value. \[List::Util\]
 
 - `shuffle`
 
-    shuffle( A,.. ). Returns the values of the input in a random order. \[List::Util\]
+    shuffle( _NUMBER1_,.. ). Returns the values of the input in a random order. \[List::Util\]
 
 - `first`
 
-    first( A,.. ). Returns the head of the set.
+    first( _NUMBER1_,.. ). Returns the head of the set.
 
 - `uniq`
 
-    uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. \[List::Util\]
+    uniq( _NUMBER1_,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. \[List::Util\]
 
 - `sum`
 
-    sum( A,.. ). Returns the numerical sum of all the elements in the list. \[List::Util\]
+    sum( _NUMBER1_,.. ). Returns the numerical sum of all the elements in the list. \[List::Util\]
 
 - `prod`
 
-    prod( A,.. ). Returns the product of each value.
+    prod( _NUMBER1_,.. ). Returns the product of each value.
 
 - `avg`
 
-    avg( A,.. ). Returns the average value of all elements in a list.
+    avg( _NUMBER1_,.. ). Returns the average value of all elements in a list.
 
 - `linspace`
 
@@ -529,24 +529,24 @@ The **c** script was created with the following in mind:
 
 - `rand`
 
-    rand( N ).  Returns a random fractional number greater than or equal to 0 and
-    less than the value of N. \[Perl Native\]
+    rand( _N_ ).  Returns a random fractional number greater than or equal to 0 and
+    less than the value of _N_. \[Perl Native\]
 
 - `log`
 
-    log( N ). Returns the natural logarithm (base e) of N. \[Perl Native\]
+    log( _N_ ). Returns the natural logarithm (base e) of _N_. \[Perl Native\]
 
 - `sqrt`
 
-    sqrt( N ). Return the positive square root of N. Works only for non-negative operands. \[Perl Native\]
+    sqrt( _N_ ). Return the positive square root of _N_. Works only for non-negative operands. \[Perl Native\]
 
 - `pow`
 
-    pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 \*\* 3". \[Perl Native\]
+    pow( _A_, _B_ ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 \*\* 3". \[Perl Native\]
 
 - `pow_inv`
 
-    pow\_inv( A, B ). Returns the power of A to which B is raised.
+    pow\_inv( _A_, _B_ ). Returns the power of _A_ to which _B_ is raised.
 
 - `rad2deg`
 
@@ -568,6 +568,10 @@ The **c** script was created with the following in mind:
 
     deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
 
+- `dms2dms`
+
+    dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+
 - `sin`
 
     sin( _RADIANS_ ). Returns the sine of _RADIANS_. \[Perl Native\]
@@ -582,59 +586,59 @@ The **c** script was created with the following in mind:
 
 - `asin`
 
-    asin( N ). The arcus (also known as the inverse) functions of the sine. \[Math::Trig\]
+    asin( _RATIO_ ). The arcus (also known as the inverse) functions of the sine. \[Math::Trig\]
 
 - `acos`
 
-    acos( N ). The arcus (also known as the inverse) functions of the cosine. \[Math::Trig\]
+    acos( _RATIO_ ). The arcus (also known as the inverse) functions of the cosine. \[Math::Trig\]
 
 - `atan`
 
-    atan( N ). The arcus (also known as the inverse) functions of the tangent. \[Math::Trig\]
+    atan( _RATIO_ ). The arcus (also known as the inverse) functions of the tangent. \[Math::Trig\]
 
 - `atan2`
 
-    atan2( Y, X ). The principal value of the arc tangent of Y / X. \[Math::Trig\]
+    atan2( _Y_, _X_ ). The principal value of the arc tangent of _Y_ / _X_. \[Math::Trig\]
 
 - `hypot`
 
-    hypot( X, Y ). Equivalent to "sqrt( X \* X + Y \* Y )" except more stable on very large or very small arguments. \[POSIX\]
+    hypot( _X_, _Y_ ). Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments. \[POSIX\]
 
 - `slope_deg`
 
-    slope\_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).
+    slope\_deg( _X_, _Y_ ). Returns the straight line distance from (0,0) to (_X_,_Y_).
 
 - `dist_between_points`
 
-    dist\_between\_points( X1, Y1, X2, Y2 ) or dist\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().
+    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_). alias: dist().
 
 - `midpt_between_points`
 
-    midpt\_between\_points( X1, Y1, X2, Y2 ) or midpt\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().
+    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_). alias: midpt().
 
 - `angle_between_points`
 
-    angle\_between\_points( X1, Y1, X2, Y2 ) or angle\_between\_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().
+    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the angle (in degrees) from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_). alias: angle().
 
 - `geo_radius`
 
-    geo\_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+    geo\_radius( _LAT_ ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
 - `radius_of_lat`
 
-    radius\_of\_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+    radius\_of\_lat( _LAT_ ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 - `geo_distance`
 
-    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m().
+    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance\_m().
 
 - `geo_distance_m`
 
-    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance(). alias: gd\_m().
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance(). alias: gd\_m().
 
 - `geo_distance_km`
 
-    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000. alias: gd\_km().
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000. alias: gd\_km().
 
 - `local2epoch`
 

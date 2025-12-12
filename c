@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.57 $
+## - $Revision: 4.60 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.57 $};
+    my $rev = q{$Revision: 4.60 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -558,20 +558,20 @@ use constant {
     H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
     H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
-    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
+    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of I<X> in A:B=C:I<X>. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
     H_PRIM => qq{is_prime( NUM ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
-    H_GCD_ => qq{gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
-    H_LCM_ => qq{lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
-    H_MIN_ => qq{min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
-    H_MAX_ => qq{max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
-    H_SHFL => qq{shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]},
-    H_FRST => qq{first( A,.. ). Returns the head of the set.},
-    H_UNIQ => qq{uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
-    H_SUM_ => qq{sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
-    H_PROD => qq{prod( A,.. ). Returns the product of each value.},
-    H_AVRG => qq{avg( A,.. ). Returns the average value of all elements in a list.},
+    H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
+    H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
+    H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
+    H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
+    H_SHFL => qq{shuffle( NUMBER1,.. ). Returns the values of the input in a random order. [List::Util]},
+    H_FRST => qq{first( NUMBER1,.. ). Returns the head of the set.},
+    H_UNIQ => qq{uniq( NUMBER1,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
+    H_SUM_ => qq{sum( NUMBER1,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
+    H_PROD => qq{prod( NUMBER1,.. ). Returns the product of each value.},
+    H_AVRG => qq{avg( NUMBER1,.. ). Returns the average value of all elements in a list.},
     H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. If ROUND is set to true, the numbers are rounded down to integers.},
     H_LNST => qq{linstep( START, STEP, COUNT ). Generates a list of COUNT numbers that increase from START by STEP.},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
@@ -584,6 +584,7 @@ use constant {
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
     H_D2DM => qq{deg2dms( <DEGREES> [, <DEGREES>..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
+    H_DMDM => qq{dms2dms( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
     H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
     H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
     H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]},
@@ -665,6 +666,7 @@ use constant {
     'dms2rad'              => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
     'dms2deg'              => [ 350, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
     'deg2dms'              => [ 360, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'              => [ 365, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
     'sin'                  => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
     'cos'                  => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
     'tan'                  => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
@@ -907,6 +909,23 @@ sub DEG2DMS( $ )
         my $m_raw = ( $deg - $d ) * 60;
         my $m = int( $m_raw );
         my $s = ( $m_raw - $m ) * 60;
+        push( @dms_array, $d, $m, $s );
+    }
+    return @dms_array;
+}
+
+sub DMS2DMS( $$$ )
+{
+    my @dms_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $d = int( $degrees );
+        $d = '-0' if( $d == 0 && $degrees < 0 );
+        my $m_raw = ( ( $degrees - $d ) * 60 ) + $min;
+        my $m = int( $m_raw );
+        my $s = ( ( $m_raw - $m ) * 60 ) + $sec;
         push( @dms_array, $d, $m, $s );
     }
     return @dms_array;
@@ -2896,10 +2915,10 @@ CURRENT-TIME
 
 abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
 get_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
-pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius, radius_of_lat,
-geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec
+pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
+radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec
 
 =head1 OPTIONS
 
@@ -3266,31 +3285,31 @@ but it is not necessary. C<1 + 2 =>. Similarly, C<1 + 2>.
 
 =item C<abs>
 
-abs( N ). Returns the absolute value of its argument. [Perl Native]
+abs( I<N> ). Returns the absolute value of its argument. [Perl Native]
 
 =item C<int>
 
-int( N ). Returns the integer portion of N. [Perl Native]
+int( I<N> ). Returns the integer portion of I<N>. [Perl Native]
 
 =item C<floor>
 
-floor( N ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]
+floor( I<N> ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]
 
 =item C<ceil>
 
-ceil( N ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]
+ceil( I<N> ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]
 
 =item C<rounddown>
 
-rounddown( A, B ). Returns the value of A truncated to B decimal places.
+rounddown( I<A>, I<B> ). Returns the value of I<A> truncated to I<B> decimal places.
 
 =item C<round>
 
-round( A, B ). Returns the value of A rounded to B decimal places.
+round( I<A>, I<B> ). Returns the value of I<A> rounded to I<B> decimal places.
 
 =item C<roundup>
 
-roundup( A, B ). Returns the value of A rounded up to B decimal places.
+roundup( I<A>, I<B> ). Returns the value of I<A> rounded up to I<B> decimal places.
 
 =item C<pct>
 
@@ -3314,43 +3333,43 @@ get_prime( I<BIT_WIDTH> ). Returns a random prime number within the range of I<B
 
 =item C<gcd>
 
-gcd( A,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]
+gcd( I<NUMBER1>,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]
 
 =item C<lcm>
 
-lcm( A,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]
+lcm( I<NUMBER1>,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]
 
 =item C<min>
 
-min( A,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]
+min( I<NUMBER1>,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]
 
 =item C<max>
 
-max( A,.. ). Returns the entry in the list with the highest numerical value. [List::Util]
+max( I<NUMBER1>,.. ). Returns the entry in the list with the highest numerical value. [List::Util]
 
 =item C<shuffle>
 
-shuffle( A,.. ). Returns the values of the input in a random order. [List::Util]
+shuffle( I<NUMBER1>,.. ). Returns the values of the input in a random order. [List::Util]
 
 =item C<first>
 
-first( A,.. ). Returns the head of the set.
+first( I<NUMBER1>,.. ). Returns the head of the set.
 
 =item C<uniq>
 
-uniq( A,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]
+uniq( I<NUMBER1>,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]
 
 =item C<sum>
 
-sum( A,.. ). Returns the numerical sum of all the elements in the list. [List::Util]
+sum( I<NUMBER1>,.. ). Returns the numerical sum of all the elements in the list. [List::Util]
 
 =item C<prod>
 
-prod( A,.. ). Returns the product of each value.
+prod( I<NUMBER1>,.. ). Returns the product of each value.
 
 =item C<avg>
 
-avg( A,.. ). Returns the average value of all elements in a list.
+avg( I<NUMBER1>,.. ). Returns the average value of all elements in a list.
 
 =item C<linspace>
 
@@ -3364,24 +3383,24 @@ linstep( I<START>, I<STEP>, I<COUNT> ). Generates a list of I<COUNT> numbers tha
 
 =item C<rand>
 
-rand( N ).  Returns a random fractional number greater than or equal to 0 and
-less than the value of N. [Perl Native]
+rand( I<N> ).  Returns a random fractional number greater than or equal to 0 and
+less than the value of I<N>. [Perl Native]
 
 =item C<log>
 
-log( N ). Returns the natural logarithm (base e) of N. [Perl Native]
+log( I<N> ). Returns the natural logarithm (base e) of I<N>. [Perl Native]
 
 =item C<sqrt>
 
-sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]
+sqrt( I<N> ). Return the positive square root of I<N>. Works only for non-negative operands. [Perl Native]
 
 =item C<pow>
 
-pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]
+pow( I<A>, I<B> ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]
 
 =item C<pow_inv>
 
-pow_inv( A, B ). Returns the power of A to which B is raised.
+pow_inv( I<A>, I<B> ). Returns the power of I<A> to which I<B> is raised.
 
 =item C<rad2deg>
 
@@ -3403,6 +3422,10 @@ dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> 
 
 deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
 
+=item C<dms2dms>
+
+dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+
 =item C<sin>
 
 sin( I<RADIANS> ). Returns the sine of I<RADIANS>. [Perl Native]
@@ -3417,59 +3440,59 @@ tan( I<RADIANS> ). Returns the tangent of I<RADIANS>. [Math::Trig]
 
 =item C<asin>
 
-asin( N ). The arcus (also known as the inverse) functions of the sine. [Math::Trig]
+asin( I<RATIO> ). The arcus (also known as the inverse) functions of the sine. [Math::Trig]
 
 =item C<acos>
 
-acos( N ). The arcus (also known as the inverse) functions of the cosine. [Math::Trig]
+acos( I<RATIO> ). The arcus (also known as the inverse) functions of the cosine. [Math::Trig]
 
 =item C<atan>
 
-atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]
+atan( I<RATIO> ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]
 
 =item C<atan2>
 
-atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]
+atan2( I<Y>, I<X> ). The principal value of the arc tangent of I<Y> / I<X>. [Math::Trig]
 
 =item C<hypot>
 
-hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]
+hypot( I<X>, I<Y> ). Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments. [POSIX]
 
 =item C<slope_deg>
 
-slope_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).
+slope_deg( I<X>, I<Y> ). Returns the straight line distance from (0,0) to (I<X>,I<Y>).
 
 =item C<dist_between_points>
 
-dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().
+dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>). alias: dist().
 
 =item C<midpt_between_points>
 
-midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().
+midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>). alias: midpt().
 
 =item C<angle_between_points>
 
-angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().
+angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the angle (in degrees) from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>). alias: angle().
 
 =item C<geo_radius>
 
-geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+geo_radius( I<LAT> ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
 
 =item C<radius_of_lat>
 
-radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+radius_of_lat( I<LAT> ). Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 =item C<geo_distance>
 
-geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().
+geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance_m().
 
 =item C<geo_distance_m>
 
-geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().
 
 =item C<geo_distance_km>
 
-geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().
 
 =item C<local2epoch>
 
