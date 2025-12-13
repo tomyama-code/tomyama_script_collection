@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.34] - 2025-12-14
+### Added
+- `c` [1.04.064]: Add a function.
+  - exp( N ). Returns e (the natural logarithm base) to the power of N. [Perl Native]
+  - age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.
+  - nCr( N, R ). N Choose R. A combination of R items selected from N items. N and R are positive integers.
+  - is_leap( YEAR ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.
+
 ## [0.2.33] - 2025-12-12
 ### Added
 - `c` [1.04.059]: Add a function.

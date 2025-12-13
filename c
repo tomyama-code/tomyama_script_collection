@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.60 $
+## - $Revision: 4.64 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.60 $};
+    my $rev = q{$Revision: 4.64 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -550,6 +550,7 @@ use constant {
     H_COMA => qq{The separator that separates function arguments.},
     H_BEND => qq{A symbol that controls the priority of calculations.},
     H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
+    H_POEX => qq{exp( N ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
     H_ABS_ => qq{abs( N ). Returns the absolute value of its argument. [Perl Native]},
     H_INT_ => qq{int( N ). Returns the integer portion of N. [Perl Native]},
     H_FLOR => qq{floor( N ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
@@ -564,6 +565,7 @@ use constant {
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
     H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
+    H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N and R are positive integers.},
     H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( NUMBER1,.. ). Returns the values of the input in a random order. [List::Util]},
@@ -602,6 +604,8 @@ use constant {
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
+    H_LEAP => qq{is_leap( YEAR ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
+    H_AOMN => qq{age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch.},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch.},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
@@ -632,6 +636,7 @@ use constant {
     'BEGIN'                => [  18, T_OTHER,        0, undef  ],
     '#'                    => [  19, T_SENTINEL,    -1, undef  ],
     'testfunc'             => [  20, T_OTHER,        1, undef  ],
+    'exp'                  => [  25, T_FUNCTION,     1, H_POEX, sub{ exp( $_[ 0 ] ) } ],
     'abs'                  => [  30, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
     'int'                  => [  40, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
     'floor'                => [  50, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
@@ -646,6 +651,7 @@ use constant {
     'get_prime'            => [ 140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
     'gcd'                  => [ 150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
     'lcm'                  => [ 160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'ncr'                  => [ 165, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
     'min'                  => [ 170, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
     'max'                  => [ 180, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
     'shuffle'              => [ 190, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
@@ -684,6 +690,8 @@ use constant {
     'geo_distance'         => [ 510, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_m'       => [ 520, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_km'      => [ 530, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'              => [ 535, T_FUNCTION,     1, H_LEAP, sub{ &is_leap( $_[ 0 ] ) } ],
+    'age_of_moon'          => [ 538, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'local2epoch'          => [ 540, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
     'gmt2epoch'            => [ 550, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
     'epoch2local'          => [ 560, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
@@ -1073,6 +1081,23 @@ sub get_prime_num( $ )
     }
 }
 
+sub nCr( $$ )
+{
+    my( $n, $r ) = @_;
+    if( ( $n < 0 ) || ( $n != int( $n ) ) ){
+        die( qq{nCr( $n, $r ): N="$n": The argument must be a positive integer.\n} );
+    }
+    if( ( $r <= 0 ) || ( $r != int( $r ) ) ){
+        die( qq{nCr( $n, $r ): R="$r": The argument must be a positive integer.\n} );
+    }
+    my @numerator_array = &LINSTEP( $n, -1, $r );
+    my @denominator_array = &LINSTEP( $r, -1, $r );
+    my $numerator = &prod( @numerator_array );
+    my $denominator = &prod( @denominator_array );
+    my $res = $numerator / $denominator;
+    return $res;
+}
+
 sub prod( @ )
 {
     my $product = 1;
@@ -1303,6 +1328,29 @@ sub distance_between_points( $$$$ )
 sub distance_between_points_km( $$$$ )
 {
     return &distance_between_points( @_ ) / 1000;
+}
+
+sub is_leap( $ )
+{
+    my $year = shift( @_ );
+    my $retBool = ( ( ( $year % 4 == 0 ) &&
+                      ( ( $year % 100 != 0 ) ||
+                        ( $year % 400 == 0 ) )
+                    ) ? 1 : 0 );
+    return $retBool;
+}
+
+sub age_of_moon( $$$ )
+{
+    my $y = shift( @_ );
+    my $m = shift( @_ );
+    my $d = shift( @_ );
+    my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
+    #printf ("DATE: %04d/%02d/%02d\n", $y, $m, $d) ;
+
+    my $age = ( ( ( $y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
+
+    return $age ;
 }
 
 sub local2epoch( $$$;$$$ )
@@ -2913,12 +2961,12 @@ CURRENT-TIME
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
-pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+exp, abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
+get_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log,
+sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
-radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec
+radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch,
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 =head1 OPTIONS
 
@@ -2995,10 +3043,28 @@ please use the I<-v> or I<--verbose> option switch.
 
 Several functions are also available.
 
-  $ c 'sqrt(power(1920,2)+power(1080,2))='
+  $ c 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='
   2202.9071700823
 
 Example of using the functions.
+
+What combinations involve choosing 4 out of 6 ?
+
+  $ c 'nCr( 6, 4 )'
+  15
+
+Alternative Method
+
+  $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )' -v
+  linstep( 6, -1, 4 ) = ( 6, 5, 4, 3 )
+  prod( 6, 5, 4, 3 ) = 360
+  linstep( 4, -1, 4 ) = ( 4, 3, 2, 1 )
+  prod( 4, 3, 2, 1 ) = 24
+  360 / 24 = 15
+  Formula: 'prod( linstep( 6 , -1 , 4 ) ) / prod( linstep( 4 , -1 , 4 ) ) ='
+      RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
+   Result: 15
+
 The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
 and the radians of an arbitrarily selected value are calculated.
 
@@ -3283,6 +3349,10 @@ but it is not necessary. C<1 + 2 =>. Similarly, C<1 + 2>.
 
 =over 8
 
+=item C<exp>
+
+exp( I<N> ). Returns e (the natural logarithm base) to the power of I<N>. [Perl Native]
+
 =item C<abs>
 
 abs( I<N> ). Returns the absolute value of its argument. [Perl Native]
@@ -3338,6 +3408,10 @@ gcd( I<NUMBER1>,.. ). Returns the greatest common divisor (GCD), which is the la
 =item C<lcm>
 
 lcm( I<NUMBER1>,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]
+
+=item C<ncr>
+
+nCr( I<N>, I<R> ). I<N> Choose I<R>. A combination of I<R> items selected from I<N> items. I<N> and I<R> are positive integers.
 
 =item C<min>
 
@@ -3493,6 +3567,14 @@ geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns
 =item C<geo_distance_km>
 
 geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().
+
+=item C<is_leap>
+
+is_leap( I<YEAR> ). Leap year test: Returns 1 if I<YEAR> is a leap year, 0 otherwise.
+
+=item C<age_of_moon>
+
+age_of_moon( I<Y>, I<m>, I<d> ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.
 
 =item C<local2epoch>
 

@@ -802,6 +802,48 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_leap( 1900 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_leap( 1900 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_leap( 1996 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_leap( 1996 )'} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_leap( 1999 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_leap( 1999 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_leap( 2000 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_leap( 2000 )'} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 13 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 13 )'} );
+    $cmd->stdout_is_eq( qq{23\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 19 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 19 )'} );
+    $cmd->stdout_is_eq( qq{29\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 20 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 20 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'local2epoch( 2000, 12, 31, 23, 59, 59 )'} );
     $cmd->exit_is_num( 0, qq{./c 'local2epoch( 2000, 12, 31, 23, 59, 59 )'} );
     $cmd->stdout_is_eq( qq{978274799\n} );
@@ -841,6 +883,48 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( -2, 3, -4, 5 ) )'} );
     $cmd->stdout_is_eq( qq{( 2019, 12, 30, 17, 56, 5 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -2.3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( -2.3 )'} );
+    $cmd->stdout_is_eq( qq{0.100258843722804\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( -2 )'} );
+    $cmd->stdout_is_eq( qq{0.135335283236613\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( -1 )'} );
+    $cmd->stdout_is_eq( qq{0.367879441171442\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( 0 )'} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( 1 )'} );
+    $cmd->stdout_is_eq( qq{2.71828182845905\n}, qq{Napier's number} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 2 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( 2 )'} );
+    $cmd->stdout_is_eq( qq{7.38905609893065\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 2.3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'exp( 2.3 )'} );
+    $cmd->stdout_is_eq( qq{9.97418245481472\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1333,6 +1417,42 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'lcm( 1920, 1080 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'lcm( 1920, 1080 ) ='} );
     $cmd->stdout_is_eq( qq{17280\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( -1.0, 2.0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'ncr( -1.0, 2.0 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( \-1, 2 \): N="\-1": The argument must be a positive integer\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.1, 2.0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.1, 2.0 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1\.1, 2 \): N="1\.1": The argument must be a positive integer\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.0, 0 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 0 \): R="0": The argument must be a positive integer\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 2.1 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.0, 2.1 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 2\.1 \): R="2\.1": The argument must be a positive integer\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 2.0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'ncr( 1.0, 2.0 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 7.0, 2.0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'ncr( 7.0, 2.0 )'} );
+    $cmd->stdout_is_eq( qq{21\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

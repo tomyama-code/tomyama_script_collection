@@ -69,12 +69,12 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log, sqrt,
-pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+exp, abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
+get\_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log,
+sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec
+radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
 
 # OPTIONS
 
@@ -147,10 +147,28 @@ please use the _-v_ or _--verbose_ option switch.
 
 Several functions are also available.
 
-    $ c 'sqrt(power(1920,2)+power(1080,2))='
+    $ c 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='
     2202.9071700823
 
 Example of using the functions.
+
+What combinations involve choosing 4 out of 6 ?
+
+    $ c 'nCr( 6, 4 )'
+    15
+
+Alternative Method
+
+    $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )' -v
+    linstep( 6, -1, 4 ) = ( 6, 5, 4, 3 )
+    prod( 6, 5, 4, 3 ) = 360
+    linstep( 4, -1, 4 ) = ( 4, 3, 2, 1 )
+    prod( 4, 3, 2, 1 ) = 24
+    360 / 24 = 15
+    Formula: 'prod( linstep( 6 , -1 , 4 ) ) / prod( linstep( 4 , -1 , 4 ) ) ='
+        RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
+     Result: 15
+
 The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
 and the radians of an arbitrarily selected value are calculated.
 
@@ -429,6 +447,10 @@ The **c** script was created with the following in mind:
 
 # FUNCTIONS
 
+- `exp`
+
+    exp( _N_ ). Returns e (the natural logarithm base) to the power of _N_. \[Perl Native\]
+
 - `abs`
 
     abs( _N_ ). Returns the absolute value of its argument. \[Perl Native\]
@@ -484,6 +506,10 @@ The **c** script was created with the following in mind:
 - `lcm`
 
     lcm( _NUMBER1_,.. ). Returns the least common multiple (LCM). \[Math::BigInt::blcm()\]
+
+- `ncr`
+
+    nCr( _N_, _R_ ). _N_ Choose _R_. A combination of _R_ items selected from _N_ items. _N_ and _R_ are positive integers.
 
 - `min`
 
@@ -639,6 +665,14 @@ The **c** script was created with the following in mind:
 - `geo_distance_km`
 
     geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000. alias: gd\_km().
+
+- `is_leap`
+
+    is\_leap( _YEAR_ ). Leap year test: Returns 1 if _YEAR_ is a leap year, 0 otherwise.
+
+- `age_of_moon`
+
+    age\_of\_moon( _Y_, _m_, _d_ ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.
 
 - `local2epoch`
 
