@@ -886,6 +886,92 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'laptimer( 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'laptimer( 0 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'laptimer( 1 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'laptimer( 1 )'} );
+    $cmd->stdout_like( qr/^Elaps         Date\-Time\n/ );
+    $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{printf "\n\n" | $TARGCMD 'laptimer( 2 )'} );
+    $cmd->exit_is_num( 0, qq{printf "\n\n" | ./c 'laptimer( 2 )'} );
+    $cmd->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
+    $cmd->stdout_like( qr/\n2\/2  00:00:00\./ );
+    $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{printf "\nq\n" | $TARGCMD 'laptimer( 10 )'} );
+    $cmd->exit_is_num( 0, qq{printf "\nq\n" | ./c 'laptimer( 10 )'} );
+    $cmd->stdout_like( qr/^Lap    Split\-Time    Lap\-Time      Date\-Time\n/ );
+    $cmd->stdout_like( qr/\n 2\/10  00:00:00\./ );
+    $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'stopwatch( 1 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'stopwatch( 1 )'} );
+    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'stopwatch( 0 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'stopwatch( 0 )'} );
+    $cmd->stdout_like( qr/^0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm( 0, 10 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm( 0, 10 )'} );
+    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm15( 0 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm15( 0 )'} );
+    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm30( 1 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm30( 1 )'} );
+    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'tachymeter( 1 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'tachymeter( 1 )'} );
+    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'telemeter( stopwatch( 0 ) )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'telemeter( stopwatch( 0 ) )'} );
+    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'telemeter_m( 8 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'telemeter_m( 8 )'} );
+    $cmd->stdout_is_eq( qq{2720\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'telemeter_km( 8 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'telemeter_km( 8 )'} );
+    $cmd->stdout_is_eq( qq{2.72\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -2.3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( -2.3 )'} );
     $cmd->stdout_is_eq( qq{0.100258843722804\n} );
@@ -1228,44 +1314,44 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 3 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'pct( 2, 3 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3 )'} );
     $cmd->stdout_is_eq( qq{66.6666666666667\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 3, 1 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'pct( 2, 3, 1 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3, 1 )'} );
     $cmd->stdout_is_eq( qq{66.7\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 3, 0 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'pct( 2, 3, 0 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3, 0 )'} );
     $cmd->stdout_is_eq( qq{67\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 3, -1 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'pct( 2, 3, -1 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3, -1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3, -1 )'} );
     $cmd->stdout_is_eq( qq{70\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2 )'} );
-    $cmd->exit_isnt_num( 0, qq{./c 'pct( 2 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'percentage( 2 )'} );
     $cmd->stdout_is_eq( qq{} );
-    $cmd->stderr_like( qr/^c: evaluator: error: pct: Not enough operands.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: percentage: Not enough operands.\n/ );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct()'} );
-    $cmd->exit_isnt_num( 0, qq{./c 'pct()'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage()'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'percentage()'} );
     $cmd->stdout_is_eq( qq{} );
-    $cmd->stderr_like( qr/^c: evaluator: error: "pct": Operand missing\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: "percentage": Operand missing\.\n/ );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 0 )'} );
-    $cmd->exit_isnt_num( 0, qq{./c 'pct( 2, 0 )'} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'percentage( 2, 0 )'} );
     $cmd->stdout_is_eq( qq{} );
     $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
     undef( $cmd );
@@ -1806,6 +1892,12 @@ subtest qq{Normal} => sub{
 
 subtest qq{aliases} => sub{
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pct( 2, 3, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'pct( 2, 3, 1 )'} );
+    $cmd->stdout_is_eq( qq{66.7\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rs( 3, 10, 20 )'} );
     $cmd->exit_is_num( 0, qq{./c 'rs( 3, 10, 20 )'} );
     $cmd->stdout_is_eq( qq{66.6666666666667\n} );
@@ -1845,6 +1937,21 @@ subtest qq{aliases} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->stdout_is_eq( qq{14091.3660897614\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{printf "\n\n" | $TARGCMD 'lt( 2 )'} );
+    $cmd->exit_is_num( 0, qq{printf "\n\n" | ./c 'lt( 2 )'} );
+    $cmd->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
+    $cmd->stdout_like( qr/\n2\/2  00:00:00\./ );
+    $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'sw( 1 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'sw( 1 )'} );
+    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n0\./ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

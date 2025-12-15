@@ -74,7 +74,8 @@ get\_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linsp
 sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
 radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -479,9 +480,9 @@ The **c** script was created with the following in mind:
 
     roundup( _A_, _B_ ). Returns the value of _A_ rounded up to _B_ decimal places.
 
-- `pct`
+- `percentage`
 
-    pct( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ). Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified.
+    percentage( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ). Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified. alias: pct().
 
 - `ratio_scaling`
 
@@ -698,6 +699,42 @@ The **c** script was created with the following in mind:
 
     dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _DURATION\_SEC_ ).
 
+- `laptimer`
+
+    laptimer( _LAPS_ ). Each time you press Enter, the split time is measured and the time taken to measure _LAPS_ is returned. If _LAPS_ is set to a negative value, the split time is not output. alias: lt().
+
+- `stopwatch`
+
+    stopwatch( _B\_PRINT_ ). Measures the time until the Enter key is pressed. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen. alias: sw().
+
+- `bpm`
+
+    bpm( _B\_PRINT_, _COUNT_ ). Once you have confirmed the _COUNT_ number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+
+- `bpm15`
+
+    bpm15( _B\_PRINT_ ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+
+- `bpm30`
+
+    bpm30( _B\_PRINT_ ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+
+- `tachymeter`
+
+    tachymeter( _B\_PRINT_ ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen. Same as ratio\_scaling( stopwatch( _B\_PRINT_ ), 1, 3600 ).
+
+- `telemeter`
+
+    telemeter( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in meters. Same as telemeter\_m().
+
+- `telemeter_m`
+
+    telemeter\_m( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in meters. Same as telemeter().
+
+- `telemeter_km`
+
+    telemeter\_km( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in kilometers. Same as telemeter\_m() / 1000.
+
 # Environmental requirements
 
 ## List of modules used
@@ -712,6 +749,7 @@ The **c** script was created with the following in mind:
 - Math::Trig — first included in perl 5.004
 - POSIX — first included in perl 5
 - strict — first included in perl 5
+- Time::HiRes - first included in perl v5.7.3
 - Time::Local - first included in perl 5
 - utf8 — first included in perl v5.6.0
 - warnings — first included in perl v5.6.0
@@ -740,6 +778,7 @@ The **c** script was created with the following in mind:
 - [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt)
 - [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig)
 - [POSIX](https://metacpan.org/pod/POSIX)
+- [Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes)
 - [Time::Local](https://metacpan.org/pod/Time%3A%3ALocal)
 
 # AUTHOR

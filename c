@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.64 $
+## - $Revision: 4.66 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.64 $};
+    my $rev = q{$Revision: 4.66 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -425,6 +425,7 @@ use Math::BigInt;
 use Math::Trig; ## pi, rad2deg(), deg2rad()
 use List::Util; ## min(), max(), shuffle(), uniq, sum()
 use Time::Local;    # timelocal(), timegm()
+use Time::HiRes;
 
 use constant {
     O_INDX => 0,
@@ -558,7 +559,7 @@ use constant {
     H_RODD => qq{rounddown( A, B ). Returns the value of A truncated to B decimal places.},
     H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
     H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
-    H_PCTG => qq{pct( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified.},
+    H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
     H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of I<X> in A:B=C:I<X>. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
     H_PRIM => qq{is_prime( NUM ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
@@ -612,6 +613,15 @@ use constant {
     H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ).},
     H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( DURATION_SEC ).},
+    H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
+    H_STWC => qq{stopwatch( B_PRINT ). Measures the time until the Enter key is pressed. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen. alias: sw().},
+    H_BPMR => qq{bpm( B_PRINT, COUNT ). Once you have confirmed the COUNT number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
+    H_BPM1 => qq{bpm15( B_PRINT ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
+    H_BPM3 => qq{bpm30( B_PRINT ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
+    H_TACH => qq{tachymeter( B_PRINT ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen. Same as ratio_scaling( stopwatch( B_PRINT ), 1, 3600 ).},
+    H_TLMR => qq{telemeter( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter_m().},
+    H_TM_M => qq{telemeter_m( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter().},
+    H_TMKM => qq{telemeter_km( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. Same as telemeter_m() / 1000.},
 };
 
 %TableProvider::operators = (
@@ -644,7 +654,7 @@ use constant {
     'rounddown'            => [  70, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
     'round'                => [  80, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
     'roundup'              => [  90, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'pct'                  => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'percentage'           => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
     'ratio_scaling'        => [ 110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
     'is_prime'             => [ 120, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
     'prime_factorize'      => [ 130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
@@ -698,6 +708,15 @@ use constant {
     'epoch2gmt'            => [ 570, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
     'sec2dhms'             => [ 580, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
     'dhms2sec'             => [ 590, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'laptimer'             => [ 600, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'stopwatch'            => [ 610, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
+    'bpm'                  => [ 620, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                => [ 630, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
+    'bpm30'                => [ 640, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
+    'tachymeter'           => [ 650, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'            => [ 660, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
+    'telemeter_m'          => [ 670, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
+    'telemeter_km'         => [ 680, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -973,7 +992,7 @@ sub percentage( $$;$ )
     my $numerator = shift( @_ );
     my $denominator = shift( @_ );
     if( !defined( $denominator ) ){
-        die( qq{pct: Not enough operands.\n} );
+        die( qq{percentage: Not enough operands.\n} );
     }
     my $decimal_places = undef;
     $decimal_places = shift( @_ ) if( defined( $_[ 0 ] ) );
@@ -1436,6 +1455,137 @@ sub dhms2sec( $;$$$ )
     return $duration_sec;
 }
 
+sub msec2hms( $ )
+{
+    my $duration = shift( @_ );
+    #print( qq{\$duration="$duration"\n} );
+
+    my $sec = $duration % 60;
+    $sec += $duration - int( $duration );
+    #print( qq{\$sec="$sec"\n} );
+    my $remain = int( $duration / 60 );
+    my $minute = $remain % 60;
+    $remain = int( $remain / 60 );
+    my $hour = $remain % 24;
+
+    return ( $hour, $minute, $sec );
+}
+
+sub laptimer( $ )
+{
+    my $cycle = shift( @_ );
+    my $b_print = 1;
+    $b_print = 0 if( $cycle < 0 );
+    $cycle = int( abs( $cycle ) );
+    my $remain = $cycle;
+    my $beg = &Time::HiRes::time();
+    #print( qq{\$beg=$beg\n} );
+    my $lap_last = $beg;
+    my $spl_time = 0;
+    my $cycle_w = length( $cycle );
+    my $lap_w = ( $cycle_w * 2 ) + 1;
+    if( $cycle && $b_print ){
+        if( $cycle == 1 ){
+            print( qq{Elaps         Date-Time\n} );
+            print( qq{------------  -------------------\n} );
+        }else{
+            printf( qq{%-${lap_w}s  Split-Time    Lap-Time      Date-Time\n}, 'Lap' );
+            print( '-' x $lap_w . qq{  ------------  ------------  -------------------\n} );
+        }
+    }
+    while( $remain-- != 0 ){
+        my $seq = $cycle - $remain;
+        #print( qq{\$remain=$remain\n} );
+        my $line = readline( STDIN );
+        $line =~ s/\r?\n$//o;
+        #print( qq{\$line="$line"\n} );
+        if( $line ne '' ){
+            $remain = 0;
+        }
+        my $lap = &Time::HiRes::time();
+        $spl_time = $lap - $beg;
+        my $lap_time = $lap - $lap_last;
+        $lap_last = $lap;
+        my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( int( $lap ) );
+        $year += 1900;
+        $month += 1;
+        my @st = &msec2hms( $spl_time );
+        my @lt = &msec2hms( $lap_time );
+        if( $b_print ){
+            if( $cycle == 1 ){
+                printf( qq{%02d:%02d:%06.3f  } .
+                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
+                    $year, $month, $mday, $hour, $minute, $sec );
+            }else{
+                printf( qq{%${cycle_w}d/%${cycle_w}d  %02d:%02d:%06.3f  %02d:%02d:%06.3f  } .
+                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+                    $seq, $cycle,
+                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
+                    $lt[ 0 ], $lt[ 1 ], $lt[ 2 ],
+                    $year, $month, $mday, $hour, $minute, $sec );
+            }
+        }
+    }
+
+    return $spl_time;
+}
+
+sub stopwatch( $ )
+{
+    my $bPrint = shift( @_ );
+    my $t = &laptimer( -1 );
+    print( qq{stopwatch() = $t sec.\n} ) if( $bPrint );
+    return $t;
+}
+
+sub bpm( $$ )
+{
+    my $bPrint = shift( @_ );
+    my $count = shift( @_ );
+    my $t = &stopwatch( $bPrint );
+    return ( $count * 60 ) / $t;
+}
+
+sub bpm15( $ )
+{
+    my $bPrint = shift( @_ );
+    return &bpm( $bPrint, 15 );
+}
+
+sub bpm30( $ )
+{
+    my $bPrint = shift( @_ );
+    return &bpm( $bPrint, 30 );
+}
+
+sub tachymeter( $ )
+{
+    my $bPrint = shift( @_ );
+    my $t = &stopwatch( $bPrint );
+    return 3600 / $t;
+}
+
+sub telemeter( $ )
+{
+    my $sec = shift( @_ );
+    ## 音の伝播速度は、標準大気中の音速 1225km/h から、 340m/秒 と考える。
+    ## 光の速度は無視した。(光速 ＝ 299792458 m/s ≒ 30万キロメートル毎秒)
+    return $sec * 340;
+}
+
+sub telemeter_m( $ )
+{
+    my $sec = shift( @_ );
+    return &telemeter( $sec );
+}
+
+sub telemeter_km( $ )
+{
+    my $sec = shift( @_ );
+    return &telemeter( $sec ) / 1000;
+}
+
 
 package FormulaParser;
 use strict;
@@ -1536,6 +1686,7 @@ sub FormulaNormalizationOneLine( $ )
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
     $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
+    $expr =~ s!pct\(!percentage(!go;
     $expr =~ s!rs\(!ratio_scaling(!go;
     $expr =~ s!pf\(!prime_factorize(!go;
     $expr =~ s!dist\(!dist_between_points(!go;
@@ -1543,6 +1694,8 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!angle\(!angle_between_points(!go;
     $expr =~ s!gd_m\(!geo_distance_m(!go;
     $expr =~ s!gd_km\(!geo_distance_km(!go;
+    $expr =~ s!lt\(!laptimer(!go;
+    $expr =~ s!sw\(!stopwatch(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -2966,7 +3119,8 @@ get_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linspa
 sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
 radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -3381,9 +3535,9 @@ round( I<A>, I<B> ). Returns the value of I<A> rounded to I<B> decimal places.
 
 roundup( I<A>, I<B> ). Returns the value of I<A> rounded up to I<B> decimal places.
 
-=item C<pct>
+=item C<percentage>
 
-pct( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified.
+percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified. alias: pct().
 
 =item C<ratio_scaling>
 
@@ -3600,6 +3754,42 @@ sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 
 dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
 
+=item C<laptimer>
+
+laptimer( I<LAPS> ). Each time you press Enter, the split time is measured and the time taken to measure I<LAPS> is returned. If I<LAPS> is set to a negative value, the split time is not output. alias: lt().
+
+=item C<stopwatch>
+
+stopwatch( I<B_PRINT> ). Measures the time until the Enter key is pressed. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen. alias: sw().
+
+=item C<bpm>
+
+bpm( I<B_PRINT>, I<COUNT> ). Once you have confirmed the I<COUNT> number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+
+=item C<bpm15>
+
+bpm15( I<B_PRINT> ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+
+=item C<bpm30>
+
+bpm30( I<B_PRINT> ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+
+=item C<tachymeter>
+
+tachymeter( I<B_PRINT> ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen. Same as ratio_scaling( stopwatch( I<B_PRINT> ), 1, 3600 ).
+
+=item C<telemeter>
+
+telemeter( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in meters. Same as telemeter_m().
+
+=item C<telemeter_m>
+
+telemeter_m( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in meters. Same as telemeter().
+
+=item C<telemeter_km>
+
+telemeter_km( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in kilometers. Same as telemeter_m() / 1000.
+
 =back
 
 =head1 Environmental requirements
@@ -3627,6 +3817,8 @@ dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
 =item * POSIX — first included in perl 5
 
 =item * strict — first included in perl 5
+
+=item * Time::HiRes - first included in perl v5.7.3
 
 =item * Time::Local - first included in perl 5
 
@@ -3666,6 +3858,8 @@ dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
 =item L<Math::Trig>
 
 =item L<POSIX>
+
+=item L<Time::HiRes>
 
 =item L<Time::Local>
 

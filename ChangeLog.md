@@ -7,6 +7,22 @@
 ### Changed
 - xxx
 
+## [0.2.35] - 2025-12-15
+### Added
+- `c` [1.04.065]: Add a function.
+  - laptimer( LAPS ). alias: lt().
+  - stopwatch( B_PRINT ). alias: sw().
+  - bpm( B_PRINT, COUNT )
+  - bpm15( B_PRINT )
+  - bpm30( B_PRINT )
+  - tachymeter( B_PRINT )
+  - telemeter( SECOND )
+  - telemeter_m( SECOND )
+  - telemeter_km( SECOND )
+
+### Changed
+- `c` [1.04.066]: rename: pct() -> percentage(). pct() is an alias for percentage().
+
 ## [0.2.34] - 2025-12-14
 ### Added
 - `c` [1.04.064]: Add a function.
