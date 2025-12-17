@@ -7,6 +7,26 @@
 ### Changed
 - xxx
 
+## [0.2.36] - 2025-12-17
+### Added
+- `c` [1.04.072]: Add a function.
+  - paper_size( SIZE [, TYPE ] ).
+    Returns the following information in this order:
+    length of short side, length of long side (in mm), area (in mm2).
+    SIZE is a positive integer.
+    If TYPE is omitted or 0 is specified, it will be A size.
+    If TYPE is specified, it will be B size.
+  - gen_fibo_seq( A, B, COUNT ).
+    Generates the Generalized Fibonacci Sequence.
+    COUNT is a positive integer.
+    Returns an array starting at A and B, with size COUNT + 2.
+  - slice( NUMBER1,.., OFFSET, LENGTH ).
+    Extracts elements specified by OFFSET and LENGTH from a set.
+
+### Changed
+- `c` [1.04.073]: Edit the POD.
+- `c` [1.04.068]: The fourth argument of linspace() has been changed from ROUND(Bool) to DECIMAL_PLACES.
+
 ## [0.2.35] - 2025-12-15
 ### Added
 - `c` [1.04.065]: Add a function.

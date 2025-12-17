@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.66 $
+## - $Revision: 4.73 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.66 $};
+    my $rev = q{$Revision: 4.73 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -566,17 +566,20 @@ use constant {
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
     H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
     H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
-    H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N and R are positive integers.},
+    H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
     H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( NUMBER1,.. ). Returns the values of the input in a random order. [List::Util]},
-    H_FRST => qq{first( NUMBER1,.. ). Returns the head of the set.},
+    H_FRST => qq{first( NUMBER1,.. ). Returns the head of the set. Same as slice( NUMBER1,.. , 0, 1 ).},
+    H_SPLC => qq{slice( NUMBER1,.., OFFSET, LENGTH ). Extracts elements specified by OFFSET and LENGTH from a set.},
     H_UNIQ => qq{uniq( NUMBER1,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
     H_SUM_ => qq{sum( NUMBER1,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_PROD => qq{prod( NUMBER1,.. ). Returns the product of each value.},
     H_AVRG => qq{avg( NUMBER1,.. ). Returns the average value of all elements in a list.},
-    H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, ROUND] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. If ROUND is set to true, the numbers are rounded down to integers.},
+    H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, DECIMAL_PLACES] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. Rounding the number if I<DECIMAL_PLACES> is specified.},
     H_LNST => qq{linstep( START, STEP, COUNT ). Generates a list of COUNT numbers that increase from START by STEP.},
+    H_GFIS => qq{gen_fibo_seq( A, B, COUNT ). Generates the Generalized Fibonacci Sequence. COUNT is a non-negative integer. Returns an array starting at A and B, with size COUNT + 2.},
+    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm), area (in mm2). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size.},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
     H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
@@ -646,77 +649,80 @@ use constant {
     'BEGIN'                => [  18, T_OTHER,        0, undef  ],
     '#'                    => [  19, T_SENTINEL,    -1, undef  ],
     'testfunc'             => [  20, T_OTHER,        1, undef  ],
-    'exp'                  => [  25, T_FUNCTION,     1, H_POEX, sub{ exp( $_[ 0 ] ) } ],
-    'abs'                  => [  30, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'                  => [  40, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'                => [  50, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'                 => [  60, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'            => [  70, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'                => [  80, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'              => [  90, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'percentage'           => [ 100, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'        => [ 110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'             => [ 120, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
-    'prime_factorize'      => [ 130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'            => [ 140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'                  => [ 150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'                  => [ 160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'ncr'                  => [ 165, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
-    'min'                  => [ 170, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'                  => [ 180, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'              => [ 190, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'                => [ 200, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
-    'uniq'                 => [ 210, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                  => [ 220, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                 => [ 230, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                  => [ 240, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'linspace'             => [ 250, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'linstep'              => [ 260, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'rand'                 => [ 270, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'                  => [ 280, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'                 => [ 290, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'                  => [ 300, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'              => [ 310, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'              => [ 320, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
-    'deg2rad'              => [ 330, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'              => [ 340, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'              => [ 350, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'              => [ 360, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'              => [ 365, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                  => [ 370, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'                  => [ 380, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'                  => [ 390, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'                 => [ 400, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'                 => [ 410, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'                 => [ 420, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'                => [ 430, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                => [ 440, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'slope_deg'            => [ 450, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
-    'dist_between_points'  => [ 460, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points' => [ 470, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points' => [ 480, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'geo_radius'           => [ 490, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'        => [ 500, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 510, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'       => [ 520, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'      => [ 530, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'              => [ 535, T_FUNCTION,     1, H_LEAP, sub{ &is_leap( $_[ 0 ] ) } ],
-    'age_of_moon'          => [ 538, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'local2epoch'          => [ 540, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'            => [ 550, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'          => [ 560, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'            => [ 570, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'             => [ 580, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'             => [ 590, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'laptimer'             => [ 600, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'stopwatch'            => [ 610, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
-    'bpm'                  => [ 620, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                => [ 630, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
-    'bpm30'                => [ 640, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
-    'tachymeter'           => [ 650, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'            => [ 660, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
-    'telemeter_m'          => [ 670, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
-    'telemeter_km'         => [ 680, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
+    'exp'                  => [  30, T_FUNCTION,     1, H_POEX, sub{ exp( $_[ 0 ] ) } ],
+    'abs'                  => [  40, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
+    'int'                  => [  50, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
+    'floor'                => [  60, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
+    'ceil'                 => [  70, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'rounddown'            => [  80, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
+    'round'                => [  90, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
+    'roundup'              => [ 100, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
+    'percentage'           => [ 110, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'        => [ 120, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'             => [ 130, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
+    'prime_factorize'      => [ 140, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'            => [ 150, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
+    'gcd'                  => [ 160, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'                  => [ 170, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'ncr'                  => [ 180, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
+    'min'                  => [ 190, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'                  => [ 200, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'              => [ 210, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'                => [ 220, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
+    'slice'                => [ 225, T_FUNCTION,    VA, H_SPLC, sub{ &SLICE( @_ ) } ],
+    'uniq'                 => [ 230, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                  => [ 240, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                 => [ 250, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                  => [ 260, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'linspace'             => [ 270, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'linstep'              => [ 280, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'         => [ 285, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'paper_size'           => [ 288, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'rand'                 => [ 290, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'                  => [ 300, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
+    'sqrt'                 => [ 310, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
+    'pow'                  => [ 320, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'              => [ 330, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'              => [ 340, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
+    'deg2rad'              => [ 350, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'              => [ 360, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'              => [ 370, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'              => [ 380, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'              => [ 390, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                  => [ 400, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'                  => [ 410, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'                  => [ 420, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'                 => [ 430, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'                 => [ 440, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'                 => [ 450, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'                => [ 460, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                => [ 470, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'slope_deg'            => [ 480, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
+    'dist_between_points'  => [ 490, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points' => [ 500, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points' => [ 510, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'geo_radius'           => [ 520, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'        => [ 530, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 540, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 550, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 560, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'              => [ 570, T_FUNCTION,     1, H_LEAP, sub{ &is_leap( $_[ 0 ] ) } ],
+    'age_of_moon'          => [ 580, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'local2epoch'          => [ 590, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'            => [ 600, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'          => [ 610, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'            => [ 620, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'             => [ 630, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'             => [ 640, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'laptimer'             => [ 650, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'stopwatch'            => [ 660, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
+    'bpm'                  => [ 670, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                => [ 680, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
+    'bpm30'                => [ 690, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
+    'tachymeter'           => [ 700, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'            => [ 710, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
+    'telemeter_m'          => [ 720, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
+    'telemeter_km'         => [ 730, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -866,6 +872,44 @@ sub FIRST( @ )
     return $_[ 0 ];
 }
 
+sub SLICE( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    if( $argc <= 3 ){
+        die( qq{slice: \$argc=$argc: Not enough arguments.\n} );
+    }
+    my $length = pop( @argv );
+    my $offset = pop( @argv );
+    $argc = scalar( @argv );
+    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
+    if( $offset != int( $offset ) ){
+        die( qq{slice: \$offset=$offset: \$offset cannot be a decimal number.\n} );
+    }
+    if( $length != int( $length ) ){
+        die( qq{slice: \$length=$length: \$length cannot be a decimal number.\n} );
+    }
+    if( $offset < 0 ){
+        $offset = $argc + $offset;
+        #print( qq{\$offset=$offset\n} );
+    }
+    if( ( $offset + 1 ) > $argc ){
+        die( qq{slice: \$offset=$offset, \$argc=$argc: \$offset is large.\n} );
+    }
+    if( $length <= 0 ){
+        die( qq{slice: \$length=$length: \$length must be greater than 0.\n} );
+    }
+    if( $length > ( $argc - $offset ) ){
+        $TableProvider::opf->warnPrint( qq{\$length=$length: Decrease the value of \$length.\n} );
+        $length = $argc - $offset;
+    }
+    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
+
+    my @ret_vals = splice( @argv, $offset, $length );
+
+    return @ret_vals;
+}
+
 sub LOG( $ )
 {
     if( $_[ 0 ] == 0 ){
@@ -983,7 +1027,8 @@ sub round_rf( $$$ )
     $rounding_factor *= -1 if( $value < 0 );
     my $tmp = $value * $carry_factor + $rounding_factor;
     my $integer = int( $tmp );
-    $integer -= $rounding_factor if( $tmp == $integer );
+    #print( qq{\$rounding_factor=$rounding_factor, \$tmp=$tmp, \$integer=$integer\n} );
+    $integer -= $rounding_factor if( ( $rounding_factor == -1 || $rounding_factor == 1 ) && $tmp == $integer );
     return $integer / $carry_factor;
 }
 
@@ -1104,10 +1149,10 @@ sub nCr( $$ )
 {
     my( $n, $r ) = @_;
     if( ( $n < 0 ) || ( $n != int( $n ) ) ){
-        die( qq{nCr( $n, $r ): N="$n": The argument must be a positive integer.\n} );
+        die( qq{nCr( $n, $r ): N[=$n] must be a non-negative integer.\n} );
     }
     if( ( $r <= 0 ) || ( $r != int( $r ) ) ){
-        die( qq{nCr( $n, $r ): R="$r": The argument must be a positive integer.\n} );
+        die( qq{nCr( $n, $r ): R[=$r] must be a positive integer.\n} );
     }
     my @numerator_array = &LINSTEP( $n, -1, $r );
     my @denominator_array = &LINSTEP( $r, -1, $r );
@@ -1138,7 +1183,7 @@ sub AVG( @ )
 #       $bRound (省略可: 真値なら整数に丸める, デフォルトは丸めない)
 sub LINSPACE( $$$;$ )
 {
-    my( $lower, $upper, $count, $bRound ) = @_;
+    my( $lower, $upper, $count, $decimal_places ) = @_;
 
     return $lower if( $count <= 1 );
 
@@ -1148,9 +1193,9 @@ sub LINSPACE( $$$;$ )
     for( my $idx=0; $idx<$count; $idx++ ){
         my $value = ( $idx == $count - 1 ) ? $upper : $lower + $idx * $interval;
 
-        # 第4引数 $bRound が真値であれば整数に丸める
-        if( $bRound ){
-            $value = int( $value );
+        # 第4引数 $decimal_places の桁で丸める
+        if( defined( $decimal_places ) ){
+            $value = &round( $value, $decimal_places );
         }
 
         push( @list, $value );
@@ -1177,6 +1222,94 @@ sub LINSTEP( $$$ )
     }
 
     return @list;
+}
+
+## gen_fibo_seq()
+##
+##  Generates the Generalized Fibonacci Sequence.
+##  $count is a non-negative integer.
+##  Returns an array starting at $a and $b, with size $count + 2.
+##
+##  「一般化フィボナッチ数列（Generalized Fibonacci Sequence）」を生成する。
+##  $count は0以上の整数。
+##  $a と $b から始まり、サイズが $count + 2 の配列を返します。
+##
+## フィボナッチ数列 [ Fibonacci sequence ]
+## 最初の2つの数字（通常は1と1、または0と1）から始まり、
+## それ以降の数字は直前の2つの数字の和になるという数列。
+## 数が増えるにつれて、隣り合う項の比が黄金比 1.618 に限りなく近づきます。
+sub gen_fibo_seq( $$$ )
+{
+    my( $a, $b, $count ) = @_;
+    if( $count < 0 ){
+        die( qq{gen_fibo_seq(): \$count[=$count] is negative.\n} );
+    }
+    if( $count != int( $count ) ){
+        die( qq{gen_fibo_seq(): \$count[=$count] is a decimal number.\n} );
+    }
+
+    my @ret_vals = ( $b, $a );
+    my $counter = $count;
+    while( $counter-- ){
+        unshift( @ret_vals, $ret_vals[ 0 ] + $ret_vals[ 1 ] );
+    }
+
+    return reverse( @ret_vals );
+}
+
+## paper_size()
+##
+## paper_size( SIZE [, TYPE ] ).
+## Returns the following information in this order:
+## length of short side, length of long side (in mm), area (in mm2).
+## SIZE is a positive integer.
+## If TYPE is omitted or 0 is specified, it will be A size.
+## If TYPE is specified, it will be B size.
+## If you specify TYPE as 1, it will be B size.
+##
+sub paper_size( $$ )
+{
+    my( $size, $type ) = @_;
+    if( $size < 0 ){
+        die( qq{paper_size(): \$size[=$size] is negative.\n} );
+    }
+    if( $size != int( $size ) ){
+        die( qq{paper_size(): \$size[=$size] is a decimal number.\n} );
+    }
+
+    my $paper_type = 'A';
+    my $long_side  = 1189;
+    my $short_side =  841;
+    ## B判の場合
+    if( defined( $type ) && $type == 1 ){
+        $paper_type = 'B';
+        ## B判はA判の面積の1.5倍という思想。計算で出すなら以下のようになる。
+        ## $long_side  = &POSIX::floor( $long_side * sqrt( 1.5 ) );
+        ## $short_side = &POSIX::floor( $short_side * sqrt( 1.5 ) );
+        $long_side  = 1456;
+        $short_side = 1030;
+    }
+
+    my $counter = $size;
+    my $bWarnLongSide = 1;
+    my $bWarnShortSide = 1;
+    while( $counter-- ){
+        my $paper_size = $paper_type . ( $size - $counter );
+        my $short_side_next = &POSIX::floor( $long_side / 2 );
+        $long_side = $short_side;
+        if( $long_side == 0 && $bWarnLongSide ){
+            $bWarnLongSide = 0;
+            warn( qq{paper_size(): $paper_size: The long side reaches 0 mm.\n} );
+        }
+        $short_side = $short_side_next;
+        if( $short_side == 0 && $bWarnShortSide ){
+            $bWarnShortSide = 0;
+            warn( qq{paper_size(): $paper_size: The short side reaches 0 mm.\n} );
+        }
+    }
+
+    my @ret_vals = ( $short_side, $long_side, $long_side * $short_side );
+    return @ret_vals;
 }
 
 sub pow_inv( $$ )
@@ -3114,13 +3247,13 @@ CURRENT-TIME
 
 =head2 FUNCTIONS
 
-exp, abs, int, floor, ceil, rounddown, round, roundup, pct, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log,
-sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
-radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter_m, telemeter_km
+exp, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime,
+prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
+linspace, linstep, gen_fibo_seq, paper_size, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad,
+dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope_deg, dist_between_points,
+midpt_between_points, angle_between_points, geo_radius, radius_of_lat, geo_distance, geo_distance_m,
+geo_distance_km, is_leap, age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
+laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -3565,7 +3698,7 @@ lcm( I<NUMBER1>,.. ). Returns the least common multiple (LCM). [Math::BigInt::bl
 
 =item C<ncr>
 
-nCr( I<N>, I<R> ). I<N> Choose I<R>. A combination of I<R> items selected from I<N> items. I<N> and I<R> are positive integers.
+nCr( I<N>, I<R> ). I<N> Choose I<R>. A combination of I<R> items selected from I<N> items. I<N> is a non-negative integer. I<R> is a positive integer.
 
 =item C<min>
 
@@ -3581,7 +3714,11 @@ shuffle( I<NUMBER1>,.. ). Returns the values of the input in a random order. [Li
 
 =item C<first>
 
-first( I<NUMBER1>,.. ). Returns the head of the set.
+first( I<NUMBER1>,.. ). Returns the head of the set. Same as slice( I<NUMBER1>,.. , 0, 1 ).
+
+=item C<slice>
+
+slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ). Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
 
 =item C<uniq>
 
@@ -3601,13 +3738,44 @@ avg( I<NUMBER1>,.. ). Returns the average value of all elements in a list.
 
 =item C<linspace>
 
-linspace( I<LOWER>, I<UPPER>, I<COUNT> [, I<ROUND>] ).
+linspace( I<LOWER>, I<UPPER>, I<COUNT> [, I<DECIMAL_PLACES> ] ).
 Generates a list of numbers from I<LOWER> to I<UPPER> divided into equal intervals by I<COUNT>.
-If I<ROUND> is set to true, the numbers are rounded down to integers.
+Rounding the number if I<DECIMAL_PLACES> is specified.
+
+Divide the range from 0x33 to 0xCC into 5 parts:
+
+  $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+  ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
 =item C<linstep>
 
-linstep( I<START>, I<STEP>, I<COUNT> ). Generates a list of I<COUNT> numbers that increase from I<START> by I<STEP>.
+linstep( I<START>, I<STEP>, I<COUNT> ).
+Generates a list of I<COUNT> numbers that increase from I<START> by I<STEP>.
+
+=item C<gen_fibo_seq>
+
+gen_fibo_seq( I<A>, I<B>, I<COUNT> ).
+Generates the Generalized Fibonacci Sequence. I<COUNT> is a non-negative integer.
+Returns an array starting at I<A> and I<B>, with size I<COUNT> + 2.
+
+Generate the Lucas sequence:
+
+  $ c 'gen_fibo_seq( 2, 1, 10 )'
+  ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, 199 )
+
+=item C<paper_size>
+
+paper_size( SIZE [, TYPE ] ).
+Returns the following information in this order:
+length of short side, length of long side (in mm), area (in mm2).
+SIZE is a non-negative integer.
+If TYPE is omitted or 0 is specified, it will be A size.
+If TYPE is specified as 1, it will be B size.
+
+What are the dimensions of A4 size?:
+
+  $ c 'paper_size( 4 )'
+  ( 210, 297, 62370 )
 
 =item C<rand>
 

@@ -69,13 +69,13 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-exp, abs, int, floor, ceil, rounddown, round, roundup, pct, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, ncr, min, max, shuffle, first, uniq, sum, prod, avg, linspace, linstep, rand, log,
-sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter\_m, telemeter\_km
+exp, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime,
+prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
+linspace, linstep, gen\_fibo\_seq, paper\_size, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad,
+dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope\_deg, dist\_between\_points,
+midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance, geo\_distance\_m,
+geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
+laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -510,7 +510,7 @@ The **c** script was created with the following in mind:
 
 - `ncr`
 
-    nCr( _N_, _R_ ). _N_ Choose _R_. A combination of _R_ items selected from _N_ items. _N_ and _R_ are positive integers.
+    nCr( _N_, _R_ ). _N_ Choose _R_. A combination of _R_ items selected from _N_ items. _N_ is a non-negative integer. _R_ is a positive integer.
 
 - `min`
 
@@ -526,7 +526,11 @@ The **c** script was created with the following in mind:
 
 - `first`
 
-    first( _NUMBER1_,.. ). Returns the head of the set.
+    first( _NUMBER1_,.. ). Returns the head of the set. Same as slice( _NUMBER1_,.. , 0, 1 ).
+
+- `slice`
+
+    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ). Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
 
 - `uniq`
 
@@ -546,13 +550,44 @@ The **c** script was created with the following in mind:
 
 - `linspace`
 
-    linspace( _LOWER_, _UPPER_, _COUNT_ \[, _ROUND_\] ).
+    linspace( _LOWER_, _UPPER_, _COUNT_ \[, _DECIMAL\_PLACES_ \] ).
     Generates a list of numbers from _LOWER_ to _UPPER_ divided into equal intervals by _COUNT_.
-    If _ROUND_ is set to true, the numbers are rounded down to integers.
+    Rounding the number if _DECIMAL\_PLACES_ is specified.
+
+    Divide the range from 0x33 to 0xCC into 5 parts:
+
+        $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+        ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
 - `linstep`
 
-    linstep( _START_, _STEP_, _COUNT_ ). Generates a list of _COUNT_ numbers that increase from _START_ by _STEP_.
+    linstep( _START_, _STEP_, _COUNT_ ).
+    Generates a list of _COUNT_ numbers that increase from _START_ by _STEP_.
+
+- `gen_fibo_seq`
+
+    gen\_fibo\_seq( _A_, _B_, _COUNT_ ).
+    Generates the Generalized Fibonacci Sequence. _COUNT_ is a non-negative integer.
+    Returns an array starting at _A_ and _B_, with size _COUNT_ + 2.
+
+    Generate the Lucas sequence:
+
+        $ c 'gen_fibo_seq( 2, 1, 10 )'
+        ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, 199 )
+
+- `paper_size`
+
+    paper\_size( SIZE \[, TYPE \] ).
+    Returns the following information in this order:
+    length of short side, length of long side (in mm), area (in mm2).
+    SIZE is a non-negative integer.
+    If TYPE is omitted or 0 is specified, it will be A size.
+    If TYPE is specified as 1, it will be B size.
+
+    What are the dimensions of A4 size?:
+
+        $ c 'paper_size( 4 )'
+        ( 210, 297, 62370 )
 
 - `rand`
 

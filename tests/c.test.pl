@@ -1394,13 +1394,13 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 0xfffffffb )'} );
     $cmd->exit_is_num( 0, qq{./c 'is_prime( 0xfffffffb )'} );
-    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n}, qq{32bitクラスの整数} );
+    $cmd->stdout_is_eq( qq{1 [ = 0x1 ]\n}, qq{32bitクラスの整数（素数）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 0xfffffffd )'} );
     $cmd->exit_is_num( 0, qq{./c 'is_prime( 0xfffffffd )'} );
-    $cmd->stdout_is_eq( qq{0 [ = 0x0 ]\n}, qq{32bitクラスの整数} );
+    $cmd->stdout_is_eq( qq{0 [ = 0x0 ]\n}, qq{32bitクラスの整数（非素数）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1488,6 +1488,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: get_prime: 3: Cannot specify a value less than 4\.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 0 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'gcd( 0 ) ='} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gcd( 138 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'gcd( 138 ) ='} );
     $cmd->stdout_is_eq( qq{138\n} );
@@ -1509,25 +1515,25 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( -1.0, 2.0 )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'ncr( -1.0, 2.0 )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( \-1, 2 \): N="\-1": The argument must be a positive integer\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( \-1, 2 \): N\[=\-1\] must be a non-negative integer\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.1, 2.0 )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.1, 2.0 )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1\.1, 2 \): N="1\.1": The argument must be a positive integer\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1\.1, 2 \): N\[=1\.1\] must be a non-negative integer\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 0 )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.0, 0 )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 0 \): R="0": The argument must be a positive integer\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 0 \): R\[=0\] must be a positive integer\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 2.1 )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'ncr( 1.0, 2.1 )'} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 2\.1 \): R="2\.1": The argument must be a positive integer\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: nCr\( 1, 2\.1 \): R\[=2\.1\] must be a positive integer\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ncr( 1.0, 2.0 )'} );
@@ -1620,6 +1626,66 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$argc=2: Not enough arguments\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 1.2, 1.3 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12, 16, 1.2, 1.3 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$offset=1\.2: \$offset cannot be a decimal number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, -1.2, 1.3 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12, 16, -1.2, 1.3 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$offset=\-1\.2: \$offset cannot be a decimal number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 1, 1.3 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12, 16, 1, 1.3 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$length=1\.3: \$length cannot be a decimal number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 3, 1 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12, 16, 3, 1 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$offset=3, \$argc=3: \$offset is large\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 0, 0 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'slice( 2025, 12, 16, 0, 0 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: slice: \$length=0: \$length must be greater than 0\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 0, 4 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'slice( 2025, 12, 16, 0, 4 )'} );
+    $cmd->stdout_is_eq( qq{( 2025, 12, 16 )\n} );
+    $cmd->stderr_like( qr/^c: tbl_prvdr: warn: \$length=4: Decrease the value of \$length\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, -2, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'slice( 2025, 12, 16, -2, 3 )'} );
+    $cmd->stdout_is_eq( qq{( 12, 16 )\n} );
+    $cmd->stderr_like( qr/^c: tbl_prvdr: warn: \$length=3: Decrease the value of \$length\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, 0, 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'slice( 2025, 12, 16, 0, 3 )'} );
+    $cmd->stdout_is_eq( qq{( 2025, 12, 16 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'slice( 2025, 12, 16, -1, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'slice( 2025, 12, 16, -1, 1 )'} );
+    $cmd->stdout_is_eq( qq{16\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ='} );
     $cmd->stdout_is_eq( qq{45\n} );
@@ -1686,9 +1752,9 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 9, 1 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 9, 1 )'} );
-    $cmd->stdout_is_eq( qq{( -10, -7, -5, -2, 0, 2, 5, 7, 10 )\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linspace( -10, 10, 9, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'linspace( -10, 10, 9, 0 )'} );
+    $cmd->stdout_is_eq( qq{( -10, -8, -5, -3, 0, 3, 5, 8, 10 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1738,6 +1804,114 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c 'linstep( -1.1, -1 sqrt( 2 ), 3 )'} );
     $cmd->stdout_is_eq( qq{( -1.1, -2.5142135623731, -3.92842712474619 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( 0, 1, 10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( 0, 1, 10 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( 2, 1, 10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( 2, 1, 10 )'} );
+    $cmd->stdout_is_eq( qq{( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, 199 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( -2, 5, 10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( -2, 5, 10 )'} );
+    $cmd->stdout_is_eq( qq{( -2, 5, 3, 8, 11, 19, 30, 49, 79, 128, 207, 335 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( 2, 1, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( 2, 1, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 2, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( 2, 1, -1.2 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'gen_fibo_seq( 2, 1, -1.2 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$count\[=\-1\.2\] is negative\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( 2, 1, 1.2 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'gen_fibo_seq( 2, 1, 1.2 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$count\[=1\.2\] is a decimal number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( -100, 100, 10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( -100, 100, 10 )'} );
+    $cmd->stdout_is_eq( qq{( -100, 100, 0, 100, 100, 200, 300, 500, 800, 1300, 2100, 3400 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gen_fibo_seq( -5.4, 3.2, 10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gen_fibo_seq( -5.4, 3.2, 10 )'} );
+    $cmd->stdout_is_eq( qq{( -5.4, 3.2, -2.2, 1, -1.2, -0.2, -1.4, -1.6, -3, -4.6, -7.6, -12.2 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( -1.2 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'paper_size( -1.2 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: paper_size\(\): \$size\[=\-1\.2\] is negative\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 1.2 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'paper_size( 1.2 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: paper_size\(\): \$size\[=1\.2\] is a decimal number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 0 )'} );
+    $cmd->stdout_is_eq( qq{( 841, 1189, 999949 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 4 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 4 )'} );
+    $cmd->stdout_is_eq( qq{( 210, 297, 62370 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 19, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 19, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 1, 1, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 20, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 20, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 1, 0 )\n} );
+    $cmd->stderr_is_eq( qq{paper_size(): A20: The short side reaches 0 mm.\n} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 100, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 100, 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 0 )\n} );
+    $cmd->stderr_is_eq( qq{paper_size(): A20: The short side reaches 0 mm.\npaper_size(): A21: The long side reaches 0 mm.\n} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 0, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 0, 1 )'} );
+    $cmd->stdout_is_eq( qq{( 1030, 1456, 1499680 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 4, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 4, 1 )'} );
+    $cmd->stdout_is_eq( qq{( 257, 364, 93548 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 100, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'paper_size( 100, 1 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 0 )\n} );
+    $cmd->stderr_is_eq( qq{paper_size(): B21: The short side reaches 0 mm.\npaper_size(): B22: The long side reaches 0 mm.\n} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
