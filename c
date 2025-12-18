@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.73 $
+## - $Revision: 4.76 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.73 $};
+    my $rev = q{$Revision: 4.76 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -3567,51 +3567,63 @@ The B<c> script was created with the following in mind:
 
 =item C<+>
 
-Addition. C<1 + 2> -> C<3>.
+Addition.
+C<1 + 2> -> C<3>.
 
 =item C<->
 
-Subtraction. C<3 - 2> -> C<1>.
+Subtraction.
+C<3 - 2> -> C<1>.
 
 =item C<*>
 
-Multiplication. C<1 * 2> -> C<2>.
+Multiplication.
+C<1 * 2> -> C<2>.
 
 =item C</>
 
-Division. C<1 / 2> -> C<0.5>.
+Division.
+C<1 / 2> -> C<0.5>.
 
 =item C<%>
 
-Modulo arithmetic. C<5 % 3> -> C<2>.
+Modulo arithmetic.
+C<5 % 3> -> C<2>.
 
 =item C<**>
 
-Exponentiation. C<2 ** 3> -> C<8>. Similarly, C<pow( 2, 3 )>.
+Exponentiation.
+C<2 ** 3> -> C<8>. Similarly, C<pow( 2, 3 )>.
 
 =item C<|>
 
-Bitwise OR. C<0x2 | 0x4> -> C<6 [ = 0x6 ]>.
+Bitwise OR.
+C<0x2 | 0x4> -> C<6 [ = 0x6 ]>.
 
 =item C<&>
 
-Bitwise AND. C<0x6 & 0x4> -> C<4 [ = 0x4 ]>.
+Bitwise AND.
+C<0x6 & 0x4> -> C<4 [ = 0x4 ]>.
 
 =item C<^>
 
-Bitwise Exclusive OR. C<0x6 ^ 0x4> -> C<2 [ = 0x2 ]>.
+Bitwise Exclusive OR.
+C<0x6 ^ 0x4> -> C<2 [ = 0x2 ]>.
 
 =item C<E<lt>E<lt>>
 
-Bitwise left shift. C<0x6 E<lt>E<lt> 1> -> C<12 [ = 0xC ]>.
+Bitwise left shift.
+C<0x6 E<lt>E<lt> 1> -> C<12 [ = 0xC ]>.
 
 =item C<E<gt>E<gt>>
 
-Bitwise right shift. C<0x6 E<gt>E<gt> 1> -> C<3 [ = 0x3 ]>.
+Bitwise right shift.
+C<0x6 E<gt>E<gt> 1> -> C<3 [ = 0x3 ]>.
 
 =item C<~>
 
-Bitwise Inversion. C<~0> -> C<0xFFFFFFFFFFFFFFFFFF>.
+Bitwise Inversion.
+C<~0> -> C<0xFFFFFFFFFFFFFFFFFF>.
 
 =item C<(>
 
@@ -3627,8 +3639,11 @@ A symbol that controls the priority of calculations.
 
 =item C<=>
 
-Equals sign. In I<c> script, it has the meaning of terminating the calculation formula,
-but it is not necessary. C<1 + 2 =>. Similarly, C<1 + 2>.
+Equals sign.
+In I<c> script, it has the meaning of terminating the calculation formula,
+but it is not necessary.
+C<1 + 2 =>.
+Similarly, C<1 + 2>.
 
 =back
 
@@ -3638,103 +3653,233 @@ but it is not necessary. C<1 + 2 =>. Similarly, C<1 + 2>.
 
 =item C<exp>
 
-exp( I<N> ). Returns e (the natural logarithm base) to the power of I<N>. [Perl Native]
+exp( I<N> ).
+Returns e (the natural logarithm base) to the power of I<N>.
+[Perl Native]
+
+The base of natural logarithms e (Napier's constant):
+
+  $ c 'exp( 1 )'
+  2.71828182845905
 
 =item C<abs>
 
-abs( I<N> ). Returns the absolute value of its argument. [Perl Native]
+abs( I<N> ).
+Returns the absolute value of its argument.
+[Perl Native]
+
+  $ c '( abs( -1.2 ), abs( 1.2 ) )'
+  ( 1.2, 1.2 )
 
 =item C<int>
 
-int( I<N> ). Returns the integer portion of I<N>. [Perl Native]
+int( I<N> ).
+Returns the integer portion of I<N>.
+[Perl Native]
+
+  $ c '( int( -1.2 ), int( 1.2 ) )'
+  ( -1, 1 )
 
 =item C<floor>
 
-floor( I<N> ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]
+floor( I<N> ).
+Returning the largest integer value less than or equal to the numerical argument.
+[POSIX]
+
+  $ c '( floor( -1.2 ), floor( 1.2 ) )'
+  ( -2, 1 )
 
 =item C<ceil>
 
-ceil( I<N> ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]
+ceil( I<N> ).
+Returning the smallest integer value greater than or equal to the given numerical argument.
+[POSIX]
+
+  $ c '( ceil( -1.2 ), ceil( 1.2 ) )'
+  ( -1, 2 )
 
 =item C<rounddown>
 
-rounddown( I<A>, I<B> ). Returns the value of I<A> truncated to I<B> decimal places.
+rounddown( I<A>, I<B> ).
+Returns the value of I<A> truncated to I<B> decimal places.
+
+  $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
+  ( -1, 1 )
 
 =item C<round>
 
-round( I<A>, I<B> ). Returns the value of I<A> rounded to I<B> decimal places.
+round( I<A>, I<B> ).
+Returns the value of I<A> rounded to I<B> decimal places.
+
+  $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
+  ( -1, -2, 1, 2 )
 
 =item C<roundup>
 
-roundup( I<A>, I<B> ). Returns the value of I<A> rounded up to I<B> decimal places.
+roundup( I<A>, I<B> ).
+Returns the value of I<A> rounded up to I<B> decimal places.
+
+  $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
+  ( -2, 2 )
 
 =item C<percentage>
 
-percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ). Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified. alias: pct().
+percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ).
+Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified.
+alias: pct().
+
+  $ c 'percentage( 30, 1000 )'
+  3
 
 =item C<ratio_scaling>
 
-ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ). When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>. Rounding the number if I<DECIMAL_PLACES> is specified. alias: rs().
+ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ).
+When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>.
+Rounding the number if I<DECIMAL_PLACES> is specified.
+alias: rs().
 
 =item C<is_prime>
 
-is_prime( I<NUM> ). Prime number test. Returns 1 if I<NUM> is prime, otherwise returns 0.
+is_prime( I<NUM> ).
+Prime number test.
+Returns 1 if I<NUM> is prime, otherwise returns 0.
+
+  $ c 'is_prime( 1576770817 )'
+  1
 
 =item C<prime_factorize>
 
-prime_factorize( I<NUM> ). Do prime factorization. I<NUM> is an integer greater than or equal to 2. alias: pf().
+prime_factorize( I<NUM> ).
+Do prime factorization. I<NUM> is an integer greater than or equal to 2.
+alias: pf().
+
+  $ c 'prime_factorize( 396 )'
+  ( 2, 2, 3, 3, 11 )
+
+  $ c 'prime_factorize( 1576770817 )'
+  1576770817
 
 =item C<get_prime>
 
-get_prime( I<BIT_WIDTH> ). Returns a random prime number within the range of I<BIT_WIDTH>, where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
+get_prime( I<BIT_WIDTH> ).
+Returns a random prime number within the range of I<BIT_WIDTH>,
+where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
+
+  $ c 'get_prime( 32 )'
+  1576770817
 
 =item C<gcd>
 
-gcd( I<NUMBER1>,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]
+gcd( I<NUMBER1>,.. ).
+Returns the greatest common divisor (GCD),
+which is the largest positive integer that divides each of the operands.
+[Math::BigInt::bgcd()]
+
+  $ c 'gcd( 402, 670, 804 )'
+  134
 
 =item C<lcm>
 
-lcm( I<NUMBER1>,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]
+lcm( I<NUMBER1>,.. ).
+Returns the least common multiple (LCM).
+[Math::BigInt::blcm()]
+
+  $ c 'lcm( 402, 670, 804 )'
+  4020
 
 =item C<ncr>
 
-nCr( I<N>, I<R> ). I<N> Choose I<R>. A combination of I<R> items selected from I<N> items. I<N> is a non-negative integer. I<R> is a positive integer.
+nCr( I<N>, I<R> ).
+I<N> Choose I<R>. A combination of I<R> items selected from I<N> items.
+I<N> is a non-negative integer.
+I<R> is a positive integer.
+
+Number of combinations of choosing 3 out of 5:
+
+  $ c 'nCr( 5, 3 )'
+  10
 
 =item C<min>
 
-min( I<NUMBER1>,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]
+min( I<NUMBER1>,.. ).
+Returns the entry in the list with the lowest numerical value.
+[List::Util]
+
+  $ c 'min( 402, 670, 804 )'
+  402
 
 =item C<max>
 
-max( I<NUMBER1>,.. ). Returns the entry in the list with the highest numerical value. [List::Util]
+max( I<NUMBER1>,.. ).
+Returns the entry in the list with the highest numerical value.
+[List::Util]
+
+  $ c 'max( 402, 670, 804 )'
+  804
 
 =item C<shuffle>
 
-shuffle( I<NUMBER1>,.. ). Returns the values of the input in a random order. [List::Util]
+shuffle( I<NUMBER1>,.. ).
+Returns the values of the input in a random order.
+[List::Util]
+
+  $ c 'shuffle( 402, 670, 804 )'
+  ( 804, 402, 670 )
 
 =item C<first>
 
-first( I<NUMBER1>,.. ). Returns the head of the set. Same as slice( I<NUMBER1>,.. , 0, 1 ).
+first( I<NUMBER1>,.. ).
+Returns the head of the set.
+Same as slice( I<NUMBER1>,.. , 0, 1 ).
+
+  $ c 'first( 402, 670, 804 )'
+  402
 
 =item C<slice>
 
-slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ). Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
+slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ).
+Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
+
+Extract only the date (first three):
+
+  $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
+  ( 2025, 12, 17 )
 
 =item C<uniq>
 
-uniq( I<NUMBER1>,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]
+uniq( I<NUMBER1>,.. ).
+Filters a list of values to remove subsequent duplicates,
+as judged by a DWIM-ish string equality or "undef" test.
+Preserves the order of unique elements, and retains the first value of any duplicate set.
+[List::Util]
+
+  $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
+  ( 2, 3, 67 )
 
 =item C<sum>
 
-sum( I<NUMBER1>,.. ). Returns the numerical sum of all the elements in the list. [List::Util]
+sum( I<NUMBER1>,.. ).
+Returns the numerical sum of all the elements in the list.
+[List::Util]
+
+  $ c 'sum( 1, 2, 3, 4 )'
+  10
 
 =item C<prod>
 
-prod( I<NUMBER1>,.. ). Returns the product of each value.
+prod( I<NUMBER1>,.. ).
+Returns the product of each value.
+
+  $ c 'prod( 1, 2, 3, 4 )'
+  24
 
 =item C<avg>
 
-avg( I<NUMBER1>,.. ). Returns the average value of all elements in a list.
+avg( I<NUMBER1>,.. ).
+Returns the average value of all elements in a list.
+
+  $ c 'avg( 1, 2, 3, 4 )'
+  2.5
 
 =item C<linspace>
 
@@ -3747,15 +3892,24 @@ Divide the range from 0x33 to 0xCC into 5 parts:
   $ c 'linspace( 0x33, 0xcc, 5, 0 )'
   ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
+  $ c 'linspace( 0x33, 0xcc, 5 )'
+  ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+
 =item C<linstep>
 
 linstep( I<START>, I<STEP>, I<COUNT> ).
 Generates a list of I<COUNT> numbers that increase from I<START> by I<STEP>.
 
+A sequence of 10 numbers that decrease by 2 from 101:
+
+  $ c 'linstep( 101, -2, 10 )'
+  ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
+
 =item C<gen_fibo_seq>
 
 gen_fibo_seq( I<A>, I<B>, I<COUNT> ).
-Generates the Generalized Fibonacci Sequence. I<COUNT> is a non-negative integer.
+Generates the Generalized Fibonacci Sequence.
+I<COUNT> is a non-negative integer.
 Returns an array starting at I<A> and I<B>, with size I<COUNT> + 2.
 
 Generate the Lucas sequence:
@@ -3775,36 +3929,67 @@ If TYPE is specified as 1, it will be B size.
 What are the dimensions of A4 size?:
 
   $ c 'paper_size( 4 )'
-  ( 210, 297, 62370 )
+  ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
+
+What are the dimensions of B4 size?:
+
+  $ c 'paper_size( 4, 1 )'
+  ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
 
 =item C<rand>
 
-rand( I<N> ).  Returns a random fractional number greater than or equal to 0 and
-less than the value of I<N>. [Perl Native]
+rand( I<N> ).
+Returns a random fractional number greater than or equal to 0 and less than the value of I<N>.
+[Perl Native]
+
+A random number between 0 and 6:
+
+  $ c 'rand( 6 )'
+  4.11497904963291
+
+0 or 1 or 2 or 3 or 4 or 5:
+
+  $ c 'int( rand( 6 ) )'
+  2
 
 =item C<log>
 
-log( I<N> ). Returns the natural logarithm (base e) of I<N>. [Perl Native]
+log( I<N> ).
+Returns the natural logarithm (base e) of I<N>.
+[Perl Native]
 
 =item C<sqrt>
 
-sqrt( I<N> ). Return the positive square root of I<N>. Works only for non-negative operands. [Perl Native]
+sqrt( I<N> ).
+Return the positive square root of I<N>.
+Works only for non-negative operands.
+[Perl Native]
 
 =item C<pow>
 
-pow( I<A>, I<B> ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]
+pow( I<A>, I<B> ).
+Exponentiation.
+"pow( 2, 3 )" -> 8.
+Similarly, "2 ** 3".
+[Perl Native]
 
 =item C<pow_inv>
 
-pow_inv( I<A>, I<B> ). Returns the power of I<A> to which I<B> is raised.
+pow_inv( I<A>, I<B> ).
+Returns the power of I<A> to which I<B> is raised.
+
+  $ c 'pow_inv( 8, 2 )'
+  3
 
 =item C<rad2deg>
 
-rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ). [Math::Trig]
+rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
+[Math::Trig]
 
 =item C<deg2rad>
 
-deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ). [Math::Trig]
+deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+[Math::Trig]
 
 =item C<dms2rad>
 
@@ -3824,139 +4009,342 @@ dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<M
 
 =item C<sin>
 
-sin( I<RADIANS> ). Returns the sine of I<RADIANS>. [Perl Native]
+sin( I<RADIANS> ).
+Returns the sine of I<RADIANS>.
+[Perl Native]
 
 =item C<cos>
 
-cos( I<RADIANS> ). Returns the cosine of I<RADIANS>. [Perl Native]
+cos( I<RADIANS> ).
+Returns the cosine of I<RADIANS>.
+[Perl Native]
 
 =item C<tan>
 
-tan( I<RADIANS> ). Returns the tangent of I<RADIANS>. [Math::Trig]
+tan( I<RADIANS> ).
+Returns the tangent of I<RADIANS>.
+[Math::Trig]
 
 =item C<asin>
 
-asin( I<RATIO> ). The arcus (also known as the inverse) functions of the sine. [Math::Trig]
+asin( I<RATIO> ).
+The arcus (also known as the inverse) functions of the sine.
+[Math::Trig]
+
+  $ c 'rad2deg( asin( 1 / 2 ) )'
+  30
 
 =item C<acos>
 
-acos( I<RATIO> ). The arcus (also known as the inverse) functions of the cosine. [Math::Trig]
+acos( I<RATIO> ).
+The arcus (also known as the inverse) functions of the cosine.
+[Math::Trig]
+
+  $ c 'rad2deg( acos( 1 / 2 ) )'
+  60
 
 =item C<atan>
 
-atan( I<RATIO> ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]
+atan( I<RATIO> ).
+The arcus (also known as the inverse) functions of the tangent.
+[Math::Trig]
+
+  $ c 'rad2deg( atan( 1 / 1 ) )'
+  45
 
 =item C<atan2>
 
-atan2( I<Y>, I<X> ). The principal value of the arc tangent of I<Y> / I<X>. [Math::Trig]
+atan2( I<Y>, I<X> ).
+The principal value of the arc tangent of I<Y> / I<X>.
+[Math::Trig]
+
+  $ c 'rad2deg( atan2( 1, 1 ) )'
+  45
 
 =item C<hypot>
 
-hypot( I<X>, I<Y> ). Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments. [POSIX]
+hypot( I<X>, I<Y> ).
+Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments.
+[POSIX]
+
+  $ c 'hypot( 1, 1 )'
+  1.4142135623731
 
 =item C<slope_deg>
 
-slope_deg( I<X>, I<Y> ). Returns the straight line distance from (0,0) to (I<X>,I<Y>).
+slope_deg( I<X>, I<Y> ).
+Returns the straight line distance from (0,0) to (I<X>,I<Y>).
+
+  $ c 'slope_deg( 1, 1 )'
+  45
 
 =item C<dist_between_points>
 
-dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>). alias: dist().
+dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+alias: dist().
+
+  $ c 'dist_between_points( 100, 10, 200, 110 )'
+  141.42135623731
+
+  $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
+  173.205080756888
 
 =item C<midpt_between_points>
 
-midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>). alias: midpt().
+midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>).
+alias: midpt().
+
+  $ c 'midpt_between_points( 100, 10, 200, 110 )'
+  ( 150, 60 )
+
+  $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
+  ( 150, 60, 100 )
 
 =item C<angle_between_points>
 
-angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ). Returns the angle (in degrees) from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>). alias: angle().
+angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+Returns the angle (in degrees) from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+alias: angle().
+
+  $ c 'angle_between_points( 100, 10, 200, 110 )'
+  45
+
+  $ c 'angle_between_points( 100, 10, 50, 200, 110, 150 )'
+  35.2643896827547
 
 =item C<geo_radius>
 
-geo_radius( I<LAT> ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+geo_radius( I<LAT> ).
+Given a latitude (in radians),
+returns the distance from the center of the Earth to its surface (in meters).
+
+What is the radius of the equator (0 degrees latitude)?
+
+  $ c 'geo_radius( deg2rad( 0 ) )'
+  6378137
 
 =item C<radius_of_lat>
 
-radius_of_lat( I<LAT> ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+radius_of_lat( I<LAT> ).
+Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+  $ c 'radius_of_lat( deg2rad( 45 ) )'
+  4517590.87888605
 
 =item C<geo_distance>
 
-geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance_m().
+geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the distance (in meters) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+Same as geo_distance_m().
 
 =item C<geo_distance_m>
 
-geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in meters) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the distance (in meters) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+Same as geo_distance().
+alias: gd_m().
 
 =item C<geo_distance_km>
 
-geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ). Calculates and returns the distance (in kilometers) from I<A> to I<B>. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the distance (in kilometers) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+Same as geo_distance_m() / 1000.
+alias: gd_km().
 
 =item C<is_leap>
 
-is_leap( I<YEAR> ). Leap year test: Returns 1 if I<YEAR> is a leap year, 0 otherwise.
+is_leap( I<YEAR> ).
+Leap year test: Returns 1 if I<YEAR> is a leap year, 0 otherwise.
+
+  $ c 'is_leap( 2024 )'
+  1
+  $ c 'is_leap( 2025 )'
+  0
 
 =item C<age_of_moon>
 
-age_of_moon( I<Y>, I<m>, I<d> ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.
+age_of_moon( I<Y>, I<m>, I<d> ).
+Simple calculation of the age of the moon.
+Maximum deviation of about 2 days.
+
+  $ c 'age_of_moon( 2025, 12, 5 )'
+  15
 
 =item C<local2epoch>
 
-local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ). Returns the local time in seconds since the epoch.
+local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
+Returns the local time in seconds since the epoch.
+
+  $ c 'local2epoch( 2025, 1, 2, 03, 40, 50 )'
+  1735756850
 
 =item C<gmt2epoch>
 
-gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ). Returns the GMT time in seconds since the epoch.
+gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
+Returns the GMT time in seconds since the epoch.
+
+  $ c 'gmt2epoch( 2025, 1, 1, 18, 40, 50 )'
+  1735756850
 
 =item C<epoch2local>
 
-epoch2local( I<EPOCH> ). Returns the local time. ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+epoch2local( I<EPOCH> ).
+Returns the local time.
+( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+  $ c 'epoch2local( 1735756850 )'
+  ( 2025, 1, 2, 3, 40, 50 )
 
 =item C<epoch2gmt>
 
-epoch2gmt( I<EPOCH> ). Returns the GMT time. ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+epoch2gmt( I<EPOCH> ).
+Returns the GMT time.
+( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+  $ c 'epoch2gmt( 1735756850 )'
+  ( 2025, 1, 1, 18, 40, 50 )
 
 =item C<sec2dhms>
 
 sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 
+  $ c 'sec2dhms( 356521 )'
+  ( 4, 3, 2, 1 )
+
 =item C<dhms2sec>
 
 dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
 
+  $ c 'dhms2sec( 4, 03, 02, 01 )'
+  356521
+
 =item C<laptimer>
 
-laptimer( I<LAPS> ). Each time you press Enter, the split time is measured and the time taken to measure I<LAPS> is returned. If I<LAPS> is set to a negative value, the split time is not output. alias: lt().
+laptimer( I<LAPS> ).
+Each time you press Enter,
+the split time is measured and the time taken to measure I<LAPS> is returned.
+If I<LAPS> is set to a negative value, the split time is not output.
+alias: lt().
+
+The time for 3 laps was measured:
+
+  $ c 'laptimer( 3 )'
+  Lap  Split-Time    Lap-Time      Date-Time
+  ---  ------------  ------------  -------------------
+  <-- Enter key
+  1/3  00:00:19.785  00:00:19.785  2025-12-17 22:18:29
+  <-- Enter key
+  2/3  00:00:39.562  00:00:19.777  2025-12-17 22:18:49
+  <-- Enter key
+  3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
+  59.8917651176453
 
 =item C<stopwatch>
 
-stopwatch( I<B_PRINT> ). Measures the time until the Enter key is pressed. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen. alias: sw().
+stopwatch( I<B_PRINT> ).
+Measures the time until the Enter key is pressed.
+If you specify 0 for I<B_PRINT>,
+the measured time will not be displayed on the screen.
+alias: sw().
+
+Usage example:
+
+  $ c 'stopwatch( 0 )'
+  <-- Enter key
+  10.3102450370789
+  $ c 'stopwatch( 1 )'
+  <-- Enter key
+  stopwatch() = 10.2675848007202 sec.
+  10.2675848007202
 
 =item C<bpm>
 
-bpm( I<B_PRINT>, I<COUNT> ). Once you have confirmed the I<COUNT> number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+bpm( I<B_PRINT>, I<COUNT> ).
+Once you have confirmed the I<COUNT> number of beats, press the Enter key.
+The BPM will be calculated from the elapsed time.
+If you specify 0 for I<B_PRINT>,
+the measured time will not be displayed on the screen.
 
 =item C<bpm15>
 
-bpm15( I<B_PRINT> ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+bpm15( I<B_PRINT> ).
+Once you have confirmed 15 beats, press the Enter key.
+The BPM will be calculated from the elapsed time.
+If you specify 0 for I<B_PRINT>,
+the measured time will not be displayed on the screen.
+
+  $ c 'bpm15( 1 )'
+  <-- Enter key
+  stopwatch() = 12.7652950286865 sec.
+  70.5036583939106
 
 =item C<bpm30>
 
-bpm30( I<B_PRINT> ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen.
+bpm30( I<B_PRINT> ).
+Once you have confirmed 30 beats, press the Enter key.
+The BPM will be calculated from the elapsed time.
+If you specify 0 for I<B_PRINT>,
+the measured time will not be displayed on the screen.
+
+  $ c 'bpm30( 1 )'
+  <-- Enter key
+  stopwatch() = 24.9058220386505 sec.
+  72.2722581574156
 
 =item C<tachymeter>
 
-tachymeter( I<B_PRINT> ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for I<B_PRINT>, the measured time will not be displayed on the screen. Same as ratio_scaling( stopwatch( I<B_PRINT> ), 1, 3600 ).
+tachymeter( I<B_PRINT> ).
+Measures the number of seconds required for one unit of work and returns the number of units of work done per hour.
+Press Enter to measure the number of seconds.
+If you specify 0 for I<B_PRINT>,
+the measured time will not be displayed on the screen.
+Same as ratio_scaling( stopwatch( I<B_PRINT> ), 1, 3600 ).
+
+Measure the time for a 1km section and calculate the speed:
+
+  $ c 'tachymeter( 1 )'
+  <-- Enter key
+  stopwatch() = 35.5551850795746 sec.
+  101.251054999235  # 101 km/h
 
 =item C<telemeter>
 
-telemeter( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in meters. Same as telemeter_m().
+telemeter( I<SECOND> ).
+Measures distance using the difference in the speed of light and sound.
+Returns the distance equivalent to I<SECOND> in meters.
+Same as telemeter_m().
+
+  $ c 'telemeter( sw( 1 ) )'
+  <-- Enter key
+  stopwatch() = 7.9051628112793 sec.
+  2687.75535583496
 
 =item C<telemeter_m>
 
-telemeter_m( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in meters. Same as telemeter().
+telemeter_m( I<SECOND> ).
+Measures distance using the difference in the speed of light and sound.
+Returns the distance equivalent to I<SECOND> in meters.
+Same as telemeter().
+
+  $ c 'telemeter_m( 8 )'
+  2720
 
 =item C<telemeter_km>
 
-telemeter_km( I<SECOND> ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to I<SECOND> in kilometers. Same as telemeter_m() / 1000.
+telemeter_km( I<SECOND> ).
+Measures distance using the difference in the speed of light and sound.
+Returns the distance equivalent to I<SECOND> in kilometers.
+Same as telemeter_m() / 1000.
+
+  $ c 'telemeter_km( 8 )'
+  2.72
 
 =back
 

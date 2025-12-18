@@ -383,51 +383,63 @@ The **c** script was created with the following in mind:
 
 - `+`
 
-    Addition. `1 + 2` -> `3`.
+    Addition.
+    `1 + 2` -> `3`.
 
 - `-`
 
-    Subtraction. `3 - 2` -> `1`.
+    Subtraction.
+    `3 - 2` -> `1`.
 
 - `*`
 
-    Multiplication. `1 * 2` -> `2`.
+    Multiplication.
+    `1 * 2` -> `2`.
 
 - `/`
 
-    Division. `1 / 2` -> `0.5`.
+    Division.
+    `1 / 2` -> `0.5`.
 
 - `%`
 
-    Modulo arithmetic. `5 % 3` -> `2`.
+    Modulo arithmetic.
+    `5 % 3` -> `2`.
 
 - `**`
 
-    Exponentiation. `2 ** 3` -> `8`. Similarly, `pow( 2, 3 )`.
+    Exponentiation.
+    `2 ** 3` -> `8`. Similarly, `pow( 2, 3 )`.
 
 - `|`
 
-    Bitwise OR. `0x2 | 0x4` -> `6 [ = 0x6 ]`.
+    Bitwise OR.
+    `0x2 | 0x4` -> `6 [ = 0x6 ]`.
 
 - `&`
 
-    Bitwise AND. `0x6 & 0x4` -> `4 [ = 0x4 ]`.
+    Bitwise AND.
+    `0x6 & 0x4` -> `4 [ = 0x4 ]`.
 
 - `^`
 
-    Bitwise Exclusive OR. `0x6 ^ 0x4` -> `2 [ = 0x2 ]`.
+    Bitwise Exclusive OR.
+    `0x6 ^ 0x4` -> `2 [ = 0x2 ]`.
 
 - `<<`
 
-    Bitwise left shift. `0x6 << 1` -> `12 [ = 0xC ]`.
+    Bitwise left shift.
+    `0x6 << 1` -> `12 [ = 0xC ]`.
 
 - `>>`
 
-    Bitwise right shift. `0x6 >> 1` -> `3 [ = 0x3 ]`.
+    Bitwise right shift.
+    `0x6 >> 1` -> `3 [ = 0x3 ]`.
 
 - `~`
 
-    Bitwise Inversion. `~0` -> `0xFFFFFFFFFFFFFFFFFF`.
+    Bitwise Inversion.
+    `~0` -> `0xFFFFFFFFFFFFFFFFFF`.
 
 - `(`
 
@@ -443,110 +455,243 @@ The **c** script was created with the following in mind:
 
 - `=`
 
-    Equals sign. In _c_ script, it has the meaning of terminating the calculation formula,
-    but it is not necessary. `1 + 2 =`. Similarly, `1 + 2`.
+    Equals sign.
+    In _c_ script, it has the meaning of terminating the calculation formula,
+    but it is not necessary.
+    `1 + 2 =`.
+    Similarly, `1 + 2`.
 
 # FUNCTIONS
 
 - `exp`
 
-    exp( _N_ ). Returns e (the natural logarithm base) to the power of _N_. \[Perl Native\]
+    exp( _N_ ).
+    Returns e (the natural logarithm base) to the power of _N_.
+    \[Perl Native\]
+
+    The base of natural logarithms e (Napier's constant):
+
+        $ c 'exp( 1 )'
+        2.71828182845905
 
 - `abs`
 
-    abs( _N_ ). Returns the absolute value of its argument. \[Perl Native\]
+    abs( _N_ ).
+    Returns the absolute value of its argument.
+    \[Perl Native\]
+
+        $ c '( abs( -1.2 ), abs( 1.2 ) )'
+        ( 1.2, 1.2 )
 
 - `int`
 
-    int( _N_ ). Returns the integer portion of _N_. \[Perl Native\]
+    int( _N_ ).
+    Returns the integer portion of _N_.
+    \[Perl Native\]
+
+        $ c '( int( -1.2 ), int( 1.2 ) )'
+        ( -1, 1 )
 
 - `floor`
 
-    floor( _N_ ). Returning the largest integer value less than or equal to the numerical argument. \[POSIX\]
+    floor( _N_ ).
+    Returning the largest integer value less than or equal to the numerical argument.
+    \[POSIX\]
+
+        $ c '( floor( -1.2 ), floor( 1.2 ) )'
+        ( -2, 1 )
 
 - `ceil`
 
-    ceil( _N_ ). Returning the smallest integer value greater than or equal to the given numerical argument. \[POSIX\]
+    ceil( _N_ ).
+    Returning the smallest integer value greater than or equal to the given numerical argument.
+    \[POSIX\]
+
+        $ c '( ceil( -1.2 ), ceil( 1.2 ) )'
+        ( -1, 2 )
 
 - `rounddown`
 
-    rounddown( _A_, _B_ ). Returns the value of _A_ truncated to _B_ decimal places.
+    rounddown( _A_, _B_ ).
+    Returns the value of _A_ truncated to _B_ decimal places.
+
+        $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
+        ( -1, 1 )
 
 - `round`
 
-    round( _A_, _B_ ). Returns the value of _A_ rounded to _B_ decimal places.
+    round( _A_, _B_ ).
+    Returns the value of _A_ rounded to _B_ decimal places.
+
+        $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
+        ( -1, -2, 1, 2 )
 
 - `roundup`
 
-    roundup( _A_, _B_ ). Returns the value of _A_ rounded up to _B_ decimal places.
+    roundup( _A_, _B_ ).
+    Returns the value of _A_ rounded up to _B_ decimal places.
+
+        $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
+        ( -2, 2 )
 
 - `percentage`
 
-    percentage( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ). Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified. alias: pct().
+    percentage( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ).
+    Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified.
+    alias: pct().
+
+        $ c 'percentage( 30, 1000 )'
+        3
 
 - `ratio_scaling`
 
-    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ). When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_. Rounding the number if _DECIMAL\_PLACES_ is specified. alias: rs().
+    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ).
+    When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_.
+    Rounding the number if _DECIMAL\_PLACES_ is specified.
+    alias: rs().
 
 - `is_prime`
 
-    is\_prime( _NUM_ ). Prime number test. Returns 1 if _NUM_ is prime, otherwise returns 0.
+    is\_prime( _NUM_ ).
+    Prime number test.
+    Returns 1 if _NUM_ is prime, otherwise returns 0.
+
+        $ c 'is_prime( 1576770817 )'
+        1
 
 - `prime_factorize`
 
-    prime\_factorize( _NUM_ ). Do prime factorization. _NUM_ is an integer greater than or equal to 2. alias: pf().
+    prime\_factorize( _NUM_ ).
+    Do prime factorization. _NUM_ is an integer greater than or equal to 2.
+    alias: pf().
+
+        $ c 'prime_factorize( 396 )'
+        ( 2, 2, 3, 3, 11 )
+
+        $ c 'prime_factorize( 1576770817 )'
+        1576770817
 
 - `get_prime`
 
-    get\_prime( _BIT\_WIDTH_ ). Returns a random prime number within the range of _BIT\_WIDTH_, where _BIT\_WIDTH_ is an integer between 4 and 32, inclusive.
+    get\_prime( _BIT\_WIDTH_ ).
+    Returns a random prime number within the range of _BIT\_WIDTH_,
+    where _BIT\_WIDTH_ is an integer between 4 and 32, inclusive.
+
+        $ c 'get_prime( 32 )'
+        1576770817
 
 - `gcd`
 
-    gcd( _NUMBER1_,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. \[Math::BigInt::bgcd()\]
+    gcd( _NUMBER1_,.. ).
+    Returns the greatest common divisor (GCD),
+    which is the largest positive integer that divides each of the operands.
+    \[Math::BigInt::bgcd()\]
+
+        $ c 'gcd( 402, 670, 804 )'
+        134
 
 - `lcm`
 
-    lcm( _NUMBER1_,.. ). Returns the least common multiple (LCM). \[Math::BigInt::blcm()\]
+    lcm( _NUMBER1_,.. ).
+    Returns the least common multiple (LCM).
+    \[Math::BigInt::blcm()\]
+
+        $ c 'lcm( 402, 670, 804 )'
+        4020
 
 - `ncr`
 
-    nCr( _N_, _R_ ). _N_ Choose _R_. A combination of _R_ items selected from _N_ items. _N_ is a non-negative integer. _R_ is a positive integer.
+    nCr( _N_, _R_ ).
+    _N_ Choose _R_. A combination of _R_ items selected from _N_ items.
+    _N_ is a non-negative integer.
+    _R_ is a positive integer.
+
+    Number of combinations of choosing 3 out of 5:
+
+        $ c 'nCr( 5, 3 )'
+        10
 
 - `min`
 
-    min( _NUMBER1_,.. ). Returns the entry in the list with the lowest numerical value. \[List::Util\]
+    min( _NUMBER1_,.. ).
+    Returns the entry in the list with the lowest numerical value.
+    \[List::Util\]
+
+        $ c 'min( 402, 670, 804 )'
+        402
 
 - `max`
 
-    max( _NUMBER1_,.. ). Returns the entry in the list with the highest numerical value. \[List::Util\]
+    max( _NUMBER1_,.. ).
+    Returns the entry in the list with the highest numerical value.
+    \[List::Util\]
+
+        $ c 'max( 402, 670, 804 )'
+        804
 
 - `shuffle`
 
-    shuffle( _NUMBER1_,.. ). Returns the values of the input in a random order. \[List::Util\]
+    shuffle( _NUMBER1_,.. ).
+    Returns the values of the input in a random order.
+    \[List::Util\]
+
+        $ c 'shuffle( 402, 670, 804 )'
+        ( 804, 402, 670 )
 
 - `first`
 
-    first( _NUMBER1_,.. ). Returns the head of the set. Same as slice( _NUMBER1_,.. , 0, 1 ).
+    first( _NUMBER1_,.. ).
+    Returns the head of the set.
+    Same as slice( _NUMBER1_,.. , 0, 1 ).
+
+        $ c 'first( 402, 670, 804 )'
+        402
 
 - `slice`
 
-    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ). Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
+    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ).
+    Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
+
+    Extract only the date (first three):
+
+        $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
+        ( 2025, 12, 17 )
 
 - `uniq`
 
-    uniq( _NUMBER1_,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. \[List::Util\]
+    uniq( _NUMBER1_,.. ).
+    Filters a list of values to remove subsequent duplicates,
+    as judged by a DWIM-ish string equality or "undef" test.
+    Preserves the order of unique elements, and retains the first value of any duplicate set.
+    \[List::Util\]
+
+        $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
+        ( 2, 3, 67 )
 
 - `sum`
 
-    sum( _NUMBER1_,.. ). Returns the numerical sum of all the elements in the list. \[List::Util\]
+    sum( _NUMBER1_,.. ).
+    Returns the numerical sum of all the elements in the list.
+    \[List::Util\]
+
+        $ c 'sum( 1, 2, 3, 4 )'
+        10
 
 - `prod`
 
-    prod( _NUMBER1_,.. ). Returns the product of each value.
+    prod( _NUMBER1_,.. ).
+    Returns the product of each value.
+
+        $ c 'prod( 1, 2, 3, 4 )'
+        24
 
 - `avg`
 
-    avg( _NUMBER1_,.. ). Returns the average value of all elements in a list.
+    avg( _NUMBER1_,.. ).
+    Returns the average value of all elements in a list.
+
+        $ c 'avg( 1, 2, 3, 4 )'
+        2.5
 
 - `linspace`
 
@@ -559,15 +704,24 @@ The **c** script was created with the following in mind:
         $ c 'linspace( 0x33, 0xcc, 5, 0 )'
         ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
+        $ c 'linspace( 0x33, 0xcc, 5 )'
+        ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+
 - `linstep`
 
     linstep( _START_, _STEP_, _COUNT_ ).
     Generates a list of _COUNT_ numbers that increase from _START_ by _STEP_.
 
+    A sequence of 10 numbers that decrease by 2 from 101:
+
+        $ c 'linstep( 101, -2, 10 )'
+        ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
+
 - `gen_fibo_seq`
 
     gen\_fibo\_seq( _A_, _B_, _COUNT_ ).
-    Generates the Generalized Fibonacci Sequence. _COUNT_ is a non-negative integer.
+    Generates the Generalized Fibonacci Sequence.
+    _COUNT_ is a non-negative integer.
     Returns an array starting at _A_ and _B_, with size _COUNT_ + 2.
 
     Generate the Lucas sequence:
@@ -587,36 +741,67 @@ The **c** script was created with the following in mind:
     What are the dimensions of A4 size?:
 
         $ c 'paper_size( 4 )'
-        ( 210, 297, 62370 )
+        ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
+
+    What are the dimensions of B4 size?:
+
+        $ c 'paper_size( 4, 1 )'
+        ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
 
 - `rand`
 
-    rand( _N_ ).  Returns a random fractional number greater than or equal to 0 and
-    less than the value of _N_. \[Perl Native\]
+    rand( _N_ ).
+    Returns a random fractional number greater than or equal to 0 and less than the value of _N_.
+    \[Perl Native\]
+
+    A random number between 0 and 6:
+
+        $ c 'rand( 6 )'
+        4.11497904963291
+
+    0 or 1 or 2 or 3 or 4 or 5:
+
+        $ c 'int( rand( 6 ) )'
+        2
 
 - `log`
 
-    log( _N_ ). Returns the natural logarithm (base e) of _N_. \[Perl Native\]
+    log( _N_ ).
+    Returns the natural logarithm (base e) of _N_.
+    \[Perl Native\]
 
 - `sqrt`
 
-    sqrt( _N_ ). Return the positive square root of _N_. Works only for non-negative operands. \[Perl Native\]
+    sqrt( _N_ ).
+    Return the positive square root of _N_.
+    Works only for non-negative operands.
+    \[Perl Native\]
 
 - `pow`
 
-    pow( _A_, _B_ ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 \*\* 3". \[Perl Native\]
+    pow( _A_, _B_ ).
+    Exponentiation.
+    "pow( 2, 3 )" -> 8.
+    Similarly, "2 \*\* 3".
+    \[Perl Native\]
 
 - `pow_inv`
 
-    pow\_inv( _A_, _B_ ). Returns the power of _A_ to which _B_ is raised.
+    pow\_inv( _A_, _B_ ).
+    Returns the power of _A_ to which _B_ is raised.
+
+        $ c 'pow_inv( 8, 2 )'
+        3
 
 - `rad2deg`
 
-    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ). \[Math::Trig\]
+    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
+    \[Math::Trig\]
 
 - `deg2rad`
 
-    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ). \[Math::Trig\]
+    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+    \[Math::Trig\]
 
 - `dms2rad`
 
@@ -636,139 +821,342 @@ The **c** script was created with the following in mind:
 
 - `sin`
 
-    sin( _RADIANS_ ). Returns the sine of _RADIANS_. \[Perl Native\]
+    sin( _RADIANS_ ).
+    Returns the sine of _RADIANS_.
+    \[Perl Native\]
 
 - `cos`
 
-    cos( _RADIANS_ ). Returns the cosine of _RADIANS_. \[Perl Native\]
+    cos( _RADIANS_ ).
+    Returns the cosine of _RADIANS_.
+    \[Perl Native\]
 
 - `tan`
 
-    tan( _RADIANS_ ). Returns the tangent of _RADIANS_. \[Math::Trig\]
+    tan( _RADIANS_ ).
+    Returns the tangent of _RADIANS_.
+    \[Math::Trig\]
 
 - `asin`
 
-    asin( _RATIO_ ). The arcus (also known as the inverse) functions of the sine. \[Math::Trig\]
+    asin( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the sine.
+    \[Math::Trig\]
+
+        $ c 'rad2deg( asin( 1 / 2 ) )'
+        30
 
 - `acos`
 
-    acos( _RATIO_ ). The arcus (also known as the inverse) functions of the cosine. \[Math::Trig\]
+    acos( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the cosine.
+    \[Math::Trig\]
+
+        $ c 'rad2deg( acos( 1 / 2 ) )'
+        60
 
 - `atan`
 
-    atan( _RATIO_ ). The arcus (also known as the inverse) functions of the tangent. \[Math::Trig\]
+    atan( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the tangent.
+    \[Math::Trig\]
+
+        $ c 'rad2deg( atan( 1 / 1 ) )'
+        45
 
 - `atan2`
 
-    atan2( _Y_, _X_ ). The principal value of the arc tangent of _Y_ / _X_. \[Math::Trig\]
+    atan2( _Y_, _X_ ).
+    The principal value of the arc tangent of _Y_ / _X_.
+    \[Math::Trig\]
+
+        $ c 'rad2deg( atan2( 1, 1 ) )'
+        45
 
 - `hypot`
 
-    hypot( _X_, _Y_ ). Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments. \[POSIX\]
+    hypot( _X_, _Y_ ).
+    Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments.
+    \[POSIX\]
+
+        $ c 'hypot( 1, 1 )'
+        1.4142135623731
 
 - `slope_deg`
 
-    slope\_deg( _X_, _Y_ ). Returns the straight line distance from (0,0) to (_X_,_Y_).
+    slope\_deg( _X_, _Y_ ).
+    Returns the straight line distance from (0,0) to (_X_,_Y_).
+
+        $ c 'slope_deg( 1, 1 )'
+        45
 
 - `dist_between_points`
 
-    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_). alias: dist().
+    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    alias: dist().
+
+        $ c 'dist_between_points( 100, 10, 200, 110 )'
+        141.42135623731
+
+        $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
+        173.205080756888
 
 - `midpt_between_points`
 
-    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_). alias: midpt().
+    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_).
+    alias: midpt().
+
+        $ c 'midpt_between_points( 100, 10, 200, 110 )'
+        ( 150, 60 )
+
+        $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
+        ( 150, 60, 100 )
 
 - `angle_between_points`
 
-    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ). Returns the angle (in degrees) from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_). alias: angle().
+    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    Returns the angle (in degrees) from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    alias: angle().
+
+        $ c 'angle_between_points( 100, 10, 200, 110 )'
+        45
+
+        $ c 'angle_between_points( 100, 10, 50, 200, 110, 150 )'
+        35.2643896827547
 
 - `geo_radius`
 
-    geo\_radius( _LAT_ ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).
+    geo\_radius( _LAT_ ).
+    Given a latitude (in radians),
+    returns the distance from the center of the Earth to its surface (in meters).
+
+    What is the radius of the equator (0 degrees latitude)?
+
+        $ c 'geo_radius( deg2rad( 0 ) )'
+        6378137
 
 - `radius_of_lat`
 
-    radius\_of\_lat( _LAT_ ). Given a latitude (in radians), returns the radius of that parallel (in meters).
+    radius\_of\_lat( _LAT_ ).
+    Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+    Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+        $ c 'radius_of_lat( deg2rad( 45 ) )'
+        4517590.87888605
 
 - `geo_distance`
 
-    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance\_m().
+    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    Same as geo\_distance\_m().
 
 - `geo_distance_m`
 
-    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in meters) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance(). alias: gd\_m().
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    Same as geo\_distance().
+    alias: gd\_m().
 
 - `geo_distance_km`
 
-    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ). Calculates and returns the distance (in kilometers) from _A_ to _B_. Latitude and longitude must be specified in radians. Same as geo\_distance\_m() / 1000. alias: gd\_km().
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the distance (in kilometers) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    Same as geo\_distance\_m() / 1000.
+    alias: gd\_km().
 
 - `is_leap`
 
-    is\_leap( _YEAR_ ). Leap year test: Returns 1 if _YEAR_ is a leap year, 0 otherwise.
+    is\_leap( _YEAR_ ).
+    Leap year test: Returns 1 if _YEAR_ is a leap year, 0 otherwise.
+
+        $ c 'is_leap( 2024 )'
+        1
+        $ c 'is_leap( 2025 )'
+        0
 
 - `age_of_moon`
 
-    age\_of\_moon( _Y_, _m_, _d_ ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.
+    age\_of\_moon( _Y_, _m_, _d_ ).
+    Simple calculation of the age of the moon.
+    Maximum deviation of about 2 days.
+
+        $ c 'age_of_moon( 2025, 12, 5 )'
+        15
 
 - `local2epoch`
 
-    local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ). Returns the local time in seconds since the epoch.
+    local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
+    Returns the local time in seconds since the epoch.
+
+        $ c 'local2epoch( 2025, 1, 2, 03, 40, 50 )'
+        1735756850
 
 - `gmt2epoch`
 
-    gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ). Returns the GMT time in seconds since the epoch.
+    gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
+    Returns the GMT time in seconds since the epoch.
+
+        $ c 'gmt2epoch( 2025, 1, 1, 18, 40, 50 )'
+        1735756850
 
 - `epoch2local`
 
-    epoch2local( _EPOCH_ ). Returns the local time. ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+    epoch2local( _EPOCH_ ).
+    Returns the local time.
+    ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+        $ c 'epoch2local( 1735756850 )'
+        ( 2025, 1, 2, 3, 40, 50 )
 
 - `epoch2gmt`
 
-    epoch2gmt( _EPOCH_ ). Returns the GMT time. ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+    epoch2gmt( _EPOCH_ ).
+    Returns the GMT time.
+    ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+        $ c 'epoch2gmt( 1735756850 )'
+        ( 2025, 1, 1, 18, 40, 50 )
 
 - `sec2dhms`
 
     sec2dhms( _DURATION\_SEC_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
 
+        $ c 'sec2dhms( 356521 )'
+        ( 4, 3, 2, 1 )
+
 - `dhms2sec`
 
     dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _DURATION\_SEC_ ).
 
+        $ c 'dhms2sec( 4, 03, 02, 01 )'
+        356521
+
 - `laptimer`
 
-    laptimer( _LAPS_ ). Each time you press Enter, the split time is measured and the time taken to measure _LAPS_ is returned. If _LAPS_ is set to a negative value, the split time is not output. alias: lt().
+    laptimer( _LAPS_ ).
+    Each time you press Enter,
+    the split time is measured and the time taken to measure _LAPS_ is returned.
+    If _LAPS_ is set to a negative value, the split time is not output.
+    alias: lt().
+
+    The time for 3 laps was measured:
+
+        $ c 'laptimer( 3 )'
+        Lap  Split-Time    Lap-Time      Date-Time
+        ---  ------------  ------------  -------------------
+        <-- Enter key
+        1/3  00:00:19.785  00:00:19.785  2025-12-17 22:18:29
+        <-- Enter key
+        2/3  00:00:39.562  00:00:19.777  2025-12-17 22:18:49
+        <-- Enter key
+        3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
+        59.8917651176453
 
 - `stopwatch`
 
-    stopwatch( _B\_PRINT_ ). Measures the time until the Enter key is pressed. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen. alias: sw().
+    stopwatch( _B\_PRINT_ ).
+    Measures the time until the Enter key is pressed.
+    If you specify 0 for _B\_PRINT_,
+    the measured time will not be displayed on the screen.
+    alias: sw().
+
+    Usage example:
+
+        $ c 'stopwatch( 0 )'
+        <-- Enter key
+        10.3102450370789
+        $ c 'stopwatch( 1 )'
+        <-- Enter key
+        stopwatch() = 10.2675848007202 sec.
+        10.2675848007202
 
 - `bpm`
 
-    bpm( _B\_PRINT_, _COUNT_ ). Once you have confirmed the _COUNT_ number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+    bpm( _B\_PRINT_, _COUNT_ ).
+    Once you have confirmed the _COUNT_ number of beats, press the Enter key.
+    The BPM will be calculated from the elapsed time.
+    If you specify 0 for _B\_PRINT_,
+    the measured time will not be displayed on the screen.
 
 - `bpm15`
 
-    bpm15( _B\_PRINT_ ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+    bpm15( _B\_PRINT_ ).
+    Once you have confirmed 15 beats, press the Enter key.
+    The BPM will be calculated from the elapsed time.
+    If you specify 0 for _B\_PRINT_,
+    the measured time will not be displayed on the screen.
+
+        $ c 'bpm15( 1 )'
+        <-- Enter key
+        stopwatch() = 12.7652950286865 sec.
+        70.5036583939106
 
 - `bpm30`
 
-    bpm30( _B\_PRINT_ ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen.
+    bpm30( _B\_PRINT_ ).
+    Once you have confirmed 30 beats, press the Enter key.
+    The BPM will be calculated from the elapsed time.
+    If you specify 0 for _B\_PRINT_,
+    the measured time will not be displayed on the screen.
+
+        $ c 'bpm30( 1 )'
+        <-- Enter key
+        stopwatch() = 24.9058220386505 sec.
+        72.2722581574156
 
 - `tachymeter`
 
-    tachymeter( _B\_PRINT_ ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for _B\_PRINT_, the measured time will not be displayed on the screen. Same as ratio\_scaling( stopwatch( _B\_PRINT_ ), 1, 3600 ).
+    tachymeter( _B\_PRINT_ ).
+    Measures the number of seconds required for one unit of work and returns the number of units of work done per hour.
+    Press Enter to measure the number of seconds.
+    If you specify 0 for _B\_PRINT_,
+    the measured time will not be displayed on the screen.
+    Same as ratio\_scaling( stopwatch( _B\_PRINT_ ), 1, 3600 ).
+
+    Measure the time for a 1km section and calculate the speed:
+
+        $ c 'tachymeter( 1 )'
+        <-- Enter key
+        stopwatch() = 35.5551850795746 sec.
+        101.251054999235  # 101 km/h
 
 - `telemeter`
 
-    telemeter( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in meters. Same as telemeter\_m().
+    telemeter( _SECOND_ ).
+    Measures distance using the difference in the speed of light and sound.
+    Returns the distance equivalent to _SECOND_ in meters.
+    Same as telemeter\_m().
+
+        $ c 'telemeter( sw( 1 ) )'
+        <-- Enter key
+        stopwatch() = 7.9051628112793 sec.
+        2687.75535583496
 
 - `telemeter_m`
 
-    telemeter\_m( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in meters. Same as telemeter().
+    telemeter\_m( _SECOND_ ).
+    Measures distance using the difference in the speed of light and sound.
+    Returns the distance equivalent to _SECOND_ in meters.
+    Same as telemeter().
+
+        $ c 'telemeter_m( 8 )'
+        2720
 
 - `telemeter_km`
 
-    telemeter\_km( _SECOND_ ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to _SECOND_ in kilometers. Same as telemeter\_m() / 1000.
+    telemeter\_km( _SECOND_ ).
+    Measures distance using the difference in the speed of light and sound.
+    Returns the distance equivalent to _SECOND_ in kilometers.
+    Same as telemeter\_m() / 1000.
+
+        $ c 'telemeter_km( 8 )'
+        2.72
 
 # Environmental requirements
 
