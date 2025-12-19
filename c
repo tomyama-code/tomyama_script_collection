@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.76 $
+## - $Revision: 4.77 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.76 $};
+    my $rev = q{$Revision: 4.77 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -3228,14 +3228,12 @@ CURRENT-TIME
 
   my %user_constant;
 
-  ## ex.) $ ./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'
-  ##      403.505099759608
-  $user_constant{TOKYO_ST_COORD} = 'deg2rad( 35.68129, 139.76706 )';
-  $user_constant{OSAKA_ST_COORD} = 'deg2rad( 34.70248, 135.49595 )';
   ## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
   ##      14907.357977036
   $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
   $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
+
+  $user_constant{GOLDEN_RATIO} = '( ( 1 + sqrt( 5 ) ) / 2 )'; # 1.61803398874989
 
   return %user_constant;
 
@@ -3738,6 +3736,11 @@ When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>.
 Rounding the number if I<DECIMAL_PLACES> is specified.
 alias: rs().
 
+If it takes 66 seconds to make 5 units, what will be the production quantity after 3600 seconds (1 hour)?:
+
+  $ c 'ratio_scaling( 66, 5, 3600 )'
+  272.727272727273
+
 =item C<is_prime>
 
 is_prime( I<NUM> ).
@@ -4142,6 +4145,11 @@ Calculates and returns the distance (in meters) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 Same as geo_distance_m().
 
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  403505.099759608
+
 =item C<geo_distance_m>
 
 geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
@@ -4150,6 +4158,11 @@ Latitude and longitude must be specified in radians.
 Same as geo_distance().
 alias: gd_m().
 
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  403505.099759608
+
 =item C<geo_distance_km>
 
 geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
@@ -4157,6 +4170,11 @@ Calculates and returns the distance (in kilometers) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 Same as geo_distance_m() / 1000.
 alias: gd_km().
+
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  403.505099759608
 
 =item C<is_leap>
 

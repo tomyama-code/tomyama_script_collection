@@ -10,16 +10,26 @@
 
 ここでは画面キャプチャのみ貼付します。
 
-### [c](docs/c.md)
-![Image of the c command execution](docs/img/c.jpg)
-[blog:『計算スクリプト c』の紹介](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)
+### c -- 関数電卓スクリプト
 
-### [fill](docs/fill.md)
+![Image of the c command execution](docs/img/c.jpg)
+
+- [POD](docs/c.md) \[ Plain Old Documentation \]
+- [blog:『計算スクリプト c』の紹介](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)
+
+### fill -- オートフィル風コマンド
+
 ![Image of the fill command execution](docs/img/fill.jpg)
 
-### [mark](docs/mark.md)
+- [POD](docs/fill.md) \[ Plain Old Documentation \]
+- [blog:『オートフィルっぽいコマンド、fill』](https://tomyama.hatenablog.jp/entry/2025/12/19/131224)
+
+### mark -- パターンに一致する部分をマーカーペンのように強調表示
+
 ![Image of the mark command execution](docs/img/mark.jpg)
-[blog: 検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)
+
+- [POD](docs/mark.md) \[ Plain Old Documentation \]
+- [blog: 検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)
 
 * * *
 

@@ -52,14 +52,12 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
         my %user_constant;
 
-        ## ex.) $ ./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'
-        ##      403.505099759608
-        $user_constant{TOKYO_ST_COORD} = 'deg2rad( 35.68129, 139.76706 )';
-        $user_constant{OSAKA_ST_COORD} = 'deg2rad( 34.70248, 135.49595 )';
         ## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
         ##      14907.357977036
         $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
         $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
+
+        $user_constant{GOLDEN_RATIO} = '( ( 1 + sqrt( 5 ) ) / 2 )'; # 1.61803398874989
 
         return %user_constant;
 
@@ -550,6 +548,11 @@ The **c** script was created with the following in mind:
     Rounding the number if _DECIMAL\_PLACES_ is specified.
     alias: rs().
 
+    If it takes 66 seconds to make 5 units, what will be the production quantity after 3600 seconds (1 hour)?:
+
+        $ c 'ratio_scaling( 66, 5, 3600 )'
+        272.727272727273
+
 - `is_prime`
 
     is\_prime( _NUM_ ).
@@ -954,6 +957,11 @@ The **c** script was created with the following in mind:
     Latitude and longitude must be specified in radians.
     Same as geo\_distance\_m().
 
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        403505.099759608
+
 - `geo_distance_m`
 
     geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
@@ -962,6 +970,11 @@ The **c** script was created with the following in mind:
     Same as geo\_distance().
     alias: gd\_m().
 
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        403505.099759608
+
 - `geo_distance_km`
 
     geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
@@ -969,6 +982,11 @@ The **c** script was created with the following in mind:
     Latitude and longitude must be specified in radians.
     Same as geo\_distance\_m() / 1000.
     alias: gd\_km().
+
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        403.505099759608
 
 - `is_leap`
 
