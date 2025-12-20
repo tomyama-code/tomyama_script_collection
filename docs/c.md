@@ -69,11 +69,12 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 exp, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime,
 prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
-linspace, linstep, gen\_fibo\_seq, paper\_size, rand, log, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad,
-dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope\_deg, dist\_between\_points,
-midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance, geo\_distance\_m,
-geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
-laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
+add\_each, mul\_each, linspace, linstep, gen\_fibo\_seq, paper\_size, rand, log, sqrt, pow, pow\_inv, rad2deg,
+deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope\_deg,
+dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance,
+geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt,
+sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+telemeter\_km
 
 # OPTIONS
 
@@ -510,24 +511,24 @@ The **c** script was created with the following in mind:
 
 - `rounddown`
 
-    rounddown( _A_, _B_ ).
-    Returns the value of _A_ truncated to _B_ decimal places.
+    rounddown( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    Returns the value of _NUMBER1_ truncated to _DECIMAL\_PLACES_.
 
         $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
         ( -1, 1 )
 
 - `round`
 
-    round( _A_, _B_ ).
-    Returns the value of _A_ rounded to _B_ decimal places.
+    round( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    Returns the value of _NUMBER1_ rounded to _DECIMAL\_PLACES_
 
         $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
         ( -1, -2, 1, 2 )
 
 - `roundup`
 
-    roundup( _A_, _B_ ).
-    Returns the value of _A_ rounded up to _B_ decimal places.
+    roundup( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    Returns the value of _NUMBER1_ rounded up to _DECIMAL\_PLACES_.
 
         $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
         ( -2, 2 )
@@ -695,6 +696,22 @@ The **c** script was created with the following in mind:
 
         $ c 'avg( 1, 2, 3, 4 )'
         2.5
+
+- `add_each`
+
+    add\_each( _NUMBER1_,.. , _OFFSET_ ). Add each number.
+
+        $ c 'add_each( 100, 200, -10 )'
+        ( 90, 190 )
+
+- `mul_each`
+
+    mul\_each( _NUMBER1_,.. , _FACTOR_ ). Multiply each number.
+
+    Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
+
+        $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
+        ( 2480.31496062992, 3507.87401574803 )
 
 - `linspace`
 

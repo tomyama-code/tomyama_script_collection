@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.77 $
+## - $Revision: 4.80 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.77 $};
+    my $rev = q{$Revision: 4.80 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -556,9 +556,9 @@ use constant {
     H_INT_ => qq{int( N ). Returns the integer portion of N. [Perl Native]},
     H_FLOR => qq{floor( N ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
     H_CEIL => qq{ceil( N ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
-    H_RODD => qq{rounddown( A, B ). Returns the value of A truncated to B decimal places.},
-    H_ROUD => qq{round( A, B ). Returns the value of A rounded to B decimal places.},
-    H_RODU => qq{roundup( A, B ). Returns the value of A rounded up to B decimal places.},
+    H_RODD => qq{rounddown( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
+    H_ROUD => qq{round( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
+    H_RODU => qq{roundup( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
     H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
     H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of I<X> in A:B=C:I<X>. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
     H_PRIM => qq{is_prime( NUM ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
@@ -576,6 +576,8 @@ use constant {
     H_SUM_ => qq{sum( NUMBER1,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
     H_PROD => qq{prod( NUMBER1,.. ). Returns the product of each value.},
     H_AVRG => qq{avg( NUMBER1,.. ). Returns the average value of all elements in a list.},
+    H_ADEC => qq{add_each( NUMBER1,.. , OFFSET ). Add each number.},
+    H_MLEC => qq{mul_each( NUMBER1,.. , FACTOR ). Multiply each number.},
     H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, DECIMAL_PLACES] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. Rounding the number if I<DECIMAL_PLACES> is specified.},
     H_LNST => qq{linstep( START, STEP, COUNT ). Generates a list of COUNT numbers that increase from START by STEP.},
     H_GFIS => qq{gen_fibo_seq( A, B, COUNT ). Generates the Generalized Fibonacci Sequence. COUNT is a non-negative integer. Returns an array starting at A and B, with size COUNT + 2.},
@@ -654,10 +656,10 @@ use constant {
     'int'                  => [  50, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
     'floor'                => [  60, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
     'ceil'                 => [  70, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
-    'rounddown'            => [  80, T_FUNCTION,     2, H_RODD, sub{ &rounddown( $_[ 0 ], $_[ 1 ] ) } ],
-    'round'                => [  90, T_FUNCTION,     2, H_ROUD, sub{ &round( $_[ 0 ], $_[ 1 ] ) } ],
-    'roundup'              => [ 100, T_FUNCTION,     2, H_RODU, sub{ &roundup( $_[ 0 ], $_[ 1 ] ) } ],
-    'percentage'           => [ 110, T_FUNCTION,    VA, H_PCTG, sub{ &percentage( @_ ) } ],
+    'rounddown'            => [  80, T_FUNCTION,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
+    'round'                => [  90, T_FUNCTION,    VA, H_ROUD, sub{ &round( @_ ) } ],
+    'roundup'              => [ 100, T_FUNCTION,    VA, H_RODU, sub{ &roundup( @_ ) } ],
+    'percentage'           => [ 110, T_FUNCTION, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
     'ratio_scaling'        => [ 120, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
     'is_prime'             => [ 130, T_FUNCTION,     1, H_PRIM, sub{ &is_prime_num( $_[ 0 ] ) } ],
     'prime_factorize'      => [ 140, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
@@ -674,6 +676,8 @@ use constant {
     'sum'                  => [ 240, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
     'prod'                 => [ 250, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
     'avg'                  => [ 260, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'add_each'             => [ 263, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
+    'mul_each'             => [ 265, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
     'linspace'             => [ 270, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
     'linstep'              => [ 280, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'gen_fibo_seq'         => [ 285, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
@@ -1002,48 +1006,62 @@ sub DMS2DMS( $$$ )
     return @dms_array;
 }
 
-sub rounddown( $$ )
+sub rounddown( @ )
 {
-    return &round_rf( $_[ 0 ], $_[ 1 ], 0 );
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{rounddown(): \$argc=$argc: Insufficient arguments.\n} );
+    }
+    return &round_rf( @_, 0 );
 }
 
-sub round( $$ )
+sub round( @ )
 {
-    return &round_rf( $_[ 0 ], $_[ 1 ], 0.5 );
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{round(): \$argc=$argc: Insufficient arguments.\n} );
+    }
+    return &round_rf( @_, 0.5 );
 }
 
-sub roundup( $$ )
+sub roundup( @ )
 {
-    return &round_rf( $_[ 0 ], $_[ 1 ], 1 );
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{roundup(): \$argc=$argc: Insufficient arguments.\n} );
+    }
+    return &round_rf( @_, 1 );
 }
 
-sub round_rf( $$$ )
+sub round_rf( @ )
 {
-    my $value = shift( @_ );
-    my $digit = shift( @_ );
-    my $rounding_factor = shift( @_ );
-    #print( qq{\$value="$value", \$digit="$digit", \$rounding_factor="$rounding_factor"\n} );
-    my $carry_factor = 10 ** $digit;
-    $rounding_factor *= -1 if( $value < 0 );
-    my $tmp = $value * $carry_factor + $rounding_factor;
-    my $integer = int( $tmp );
-    #print( qq{\$rounding_factor=$rounding_factor, \$tmp=$tmp, \$integer=$integer\n} );
-    $integer -= $rounding_factor if( ( $rounding_factor == -1 || $rounding_factor == 1 ) && $tmp == $integer );
-    return $integer / $carry_factor;
+    my $rounding_factor = pop( @_ );
+    my $digit = pop( @_ );
+
+    my @ret_vals = ();
+    for my $value( @_ ){
+        my $carry_factor = 10 ** $digit;
+        my $rd_factor = $rounding_factor;
+        $rd_factor *= -1 if( $value < 0 );
+        my $carried_num = $value * $carry_factor + $rd_factor;
+        my $integer = int( $carried_num );
+        #print( qq{\$rd_factor=$rd_factor, \$carried_num=$carried_num, \$integer=$integer\n} );
+        $integer -= $rd_factor if( $rounding_factor == 1 && $carried_num == $integer );
+        push( @ret_vals, $integer / $carry_factor );
+    }
+
+    return @ret_vals;
 }
 
 sub percentage( $$;$ )
 {
     my $numerator = shift( @_ );
     my $denominator = shift( @_ );
-    if( !defined( $denominator ) ){
-        die( qq{percentage: Not enough operands.\n} );
-    }
     my $decimal_places = undef;
     $decimal_places = shift( @_ ) if( defined( $_[ 0 ] ) );
     my $ret_value = $numerator * 100 / $denominator;
     if( defined( $decimal_places ) ){
-        $ret_value = &round( $ret_value, $decimal_places );
+        $ret_value = ( &round( $ret_value, $decimal_places ) )[ 0 ];
     }
     return $ret_value;
 }
@@ -1057,7 +1075,7 @@ sub ratio_scaling( $$$;$ )
     my $forecast_quantity = ( $number_of_targets *
         $observation_unit / $number_of_observations );
     if( defined( $decimal_places ) ){
-        $forecast_quantity = &round( $forecast_quantity, $decimal_places );
+        $forecast_quantity = ( &round( $forecast_quantity, $decimal_places ) )[ 0 ];
     }
     return $forecast_quantity;
 }
@@ -1178,6 +1196,34 @@ sub AVG( @ )
     return $total / $len;
 }
 
+sub add_each( @ )
+{
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{add_each(): \$argc=$argc: Insufficient number of arguments.\n} );
+    }
+    my $offset = pop( @_ );
+    my @ret_vals = ();
+    for my $operand( @_ ){
+        push( @ret_vals, $operand + $offset );
+    }
+    return @ret_vals;
+}
+
+sub mul_each( @ )
+{
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{mul_each(): \$argc=$argc: Insufficient number of arguments.\n} );
+    }
+    my $factor = pop( @_ );
+    my @ret_vals = ();
+    for my $operand( @_ ){
+        push( @ret_vals, $operand * $factor );
+    }
+    return @ret_vals;
+}
+
 # 機能: 下限値、上限値、分割数に基づき、等間隔の数値リストを生成する
 # 引数: $lower (下限値), $upper (上限値), $count (分割数),
 #       $bRound (省略可: 真値なら整数に丸める, デフォルトは丸めない)
@@ -1195,7 +1241,7 @@ sub LINSPACE( $$$;$ )
 
         # 第4引数 $decimal_places の桁で丸める
         if( defined( $decimal_places ) ){
-            $value = &round( $value, $decimal_places );
+            $value = ( &round( $value, $decimal_places ) )[ 0 ];
         }
 
         push( @list, $value );
@@ -3247,11 +3293,12 @@ CURRENT-TIME
 
 exp, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime,
 prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
-linspace, linstep, gen_fibo_seq, paper_size, rand, log, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad,
-dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope_deg, dist_between_points,
-midpt_between_points, angle_between_points, geo_radius, radius_of_lat, geo_distance, geo_distance_m,
-geo_distance_km, is_leap, age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
-laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
+add_each, mul_each, linspace, linstep, gen_fibo_seq, paper_size, rand, log, sqrt, pow, pow_inv, rad2deg,
+deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope_deg,
+dist_between_points, midpt_between_points, angle_between_points, geo_radius, radius_of_lat, geo_distance,
+geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt,
+sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
+telemeter_km
 
 =head1 OPTIONS
 
@@ -3698,24 +3745,24 @@ Returning the smallest integer value greater than or equal to the given numerica
 
 =item C<rounddown>
 
-rounddown( I<A>, I<B> ).
-Returns the value of I<A> truncated to I<B> decimal places.
+rounddown( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
   $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
   ( -1, 1 )
 
 =item C<round>
 
-round( I<A>, I<B> ).
-Returns the value of I<A> rounded to I<B> decimal places.
+round( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
   $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
   ( -1, -2, 1, 2 )
 
 =item C<roundup>
 
-roundup( I<A>, I<B> ).
-Returns the value of I<A> rounded up to I<B> decimal places.
+roundup( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+Returns the value of I<NUMBER1> rounded up to I<DECIMAL_PLACES>.
 
   $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
   ( -2, 2 )
@@ -3883,6 +3930,22 @@ Returns the average value of all elements in a list.
 
   $ c 'avg( 1, 2, 3, 4 )'
   2.5
+
+=item C<add_each>
+
+add_each( I<NUMBER1>,.. , I<OFFSET> ). Add each number.
+
+  $ c 'add_each( 100, 200, -10 )'
+  ( 90, 190 )
+
+=item C<mul_each>
+
+mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
+
+Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
+
+  $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
+  ( 2480.31496062992, 3507.87401574803 )
 
 =item C<linspace>
 

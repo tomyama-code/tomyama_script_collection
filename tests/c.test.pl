@@ -1260,6 +1260,24 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rounddown( 192.168 ) ='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'rounddown( 192.168 ) ='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: rounddown\(\): \$argc=1: Insufficient arguments\.\n/, qq{Insufficient arguments.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'round( 192.168 ) ='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'round( 192.168 ) ='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: round\(\): \$argc=1: Insufficient arguments\.\n/, qq{Insufficient arguments.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'roundup( 192.168 ) ='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'roundup( 192.168 ) ='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: roundup\(\): \$argc=1: Insufficient arguments\.\n/, qq{Insufficient arguments.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rounddown( 192.168, 2 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'rounddown( 192.168, 2 ) ='} );
     $cmd->stdout_is_eq( qq{192.16\n} );
@@ -1314,6 +1332,42 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rounddown( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'rounddown( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, -0.5, -0.4, 0, 0.4, 0.5, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'round( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'round( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, -0.5, -0.4, 0, 0.4, 0.5, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'roundup( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'roundup( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 1 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, -0.5, -0.4, 0, 0.4, 0.5, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rounddown( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'rounddown( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, 0, 0, 0, 0, 0, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'round( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'round( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, -1, 0, 0, 0, 1, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'roundup( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'roundup( -1, -0.5, -0.4, 0, 0.4, 0.5, 1, 0 ) ='} );
+    $cmd->stdout_is_eq( qq{( -1, -1, -1, 0, 1, 1, 1 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3 )'} );
     $cmd->stdout_is_eq( qq{66.6666666666667\n} );
@@ -1341,7 +1395,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2 )'} );
     $cmd->exit_isnt_num( 0, qq{./c 'percentage( 2 )'} );
     $cmd->stdout_is_eq( qq{} );
-    $cmd->stderr_like( qr/^c: evaluator: error: percentage: Not enough operands.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: "percentage": Operand missing\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage()'} );
@@ -1725,6 +1779,30 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) ='} );
     $cmd->stdout_is_eq( qq{4.5\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'add_each( -10 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'add_each( -10 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: add_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'add_each( 100, 200, -10 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'add_each( 100, 200, -10 )'} );
+    $cmd->stdout_is_eq( qq{( 90, 190 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'mul_each( ( 1 / 25.4 ) * 300 )'} );
+    $cmd->exit_isnt_num( 0, qq{./c 'mul_each( ( 1 / 25.4 ) * 300 )'} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: mul_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'} );
+    $cmd->stdout_is_eq( qq{( 2480.31496062992, 3507.87401574803 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

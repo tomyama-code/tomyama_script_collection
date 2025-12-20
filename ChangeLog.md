@@ -7,6 +7,15 @@
 ### Changed
 - xxx
 
+## [0.2.39] - 2025-12-21
+### Added
+- `c` [1.04.079]: Add a function.
+  - add_each( NUMBER1,.. , OFFSET ). Add each number.
+  - mul_each( NUMBER1,.. , FACTOR ). Multiply each number.
+
+### Changed
+- `c` [1.04.080]: rounddown(), round(), roundup(): Changed to handle multiple numbers.
+
 ## [0.2.36] - 2025-12-17
 ### Added
 - `c` [1.04.072]: Add a function.
