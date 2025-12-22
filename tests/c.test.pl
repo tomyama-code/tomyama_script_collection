@@ -339,6 +339,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
+    $cmd->exit_is_num( 0, qq{./c 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
+    $cmd->stdout_is_eq( qq{( 1920, 1080 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'hypot( 1920, 1080 )='} );
     $cmd->exit_is_num( 0, qq{./c 'hypot( 1920, 1080 )='} );
     $cmd->stdout_is_eq( qq{2202.9071700823\n} );
@@ -403,12 +409,6 @@ subtest qq{Normal} => sub{
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 50, 50 )='} );
     $cmd->stdout_is_eq( qq{35.2643896827547\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2,100)+power(2,100))='} );
-    $cmd->exit_isnt_num( 0, qq{./c 'sqrt(power(2,100)+power(2,100))='} );
-    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: pow: \$arg_counter="1": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2, 100))='} );
@@ -972,10 +972,16 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log( -123.456 ) ='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'log( -123.456 ) ='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: log\( -123.456 \): Must be a positive number\.\n/ );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(0)/log(2)='} );
     $cmd->exit_isnt_num( 0, qq{./c 'log(0)/log(2)='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: log\( 0 \): Illegal operand\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: log\( 0 \): Must be a positive number\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(~0+1)/log(2)='} );
@@ -986,6 +992,36 @@ subtest qq{Normal} => sub{
     }
     $cmd->stdout_is_eq( $expect, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $cmd->stderr_is_eq( qq{}, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log( 10, 100, 1000 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'log( 10, 100, 1000 )'} );
+    $cmd->stdout_is_eq( qq{( 2.30258509299405, 4.60517018598809, 6.90775527898214 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log10( -123.456 ) ='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'log10( -123.456 ) ='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: log10\( -123.456 \): Must be a positive number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log10(0)='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'log10(0)='} );
+    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
+    $cmd->stderr_like( qr/^c: evaluator: error: log10\( 0 \): Must be a positive number\.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log10( 4294967296 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'log10( 4294967296 )'} );
+    $cmd->stdout_is_eq( qq{9.6329598612474\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log10( 10, 100, 1000 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'log10( 10, 100, 1000 )'} );
+    $cmd->stdout_is_eq( qq{( 1, 2, 3 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( ~0+1, 2 )'} );
@@ -2112,10 +2148,10 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{c: engine: warn: "=r": Ignore. The calculation process has been completed.\n} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
-    $cmd->exit_isnt_num( 0, qq{./c 'sqrt( 1920 ** 2, 1080 ** 2 ) ='} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2,100)+power(2,100))='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'sqrt(power(2,100)+power(2,100))='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: sqrt: \$arg_counter="2": The number of operands is incorrect\.\n/ );
+    $cmd->stderr_like( qr/^c: evaluator: error: pow: \$arg_counter="1": The number of operands is incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(-1)'} );

@@ -539,8 +539,10 @@ The **c** script was created with the following in mind:
     Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified.
     alias: pct().
 
-        $ c 'percentage( 30, 1000 )'
-        3
+        $ c 'percentage( 1, 6 )'
+        16.6666666666667
+        $ c 'percentage( 1, 6, 2 )'
+        16.67
 
 - `ratio_scaling`
 
@@ -553,6 +555,8 @@ The **c** script was created with the following in mind:
 
         $ c 'ratio_scaling( 66, 5, 3600 )'
         272.727272727273
+        $ c 'ratio_scaling( 66, 5, 3600, 1 )'
+        272.7
 
 - `is_prime`
 
@@ -562,6 +566,8 @@ The **c** script was created with the following in mind:
 
         $ c 'is_prime( 1576770817 )'
         1
+        $ c 'is_prime( 1576770818 )'
+        0
 
 - `prime_factorize`
 
@@ -724,11 +730,10 @@ The **c** script was created with the following in mind:
 
     Divide the range from 0x33 to 0xCC into 5 parts:
 
-        $ c 'linspace( 0x33, 0xcc, 5, 0 )'
-        ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
-
         $ c 'linspace( 0x33, 0xcc, 5 )'
         ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+        $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+        ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
 - `linstep`
 
@@ -759,14 +764,14 @@ The **c** script was created with the following in mind:
     length of short side, length of long side (in mm), area (in mm2).
     SIZE is a non-negative integer.
     If TYPE is omitted or 0 is specified, it will be A size.
-    If TYPE is specified as 1, it will be B size.
+    If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
 
-    What are the dimensions of A4 size?:
+    What are the dimensions of A4 size ?:
 
         $ c 'paper_size( 4 )'
         ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
 
-    What are the dimensions of B4 size?:
+    What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
 
         $ c 'paper_size( 4, 1 )'
         ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
@@ -789,19 +794,71 @@ The **c** script was created with the following in mind:
 
 - `log`
 
-    log( _N_ ).
+    log( _N1_ \[,.. \] ).
     Returns the natural logarithm (base e) of _N_.
     \[Perl Native\]
 
+    exp(1) is the base of the natural logarithm ( Napier's constant ):
+
+        $ c 'log( 100 )'
+        4.60517018598809
+        $ c 'pow( exp( 1 ), log( 100 ) )'
+        100
+
+    A product of antilogarithms is transformed into a sum of logarithms:
+
+        $ c 'log( 200 * 300 )'
+        11.0020998412042
+        $ c 'log( 200 ) + log( 300 )'
+        11.0020998412042
+
+    The quotient of real numbers is the difference of logarithms:
+
+        $ c 'log( 200 / 300 )'
+        -0.405465108108164
+        $ c 'log( 200 ) - log( 300 )'
+        -0.405465108108165
+
+    Antilogarithmic exponents are converted to constant multiples of the logarithm:
+
+        $ c 'log( power( 200, 100 ) )'
+        529.831736654804
+        $ c '100 * log( 200 )'
+        529.831736654804
+
+    The reciprocal of an antilogarithm reverses the sign of the logarithm.
+
+        $ c 'log( 1 / 100 )'
+        -4.60517018598809
+        $ c 'log( power( 100, -1 ) )'
+        -4.60517018598809
+        $ c '-1 * log( 100 )'
+        -4.60517018598809
+
+- `log10`
+
+    log10( _N1_ \[,.. \] ).
+    Returns the common logarithm to the base 10.
+
+        $ c 'log10( 10, 100, 1000 )'
+        ( 1, 2, 3 )
+
+    The following two expressions are equivalent:
+
+        $ c 'log10( 10000 )'
+        4
+        $ c 'log( 10000 ) / log( 10 )'
+        4
+
 - `sqrt`
 
-    sqrt( _N_ ).
+    sqrt( _N1_ \[,.. \] ).
     Return the positive square root of _N_.
     Works only for non-negative operands.
     \[Perl Native\]
 
-        $ c 'sqrt( 9 )'
-        3
+        $ c 'sqrt( 9, 16, 25 )'
+        ( 3, 4, 5 )
 
 - `pow`
 

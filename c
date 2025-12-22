@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.83 $
+## - $Revision: 4.86 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.83 $};
+    my $rev = q{$Revision: 4.86 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -581,10 +581,11 @@ use constant {
     H_LNSP => qq{linspace( LOWER, UPPER, COUNT [, DECIMAL_PLACES] ). Generates a list of numbers from LOWER to UPPER divided into equal intervals by COUNT. Rounding the number if I<DECIMAL_PLACES> is specified.},
     H_LNST => qq{linstep( START, STEP, COUNT ). Generates a list of COUNT numbers that increase from START by STEP.},
     H_GFIS => qq{gen_fibo_seq( A, B, COUNT ). Generates the Generalized Fibonacci Sequence. COUNT is a non-negative integer. Returns an array starting at A and B, with size COUNT + 2.},
-    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm), area (in mm2). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size.},
+    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm), area (in mm2). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
-    H_LOGA => qq{log( N ). Returns the natural logarithm (base e) of N. [Perl Native]},
-    H_SQRT => qq{sqrt( N ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
+    H_LOGA => qq{log( N1 [,.. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
+    H_LG10 => qq{log10( N1 [,.. ] ). Returns the common logarithm to the base 10.},
+    H_SQRT => qq{sqrt( N1 [,.. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ). [Math::Trig]},
@@ -671,62 +672,63 @@ use constant {
     'max'                  => [ 200, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
     'shuffle'              => [ 210, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
     'first'                => [ 220, T_FUNCTION,    VA, H_FRST, sub{ &FIRST( @_ ) } ],
-    'slice'                => [ 225, T_FUNCTION,    VA, H_SPLC, sub{ &SLICE( @_ ) } ],
-    'uniq'                 => [ 230, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                  => [ 240, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                 => [ 250, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                  => [ 260, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
-    'add_each'             => [ 263, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
-    'mul_each'             => [ 265, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
-    'linspace'             => [ 270, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
-    'linstep'              => [ 280, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'gen_fibo_seq'         => [ 285, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'paper_size'           => [ 288, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
-    'rand'                 => [ 290, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'log'                  => [ 300, T_FUNCTION,     1, H_LOGA, sub{ &LOG( $_[ 0 ] ) } ],
-    'sqrt'                 => [ 310, T_FUNCTION,     1, H_SQRT, sub{ sqrt( $_[ 0 ] ) } ],
-    'pow'                  => [ 320, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'              => [ 330, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'              => [ 340, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
-    'deg2rad'              => [ 350, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'              => [ 360, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'              => [ 370, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'              => [ 380, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'              => [ 390, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                  => [ 400, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'                  => [ 410, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'                  => [ 420, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'                 => [ 430, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'                 => [ 440, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'                 => [ 450, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'                => [ 460, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                => [ 470, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'slope_deg'            => [ 480, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
-    'dist_between_points'  => [ 490, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points' => [ 500, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points' => [ 510, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'geo_radius'           => [ 520, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'        => [ 530, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'         => [ 540, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'       => [ 550, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'      => [ 560, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'              => [ 570, T_FUNCTION,     1, H_LEAP, sub{ &is_leap( $_[ 0 ] ) } ],
-    'age_of_moon'          => [ 580, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'local2epoch'          => [ 590, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'            => [ 600, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'          => [ 610, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'            => [ 620, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'             => [ 630, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
-    'dhms2sec'             => [ 640, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'laptimer'             => [ 650, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'stopwatch'            => [ 660, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
-    'bpm'                  => [ 670, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                => [ 680, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
-    'bpm30'                => [ 690, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
-    'tachymeter'           => [ 700, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'            => [ 710, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
-    'telemeter_m'          => [ 720, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
-    'telemeter_km'         => [ 730, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
+    'slice'                => [ 230, T_FUNCTION,    VA, H_SPLC, sub{ &SLICE( @_ ) } ],
+    'uniq'                 => [ 240, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                  => [ 250, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                 => [ 260, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                  => [ 270, T_FUNCTION,    VA, H_AVRG, sub{ &AVG( @_ ) } ],
+    'add_each'             => [ 280, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
+    'mul_each'             => [ 290, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
+    'linspace'             => [ 300, T_FUNCTION, '3-4', H_LNSP, sub{ &LINSPACE( @_ ) } ],
+    'linstep'              => [ 310, T_FUNCTION,     3, H_LNST, sub{ &LINSTEP( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'         => [ 320, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'paper_size'           => [ 330, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'rand'                 => [ 340, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'log'                  => [ 350, T_FUNCTION,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
+    'log10'                => [ 360, T_FUNCTION,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
+    'sqrt'                 => [ 370, T_FUNCTION,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
+    'pow'                  => [ 380, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'              => [ 390, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'              => [ 400, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
+    'deg2rad'              => [ 410, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'              => [ 420, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'              => [ 430, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'              => [ 440, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'              => [ 450, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                  => [ 460, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'                  => [ 470, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'                  => [ 480, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'                 => [ 490, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'                 => [ 500, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'                 => [ 510, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'                => [ 520, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                => [ 530, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'slope_deg'            => [ 540, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
+    'dist_between_points'  => [ 550, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points' => [ 560, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points' => [ 570, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'geo_radius'           => [ 580, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'        => [ 590, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance'         => [ 600, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'       => [ 610, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_km'      => [ 620, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'              => [ 630, T_FUNCTION,     1, H_LEAP, sub{ &is_leap( $_[ 0 ] ) } ],
+    'age_of_moon'          => [ 640, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'local2epoch'          => [ 650, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'            => [ 660, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'          => [ 670, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'            => [ 680, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'             => [ 690, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'dhms2sec'             => [ 700, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'laptimer'             => [ 710, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'stopwatch'            => [ 720, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
+    'bpm'                  => [ 730, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                => [ 740, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
+    'bpm30'                => [ 750, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
+    'tachymeter'           => [ 760, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'            => [ 770, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
+    'telemeter_m'          => [ 780, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
+    'telemeter_km'         => [ 790, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -869,141 +871,6 @@ sub MOD( $$ )
         die( qq{"$_[0] \% $_[1]": Illegal modulus operand.\n} );
     }
     return $_[ 0 ] % $_[ 1 ];
-}
-
-sub FIRST( @ )
-{
-    return $_[ 0 ];
-}
-
-sub SLICE( @ )
-{
-    my @argv = @_;
-    my $argc = scalar( @argv );
-    if( $argc <= 3 ){
-        die( qq{slice: \$argc=$argc: Not enough arguments.\n} );
-    }
-    my $length = pop( @argv );
-    my $offset = pop( @argv );
-    $argc = scalar( @argv );
-    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
-    if( $offset != int( $offset ) ){
-        die( qq{slice: \$offset=$offset: \$offset cannot be a decimal number.\n} );
-    }
-    if( $length != int( $length ) ){
-        die( qq{slice: \$length=$length: \$length cannot be a decimal number.\n} );
-    }
-    if( $offset < 0 ){
-        $offset = $argc + $offset;
-        #print( qq{\$offset=$offset\n} );
-    }
-    if( ( $offset + 1 ) > $argc ){
-        die( qq{slice: \$offset=$offset, \$argc=$argc: \$offset is large.\n} );
-    }
-    if( $length <= 0 ){
-        die( qq{slice: \$length=$length: \$length must be greater than 0.\n} );
-    }
-    if( $length > ( $argc - $offset ) ){
-        $TableProvider::opf->warnPrint( qq{\$length=$length: Decrease the value of \$length.\n} );
-        $length = $argc - $offset;
-    }
-    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
-
-    my @ret_vals = splice( @argv, $offset, $length );
-
-    return @ret_vals;
-}
-
-sub LOG( $ )
-{
-    if( $_[ 0 ] == 0 ){
-        die( qq{log( $_[0] ): Illegal operand.\n} );
-    }
-    return log( $_[ 0 ] );
-}
-
-sub RAD2DEG( @ )
-{
-    my @deg_array = ();
-    for my $rad( @_ ){
-        #print( qq{\$rad="$rad"\n} );
-        my $deg = &Math::Trig::rad2deg( $rad );
-        push( @deg_array, $deg );
-    }
-    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
-    return @deg_array;
-}
-
-sub DEG2RAD( @ )
-{
-    my @rad_array = ();
-    for my $deg( @_ ){
-        #print( qq{\$deg="$deg"\n} );
-        my $rad = &Math::Trig::deg2rad( $deg );
-        push( @rad_array, $rad );
-    }
-    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
-    return @rad_array;
-}
-
-sub DMS2DEG( $$$ )
-{
-    my @deg_array = ();
-    while( defined( $_[ 0 ] ) ){
-        my $degrees = shift( @_ );
-        my $min = shift( @_ );
-        my $sec = shift( @_ );
-        my $deg = $degrees + ( $min / 60 ) + ( $sec / 3600 );
-        push( @deg_array, $deg );
-    }
-    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
-    return @deg_array;
-}
-
-sub DMS2RAD( $$$ )
-{
-    my @rad_array = ();
-    while( defined( $_[ 0 ] ) ){
-        my $degrees = shift( @_ );
-        my $min = shift( @_ );
-        my $sec = shift( @_ );
-        my $rad = &Math::Trig::deg2rad( &DMS2DEG( $degrees, $min, $sec ) );
-        push( @rad_array, $rad );
-    }
-    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
-    return @rad_array;
-}
-
-sub DEG2DMS( $ )
-{
-    my @dms_array = ();
-    while( defined( $_[ 0 ] ) ){
-        my $deg = shift( @_ );
-        my $d = int( $deg );
-        $d = '-0' if( $d == 0 && $deg < 0 );
-        my $m_raw = ( $deg - $d ) * 60;
-        my $m = int( $m_raw );
-        my $s = ( $m_raw - $m ) * 60;
-        push( @dms_array, $d, $m, $s );
-    }
-    return @dms_array;
-}
-
-sub DMS2DMS( $$$ )
-{
-    my @dms_array = ();
-    while( defined( $_[ 0 ] ) ){
-        my $degrees = shift( @_ );
-        my $min = shift( @_ );
-        my $sec = shift( @_ );
-        my $d = int( $degrees );
-        $d = '-0' if( $d == 0 && $degrees < 0 );
-        my $m_raw = ( ( $degrees - $d ) * 60 ) + $min;
-        my $m = int( $m_raw );
-        my $s = ( ( $m_raw - $m ) * 60 ) + $sec;
-        push( @dms_array, $d, $m, $s );
-    }
-    return @dms_array;
 }
 
 sub _C_ABS( @ )
@@ -1216,6 +1083,49 @@ sub nCr( $$ )
     return $res;
 }
 
+sub FIRST( @ )
+{
+    return $_[ 0 ];
+}
+
+sub SLICE( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    if( $argc <= 3 ){
+        die( qq{slice: \$argc=$argc: Not enough arguments.\n} );
+    }
+    my $length = pop( @argv );
+    my $offset = pop( @argv );
+    $argc = scalar( @argv );
+    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
+    if( $offset != int( $offset ) ){
+        die( qq{slice: \$offset=$offset: \$offset cannot be a decimal number.\n} );
+    }
+    if( $length != int( $length ) ){
+        die( qq{slice: \$length=$length: \$length cannot be a decimal number.\n} );
+    }
+    if( $offset < 0 ){
+        $offset = $argc + $offset;
+        #print( qq{\$offset=$offset\n} );
+    }
+    if( ( $offset + 1 ) > $argc ){
+        die( qq{slice: \$offset=$offset, \$argc=$argc: \$offset is large.\n} );
+    }
+    if( $length <= 0 ){
+        die( qq{slice: \$length=$length: \$length must be greater than 0.\n} );
+    }
+    if( $length > ( $argc - $offset ) ){
+        $TableProvider::opf->warnPrint( qq{\$length=$length: Decrease the value of \$length.\n} );
+        $length = $argc - $offset;
+    }
+    #print( qq{\$argc=$argc, \$offset=$offset, \$length=$length\n} );
+
+    my @ret_vals = splice( @argv, $offset, $length );
+
+    return @ret_vals;
+}
+
 sub prod( @ )
 {
     my $product = 1;
@@ -1346,8 +1256,7 @@ sub gen_fibo_seq( $$$ )
 ## length of short side, length of long side (in mm), area (in mm2).
 ## SIZE is a positive integer.
 ## If TYPE is omitted or 0 is specified, it will be A size.
-## If TYPE is specified, it will be B size.
-## If you specify TYPE as 1, it will be B size.
+## If TYPE is specified, it will be B size ( Japan's unique standards ).
 ##
 sub paper_size( $$ )
 {
@@ -1394,12 +1303,129 @@ sub paper_size( $$ )
     return @ret_vals;
 }
 
+sub _C_LOG( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        if( $arg <= 0 ){
+            die( qq{log( $arg ): Must be a positive number.\n} );
+        }
+        push( @ret_vals, log( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_LOG10( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        if( $arg <= 0 ){
+            die( qq{log10( $arg ): Must be a positive number.\n} );
+        }
+        push( @ret_vals, log( $arg ) / log( 10 ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_SQRT( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, sqrt( $arg ) );
+    }
+    return @ret_vals;
+}
+
 sub pow_inv( $$ )
 {
     my( $n, $x ) = @_;
     my $y = log( $n ) / log( $x );
     my $rounded = int( $y + 0.5 );  # 四捨五入
     return ( $x ** $rounded == $n ) ? $rounded : $y;
+}
+
+sub RAD2DEG( @ )
+{
+    my @deg_array = ();
+    for my $rad( @_ ){
+        #print( qq{\$rad="$rad"\n} );
+        my $deg = &Math::Trig::rad2deg( $rad );
+        push( @deg_array, $deg );
+    }
+    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
+    return @deg_array;
+}
+
+sub DEG2RAD( @ )
+{
+    my @rad_array = ();
+    for my $deg( @_ ){
+        #print( qq{\$deg="$deg"\n} );
+        my $rad = &Math::Trig::deg2rad( $deg );
+        push( @rad_array, $rad );
+    }
+    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
+    return @rad_array;
+}
+
+sub DMS2RAD( $$$ )
+{
+    my @rad_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $rad = &Math::Trig::deg2rad( &DMS2DEG( $degrees, $min, $sec ) );
+        push( @rad_array, $rad );
+    }
+    return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
+    return @rad_array;
+}
+
+sub DMS2DEG( $$$ )
+{
+    my @deg_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $deg = $degrees + ( $min / 60 ) + ( $sec / 3600 );
+        push( @deg_array, $deg );
+    }
+    return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
+    return @deg_array;
+}
+
+sub DEG2DMS( $ )
+{
+    my @dms_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $deg = shift( @_ );
+        my $d = int( $deg );
+        $d = '-0' if( $d == 0 && $deg < 0 );
+        my $m_raw = ( $deg - $d ) * 60;
+        my $m = int( $m_raw );
+        my $s = ( $m_raw - $m ) * 60;
+        push( @dms_array, $d, $m, $s );
+    }
+    return @dms_array;
+}
+
+sub DMS2DMS( $$$ )
+{
+    my @dms_array = ();
+    while( defined( $_[ 0 ] ) ){
+        my $degrees = shift( @_ );
+        my $min = shift( @_ );
+        my $sec = shift( @_ );
+        my $d = int( $degrees );
+        $d = '-0' if( $d == 0 && $degrees < 0 );
+        my $m_raw = ( ( $degrees - $d ) * 60 ) + $min;
+        my $m = int( $m_raw );
+        my $s = ( ( $m_raw - $m ) * 60 ) + $sec;
+        push( @dms_array, $d, $m, $s );
+    }
+    return @dms_array;
 }
 
 sub slope_deg( $$ )
@@ -3809,8 +3835,10 @@ percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ).
 Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified.
 alias: pct().
 
-  $ c 'percentage( 30, 1000 )'
-  3
+  $ c 'percentage( 1, 6 )'
+  16.6666666666667
+  $ c 'percentage( 1, 6, 2 )'
+  16.67
 
 =item C<ratio_scaling>
 
@@ -3823,6 +3851,8 @@ If it takes 66 seconds to make 5 units, what will be the production quantity aft
 
   $ c 'ratio_scaling( 66, 5, 3600 )'
   272.727272727273
+  $ c 'ratio_scaling( 66, 5, 3600, 1 )'
+  272.7
 
 =item C<is_prime>
 
@@ -3832,6 +3862,8 @@ Returns 1 if I<NUM> is prime, otherwise returns 0.
 
   $ c 'is_prime( 1576770817 )'
   1
+  $ c 'is_prime( 1576770818 )'
+  0
 
 =item C<prime_factorize>
 
@@ -3994,11 +4026,10 @@ Rounding the number if I<DECIMAL_PLACES> is specified.
 
 Divide the range from 0x33 to 0xCC into 5 parts:
 
-  $ c 'linspace( 0x33, 0xcc, 5, 0 )'
-  ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
-
   $ c 'linspace( 0x33, 0xcc, 5 )'
   ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+  $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+  ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
 
 =item C<linstep>
 
@@ -4029,14 +4060,14 @@ Returns the following information in this order:
 length of short side, length of long side (in mm), area (in mm2).
 SIZE is a non-negative integer.
 If TYPE is omitted or 0 is specified, it will be A size.
-If TYPE is specified as 1, it will be B size.
+If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
 
-What are the dimensions of A4 size?:
+What are the dimensions of A4 size ?:
 
   $ c 'paper_size( 4 )'
   ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
 
-What are the dimensions of B4 size?:
+What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
 
   $ c 'paper_size( 4, 1 )'
   ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
@@ -4059,19 +4090,71 @@ A random number between 0 and 6:
 
 =item C<log>
 
-log( I<N> ).
+log( I<N1> [,.. ] ).
 Returns the natural logarithm (base e) of I<N>.
 [Perl Native]
 
+exp(1) is the base of the natural logarithm ( Napier's constant ):
+
+  $ c 'log( 100 )'
+  4.60517018598809
+  $ c 'pow( exp( 1 ), log( 100 ) )'
+  100
+
+A product of antilogarithms is transformed into a sum of logarithms:
+
+  $ c 'log( 200 * 300 )'
+  11.0020998412042
+  $ c 'log( 200 ) + log( 300 )'
+  11.0020998412042
+
+The quotient of real numbers is the difference of logarithms:
+
+  $ c 'log( 200 / 300 )'
+  -0.405465108108164
+  $ c 'log( 200 ) - log( 300 )'
+  -0.405465108108165
+
+Antilogarithmic exponents are converted to constant multiples of the logarithm:
+
+  $ c 'log( power( 200, 100 ) )'
+  529.831736654804
+  $ c '100 * log( 200 )'
+  529.831736654804
+
+The reciprocal of an antilogarithm reverses the sign of the logarithm.
+
+  $ c 'log( 1 / 100 )'
+  -4.60517018598809
+  $ c 'log( power( 100, -1 ) )'
+  -4.60517018598809
+  $ c '-1 * log( 100 )'
+  -4.60517018598809
+
+=item C<log10>
+
+log10( I<N1> [,.. ] ).
+Returns the common logarithm to the base 10.
+
+  $ c 'log10( 10, 100, 1000 )'
+  ( 1, 2, 3 )
+
+The following two expressions are equivalent:
+
+  $ c 'log10( 10000 )'
+  4
+  $ c 'log( 10000 ) / log( 10 )'
+  4
+
 =item C<sqrt>
 
-sqrt( I<N> ).
+sqrt( I<N1> [,.. ] ).
 Return the positive square root of I<N>.
 Works only for non-negative operands.
 [Perl Native]
 
-  $ c 'sqrt( 9 )'
-  3
+  $ c 'sqrt( 9, 16, 25 )'
+  ( 3, 4, 5 )
 
 =item C<pow>
 

@@ -7,13 +7,26 @@
 ### Changed
 - xxx
 
+## [0.2.41] - 2025-12-23
+### Added
+- `c` [1.04.086]: Add a function.
+  - log10( N1 [,.. ] ). Returns the common logarithm to the base 10.
+
+### Changed
+- `c` [1.04.086]: Changed to handle multiple numbers.
+  - log( N1 [,.. ] ). Returns the natural logarithm (base e) of N.
+  - sqrt( N1 [,.. ] ). Return the positive square root of N.
+                       Works only for non-negative operands.
+
 ## [0.2.40] - 2025-12-22
 ### Changed
 - `c` [1.04.083]: Changed to handle multiple numbers.
   - abs( N1 [,.. ] ). Returns the absolute value of its argument.
   - int( N1 [,.. ] ). Returns the integer portion of N.
-  - floor( N1 [,.. ] ). Returning the largest integer value less than or equal to the numerical argument.
-  - ceil( N1 [,.. ] ). Returning the smallest integer value greater than or equal to the given numerical argument.
+  - floor( N1 [,.. ] ).
+    Returning the largest integer value less than or equal to the numerical argument.
+  - ceil( N1 [,.. ] ).
+    Returning the smallest integer value greater than or equal to the given numerical argument.
 
 ## [0.2.39] - 2025-12-21
 ### Added
@@ -22,7 +35,13 @@
   - mul_each( NUMBER1,.. , FACTOR ). Multiply each number.
 
 ### Changed
-- `c` [1.04.080]: rounddown(), round(), roundup(): Changed to handle multiple numbers.
+- `c` [1.04.080]: Changed to handle multiple numbers.
+  - rounddown( NUMBER1 [,..], DECIMAL_PLACES ).
+    Returns the value of NUMBER1
+  - round( NUMBER1 [,..], DECIMAL_PLACES ).
+    Returns the value of NUMBER1 rounded to DECIMAL_PLACES.
+  - roundup( NUMBER1 [,..], DECIMAL_PLACES ).
+    Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.
 
 ## [0.2.36] - 2025-12-17
 ### Added
