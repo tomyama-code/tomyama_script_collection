@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.40] - 2025-12-22
+### Changed
+- `c` [1.04.083]: Changed to handle multiple numbers.
+  - abs( N1 [,.. ] ). Returns the absolute value of its argument.
+  - int( N1 [,.. ] ). Returns the integer portion of N.
+  - floor( N1 [,.. ] ). Returning the largest integer value less than or equal to the numerical argument.
+  - ceil( N1 [,.. ] ). Returning the smallest integer value greater than or equal to the given numerical argument.
+
 ## [0.2.39] - 2025-12-21
 ### Added
 - `c` [1.04.079]: Add a function.

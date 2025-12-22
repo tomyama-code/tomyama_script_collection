@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.80 $
+## - $Revision: 4.83 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.80 $};
+    my $rev = q{$Revision: 4.83 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -552,10 +552,10 @@ use constant {
     H_BEND => qq{A symbol that controls the priority of calculations.},
     H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
     H_POEX => qq{exp( N ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
-    H_ABS_ => qq{abs( N ). Returns the absolute value of its argument. [Perl Native]},
-    H_INT_ => qq{int( N ). Returns the integer portion of N. [Perl Native]},
-    H_FLOR => qq{floor( N ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
-    H_CEIL => qq{ceil( N ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
+    H_ABS_ => qq{abs( N1 [,.. ] ). Returns the absolute value of its argument. [Perl Native]},
+    H_INT_ => qq{int( N1 [,.. ] ). Returns the integer portion of N. [Perl Native]},
+    H_FLOR => qq{floor( N1 [,.. ] ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
+    H_CEIL => qq{ceil( N1 [,.. ] ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
     H_RODD => qq{rounddown( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
     H_ROUD => qq{round( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
     H_RODU => qq{roundup( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
@@ -652,10 +652,10 @@ use constant {
     '#'                    => [  19, T_SENTINEL,    -1, undef  ],
     'testfunc'             => [  20, T_OTHER,        1, undef  ],
     'exp'                  => [  30, T_FUNCTION,     1, H_POEX, sub{ exp( $_[ 0 ] ) } ],
-    'abs'                  => [  40, T_FUNCTION,     1, H_ABS_, sub{ abs( $_[ 0 ] ) } ],
-    'int'                  => [  50, T_FUNCTION,     1, H_INT_, sub{ int( $_[ 0 ] ) } ],
-    'floor'                => [  60, T_FUNCTION,     1, H_FLOR, sub{ &POSIX::floor( $_[ 0 ] ) } ],
-    'ceil'                 => [  70, T_FUNCTION,     1, H_CEIL, sub{ &POSIX::ceil( $_[ 0 ] ) } ],
+    'abs'                  => [  40, T_FUNCTION,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
+    'int'                  => [  50, T_FUNCTION,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
+    'floor'                => [  60, T_FUNCTION,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
+    'ceil'                 => [  70, T_FUNCTION,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
     'rounddown'            => [  80, T_FUNCTION,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
     'round'                => [  90, T_FUNCTION,    VA, H_ROUD, sub{ &round( @_ ) } ],
     'roundup'              => [ 100, T_FUNCTION,    VA, H_RODU, sub{ &roundup( @_ ) } ],
@@ -1004,6 +1004,42 @@ sub DMS2DMS( $$$ )
         push( @dms_array, $d, $m, $s );
     }
     return @dms_array;
+}
+
+sub _C_ABS( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, abs( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_INT( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, int( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_FLOOR( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, &POSIX::floor( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_CEIL( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, &POSIX::ceil( $arg ) );
+    }
+    return @ret_vals;
 }
 
 sub rounddown( @ )
@@ -3709,38 +3745,38 @@ The base of natural logarithms e (Napier's constant):
 
 =item C<abs>
 
-abs( I<N> ).
+abs( I<N1> [,.. ] ).
 Returns the absolute value of its argument.
 [Perl Native]
 
-  $ c '( abs( -1.2 ), abs( 1.2 ) )'
+  $ c 'abs( -1.2, 1.2 )'
   ( 1.2, 1.2 )
 
 =item C<int>
 
-int( I<N> ).
+int( I<N1> [,.. ] ).
 Returns the integer portion of I<N>.
 [Perl Native]
 
-  $ c '( int( -1.2 ), int( 1.2 ) )'
+  $ c 'int( -1.2, 1.2 )'
   ( -1, 1 )
 
 =item C<floor>
 
-floor( I<N> ).
+floor( I<N1> [,.. ] ).
 Returning the largest integer value less than or equal to the numerical argument.
 [POSIX]
 
-  $ c '( floor( -1.2 ), floor( 1.2 ) )'
+  $ c 'floor( -1.2, 1.2 )'
   ( -2, 1 )
 
 =item C<ceil>
 
-ceil( I<N> ).
+ceil( I<N1> [,.. ] ).
 Returning the smallest integer value greater than or equal to the given numerical argument.
 [POSIX]
 
-  $ c '( ceil( -1.2 ), ceil( 1.2 ) )'
+  $ c 'ceil( -1.2, 1.2 )'
   ( -1, 2 )
 
 =item C<rounddown>
@@ -3748,7 +3784,7 @@ Returning the smallest integer value greater than or equal to the given numerica
 rounddown( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
-  $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
+  $ c 'rounddown( -1.2, 1.2, 0 )'
   ( -1, 1 )
 
 =item C<round>
@@ -3756,7 +3792,7 @@ Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 round( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
-  $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
+  $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
   ( -1, -2, 1, 2 )
 
 =item C<roundup>
@@ -3764,7 +3800,7 @@ Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 roundup( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> rounded up to I<DECIMAL_PLACES>.
 
-  $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
+  $ c 'roundup( -1.2, 1.2, 0 )'
   ( -2, 2 )
 
 =item C<percentage>
@@ -3942,6 +3978,9 @@ add_each( I<NUMBER1>,.. , I<OFFSET> ). Add each number.
 
 mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
 
+  $ c 'mul_each( 100, 200, 2 )'
+  ( 200, 400 )
+
 Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
 
   $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
@@ -4031,6 +4070,9 @@ Return the positive square root of I<N>.
 Works only for non-negative operands.
 [Perl Native]
 
+  $ c 'sqrt( 9 )'
+  3
+
 =item C<pow>
 
 pow( I<A>, I<B> ).
@@ -4038,6 +4080,9 @@ Exponentiation.
 "pow( 2, 3 )" -> 8.
 Similarly, "2 ** 3".
 [Perl Native]
+
+  $ c 'pow( 2, 3 )'
+  8
 
 =item C<pow_inv>
 
@@ -4052,26 +4097,44 @@ Returns the power of I<A> to which I<B> is raised.
 rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
 [Math::Trig]
 
+  $ c 'rad2deg( 2.50620553940126 )'
+  143.595
+
 =item C<deg2rad>
 
 deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
 [Math::Trig]
 
+  $ c 'deg2rad( 143.595 )'
+  2.50620553940126
+
 =item C<dms2rad>
 
 dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+
+  $ c 'dms2rad( 143, 35, 42.0000000000002 )'
+  2.50620553940126
 
 =item C<dms2deg>
 
 dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
 
+  $ c 'dms2deg( 143, 35, 42.0000000000002 )'
+  143.595
+
 =item C<deg2dms>
 
 deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
 
+  $ c 'deg2dms( 143.595 )'
+  ( 143, 35, 41.9999999999959 )
+
 =item C<dms2dms>
 
 dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+
+  $ c 'dms2dms( 143, 35.7, 0 )'
+  ( 143, 35, 42.0000000000002 )
 
 =item C<sin>
 
@@ -4257,6 +4320,16 @@ Maximum deviation of about 2 days.
 
   $ c 'age_of_moon( 2025, 12, 5 )'
   15
+
+Today's Moon Age:
+
+  $ c 'age_of_moon( slice( epoch2local( now ), 0, 3 ) )' -v
+  epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
+  slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
+  age_of_moon( 2025, 12, 5 ) = 15
+  Formula: 'age_of_moon( slice( epoch2local( 1764935943 ) , 0 , 3 ) ) ='
+      RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
+   Result: 15
 
 =item C<local2epoch>
 

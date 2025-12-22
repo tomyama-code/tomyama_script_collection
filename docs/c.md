@@ -475,38 +475,38 @@ The **c** script was created with the following in mind:
 
 - `abs`
 
-    abs( _N_ ).
+    abs( _N1_ \[,.. \] ).
     Returns the absolute value of its argument.
     \[Perl Native\]
 
-        $ c '( abs( -1.2 ), abs( 1.2 ) )'
+        $ c 'abs( -1.2, 1.2 )'
         ( 1.2, 1.2 )
 
 - `int`
 
-    int( _N_ ).
+    int( _N1_ \[,.. \] ).
     Returns the integer portion of _N_.
     \[Perl Native\]
 
-        $ c '( int( -1.2 ), int( 1.2 ) )'
+        $ c 'int( -1.2, 1.2 )'
         ( -1, 1 )
 
 - `floor`
 
-    floor( _N_ ).
+    floor( _N1_ \[,.. \] ).
     Returning the largest integer value less than or equal to the numerical argument.
     \[POSIX\]
 
-        $ c '( floor( -1.2 ), floor( 1.2 ) )'
+        $ c 'floor( -1.2, 1.2 )'
         ( -2, 1 )
 
 - `ceil`
 
-    ceil( _N_ ).
+    ceil( _N1_ \[,.. \] ).
     Returning the smallest integer value greater than or equal to the given numerical argument.
     \[POSIX\]
 
-        $ c '( ceil( -1.2 ), ceil( 1.2 ) )'
+        $ c 'ceil( -1.2, 1.2 )'
         ( -1, 2 )
 
 - `rounddown`
@@ -514,7 +514,7 @@ The **c** script was created with the following in mind:
     rounddown( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ truncated to _DECIMAL\_PLACES_.
 
-        $ c '( rounddown( -1.2, 0 ), rounddown( 1.2, 0 ) )'
+        $ c 'rounddown( -1.2, 1.2, 0 )'
         ( -1, 1 )
 
 - `round`
@@ -522,7 +522,7 @@ The **c** script was created with the following in mind:
     round( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ rounded to _DECIMAL\_PLACES_
 
-        $ c '( round( -1.4, 0 ), round( -1.5, 0 ), round( 1.4, 0 ), round( 1.5, 0 ) )'
+        $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
         ( -1, -2, 1, 2 )
 
 - `roundup`
@@ -530,7 +530,7 @@ The **c** script was created with the following in mind:
     roundup( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ rounded up to _DECIMAL\_PLACES_.
 
-        $ c '( roundup( -1.2, 0 ), roundup( 1.2, 0 ) )'
+        $ c 'roundup( -1.2, 1.2, 0 )'
         ( -2, 2 )
 
 - `percentage`
@@ -708,6 +708,9 @@ The **c** script was created with the following in mind:
 
     mul\_each( _NUMBER1_,.. , _FACTOR_ ). Multiply each number.
 
+        $ c 'mul_each( 100, 200, 2 )'
+        ( 200, 400 )
+
     Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
 
         $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
@@ -797,6 +800,9 @@ The **c** script was created with the following in mind:
     Works only for non-negative operands.
     \[Perl Native\]
 
+        $ c 'sqrt( 9 )'
+        3
+
 - `pow`
 
     pow( _A_, _B_ ).
@@ -804,6 +810,9 @@ The **c** script was created with the following in mind:
     "pow( 2, 3 )" -> 8.
     Similarly, "2 \*\* 3".
     \[Perl Native\]
+
+        $ c 'pow( 2, 3 )'
+        8
 
 - `pow_inv`
 
@@ -818,26 +827,44 @@ The **c** script was created with the following in mind:
     rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
     \[Math::Trig\]
 
+        $ c 'rad2deg( 2.50620553940126 )'
+        143.595
+
 - `deg2rad`
 
     deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
     \[Math::Trig\]
 
+        $ c 'deg2rad( 143.595 )'
+        2.50620553940126
+
 - `dms2rad`
 
     dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+
+        $ c 'dms2rad( 143, 35, 42.0000000000002 )'
+        2.50620553940126
 
 - `dms2deg`
 
     dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
 
+        $ c 'dms2deg( 143, 35, 42.0000000000002 )'
+        143.595
+
 - `deg2dms`
 
     deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
 
+        $ c 'deg2dms( 143.595 )'
+        ( 143, 35, 41.9999999999959 )
+
 - `dms2dms`
 
     dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+
+        $ c 'dms2dms( 143, 35.7, 0 )'
+        ( 143, 35, 42.0000000000002 )
 
 - `sin`
 
@@ -1023,6 +1050,16 @@ The **c** script was created with the following in mind:
 
         $ c 'age_of_moon( 2025, 12, 5 )'
         15
+
+    Today's Moon Age:
+
+        $ c 'age_of_moon( slice( epoch2local( now ), 0, 3 ) )' -v
+        epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
+        slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
+        age_of_moon( 2025, 12, 5 ) = 15
+        Formula: 'age_of_moon( slice( epoch2local( 1764935943 ) , 0 , 3 ) ) ='
+            RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
+         Result: 15
 
 - `local2epoch`
 
