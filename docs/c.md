@@ -67,13 +67,13 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-exp, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime,
-prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
-add\_each, mul\_each, linspace, linstep, gen\_fibo\_seq, paper\_size, rand, log, sqrt, pow, pow\_inv, rad2deg,
-deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, slope\_deg,
-dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance,
-geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt,
-sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
+get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
+linspace, linstep, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv,
+rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
+slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat,
+geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
 telemeter\_km
 
 # OPTIONS
@@ -462,17 +462,6 @@ The **c** script was created with the following in mind:
 
 # FUNCTIONS
 
-- `exp`
-
-    exp( _N_ ).
-    Returns e (the natural logarithm base) to the power of _N_.
-    \[Perl Native\]
-
-    The base of natural logarithms e (Napier's constant):
-
-        $ c 'exp( 1 )'
-        2.71828182845905
-
 - `abs`
 
     abs( _N1_ \[,.. \] ).
@@ -792,6 +781,17 @@ The **c** script was created with the following in mind:
         $ c 'int( rand( 6 ) )'
         2
 
+- `exp`
+
+    exp( _N1_ \[,.. \] ).
+    Returns e (the natural logarithm base) to the power of _N_.
+    \[Perl Native\]
+
+    The base of natural logarithms e (Napier's constant):
+
+        $ c 'exp( 1 )'
+        2.71828182845905
+
 - `log`
 
     log( _N1_ \[,.. \] ).
@@ -802,6 +802,8 @@ The **c** script was created with the following in mind:
 
         $ c 'log( 100 )'
         4.60517018598809
+        $ c 'exp( log( 100 ) )'
+        100
         $ c 'pow( exp( 1 ), log( 100 ) )'
         100
 
@@ -834,6 +836,55 @@ The **c** script was created with the following in mind:
         -4.60517018598809
         $ c '-1 * log( 100 )'
         -4.60517018598809
+
+- `exp2`
+
+    exp2( _N1_ \[,.. \] ).
+    Returns the base 2 raised to the power N.
+
+        $ c 'exp2( 8, 16, 32 )'
+        ( 256, 65536, 4294967296 )
+
+    The following three expressions are equivalent:
+
+        $ c 'exp2( 10 )'
+        1024
+        $ c 'exp( 10 * log( 2 ) )'
+        1024
+        $ c 'pow( 2, 10 )'
+        1024
+
+- `log2`
+
+    log2( _N1_ \[,.. \] ).
+    Returns the common logarithm to the base 2.
+
+        $ c 'log2( 256, 65536, 4294967296 )'
+        ( 8, 16, 32 )
+
+    The following two expressions are equivalent:
+
+        $ c 'log2( 1024 )'
+        10
+        $ c 'log( 1024 ) / log( 2 )'
+        10
+
+- `exp10`
+
+    exp10( _N1_ \[,.. \] ).
+    Returns the base 10 raised to the power N.
+
+        $ c 'exp10( 1, 2, 3 )'
+        ( 10, 100, 1000 )
+
+    The following three expressions are equivalent:
+
+        $ c 'exp10( 5 )'
+        100000
+        $ c 'exp( 5 * log( 10 ) )'
+        100000
+        $ c 'pow( 10, 5 )'
+        100000
 
 - `log10`
 

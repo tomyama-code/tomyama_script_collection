@@ -7,6 +7,17 @@
 ### Changed
 - xxx
 
+## [0.2.42] - 2025-12-24
+### Added
+- `c` [1.04.088]: Add a function.
+  - exp2( N1 [,.. ] ). Returns the base 2 raised to the power N.
+  - log2( N1 [,.. ] ). Returns the common logarithm to the base 2.
+  - exp10( N1 [,.. ] ). Returns the base 10 raised to the power N.
+
+### Changed
+- `c` [1.04.088]: Changed to handle multiple numbers.
+  - exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N.
+
 ## [0.2.41] - 2025-12-23
 ### Added
 - `c` [1.04.086]: Add a function.
