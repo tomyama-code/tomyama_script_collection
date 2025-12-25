@@ -69,12 +69,12 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
 get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
-linspace, linstep, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv,
-rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot,
-slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat,
-geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
-telemeter\_km
+linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
+pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
+radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -159,7 +159,7 @@ What combinations involve choosing 4 out of 6 ?
 
 Alternative Method
 
-    $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )' -v
+    $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )'
     linstep( 6, -1, 4 ) = ( 6, 5, 4, 3 )
     prod( 6, 5, 4, 3 ) = 360
     linstep( 4, -1, 4 ) = ( 4, 3, 2, 1 )
@@ -549,14 +549,14 @@ The **c** script was created with the following in mind:
 
 - `is_prime`
 
-    is\_prime( _NUM_ ).
+    is\_prime( _NUM1_ \[,.. \] ).
     Prime number test.
     Returns 1 if _NUM_ is prime, otherwise returns 0.
 
-        $ c 'is_prime( 1576770817 )'
-        1
         $ c 'is_prime( 1576770818 )'
         0
+        $ c 'is_prime( 1576770817 )'
+        1
 
 - `prime_factorize`
 
@@ -564,8 +564,8 @@ The **c** script was created with the following in mind:
     Do prime factorization. _NUM_ is an integer greater than or equal to 2.
     alias: pf().
 
-        $ c 'prime_factorize( 396 )'
-        ( 2, 2, 3, 3, 11 )
+        $ c 'prime_factorize( 1576770818 )'
+        ( 2, 7, 112626487 )
 
         $ c 'prime_factorize( 1576770817 )'
         1576770817
@@ -694,7 +694,7 @@ The **c** script was created with the following in mind:
 
 - `add_each`
 
-    add\_each( _NUMBER1_,.. , _OFFSET_ ). Add each number.
+    add\_each( _NUMBER1_,.. , _DELTA_ ). Add each number.
 
         $ c 'add_each( 100, 200, -10 )'
         ( 90, 190 )
@@ -713,8 +713,10 @@ The **c** script was created with the following in mind:
 
 - `linspace`
 
-    linspace( _LOWER_, _UPPER_, _COUNT_ \[, _DECIMAL\_PLACES_ \] ).
-    Generates a list of numbers from _LOWER_ to _UPPER_ divided into equal intervals by _COUNT_.
+    linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ).
+    Generates a list of evenly spaced numbers from _START_ to _END_.
+    Returns a sequence of numbers of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 2.
     Rounding the number if _DECIMAL\_PLACES_ is specified.
 
     Divide the range from 0x33 to 0xCC into 5 parts:
@@ -726,25 +728,37 @@ The **c** script was created with the following in mind:
 
 - `linstep`
 
-    linstep( _START_, _STEP_, _COUNT_ ).
-    Generates a list of _COUNT_ numbers that increase from _START_ by _STEP_.
+    linstep( _START_, _DELTA_, _LENGTH_ ).
+    Generates a list of _LENGTH_ numbers that increase from _START_ by _DELTA_.
+    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 1.
 
     A sequence of 10 numbers that decrease by 2 from 101:
 
         $ c 'linstep( 101, -2, 10 )'
         ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
 
+- `mul_growth`
+
+    mul\_growth( _START_, _FACTOR_, _LENGTH_ ).
+    Starting from _START_, we multiply the value by _FACTOR_ and add it to the sequence.
+    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 1.
+
+        $ c 'mul_growth( 100, 0.9, 8 )'
+        ( 100, 90, 81, 72.9, 65.61, 59.049, 53.1441, 47.82969 )
+
 - `gen_fibo_seq`
 
-    gen\_fibo\_seq( _A_, _B_, _COUNT_ ).
+    gen\_fibo\_seq( _A_, _B_, _LENGTH_ ).
     Generates the Generalized Fibonacci Sequence.
-    _COUNT_ is a non-negative integer.
-    Returns an array starting at _A_ and _B_, with size _COUNT_ + 2.
+    Returns the sequence of numbers starting at _A_, _B_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 2.
 
     Generate the Lucas sequence:
 
         $ c 'gen_fibo_seq( 2, 1, 10 )'
-        ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, 199 )
+        ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
 
 - `paper_size`
 
@@ -862,11 +876,13 @@ The **c** script was created with the following in mind:
         $ c 'log2( 256, 65536, 4294967296 )'
         ( 8, 16, 32 )
 
-    The following two expressions are equivalent:
+    The following three expressions are equivalent:
 
         $ c 'log2( 1024 )'
         10
         $ c 'log( 1024 ) / log( 2 )'
+        10
+        $ c 'pow_inv( 1024, 2 )'
         10
 
 - `exp10`
@@ -894,11 +910,13 @@ The **c** script was created with the following in mind:
         $ c 'log10( 10, 100, 1000 )'
         ( 1, 2, 3 )
 
-    The following two expressions are equivalent:
+    The following three expressions are equivalent:
 
         $ c 'log10( 10000 )'
         4
         $ c 'log( 10000 ) / log( 10 )'
+        4
+        $ c 'pow_inv( 10000, 10 )'
         4
 
 - `sqrt`
@@ -1034,16 +1052,16 @@ The **c** script was created with the following in mind:
     Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments.
     \[POSIX\]
 
-        $ c 'hypot( 1, 1 )'
-        1.4142135623731
+        $ c 'hypot( 3, 4 )'
+        5
 
 - `slope_deg`
 
     slope\_deg( _X_, _Y_ ).
     Returns the straight line distance from (0,0) to (_X_,_Y_).
 
-        $ c 'slope_deg( 1, 1 )'
-        45
+        $ c 'slope_deg( 3, 4 )'
+        53.130102354156
 
 - `dist_between_points`
 
@@ -1142,13 +1160,18 @@ The **c** script was created with the following in mind:
 
 - `is_leap`
 
-    is\_leap( _YEAR_ ).
+    is\_leap( _YEAR1_ \[,.. \] ).
     Leap year test: Returns 1 if _YEAR_ is a leap year, 0 otherwise.
 
         $ c 'is_leap( 2024 )'
         1
         $ c 'is_leap( 2025 )'
         0
+
+    Evaluate together:
+
+        $ c 'is_leap( 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100 )'
+        ( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0 )
 
 - `age_of_moon`
 

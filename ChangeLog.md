@@ -7,6 +7,26 @@
 ### Changed
 - xxx
 
+## [0.2.43] - 2025-12-25
+### Added
+- `c` [1.04.092]: Add a function.
+  - mul_growth( START, FACTOR, LENGTH ).
+    Starting from START, we multiply the value by FACTOR and add it to the sequence.
+    Returns the sequence of numbers starting at START and of size LENGTH.
+    LENGTH is an integer greater than or equal to 1.
+
+### Changed
+- `c` [1.04.097]: Changed to handle multiple numbers.
+  - is_leap( I<YEAR1> [,.. ] ).
+  - is_prime( I<NUM1> [,.. ] ).
+- `c` [1.04.092]: The length specification for functions that return sequences has been unified to LENGTH.
+  - linspace( START, END, LENGTH [, DECIMAL_PLACES] ).
+    LENGTH is an integer greater than or equal to 2.
+  - linstep( START, STEP, LENGTH ).
+    LENGTH is an integer greater than or equal to 1.
+  - gen_fibo_seq( A, B, LENGTH ).
+    LENGTH is an integer greater than or equal to 2.
+
 ## [0.2.42] - 2025-12-24
 ### Added
 - `c` [1.04.088]: Add a function.
