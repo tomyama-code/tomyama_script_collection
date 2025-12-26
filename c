@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.97 $
+## - $Revision: 4.99 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.97 $};
+    my $rev = q{$Revision: 4.99 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -624,11 +624,11 @@ use constant {
     H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( DURATION_SEC ).},
     H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
-    H_STWC => qq{stopwatch( B_PRINT ). Measures the time until the Enter key is pressed. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen. alias: sw().},
-    H_BPMR => qq{bpm( B_PRINT, COUNT ). Once you have confirmed the COUNT number of beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
-    H_BPM1 => qq{bpm15( B_PRINT ). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
-    H_BPM3 => qq{bpm30( B_PRINT ). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen.},
-    H_TACH => qq{tachymeter( B_PRINT ). Measures the number of seconds required for one unit of work and returns the number of units of work done per hour. Press Enter to measure the number of seconds. If you specify 0 for B_PRINT, the measured time will not be displayed on the screen. Same as ratio_scaling( stopwatch( B_PRINT ), 1, 3600 ).},
+    H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
+    H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
+    H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
+    H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
+    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( I<SECOND>, 1, 3600 ).},
     H_TLMR => qq{telemeter( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter_m().},
     H_TM_M => qq{telemeter_m( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter().},
     H_TMKM => qq{telemeter_km( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. Same as telemeter_m() / 1000.},
@@ -729,10 +729,10 @@ use constant {
     'sec2dhms'             => [ 1710, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
     'dhms2sec'             => [ 1720, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
     'laptimer'             => [ 1730, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'stopwatch'            => [ 1740, T_FUNCTION,     1, H_STWC, sub{ &stopwatch( $_[ 0 ] ) } ],
+    'stopwatch'            => [ 1740, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
     'bpm'                  => [ 1750, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                => [ 1760, T_FUNCTION,     1, H_BPM1, sub{ &bpm15( $_[ 0 ] ) } ],
-    'bpm30'                => [ 1770, T_FUNCTION,     1, H_BPM3, sub{ &bpm30( $_[ 0 ] ) } ],
+    'bpm15'                => [ 1760, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                => [ 1770, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
     'tachymeter'           => [ 1780, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
     'telemeter'            => [ 1790, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
     'telemeter_m'          => [ 1800, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
@@ -1808,8 +1808,8 @@ sub msec2hms( $ )
 sub laptimer( $ )
 {
     my $cycle = shift( @_ );
-    my $b_print = 1;
-    $b_print = 0 if( $cycle < 0 );
+    my $b_rich_print = 1;
+    $b_rich_print = 0 if( $cycle < 0 );
     $cycle = int( abs( $cycle ) );
     my $remain = $cycle;
     my $beg = &Time::HiRes::time();
@@ -1818,7 +1818,7 @@ sub laptimer( $ )
     my $spl_time = 0;
     my $cycle_w = length( $cycle );
     my $lap_w = ( $cycle_w * 2 ) + 1;
-    if( $cycle && $b_print ){
+    if( $cycle && $b_rich_print ){
         if( $cycle == 1 ){
             print( qq{Elaps         Date-Time\n} );
             print( qq{------------  -------------------\n} );
@@ -1845,7 +1845,7 @@ sub laptimer( $ )
         $month += 1;
         my @st = &msec2hms( $spl_time );
         my @lt = &msec2hms( $lap_time );
-        if( $b_print ){
+        if( $b_rich_print ){
             if( $cycle == 1 ){
                 printf( qq{%02d:%02d:%06.3f  } .
                         qq{%04d-%02d-%02d %02d:%02d:%02d\n},
@@ -1859,45 +1859,45 @@ sub laptimer( $ )
                     $lt[ 0 ], $lt[ 1 ], $lt[ 2 ],
                     $year, $month, $mday, $hour, $minute, $sec );
             }
+        }else{
+            printf( qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+                $year, $month, $mday, $hour, $minute, $sec );
         }
     }
 
     return $spl_time;
 }
 
-sub stopwatch( $ )
+sub stopwatch()
 {
-    my $bPrint = shift( @_ );
     my $t = &laptimer( -1 );
-    print( qq{stopwatch() = $t sec.\n} ) if( $bPrint );
+    print( qq{stopwatch() = $t sec.\n} );
     return $t;
 }
 
 sub bpm( $$ )
 {
-    my $bPrint = shift( @_ );
     my $count = shift( @_ );
-    my $t = &stopwatch( $bPrint );
-    return ( $count * 60 ) / $t;
+    my $sec = shift( @_ );
+    return ( $count * 60 ) / $sec;
 }
 
-sub bpm15( $ )
+sub bpm15()
 {
-    my $bPrint = shift( @_ );
-    return &bpm( $bPrint, 15 );
+    my $t = &stopwatch();
+    return &bpm( 15, $t );
 }
 
-sub bpm30( $ )
+sub bpm30()
 {
-    my $bPrint = shift( @_ );
-    return &bpm( $bPrint, 30 );
+    my $t = &stopwatch();
+    return &bpm( 30, $t );
 }
 
 sub tachymeter( $ )
 {
-    my $bPrint = shift( @_ );
-    my $t = &stopwatch( $bPrint );
-    return 3600 / $t;
+    my $sec = shift( @_ );
+    return 3600 / $sec;
 }
 
 sub telemeter( $ )
@@ -2492,6 +2492,7 @@ sub GetFormula()
         push( @exprs, $token->data );
     }
     my $expr = join( ' ', @exprs );
+    $expr =~ s/\s+,/,/go;
     return $expr;
 }
 
@@ -2503,6 +2504,7 @@ sub GetHere()
     for my $token( reverse( @{ $self->{TOKENS} } ) ){
         my $data = sprintf( '%s', $token->data );
         my $len = length( $data );
+        $len = 0 if( $data eq ',' );
         my $c = ' ';
         my $bLast = 0;
         if( $token->id == $id ){
@@ -3542,13 +3544,13 @@ What combinations involve choosing 4 out of 6 ?
 
 Alternative Method
 
-  $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )'
+  $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )' -v
   linstep( 6, -1, 4 ) = ( 6, 5, 4, 3 )
   prod( 6, 5, 4, 3 ) = 360
   linstep( 4, -1, 4 ) = ( 4, 3, 2, 1 )
   prod( 4, 3, 2, 1 ) = 24
   360 / 24 = 15
-  Formula: 'prod( linstep( 6 , -1 , 4 ) ) / prod( linstep( 4 , -1 , 4 ) ) ='
+  Formula: 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) ) ='
       RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
    Result: 15
 
@@ -3560,7 +3562,7 @@ and the radians of an arbitrarily selected value are calculated.
   shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
   first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
   deg2rad( 10 ) = 0.174532925199433
-  Formula: 'deg2rad( first( shuffle( linspace( 0 , 90 , 10 ) ) ) ) ='
+  Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
       RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
    Result: 0.174532925199433
 
@@ -4577,7 +4579,7 @@ Today's Moon Age:
   epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
   slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
   age_of_moon( 2025, 12, 5 ) = 15
-  Formula: 'age_of_moon( slice( epoch2local( 1764935943 ) , 0 , 3 ) ) ='
+  Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
       RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
    Result: 15
 
@@ -4652,69 +4654,68 @@ The time for 3 laps was measured:
 
 =item C<stopwatch>
 
-stopwatch( I<B_PRINT> ).
+stopwatch().
 Measures the time until the Enter key is pressed.
-If you specify 0 for I<B_PRINT>,
-the measured time will not be displayed on the screen.
+The measured time is displayed on the screen.
 alias: sw().
 
 Usage example:
 
-  $ c 'stopwatch( 0 )'
+  $ c 'stopwatch()'
   <-- Enter key
-  10.3102450370789
-  $ c 'stopwatch( 1 )'
-  <-- Enter key
+  2025-11-25 01:53:17
   stopwatch() = 10.2675848007202 sec.
   10.2675848007202
 
 =item C<bpm>
 
-bpm( I<B_PRINT>, I<COUNT> ).
-Once you have confirmed the I<COUNT> number of beats, press the Enter key.
-The BPM will be calculated from the elapsed time.
-If you specify 0 for I<B_PRINT>,
-the measured time will not be displayed on the screen.
+bpm( I<COUNT>, I<SECOND> ).
+Specify the number of beats as I<COUNT> and the elapsed time as I<SECOND> to calculate the BPM.
+
+  $ c 'bpm( 4, sw() )'
+  <-- Enter key
+  2025-11-25 01:53:17
+  stopwatch() = 2.15290594100952 sec.
+  111.477234294528
 
 =item C<bpm15>
 
-bpm15( I<B_PRINT> ).
+bpm15().
 Once you have confirmed 15 beats, press the Enter key.
 The BPM will be calculated from the elapsed time.
-If you specify 0 for I<B_PRINT>,
-the measured time will not be displayed on the screen.
+The measured time is displayed on the screen.
 
-  $ c 'bpm15( 1 )'
+  $ c 'bpm15()'
   <-- Enter key
+  2025-11-25 01:53:17
   stopwatch() = 12.7652950286865 sec.
   70.5036583939106
 
 =item C<bpm30>
 
-bpm30( I<B_PRINT> ).
+bpm30().
 Once you have confirmed 30 beats, press the Enter key.
 The BPM will be calculated from the elapsed time.
-If you specify 0 for I<B_PRINT>,
-the measured time will not be displayed on the screen.
+The measured time is displayed on the screen.
 
-  $ c 'bpm30( 1 )'
+  $ c 'bpm30()'
   <-- Enter key
+  2025-11-25 01:53:17
   stopwatch() = 24.9058220386505 sec.
   72.2722581574156
 
 =item C<tachymeter>
 
-tachymeter( I<B_PRINT> ).
-Measures the number of seconds required for one unit of work and returns the number of units of work done per hour.
-Press Enter to measure the number of seconds.
-If you specify 0 for I<B_PRINT>,
-the measured time will not be displayed on the screen.
-Same as ratio_scaling( stopwatch( I<B_PRINT> ), 1, 3600 ).
+tachymeter( I<SECOND> ).
+Returns the number of units of work that can be completed per hour,
+where I<SECOND> is the number of seconds required to complete one unit of work.
+Same as ratio_scaling( I<SECOND>, 1, 3600 ).
 
 Measure the time for a 1km section and calculate the speed:
 
-  $ c 'tachymeter( 1 )'
+  $ c 'tachymeter( sw() )'
   <-- Enter key
+  2025-11-25 01:53:17
   stopwatch() = 35.5551850795746 sec.
   101.251054999235  # 101 km/h
 
@@ -4725,8 +4726,9 @@ Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in meters.
 Same as telemeter_m().
 
-  $ c 'telemeter( sw( 1 ) )'
+  $ c 'telemeter( sw() )'
   <-- Enter key
+  2025-11-25 01:53:17
   stopwatch() = 7.9051628112793 sec.
   2687.75535583496
 

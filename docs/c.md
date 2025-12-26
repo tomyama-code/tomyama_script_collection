@@ -159,13 +159,13 @@ What combinations involve choosing 4 out of 6 ?
 
 Alternative Method
 
-    $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )'
+    $ c 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) )' -v
     linstep( 6, -1, 4 ) = ( 6, 5, 4, 3 )
     prod( 6, 5, 4, 3 ) = 360
     linstep( 4, -1, 4 ) = ( 4, 3, 2, 1 )
     prod( 4, 3, 2, 1 ) = 24
     360 / 24 = 15
-    Formula: 'prod( linstep( 6 , -1 , 4 ) ) / prod( linstep( 4 , -1 , 4 ) ) ='
+    Formula: 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) ) ='
         RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
      Result: 15
 
@@ -177,7 +177,7 @@ and the radians of an arbitrarily selected value are calculated.
     shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
     first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
     deg2rad( 10 ) = 0.174532925199433
-    Formula: 'deg2rad( first( shuffle( linspace( 0 , 90 , 10 ) ) ) ) ='
+    Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
         RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
      Result: 0.174532925199433
 
@@ -1188,7 +1188,7 @@ The **c** script was created with the following in mind:
         epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
         slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
         age_of_moon( 2025, 12, 5 ) = 15
-        Formula: 'age_of_moon( slice( epoch2local( 1764935943 ) , 0 , 3 ) ) ='
+        Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
             RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
          Result: 15
 
@@ -1263,69 +1263,68 @@ The **c** script was created with the following in mind:
 
 - `stopwatch`
 
-    stopwatch( _B\_PRINT_ ).
+    stopwatch().
     Measures the time until the Enter key is pressed.
-    If you specify 0 for _B\_PRINT_,
-    the measured time will not be displayed on the screen.
+    The measured time is displayed on the screen.
     alias: sw().
 
     Usage example:
 
-        $ c 'stopwatch( 0 )'
+        $ c 'stopwatch()'
         <-- Enter key
-        10.3102450370789
-        $ c 'stopwatch( 1 )'
-        <-- Enter key
+        2025-11-25 01:53:17
         stopwatch() = 10.2675848007202 sec.
         10.2675848007202
 
 - `bpm`
 
-    bpm( _B\_PRINT_, _COUNT_ ).
-    Once you have confirmed the _COUNT_ number of beats, press the Enter key.
-    The BPM will be calculated from the elapsed time.
-    If you specify 0 for _B\_PRINT_,
-    the measured time will not be displayed on the screen.
+    bpm( _COUNT_, _SECOND_ ).
+    Specify the number of beats as _COUNT_ and the elapsed time as _SECOND_ to calculate the BPM.
+
+        $ c 'bpm( 4, sw() )'
+        <-- Enter key
+        2025-11-25 01:53:17
+        stopwatch() = 2.15290594100952 sec.
+        111.477234294528
 
 - `bpm15`
 
-    bpm15( _B\_PRINT_ ).
+    bpm15().
     Once you have confirmed 15 beats, press the Enter key.
     The BPM will be calculated from the elapsed time.
-    If you specify 0 for _B\_PRINT_,
-    the measured time will not be displayed on the screen.
+    The measured time is displayed on the screen.
 
-        $ c 'bpm15( 1 )'
+        $ c 'bpm15()'
         <-- Enter key
+        2025-11-25 01:53:17
         stopwatch() = 12.7652950286865 sec.
         70.5036583939106
 
 - `bpm30`
 
-    bpm30( _B\_PRINT_ ).
+    bpm30().
     Once you have confirmed 30 beats, press the Enter key.
     The BPM will be calculated from the elapsed time.
-    If you specify 0 for _B\_PRINT_,
-    the measured time will not be displayed on the screen.
+    The measured time is displayed on the screen.
 
-        $ c 'bpm30( 1 )'
+        $ c 'bpm30()'
         <-- Enter key
+        2025-11-25 01:53:17
         stopwatch() = 24.9058220386505 sec.
         72.2722581574156
 
 - `tachymeter`
 
-    tachymeter( _B\_PRINT_ ).
-    Measures the number of seconds required for one unit of work and returns the number of units of work done per hour.
-    Press Enter to measure the number of seconds.
-    If you specify 0 for _B\_PRINT_,
-    the measured time will not be displayed on the screen.
-    Same as ratio\_scaling( stopwatch( _B\_PRINT_ ), 1, 3600 ).
+    tachymeter( _SECOND_ ).
+    Returns the number of units of work that can be completed per hour,
+    where _SECOND_ is the number of seconds required to complete one unit of work.
+    Same as ratio\_scaling( _SECOND_, 1, 3600 ).
 
     Measure the time for a 1km section and calculate the speed:
 
-        $ c 'tachymeter( 1 )'
+        $ c 'tachymeter( sw() )'
         <-- Enter key
+        2025-11-25 01:53:17
         stopwatch() = 35.5551850795746 sec.
         101.251054999235  # 101 km/h
 
@@ -1336,8 +1335,9 @@ The **c** script was created with the following in mind:
     Returns the distance equivalent to _SECOND_ in meters.
     Same as telemeter\_m().
 
-        $ c 'telemeter( sw( 1 ) )'
+        $ c 'telemeter( sw() )'
         <-- Enter key
+        2025-11-25 01:53:17
         stopwatch() = 7.9051628112793 sec.
         2687.75535583496
 

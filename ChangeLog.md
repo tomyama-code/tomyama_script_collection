@@ -7,6 +7,20 @@
 ### Changed
 - xxx
 
+## [0.2.44] - 2025-12-26
+### Changed
+- `c` [1.04.099]: Argument specifications changed.
+  - stopwatch()          <= stopwatch( B_PRINT )
+  - bpm( COUNT, SECOND ) <= bpm( B_PRINT, COUNT )
+  - bpm15()              <= bpm15( B_PRINT )
+  - bpm30()              <= bpm30( B_PRINT )
+  - tachymeter( SECOND ) <= tachymeter( B_PRINT )
+- `c` [1.04.098]: FormulaLexer: GetFormula(), GetHere(): Minor output corrections.
+  - after : "c: evaluator: info: sqrt( pow( 2, 100 ) + pow( 2100 )"
+            "c: evaluator: info:                       ^^^^ HERE"
+  - before: "c: evaluator: info: sqrt( pow( 2 , 100 ) + pow( 2100 )"
+            "c: evaluator: info:                        ^^^^ HERE"
+
 ## [0.2.43] - 2025-12-25
 ### Added
 - `c` [1.04.092]: Add a function.

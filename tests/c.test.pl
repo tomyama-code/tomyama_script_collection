@@ -909,48 +909,45 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'stopwatch( 1 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'stopwatch( 1 )'} );
-    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'stopwatch()'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'stopwatch()'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $cmd->stdout_like( qr/\n0\./ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'stopwatch( 0 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'stopwatch( 0 )'} );
-    $cmd->stdout_like( qr/^0\./ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm( 0, 10 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm( 0, 10 )'} );
-    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm15( 0 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm15( 0 )'} );
-    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm30( 1 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm30( 1 )'} );
-    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm( 10, stopwatch() )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm( 10, stopwatch() )'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'tachymeter( 1 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'tachymeter( 1 )'} );
-    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm15()'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm15()'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'telemeter( stopwatch( 0 ) )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'telemeter( stopwatch( 0 ) )'} );
-    $cmd->stdout_like( qr/^\d+(?:\.\d+)?$/ );
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'bpm30()'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'bpm30()'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'tachymeter( stopwatch() )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'tachymeter( stopwatch() )'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'telemeter( stopwatch() )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'telemeter( stopwatch() )'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
+    $cmd->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2280,8 +2277,8 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{c: engine: warn: "=r": Ignore. The calculation process has been completed.\n} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2,100)+power(2,100))='} );
-    $cmd->exit_isnt_num( 0, qq{./c 'sqrt(power(2,100)+power(2,100))='} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2,100))='} );
+    $cmd->exit_isnt_num( 0, qq{./c 'sqrt(power(2, 100)+power(2,100))='} );
     $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
     $cmd->stderr_like( qr/^c: evaluator: error: pow: \$arg_counter="1": The number of operands is incorrect\.\n/ );
     undef( $cmd );
@@ -2392,9 +2389,9 @@ subtest qq{aliases} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'sw( 1 )'} );
-    $cmd->exit_is_num( 0, qq{echo '' | ./c 'sw( 1 )'} );
-    $cmd->stdout_like( qr/^stopwatch\(\) = \d/ );
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'sw()'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'sw()'} );
+    $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $cmd->stdout_like( qr/\n0\./ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
