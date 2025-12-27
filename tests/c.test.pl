@@ -896,7 +896,7 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{printf "\n\n" | $TARGCMD 'laptimer( 2 )'} );
     $cmd->exit_is_num( 0, qq{printf "\n\n" | ./c 'laptimer( 2 )'} );
     $cmd->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
-    $cmd->stdout_like( qr/\n2\/2  00:00:00\./ );
+    $cmd->stdout_like( qr/\r2\/2  00:00:00\./ );
     $cmd->stdout_like( qr/\n0\./ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
@@ -904,8 +904,29 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{printf "\nq\n" | $TARGCMD 'laptimer( 10 )'} );
     $cmd->exit_is_num( 0, qq{printf "\nq\n" | ./c 'laptimer( 10 )'} );
     $cmd->stdout_like( qr/^Lap    Split\-Time    Lap\-Time      Date\-Time\n/ );
-    $cmd->stdout_like( qr/\n 2\/10  00:00:00\./ );
+    $cmd->stdout_like( qr/\r 2\/10  00:00:00\./ );
     $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'timer( local2epoch( 2025, 1, 1  ) )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1  ) )'} );
+    $cmd->stdout_like( qr/^2025\-01\-01 00:00:00  TARGET\n/ );
+    $cmd->stdout_like( qr/\n\d+\.\d+\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'timer( 3 )'} );
+    $cmd->exit_is_num( 0, qq{echo '' | ./c 'timer( 3 )'} );
+    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}  TARGET\n/ );
+    $cmd->stdout_like( qr/\n\-\d+\.\d+\n/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'timer( 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'timer( 1 )'} );
+    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}  TARGET\n/ );
+    $cmd->stdout_like( qr/\n\d+\.\d+\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2384,7 +2405,7 @@ subtest qq{aliases} => sub{
     $cmd = Test::Command->new( cmd => qq{printf "\n\n" | $TARGCMD 'lt( 2 )'} );
     $cmd->exit_is_num( 0, qq{printf "\n\n" | ./c 'lt( 2 )'} );
     $cmd->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
-    $cmd->stdout_like( qr/\n2\/2  00:00:00\./ );
+    $cmd->stdout_like( qr/\r2\/2  00:00:00\./ );
     $cmd->stdout_like( qr/\n0\./ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );

@@ -7,6 +7,8 @@
 ### Changed
 - xxx
 
+## [0.2.45] - 2025-12-27
+
 ## [0.2.44] - 2025-12-26
 ### Changed
 - `c` [1.04.099]: Argument specifications changed.

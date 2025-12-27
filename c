@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.99 $
+## - $Revision: 4.100 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.99 $};
+    my $rev = q{$Revision: 4.100 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -624,6 +624,7 @@ use constant {
     H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( DURATION_SEC ).},
     H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
+    H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
     H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
     H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
@@ -729,6 +730,7 @@ use constant {
     'sec2dhms'             => [ 1710, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
     'dhms2sec'             => [ 1720, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
     'laptimer'             => [ 1730, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                => [ 1735, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
     'stopwatch'            => [ 1740, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
     'bpm'                  => [ 1750, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
     'bpm15'                => [ 1760, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
@@ -1805,6 +1807,64 @@ sub msec2hms( $ )
     return ( $hour, $minute, $sec );
 }
 
+sub waitEnter( $;$ )
+{
+    my $zero_time = shift( @_ );
+    my $b_continue_after_zero = 1;
+    if( defined( $_[ 0 ] ) ){
+        $b_continue_after_zero = shift( @_ );
+    }
+
+    # 標準出力をオートフラッシュ（バッファリング無効）
+    $| = 1;
+
+    #print( "タイマー開始。Enterキーで終了します...\n" );
+
+    my $line = '';
+    while( 1 ){
+        # 1. タイマーの計算と表示
+        my $lap     = &Time::HiRes::time();
+        my $elapsed = $lap - $zero_time;
+        if( $b_continue_after_zero == 0 && $elapsed >= 0 ){
+            last;
+        }
+        $elapsed = abs( $elapsed );
+        my $days    = int( $elapsed / 86400 );
+        my $hours   = int( ( $elapsed % 86400 ) / 3600 );
+        my $mins    = int( ( $elapsed % 3600 ) / 60 );
+        my $secs    = int( $elapsed % 60 );
+        my $msecs   = int( ( $elapsed - int( $elapsed ) ) * 1000 );
+
+        # \r で行頭に戻って上書き
+        if( $days ){
+            printf( "\r%3d %02d:%02d:%02d.%03d ",
+                $days, $hours, $mins, $secs, $msecs );
+        }else{
+            printf( "\r%02d:%02d:%02d.%03d ",
+                $hours, $mins, $secs, $msecs );
+        }
+        ## 次の出力にも"\r"を入れておくこと
+
+        # 2. 標準入力の監視 (select を使用)
+        # vec(ビットベクトル)を作成して STDIN(ファイル記述子0)をセット
+        my $rin = '';
+        vec( $rin, fileno( STDIN ), 1 ) = 1;
+
+        # select(読込待ちベクトル, 書込待ち, 例外待ち, タイムアウト秒)
+        # 0.05秒だけ入力を待ち、無ければ次に進む
+        my $nfound = select( my $rout = $rin, undef, undef, 0.05 );
+        if( $nfound > 0 ){
+            # 入力があった場合、内容を確認
+            $line = <STDIN>;
+            $line =~ s/\r?\n$//o;
+            #print( qq{Enterが押されました。終了します。"$line"\n} );
+            last;
+        }
+    }
+
+    return $line;
+}
+
 sub laptimer( $ )
 {
     my $cycle = shift( @_ );
@@ -1827,16 +1887,17 @@ sub laptimer( $ )
             print( '-' x $lap_w . qq{  ------------  ------------  -------------------\n} );
         }
     }
+    my $lap_old = $beg;
     while( $remain-- != 0 ){
         my $seq = $cycle - $remain;
         #print( qq{\$remain=$remain\n} );
-        my $line = readline( STDIN );
-        $line =~ s/\r?\n$//o;
         #print( qq{\$line="$line"\n} );
+        my $line = &waitEnter( $lap_old );
         if( $line ne '' ){
             $remain = 0;
         }
         my $lap = &Time::HiRes::time();
+        $lap_old = $lap;
         $spl_time = $lap - $beg;
         my $lap_time = $lap - $lap_last;
         $lap_last = $lap;
@@ -1847,12 +1908,12 @@ sub laptimer( $ )
         my @lt = &msec2hms( $lap_time );
         if( $b_rich_print ){
             if( $cycle == 1 ){
-                printf( qq{%02d:%02d:%06.3f  } .
+                printf( qq{\r%02d:%02d:%06.3f  } .
                         qq{%04d-%02d-%02d %02d:%02d:%02d\n},
                     $st[ 0 ], $st[ 1 ], $st[ 2 ],
                     $year, $month, $mday, $hour, $minute, $sec );
             }else{
-                printf( qq{%${cycle_w}d/%${cycle_w}d  %02d:%02d:%06.3f  %02d:%02d:%06.3f  } .
+                printf( qq{\r%${cycle_w}d/%${cycle_w}d  %02d:%02d:%06.3f  %02d:%02d:%06.3f  } .
                         qq{%04d-%02d-%02d %02d:%02d:%02d\n},
                     $seq, $cycle,
                     $st[ 0 ], $st[ 1 ], $st[ 2 ],
@@ -1860,12 +1921,39 @@ sub laptimer( $ )
                     $year, $month, $mday, $hour, $minute, $sec );
             }
         }else{
-            printf( qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+            printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d\n},
                 $year, $month, $mday, $hour, $minute, $sec );
         }
     }
 
     return $spl_time;
+}
+
+sub timer( $ )
+{
+    my $target = shift( @_ );
+    my $zero_time = $target;
+    my $b_continue_after_zero = 1;
+    # 31536000=86400*365
+    if( $target < 31536000 ){       # 1971-01-01 00:00:00 より前なら
+        $zero_time = time() + $target;  # エポックにする
+        $b_continue_after_zero = 0;     # ゼロに到達したら終了
+    }
+    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $zero_time );
+    $year += 1900;
+    $month += 1;
+    printf( qq{%04d-%02d-%02d %02d:%02d:%02d  TARGET\n},
+        $year, $month, $mday, $hour, $minute, $sec );
+    &waitEnter( $zero_time, $b_continue_after_zero );
+    my $end_time = &Time::HiRes::time();
+    ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
+    $year += 1900;
+    $month += 1;
+    my $msec = ( $end_time - int( $end_time ) ) * 1000;
+    printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d.%03d\n},
+        $year, $month, $mday, $hour, $minute, $sec, $msec );
+    my $elaps = $end_time - $zero_time;
+    return $elaps;
 }
 
 sub stopwatch()
@@ -3454,8 +3542,8 @@ linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10,
 pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
 radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter_m, telemeter_km
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
+tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -4651,6 +4739,32 @@ The time for 3 laps was measured:
   <-- Enter key
   3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
   59.8917651176453
+
+=item C<timer>
+
+timer( I<SECOND> ).
+If you specify a value less than 31536000 (365 days x 86400 seconds) for I<SECOND>,
+the countdown will begin and end when it reaches zero.
+If you specify a value greater than this,
+it will be recognized as an epoch second,
+and the countdown or countup will begin with that date and time as zero.
+In this case, the countup will continue without stopping at zero.
+In either mode, press Enter to end.
+
+Specify the seconds in I<SECOND>:
+
+  $ c 'timer( 10 )'
+  2025-12-27 06:02:58  TARGET
+  2025-12-27 06:02:58.017
+  0.0172009468078613
+
+Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
+
+  $ c 'timer( local2epoch( 2025, 12, 27, 06, 07, 00 ) )'
+  2025-12-27 06:07:00  TARGET
+  00:00:15.150    <-- Enter key
+  2025-12-27 06:07:15.236
+  15.2361481189728
 
 =item C<stopwatch>
 

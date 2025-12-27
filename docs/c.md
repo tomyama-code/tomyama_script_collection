@@ -73,8 +73,8 @@ linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, ex
 pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
 atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
 radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter\_m, telemeter\_km
+gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
+tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -1260,6 +1260,32 @@ The **c** script was created with the following in mind:
         <-- Enter key
         3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
         59.8917651176453
+
+- `timer`
+
+    timer( _SECOND_ ).
+    If you specify a value less than 31536000 (365 days x 86400 seconds) for _SECOND_,
+    the countdown will begin and end when it reaches zero.
+    If you specify a value greater than this,
+    it will be recognized as an epoch second,
+    and the countdown or countup will begin with that date and time as zero.
+    In this case, the countup will continue without stopping at zero.
+    In either mode, press Enter to end.
+
+    Specify the seconds in _SECOND_:
+
+        $ c 'timer( 10 )'
+        2025-12-27 06:02:58  TARGET
+        2025-12-27 06:02:58.017
+        0.0172009468078613
+
+    Specify the epoch second in _SECOND_: ( Dates before 1971 cannot be specified )
+
+        $ c 'timer( local2epoch( 2025, 12, 27, 06, 07, 00 ) )'
+        2025-12-27 06:07:00  TARGET
+        00:00:15.150    <-- Enter key
+        2025-12-27 06:07:15.236
+        15.2361481189728
 
 - `stopwatch`
 
