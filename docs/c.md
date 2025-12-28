@@ -1275,14 +1275,14 @@ The **c** script was created with the following in mind:
     Specify the seconds in _SECOND_:
 
         $ c 'timer( 10 )'
-        2025-12-27 06:02:58  TARGET
+        2025-12-27 06:02:58.002  TARGET
         2025-12-27 06:02:58.017
         0.0172009468078613
 
     Specify the epoch second in _SECOND_: ( Dates before 1971 cannot be specified )
 
         $ c 'timer( local2epoch( 2025, 12, 27, 06, 07, 00 ) )'
-        2025-12-27 06:07:00  TARGET
+        2025-12-27 06:07:00.222  TARGET
         00:00:15.150    <-- Enter key
         2025-12-27 06:07:15.236
         15.2361481189728

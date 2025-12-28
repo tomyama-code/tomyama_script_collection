@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.100 $
+## - $Revision: 4.102 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.100 $};
+    my $rev = q{$Revision: 4.102 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1815,18 +1815,34 @@ sub waitEnter( $;$ )
         $b_continue_after_zero = shift( @_ );
     }
 
+    #print( qq{\$zero_time="$zero_time"\n} );
+
     # 標準出力をオートフラッシュ（バッファリング無効）
     $| = 1;
 
     #print( "タイマー開始。Enterキーで終了します...\n" );
 
+    my $bBelCheck = -1;
     my $line = '';
     while( 1 ){
+        my $bel = '';
         # 1. タイマーの計算と表示
         my $lap     = &Time::HiRes::time();
         my $elapsed = $lap - $zero_time;
-        if( $b_continue_after_zero == 0 && $elapsed >= 0 ){
-            last;
+        if( $elapsed >= 0 ){
+            #print( qq{\$elapsed="$elapsed"\n} );
+            if( $bBelCheck == 1 ){
+                $bBelCheck = 0;
+                $bel = "\a";
+            }
+            if( $b_continue_after_zero == 0 ){
+                print( "$bel" );
+                last;
+            }
+        }else{
+            if( $bBelCheck == -1 ){
+                $bBelCheck = 1;
+            }
         }
         $elapsed = abs( $elapsed );
         my $days    = int( $elapsed / 86400 );
@@ -1837,10 +1853,10 @@ sub waitEnter( $;$ )
 
         # \r で行頭に戻って上書き
         if( $days ){
-            printf( "\r%3d %02d:%02d:%02d.%03d ",
+            printf( "$bel\r%3d %02d:%02d:%02d.%03d ",
                 $days, $hours, $mins, $secs, $msecs );
         }else{
-            printf( "\r%02d:%02d:%02d.%03d ",
+            printf( "$bel\r%02d:%02d:%02d.%03d ",
                 $hours, $mins, $secs, $msecs );
         }
         ## 次の出力にも"\r"を入れておくこと
@@ -1933,23 +1949,28 @@ sub timer( $ )
 {
     my $target = shift( @_ );
     my $zero_time = $target;
+
     my $b_continue_after_zero = 1;
     # 31536000=86400*365
-    if( $target < 31536000 ){       # 1971-01-01 00:00:00 より前なら
-        $zero_time = time() + $target;  # エポックにする
-        $b_continue_after_zero = 0;     # ゼロに到達したら終了
+    if( $target < 31536000 ){           # 1971-01-01 00:00:00 より前なら
+        my $start_time = &Time::HiRes::time();
+        $zero_time = $start_time + $target; # エポックにする
+        $b_continue_after_zero = 0;         # ゼロに到達したら終了
     }
     my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $zero_time );
     $year += 1900;
     $month += 1;
-    printf( qq{%04d-%02d-%02d %02d:%02d:%02d  TARGET\n},
-        $year, $month, $mday, $hour, $minute, $sec );
+    my $msec = ( $zero_time - int( $zero_time ) ) * 1000;;
+    printf( qq{%04d-%02d-%02d %02d:%02d:%02d.%03d  TARGET\n},
+        $year, $month, $mday, $hour, $minute, $sec, $msec );
+
     &waitEnter( $zero_time, $b_continue_after_zero );
+
     my $end_time = &Time::HiRes::time();
     ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
     $year += 1900;
     $month += 1;
-    my $msec = ( $end_time - int( $end_time ) ) * 1000;
+    $msec = ( $end_time - int( $end_time ) ) * 1000;
     printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d.%03d\n},
         $year, $month, $mday, $hour, $minute, $sec, $msec );
     my $elaps = $end_time - $zero_time;
@@ -4754,14 +4775,14 @@ In either mode, press Enter to end.
 Specify the seconds in I<SECOND>:
 
   $ c 'timer( 10 )'
-  2025-12-27 06:02:58  TARGET
+  2025-12-27 06:02:58.002  TARGET
   2025-12-27 06:02:58.017
   0.0172009468078613
 
 Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
 
   $ c 'timer( local2epoch( 2025, 12, 27, 06, 07, 00 ) )'
-  2025-12-27 06:07:00  TARGET
+  2025-12-27 06:07:00.222  TARGET
   00:00:15.150    <-- Enter key
   2025-12-27 06:07:15.236
   15.2361481189728

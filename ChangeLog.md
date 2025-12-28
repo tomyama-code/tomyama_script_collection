@@ -7,7 +7,22 @@
 ### Changed
 - xxx
 
+## [0.2.46] - 2025-12-28
+### Changed
+- `c` [1.04.102]: timer(): Changed to ring a bell when it reaches or passes through 0.
+- `c` [1.04.101]: timer(): Fixed the reference time when specifying seconds to be accurate to less than a second.
+
 ## [0.2.45] - 2025-12-27
+### Added
+- `c` [1.04.100]: Add a function.
+  - timer( I<SECOND> ).
+    If you specify a value less than 31536000 (365 days x 86400 seconds) for I<SECOND>,
+    the countdown will begin and end when it reaches zero.
+    If you specify a value greater than this,
+    it will be recognized as an epoch second,
+    and the countdown or countup will begin with that date and time as zero.
+    In this case, the countup will continue without stopping at zero.
+    In either mode, press Enter to end.
 
 ## [0.2.44] - 2025-12-26
 ### Changed

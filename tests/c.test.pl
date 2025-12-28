@@ -911,21 +911,21 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'timer( local2epoch( 2025, 1, 1  ) )'} );
     $cmd->exit_is_num( 0, qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1  ) )'} );
-    $cmd->stdout_like( qr/^2025\-01\-01 00:00:00  TARGET\n/ );
+    $cmd->stdout_like( qr/^2025\-01\-01 00:00:00\.000  TARGET\n/ );
     $cmd->stdout_like( qr/\n\d+\.\d+\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{echo '' | $TARGCMD 'timer( 3 )'} );
     $cmd->exit_is_num( 0, qq{echo '' | ./c 'timer( 3 )'} );
-    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}  TARGET\n/ );
+    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
     $cmd->stdout_like( qr/\n\-\d+\.\d+\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'timer( 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'timer( 1 )'} );
-    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}  TARGET\n/ );
+    $cmd->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
     $cmd->stdout_like( qr/\n\d+\.\d+\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
