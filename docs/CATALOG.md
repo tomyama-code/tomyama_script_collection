@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.102 $
+- $Revision: 4.106 $
 
 - Script Structure
   - main
@@ -130,7 +130,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.40 $
+- $Revision: 2.41 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

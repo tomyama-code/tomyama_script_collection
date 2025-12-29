@@ -764,7 +764,7 @@ The **c** script was created with the following in mind:
 
     paper\_size( SIZE \[, TYPE \] ).
     Returns the following information in this order:
-    length of short side, length of long side (in mm), area (in mm2).
+    length of short side, length of long side (in mm).
     SIZE is a non-negative integer.
     If TYPE is omitted or 0 is specified, it will be A size.
     If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
@@ -772,12 +772,17 @@ The **c** script was created with the following in mind:
     What are the dimensions of A4 size ?:
 
         $ c 'paper_size( 4 )'
-        ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
+        ( 210, 297 )  # Short: 210 mm, Long: 297 mm
 
     What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
 
         $ c 'paper_size( 4, 1 )'
-        ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
+        ( 257, 364 )  # Short: 257 mm, Long: 364 mm
+
+    Area of ​​A5 size:
+
+        $ c 'prod( paper_size( 5 ) )'
+        31080         # Area: 31,080 mm2
 
 - `rand`
 
@@ -1108,7 +1113,7 @@ The **c** script was created with the following in mind:
     What is the radius of the equator (0 degrees latitude)?
 
         $ c 'geo_radius( deg2rad( 0 ) )'
-        6378137
+        6378137   # 6,378,137 m
 
 - `radius_of_lat`
 
@@ -1118,7 +1123,7 @@ The **c** script was created with the following in mind:
     Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
         $ c 'radius_of_lat( deg2rad( 45 ) )'
-        4517590.87888605
+        4517590.87888605  # 4,517,590.88 m
 
 - `geo_distance`
 
@@ -1130,7 +1135,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403505.099759608
+        403505.099759608  # 403,505.10 m
 
 - `geo_distance_m`
 
@@ -1143,7 +1148,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403505.099759608
+        403505.099759608  # 403,505.10 m
 
 - `geo_distance_km`
 
@@ -1156,7 +1161,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403.505099759608
+        403.505099759608  # 403.51 km
 
 - `is_leap`
 
@@ -1180,7 +1185,7 @@ The **c** script was created with the following in mind:
     Maximum deviation of about 2 days.
 
         $ c 'age_of_moon( 2025, 12, 5 )'
-        15
+        15    # Moon's age is 15 days
 
     Today's Moon Age:
 
@@ -1196,6 +1201,7 @@ The **c** script was created with the following in mind:
 
     local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
     Returns the local time in seconds since the epoch.
+    alias: l2e().
 
         $ c 'local2epoch( 2025, 1, 2, 03, 40, 50 )'
         1735756850
@@ -1204,6 +1210,7 @@ The **c** script was created with the following in mind:
 
     gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
     Returns the GMT time in seconds since the epoch.
+    alias: g2e().
 
         $ c 'gmt2epoch( 2025, 1, 1, 18, 40, 50 )'
         1735756850
@@ -1213,32 +1220,34 @@ The **c** script was created with the following in mind:
     epoch2local( _EPOCH_ ).
     Returns the local time.
     ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+    alias: e2l().
 
         $ c 'epoch2local( 1735756850 )'
-        ( 2025, 1, 2, 3, 40, 50 )
+        ( 2025, 1, 2, 3, 40, 50 )     # 2025-01-02 03:40:50 LOCAL(JST)
 
 - `epoch2gmt`
 
     epoch2gmt( _EPOCH_ ).
     Returns the GMT time.
     ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+    alias: e2g().
 
         $ c 'epoch2gmt( 1735756850 )'
-        ( 2025, 1, 1, 18, 40, 50 )
+        ( 2025, 1, 1, 18, 40, 50 )    # 2025-01-01 18:40:50 GMT
 
 - `sec2dhms`
 
-    sec2dhms( _DURATION\_SEC_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+    sec2dhms( _SECOND_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
 
         $ c 'sec2dhms( 356521 )'
-        ( 4, 3, 2, 1 )
+        ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second
 
 - `dhms2sec`
 
-    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _DURATION\_SEC_ ).
+    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _SECOND_ ).
 
         $ c 'dhms2sec( 4, 03, 02, 01 )'
-        356521
+        356521            # 356,521 seconds
 
 - `laptimer`
 
@@ -1276,8 +1285,8 @@ The **c** script was created with the following in mind:
 
         $ c 'timer( 10 )'
         2025-12-27 06:02:58.002  TARGET
-        2025-12-27 06:02:58.017
-        0.0172009468078613
+        2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
+        0.0172009468078613    # Number of seconds from the TARGET time
 
     Specify the epoch second in _SECOND_: ( Dates before 1971 cannot be specified )
 
@@ -1285,7 +1294,7 @@ The **c** script was created with the following in mind:
         2025-12-27 06:07:00.222  TARGET
         00:00:15.150    <-- Enter key
         2025-12-27 06:07:15.236
-        15.2361481189728
+        15.2361481189728      # Number of seconds from the TARGET time
 
 - `stopwatch`
 
@@ -1365,7 +1374,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 7.9051628112793 sec.
-        2687.75535583496
+        2687.75535583496  # 2687.76 m
 
 - `telemeter_m`
 
@@ -1375,7 +1384,7 @@ The **c** script was created with the following in mind:
     Same as telemeter().
 
         $ c 'telemeter_m( 8 )'
-        2720
+        2720  # 2720 m
 
 - `telemeter_km`
 
@@ -1385,7 +1394,7 @@ The **c** script was created with the following in mind:
     Same as telemeter\_m() / 1000.
 
         $ c 'telemeter_km( 8 )'
-        2.72
+        2.72  # 2.72 km
 
 # Environmental requirements
 

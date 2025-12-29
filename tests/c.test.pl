@@ -2156,49 +2156,49 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 0 )'} );
-    $cmd->stdout_is_eq( qq{( 841, 1189, 999949 )\n} );
+    $cmd->stdout_is_eq( qq{( 841, 1189 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 4 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 4 )'} );
-    $cmd->stdout_is_eq( qq{( 210, 297, 62370 )\n} );
+    $cmd->stdout_is_eq( qq{( 210, 297 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 19, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 19, 0 )'} );
-    $cmd->stdout_is_eq( qq{( 1, 1, 1 )\n} );
+    $cmd->stdout_is_eq( qq{( 1, 1 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 20, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 20, 0 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 1, 0 )\n} );
+    $cmd->stdout_is_eq( qq{( 0, 1 )\n} );
     $cmd->stderr_is_eq( qq{paper_size(): A20: The short side reaches 0 mm.\n} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 100, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 100, 0 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 0 )\n} );
+    $cmd->stdout_is_eq( qq{( 0, 0 )\n} );
     $cmd->stderr_is_eq( qq{paper_size(): A20: The short side reaches 0 mm.\npaper_size(): A21: The long side reaches 0 mm.\n} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 0, 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 0, 1 )'} );
-    $cmd->stdout_is_eq( qq{( 1030, 1456, 1499680 )\n} );
+    $cmd->stdout_is_eq( qq{( 1030, 1456 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 4, 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 4, 1 )'} );
-    $cmd->stdout_is_eq( qq{( 257, 364, 93548 )\n} );
+    $cmd->stdout_is_eq( qq{( 257, 364 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'paper_size( 100, 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'paper_size( 100, 1 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 0 )\n} );
+    $cmd->stdout_is_eq( qq{( 0, 0 )\n} );
     $cmd->stderr_is_eq( qq{paper_size(): B21: The short side reaches 0 mm.\npaper_size(): B22: The long side reaches 0 mm.\n} );
     undef( $cmd );
 

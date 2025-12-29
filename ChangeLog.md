@@ -7,6 +7,17 @@
 ### Changed
 - xxx
 
+## [0.2.47] - 2025-12-29
+### Changed
+- `c` [1.04.106]: Edit the POD.
+- `c` [1.04.105]: paper_size(): Changed so that the area is not output since it can be calculated.
+- `c` [1.04.104]: Add an alias to an existing function.
+  - l2e() -> local2epoch()
+  - g2e() -> gmt2epoch()
+  - e2l() -> epoch2local()
+  - e2g() -> epoch2gmt()
+- `c` [1.04.103]: waitEnter(): The auto flash setting is now written back at the end.
+
 ## [0.2.46] - 2025-12-28
 ### Changed
 - `c` [1.04.102]: timer(): Changed to ring a bell when it reaches or passes through 0.

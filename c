@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.102 $
+## - $Revision: 4.106 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.102 $};
+    my $rev = q{$Revision: 4.106 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -581,7 +581,7 @@ use constant {
     H_LNST => qq{linstep( START, DELTA, LENGTH ). Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ). Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_GFIS => qq{gen_fibo_seq( A, B, LENGTH ). Generates the Generalized Fibonacci Sequence. Returns the sequence of numbers starting at A, B and of size LENGTH. LENGTH is an integer greater than or equal to 2.},
-    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm), area (in mm2). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
+    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_POEX => qq{exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
     H_EXP2 => qq{exp2( N1 [,.. ] ). Returns the base 2 raised to the power N.},
@@ -617,12 +617,12 @@ use constant {
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AOMN => qq{age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.},
-    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch.},
-    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch.},
-    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ).},
-    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ).},
-    H_SHMS => qq{sec2dhms( DURATION_SEC ) --Convert-to--> ( D, H, M, S ).},
-    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( DURATION_SEC ).},
+    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
+    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
+    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
+    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
+    H_SHMS => qq{sec2dhms( SECOND ) --Convert-to--> ( D, H, M, S ).},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ).},
     H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
     H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
@@ -1296,7 +1296,7 @@ sub gen_fibo_seq( $$$ )
 ##
 ## paper_size( SIZE [, TYPE ] ).
 ## Returns the following information in this order:
-## length of short side, length of long side (in mm), area (in mm2).
+## length of short side, length of long side (in mm).
 ## SIZE is a positive integer.
 ## If TYPE is omitted or 0 is specified, it will be A size.
 ## If TYPE is specified, it will be B size ( Japan's unique standards ).
@@ -1342,7 +1342,7 @@ sub paper_size( $$ )
         }
     }
 
-    my @ret_vals = ( $short_side, $long_side, $long_side * $short_side );
+    my @ret_vals = ( $short_side, $long_side );
     return @ret_vals;
 }
 
@@ -1818,6 +1818,7 @@ sub waitEnter( $;$ )
     #print( qq{\$zero_time="$zero_time"\n} );
 
     # 標準出力をオートフラッシュ（バッファリング無効）
+    my $autoflash_backup = $|;  # Probably 0
     $| = 1;
 
     #print( "タイマー開始。Enterキーで終了します...\n" );
@@ -1878,6 +1879,8 @@ sub waitEnter( $;$ )
         }
     }
 
+    # 標準出力のオートフラッシュ設定を元に戻しておく
+    $| = $autoflash_backup;
     return $line;
 }
 
@@ -2139,6 +2142,10 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!gd_km\(!geo_distance_km(!go;
     $expr =~ s!lt\(!laptimer(!go;
     $expr =~ s!sw\(!stopwatch(!go;
+    $expr =~ s!l2e\(!local2epoch(!go;
+    $expr =~ s!g2e\(!gmt2epoch(!go;
+    $expr =~ s!e2l\(!epoch2local(!go;
+    $expr =~ s!e2g\(!epoch2gmt(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -4264,7 +4271,7 @@ Generate the Lucas sequence:
 
 paper_size( SIZE [, TYPE ] ).
 Returns the following information in this order:
-length of short side, length of long side (in mm), area (in mm2).
+length of short side, length of long side (in mm).
 SIZE is a non-negative integer.
 If TYPE is omitted or 0 is specified, it will be A size.
 If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
@@ -4272,12 +4279,17 @@ If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
 What are the dimensions of A4 size ?:
 
   $ c 'paper_size( 4 )'
-  ( 210, 297, 62370 )   # Short: 210 mm, Long: 297 mm, Area: 62370 mm2
+  ( 210, 297 )  # Short: 210 mm, Long: 297 mm
 
 What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
 
   $ c 'paper_size( 4, 1 )'
-  ( 257, 364, 93548 )   # Short: 257 mm, Long: 364 mm, Area: 93548 mm2
+  ( 257, 364 )  # Short: 257 mm, Long: 364 mm
+
+Area of ​​A5 size:
+
+  $ c 'prod( paper_size( 5 ) )'
+  31080         # Area: 31,080 mm2
 
 =item C<rand>
 
@@ -4608,7 +4620,7 @@ returns the distance from the center of the Earth to its surface (in meters).
 What is the radius of the equator (0 degrees latitude)?
 
   $ c 'geo_radius( deg2rad( 0 ) )'
-  6378137
+  6378137   # 6,378,137 m
 
 =item C<radius_of_lat>
 
@@ -4618,7 +4630,7 @@ Given a latitude (in radians), returns the radius of that parallel (in meters).
 Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
   $ c 'radius_of_lat( deg2rad( 45 ) )'
-  4517590.87888605
+  4517590.87888605  # 4,517,590.88 m
 
 =item C<geo_distance>
 
@@ -4630,7 +4642,7 @@ Same as geo_distance_m().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403505.099759608
+  403505.099759608  # 403,505.10 m
 
 =item C<geo_distance_m>
 
@@ -4643,7 +4655,7 @@ alias: gd_m().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403505.099759608
+  403505.099759608  # 403,505.10 m
 
 =item C<geo_distance_km>
 
@@ -4656,7 +4668,7 @@ alias: gd_km().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403.505099759608
+  403.505099759608  # 403.51 km
 
 =item C<is_leap>
 
@@ -4680,7 +4692,7 @@ Simple calculation of the age of the moon.
 Maximum deviation of about 2 days.
 
   $ c 'age_of_moon( 2025, 12, 5 )'
-  15
+  15    # Moon's age is 15 days
 
 Today's Moon Age:
 
@@ -4696,6 +4708,7 @@ Today's Moon Age:
 
 local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
 Returns the local time in seconds since the epoch.
+alias: l2e().
 
   $ c 'local2epoch( 2025, 1, 2, 03, 40, 50 )'
   1735756850
@@ -4704,6 +4717,7 @@ Returns the local time in seconds since the epoch.
 
 gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
 Returns the GMT time in seconds since the epoch.
+alias: g2e().
 
   $ c 'gmt2epoch( 2025, 1, 1, 18, 40, 50 )'
   1735756850
@@ -4713,32 +4727,34 @@ Returns the GMT time in seconds since the epoch.
 epoch2local( I<EPOCH> ).
 Returns the local time.
 ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+alias: e2l().
 
   $ c 'epoch2local( 1735756850 )'
-  ( 2025, 1, 2, 3, 40, 50 )
+  ( 2025, 1, 2, 3, 40, 50 )     # 2025-01-02 03:40:50 LOCAL(JST)
 
 =item C<epoch2gmt>
 
 epoch2gmt( I<EPOCH> ).
 Returns the GMT time.
 ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+alias: e2g().
 
   $ c 'epoch2gmt( 1735756850 )'
-  ( 2025, 1, 1, 18, 40, 50 )
+  ( 2025, 1, 1, 18, 40, 50 )    # 2025-01-01 18:40:50 GMT
 
 =item C<sec2dhms>
 
-sec2dhms( I<DURATION_SEC> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+sec2dhms( I<SECOND> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 
   $ c 'sec2dhms( 356521 )'
-  ( 4, 3, 2, 1 )
+  ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second
 
 =item C<dhms2sec>
 
-dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<DURATION_SEC> ).
+dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<SECOND> ).
 
   $ c 'dhms2sec( 4, 03, 02, 01 )'
-  356521
+  356521            # 356,521 seconds
 
 =item C<laptimer>
 
@@ -4776,8 +4792,8 @@ Specify the seconds in I<SECOND>:
 
   $ c 'timer( 10 )'
   2025-12-27 06:02:58.002  TARGET
-  2025-12-27 06:02:58.017
-  0.0172009468078613
+  2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
+  0.0172009468078613    # Number of seconds from the TARGET time
 
 Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
 
@@ -4785,7 +4801,7 @@ Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
   2025-12-27 06:07:00.222  TARGET
   00:00:15.150    <-- Enter key
   2025-12-27 06:07:15.236
-  15.2361481189728
+  15.2361481189728      # Number of seconds from the TARGET time
 
 =item C<stopwatch>
 
@@ -4865,7 +4881,7 @@ Same as telemeter_m().
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 7.9051628112793 sec.
-  2687.75535583496
+  2687.75535583496  # 2687.76 m
 
 =item C<telemeter_m>
 
@@ -4875,7 +4891,7 @@ Returns the distance equivalent to I<SECOND> in meters.
 Same as telemeter().
 
   $ c 'telemeter_m( 8 )'
-  2720
+  2720  # 2720 m
 
 =item C<telemeter_km>
 
@@ -4885,7 +4901,7 @@ Returns the distance equivalent to I<SECOND> in kilometers.
 Same as telemeter_m() / 1000.
 
   $ c 'telemeter_km( 8 )'
-  2.72
+  2.72  # 2.72 km
 
 =back
 
