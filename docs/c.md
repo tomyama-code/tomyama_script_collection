@@ -1396,9 +1396,11 @@ The **c** script was created with the following in mind:
         $ c 'telemeter_km( 8 )'
         2.72  # 2.72 km
 
-# Environmental requirements
+# DEPENDENCIES
 
-## List of modules used
+This script uses only **core Perl modules**. No external modules from CPAN are required.
+
+## Core Modules Used
 
 - base - first included in perl 5.00405
 - Class::Struct — first included in perl 5.004
@@ -1417,20 +1419,26 @@ The **c** script was created with the following in mind:
 
 ## Survey methodology
 
-\- Preparation:
+- 1. Preparation
 
-    $ target_script=c
+    Define the script name:
 
-\- 1st. column:
+        $ target_script=c
 
-    $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
-        sort | uniq | tee ${target_script}.uselist
+- 2. Extract used modules
 
-\- 2nd. column:
+    Generate a list of modules from `use` statements:
 
-    $ cat ${target_script}.uselist | while read line; do
-        corelist $line
-      done
+        $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+            sort | uniq | tee ${target_script}.uselist
+
+- 3. Check core module status
+
+    Run `corelist` for each module to find the first Perl version it appeared in:
+
+        $ cat ${target_script}.uselist | while read line; do
+            corelist $line
+          done
 
 # SEE ALSO
 
@@ -1444,11 +1452,11 @@ The **c** script was created with the following in mind:
 
 # AUTHOR
 
-2025, tomyama
+2025-2026, tomyama
 
 # LICENSE
 
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 
 All rights reserved.
 

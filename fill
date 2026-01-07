@@ -2,7 +2,7 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.3 $
+## - $Revision: 1.5 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -453,7 +453,7 @@ sub dPrintf( @ )
 ## Revision: 1.1
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.3 $};
+    my $rev = q{$Revision: 1.5 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -519,6 +519,8 @@ sub usage( $ )
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 
@@ -701,9 +703,63 @@ step 3. Check the copied files.
   3657935767 874 ../dff5/work1.sh
   3657935767 874 ../f631/work1.sh
 
+=head1 DEPENDENCIES
+
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
+
+=over 4
+
+=item * L<File::Basename> — first included in perl 5
+
+=item * L<strict> — first included in perl 5
+
+=item * L<warnings> — first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
+
+  $ target_script=fill
+
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
+=back
+
+
 =head1 SEE ALSO
 
-perl(1)
+=over 4
+
+=item L<perl>(1)
+
+=item L<File::Basename>
+
+=item L<strict>
+
+=item L<warnings>
+
+=back
 
 =head1 AUTHOR
 

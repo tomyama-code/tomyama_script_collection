@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.3 $
+## - $Revision: 2.4 $
 ##
 ## - Author: 2006-2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -334,7 +334,7 @@ sub myerr()
 ## Revision: 1.1
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.3 $};
+    my $rev = q{$Revision: 2.4 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -401,6 +401,8 @@ __END__
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 MARK - emphasizes part matching a pattern
@@ -466,23 +468,66 @@ Enable highlighting even if STDOUT is not a TTY (pipe, redirect).
 
 =head1 ADVANCED USAGE
 
-$ rpm -qa | mark '-[0-9]+[a-z]?\..+$'
+  $ rpm -qa | mark '-[0-9]+[a-z]?\..+$'
 
-$ mark '\b\d{1,3}(?:\.\d{1,3}){3}\b' /var/log/maillog
+  $ mark '\b\d{1,3}(?:\.\d{1,3}){3}\b' /var/log/maillog
 
-$ mark -nf 5,0 '(ServerName|DocumentRoot|Log)\s+.*$' /etc/httpd/conf/httpd.conf
+  $ mark -nf 5,0 '(ServerName|DocumentRoot|Log)\s+.*$' /etc/httpd/conf/httpd.conf
 
-$ mark -iHnf 0,10 '^[^\s].*$' *.{c,h}
+  $ mark -iHnf 0,10 '^[^\s].*$' *.{c,h}
 
-$ mark -ni '</?(table|tr|th|td)[^>]*>' index.html | S<less -R>
+  $ mark -ni '</?(table|tr|th|td)[^>]*>' index.html | S<less -R>
 
-$ man perlfunc | mark -nf 5,10 -i 'regular expr' | S<less -R>
+  $ man perlfunc | mark -nf 5,10 -i 'regular expr' | S<less -R>
 
-$ man awk | perl -ne 's/.\010//go; print' | S<mark -nf 0,3 '^[A-Z]'>
+  $ man awk | perl -ne 's/.\010//go; print' | S<mark -nf 0,3 '^[A-Z]'>
 
-$ tail -f /var/log/httpd/access_log | S<mark -f 0 '"(GET|POST) /(?:\S+(?:\.html|\.htm|/))? [^"]+"'>
+  $ tail -f /var/log/httpd/access_log | S<mark -f 0 '"(GET|POST) /(?:\S+(?:\.html|\.htm|/))? [^"]+"'>
 
-$ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
+  $ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
+
+=head1 DEPENDENCIES
+
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
+
+=over 4
+
+=item * L<File::Basename> — first included in perl 5
+
+=item * L<strict> — first included in perl 5
+
+=item * L<warnings> — first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
+
+  $ target_script=mark
+
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
+=back
 
 =head1 SEE ALSO
 

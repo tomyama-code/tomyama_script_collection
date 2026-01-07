@@ -17,12 +17,26 @@
 - [POD](docs/c.md) \[ Plain Old Documentation \]
 - [blog:『計算スクリプト c』の紹介](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)
 
+### cl -- 時計スクリプト
+
+![Image of the cl command execution](docs/img/cl.jpg)
+
+- リモート操作中にアクティブなトラフィックを維持することで TCP セッションのタイムアウトを防ぐ、Keep-Alive 機能が欲しくて作成しました。シンプルなクロック スクリプトです。
+- [POD](docs/cl.md) \[ Plain Old Documentation \]
+
 ### fill -- オートフィル風コマンド
 
 ![Image of the fill command execution](docs/img/fill.jpg)
 
 - [POD](docs/fill.md) \[ Plain Old Documentation \]
 - [blog:『オートフィルっぽいコマンド、fill』](https://tomyama.hatenablog.jp/entry/2025/12/19/131224)
+
+### holiday -- 次の休日はいつか？などを確認するためのスクリプト
+
+![Image of the fill command execution](docs/img/holiday.jpg)
+
+- clスクリプトが参照している休日データのファイル（cl.holiday）を閲覧できるようにする為に書いたスクリプトです。
+- [POD](docs/holiday.md) \[ Plain Old Documentation \]
 
 ### mark -- パターンに一致する部分をマーカーペンのように強調表示
 

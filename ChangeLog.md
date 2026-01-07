@@ -7,6 +7,18 @@
 ### Changed
 - xxx
 
+## [0.2.48] - 2026-01-08
+### Added
+- Add a script.
+  - `cl` [1.02.028]: Simple clock script
+  - `holiday` [1.01.004]: Displaying holiday data in the pager
+
+### Changed
+- Edit documentation (POD, Markdown).
+  - `c` [1.04.110]
+  - `fill` [1.01.005]
+  - `mark` [1.02.004]
+
 ## [0.2.47] - 2025-12-29
 ### Changed
 - `c` [1.04.106]: Edit the POD.

@@ -64,23 +64,56 @@ If it is a standard input, "**-**" is given.
 
 # ADVANCED USAGE
 
-$ rpm -qa | mark '-\[0-9\]+\[a-z\]?\\..+$'
+    $ rpm -qa | mark '-[0-9]+[a-z]?\..+$'
 
-$ mark '\\b\\d{1,3}(?:\\.\\d{1,3}){3}\\b' /var/log/maillog
+    $ mark '\b\d{1,3}(?:\.\d{1,3}){3}\b' /var/log/maillog
 
-$ mark -nf 5,0 '(ServerName|DocumentRoot|Log)\\s+.\*$' /etc/httpd/conf/httpd.conf
+    $ mark -nf 5,0 '(ServerName|DocumentRoot|Log)\s+.*$' /etc/httpd/conf/httpd.conf
 
-$ mark -iHnf 0,10 '^\[^\\s\].\*$' \*.{c,h}
+    $ mark -iHnf 0,10 '^[^\s].*$' *.{c,h}
 
-$ mark -ni '&lt;/?(table|tr|th|td)\[^>\]\*>' index.html | less -R
+    $ mark -ni '</?(table|tr|th|td)[^>]*>' index.html | S<less -R>
 
-$ man perlfunc | mark -nf 5,10 -i 'regular expr' | less -R
+    $ man perlfunc | mark -nf 5,10 -i 'regular expr' | S<less -R>
 
-$ man awk | perl -ne 's/.\\010//go; print' | mark -nf 0,3 '^\[A-Z\]'
+    $ man awk | perl -ne 's/.\010//go; print' | S<mark -nf 0,3 '^[A-Z]'>
 
-$ tail -f /var/log/httpd/access\_log | mark -f 0 '"(GET|POST) /(?:\\S+(?:\\.html|\\.htm|/))? \[^"\]+"'
+    $ tail -f /var/log/httpd/access_log | S<mark -f 0 '"(GET|POST) /(?:\S+(?:\.html|\.htm|/))? [^"]+"'>
 
-$ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
+    $ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
+
+# DEPENDENCIES
+
+This script uses only **core Perl modules**. No external modules from CPAN are required.
+
+## Core Modules Used
+
+- [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
+- [strict](https://metacpan.org/pod/strict) — first included in perl 5
+- [warnings](https://metacpan.org/pod/warnings) — first included in perl v5.6.0
+
+## Survey methodology
+
+- 1. Preparation
+
+    Define the script name:
+
+        $ target_script=mark
+
+- 2. Extract used modules
+
+    Generate a list of modules from `use` statements:
+
+        $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+            sort | uniq | tee ${target_script}.uselist
+
+- 3. Check core module status
+
+    Run `corelist` for each module to find the first Perl version it appeared in:
+
+        $ cat ${target_script}.uselist | while read line; do
+            corelist $line
+          done
 
 # SEE ALSO
 

@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.41 $
+## - $Revision: 2.42 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -20,7 +20,8 @@ use warnings 'all';
 use File::Basename;
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c fill mark';
+$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c fill mark holiday';
+$ACAM_KYVL{ '$MY_SCR_NOTEST$' } = 'cl';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
                             ' tools/gen_autotools_acam.pl' .
                             ' tools/GenAutotoolsAcAm_UserFile.pm' .
@@ -57,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.41 $)
+AC_REVISION($Revision: 2.42 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.47], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.48], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -79,7 +80,7 @@ $ACAM_TMPL{ 'Makefile.am' } = q{##
 # # make install 時に bindir（通常 /usr/local/bin）へコピーされるファイル
 # bin_SCRIPTS = $MY_SCRIPTS$
 # インストールもされるし、配布 tarball にも必ず入る
-dist_bin_SCRIPTS = $MY_SCRIPTS$
+dist_bin_SCRIPTS = $MY_SCRIPTS$ $MY_SCR_NOTEST$ cl.holiday
 
 # make dist したときに tarball に含める追加ファイル
 # automakeが自動的に見つけるファイルは書かない方針
@@ -103,7 +104,7 @@ EXTRA_DIST = LICENSE \
 
 SUBDIRS = $SUBDIRS$
 
-docs/CATALOG.md: $(dist_bin_SCRIPTS) $MY_TOOLS$
+docs/CATALOG.md: $MY_SCR_ALL$ $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
 
 .PHONY: catalog
@@ -140,10 +141,11 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.41 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.42 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
-    $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
+    $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
+    $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
     $ACAM_KYVL{ '$MY_TL_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
     my @my_imgs_dot = glob( 'docs/img/*.dot' );
     $ACAM_KYVL{ '$MY_DOTS$' } = join( ' ', @my_imgs_dot );
@@ -178,11 +180,17 @@ sub getTestNames( $ )
     return join( ' ', @arr );
 }
 
+sub getScrNames( $ )
+{
+    my @arr = sort( split( / +/, $_[ 0 ] ) );
+    return join( ' ', sort( @arr ) );
+}
+
 ## "fill hello.pl hello.sh"
 ## -> "docs/fill.md docs/hello.pl.md docs/hello.sh.md"
 sub getDocNames( $ )
 {
-    my @arr = split( / +/, $_[ 0 ] );
+    my @arr = sort( split( / +/, $_[ 0 ] ) );
     my $idx_max = scalar( @arr );
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );

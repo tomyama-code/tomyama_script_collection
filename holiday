@@ -1,0 +1,283 @@
+#!/usr/bin/perl -w
+################################################################################
+## HOLIDAY -- Displaying holiday data in the pager
+##
+## - Displays the holiday data "cl.holiday" in the pager.
+##
+## - Version: 1
+## - $Revision: 1.4 $
+##
+## - Author: 2022-2026, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2022-2026, tomyama
+## All rights reserved.
+################################################################################
+
+use strict;
+use warnings 'all';
+use File::Basename;
+
+use constant HOLIDAY_DATA => 'cl.holiday';
+
+exit( &pl_main( @ARGV ) );
+
+
+sub pl_main( @ )
+{
+    &init_script();
+
+    &parse_arg( @_ );
+
+    my $holiday_data = "$main::apppath/" . HOLIDAY_DATA;
+    my $pattern_of_today = '^#\s西暦' . ( ( localtime( time() ) )[ 5 ] + 1900 );
+    my $pager = qq{less --LINE-NUMBERS --pattern=$pattern_of_today};
+    if( defined( $ENV{PAGER} ) ){
+        $pager = $ENV{PAGER};
+    }
+    my @pager_cmd = split( '\s+', qq{$pager $holiday_data} );
+    if( system( @pager_cmd ) != 0 ){
+        die( join( ' ', @pager_cmd ) . ": failed: status=$?: $!\n" );
+    }
+}
+
+##########
+## 初期化処理
+## Revision: 1.3
+sub init_script()
+{
+    ### GLOBAL ###
+    $main::apppath = dirname( $0 );
+    $main::appname = basename( $0 );
+#    $main::debug = 0;
+#    $main::bIsStdoutATty = -t STDOUT;
+    ##############
+}
+
+##########
+## 引数解析
+sub parse_arg()
+{
+    my @val = @_;
+
+    ## 引数分のループを回す
+    while( my $myparam = shift( @val ) ){
+        if( $myparam eq '-h' || $myparam eq '--help' ){
+            print( &GetHelpMsg() );
+            exit( 0 );
+        }elsif( $myparam eq '-v' || $myparam eq '--version' ){
+            &PrintVersion();
+            exit( 0 );
+        }else{
+            &warnPrint( qq{$myparam: unknown argument\n} );
+        }
+    }
+}
+
+### Revision: 1.1
+#sub dPrint( @ )
+#{
+#    if( $main::debug ){
+#        print( 'dbg: ', @_ );
+#    }
+#}
+#
+### Revision: 1.1
+#sub dPrintf( @ )
+#{
+#    if( $main::debug ){
+#        print( 'dbg: ' );
+#        printf( @_ );
+#    }
+#}
+
+### Revision: 1.1
+#sub errPrint()
+#{
+#    warn( qq{$main::appname: error: }, @_ );
+#}
+
+## Revision: 1.1
+sub warnPrint()
+{
+    warn( qq{$main::appname: warn: }, @_ );
+}
+
+sub GetHelpMsg()
+{
+    my $ver = &GetVersion();
+
+    my $msg = qq{Usage: ${main::appname} [OPTIONS]\n} .
+              qq{\n} .
+              qq{Version: $ver\n} .
+              qq{\n} .
+              qq{Displays the holiday data "} . HOLIDAY_DATA . qq{" in the pager.\n} .
+              qq{\n} .
+              qq{The default pager is the "less" command. \n} .
+              qq{If the \$PAGER environment variable is set, \n} .
+              qq{that setting takes precedence.\n} .
+              qq{\n} .
+              qq{Options:\n} .
+              qq{  -v, --version: Display script version, Perl version, and exit.\n} .
+              qq{  -h, --help:    Display this help and exit.\n} .
+              qq{\n};
+
+    return $msg;
+}
+
+## Revision: 1.1
+sub GetRevision()
+{
+    my $rev = q{$Revision: 1.4 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+sub GetVersion()
+{
+    my $rev = &GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    return $version;
+}
+sub PrintVersion()
+{
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
+}
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+HOLIDAY - Displaying holiday data in the pager
+
+=head1 DESCRIPTION
+
+Displays the holiday data "cl.holiday" in the pager.
+
+The default pager is the "less" command.
+If the $PAGER environment variable is set,
+that setting takes precedence.
+
+=head1 SYNOPSIS
+
+$ holiday [I<OPTIONS>]
+
+=head1 OPTIONS
+
+=over 4
+
+=item -v, --version
+
+Display script version, Perl version, and exit.
+
+=item -h, --help
+
+Display simple help and exit.
+
+=back
+
+=head1 DEPENDENCIES
+
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
+
+=over 4
+
+=item * L<constant> — first included in perl 5.004
+
+=item * L<File::Basename> — first included in perl 5
+
+=item * L<strict> — first included in perl 5
+
+=item * L<warnings> — first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
+
+  $ target_script=holiday
+
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<perl>(1)
+
+=item L<constant>
+
+=item L<File::Basename>
+
+=item L<strict>
+
+=item L<warnings>
+
+=back
+
+=head1 AUTHOR
+
+2005-2026, tomyama
+
+=head1 LICENSE
+
+Copyright (c) 2005-2026, tomyama
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of tomyama nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut

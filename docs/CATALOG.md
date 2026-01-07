@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.106 $
+- $Revision: 4.110 $
 
 - Script Structure
   - main
@@ -33,22 +33,43 @@ The Flat Text Calculator
     - [   Base Package ] OutputFunc
     - [ shared package ] CAppConfig, FormulaToken, TableProvider
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 ![Image of the c command execution](img/c.jpg)
 
 For details, please refer to [c.md](c.md).
 
+### cl
+
+CLOCK PROGRAM
+
+- A simple clock script with a Keep-Alive function to prevent TCP session
+  timeouts by maintaining active traffic during remote operations.
+
+- Version: 1
+- $Revision: 2.28 $
+
+- Author: 2005-2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2005-2026, tomyama
+All rights reserved.
+
+![Image of the cl command execution](img/cl.jpg)
+
+For details, please refer to [cl.md](cl.md).
+
 ### fill
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.3 $
+- $Revision: 1.5 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -61,6 +82,26 @@ All rights reserved.
 
 For details, please refer to [fill.md](fill.md).
 
+### holiday
+
+Displaying holiday data in the pager
+
+- Displays the holiday data "cl.holiday" in the pager.
+
+- Version: 1
+- $Revision: 1.4 $
+
+- Author: 2022-2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2022-2026, tomyama
+All rights reserved.
+
+![Image of the holiday command execution](img/holiday.jpg)
+
+For details, please refer to [holiday.md](holiday.md).
+
 ### mark
 
 emphasizes part matching a pattern
@@ -68,7 +109,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.3 $
+- $Revision: 2.4 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -130,7 +171,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.41 $
+- $Revision: 2.42 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

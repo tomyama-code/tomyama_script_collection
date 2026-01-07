@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.106 $
+## - $Revision: 4.110 $
 ##
 ## - Script Structure
 ##   - main
@@ -26,11 +26,11 @@
 ##     - [   Base Package ] OutputFunc
 ##     - [ shared package ] CAppConfig, FormulaToken, TableProvider
 ##
-## - Author: 2025, tomyama
+## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##
 ## BSD 2-Clause License:
-## Copyright (c) 2025, tomyama
+## Copyright (c) 2025-2026, tomyama
 ## All rights reserved.
 ################################################################################
 
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.106 $};
+    my $rev = q{$Revision: 4.110 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -559,7 +559,7 @@ use constant {
     H_ROUD => qq{round( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
     H_RODU => qq{roundup( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
     H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
-    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of I<X> in A:B=C:I<X>. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
+    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
     H_PRIM => qq{is_prime( NUM1 [,.. ] ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
@@ -629,7 +629,7 @@ use constant {
     H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
     H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
     H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
-    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( I<SECOND>, 1, 3600 ).},
+    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
     H_TLMR => qq{telemeter( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter_m().},
     H_TM_M => qq{telemeter_m( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter().},
     H_TMKM => qq{telemeter_km( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. Same as telemeter_m() / 1000.},
@@ -4905,9 +4905,11 @@ Same as telemeter_m() / 1000.
 
 =back
 
-=head1 Environmental requirements
+=head1 DEPENDENCIES
 
-=head2 List of modules used
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
 
 =over 4
 
@@ -4943,20 +4945,30 @@ Same as telemeter_m() / 1000.
 
 =head2 Survey methodology
 
-- Preparation:
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
 
   $ target_script=c
 
-- 1st. column:
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
 
   $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
       sort | uniq | tee ${target_script}.uselist
 
-- 2nd. column:
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
 
   $ cat ${target_script}.uselist | while read line; do
       corelist $line
     done
+
+=back
 
 =head1 SEE ALSO
 
@@ -4980,11 +4992,11 @@ Same as telemeter_m() / 1000.
 
 =head1 AUTHOR
 
-2025, tomyama
+2025-2026, tomyama
 
 =head1 LICENSE
 
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 
 All rights reserved.
 
