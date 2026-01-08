@@ -7,6 +7,17 @@
 ### Changed
 - xxx
 
+## [0.2.49] - 2026-01-09
+### Added
+- c [1.04.111]: Add a function.
+  - geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gazm().
+  - g_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gd_m_azm().
+  - g_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gd_km_azm().
+
+### Change
+- c [1.04.112]: Rename the function.
+  - slope_deg() -> angle_deg()
+
 ## [0.2.48] - 2026-01-08
 ### Added
 - Add a script.

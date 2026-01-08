@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.110 $
+- $Revision: 4.112 $
 
 - Script Structure
   - main
@@ -52,7 +52,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.28 $
+- $Revision: 2.29 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -171,7 +171,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.42 $
+- $Revision: 2.43 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

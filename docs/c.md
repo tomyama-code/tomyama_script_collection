@@ -71,10 +71,10 @@ abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is
 get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
 linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
 pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, slope\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, is\_leap, age\_of\_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
-tachymeter, telemeter, telemeter\_m, telemeter\_km
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
+radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, g\_dist\_m\_and\_azimuth,
+g\_dist\_km\_and\_azimuth, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -1060,12 +1060,13 @@ The **c** script was created with the following in mind:
         $ c 'hypot( 3, 4 )'
         5
 
-- `slope_deg`
+- `angle_deg`
 
-    slope\_deg( _X_, _Y_ ).
+    angle\_deg( _X_, _Y_ ).
     Returns the straight line distance from (0,0) to (_X_,_Y_).
+    Returns the standard mathematical angle (0 degree = East, counter-clockwise).
 
-        $ c 'slope_deg( 3, 4 )'
+        $ c 'angle_deg( 3, 4 )'
         53.130102354156
 
 - `dist_between_points`
@@ -1096,6 +1097,7 @@ The **c** script was created with the following in mind:
 
     angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
     Returns the angle (in degrees) from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    Returns the standard mathematical angle (0 degree = East, counter-clockwise).
     alias: angle().
 
         $ c 'angle_between_points( 100, 10, 200, 110 )'
@@ -1162,6 +1164,39 @@ The **c** script was created with the following in mind:
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
         403.505099759608  # 403.51 km
+
+- `geo_azimuth`
+
+    geo\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
+    Returns the geographic azimuth (bearing) in degrees from A to B.
+    Note: 0 degree is North, 90 degrees is East (clockwise).
+    Input: Latitude/Longitude in radians.
+    alias: gazm().
+
+        $ c 'geo_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+        257.090172330251
+
+- `g_dist_m_and_azimuth`
+
+    g\_dist\_m\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
+    Returns the distance (in meters) and bearing (in degrees) from A to B.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_m\_azm().
+
+        $ c 'g_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+        ( 912659.532308568, 257.090172330251 )
+
+- `g_dist_km_and_azimuth`
+
+    g\_dist\_km\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
+    Returns the distance (in kilometers) and bearing (in degrees) from A to B.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_km\_azm().
+
+        $ c 'g_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+        ( 912.659532308568, 257.090172330251 )
 
 - `is_leap`
 

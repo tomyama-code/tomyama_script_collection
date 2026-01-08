@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.110 $
+## - $Revision: 4.112 $
 ##
 ## - Script Structure
 ##   - main
@@ -148,7 +148,7 @@ sub GetHelpMsg()
 
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.110 $};
+    my $rev = q{$Revision: 4.112 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -606,15 +606,18 @@ use constant {
     H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]},
     H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
-    H_SLPD => qq{slope_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y).},
+    H_SLPD => qq{angle_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degree = East, counter-clockwise).},
     H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
     H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
-    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: angle().},
+    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). Returns the standard mathematical angle (0 degree = East, counter-clockwise). alias: angle().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
+    H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degree is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
+    H_DD_M => qq{g_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_m_azm().},
+    H_DDKM => qq{g_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_km_azm().},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AOMN => qq{age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
@@ -712,7 +715,7 @@ use constant {
     'atan'                 => [ 1530, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
     'atan2'                => [ 1540, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
     'hypot'                => [ 1550, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'slope_deg'            => [ 1560, T_FUNCTION,     2, H_SLPD, sub{ &slope_deg( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'            => [ 1560, T_FUNCTION,     2, H_SLPD, sub{ &angle_deg( $_[ 0 ], $_[ 1 ] ) } ],
     'dist_between_points'  => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
     'midpt_between_points' => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
     'angle_between_points' => [ 1590, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
@@ -721,6 +724,9 @@ use constant {
     'geo_distance'         => [ 1620, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_m'       => [ 1630, T_FUNCTION,     4, H_GDIM, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_distance_km'      => [ 1640, T_FUNCTION,     4, H_GDKM, sub{ &distance_between_points_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_azimuth'          => [ 1644, T_FUNCTION,     4, H_GDEG, sub{ &degree_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'g_dist_m_and_azimuth' => [ 1646, T_FUNCTION,     4, H_DD_M, sub{ &distance_m_and_degree_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'g_dist_km_and_azimuth'=> [ 1648, T_FUNCTION,     4, H_DDKM, sub{ &distance_km_and_degree_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'is_leap'              => [ 1650, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
     'age_of_moon'          => [ 1660, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'local2epoch'          => [ 1670, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
@@ -1514,7 +1520,7 @@ sub DMS2DMS( $$$ )
     return @dms_array;
 }
 
-sub slope_deg( $$ )
+sub angle_deg( $$ )
 {
     my $x = shift( @_ );
     my $y = shift( @_ );
@@ -1674,6 +1680,48 @@ sub distance_between_points( $$$$ )
 sub distance_between_points_km( $$$$ )
 {
     return &distance_between_points( @_ ) / 1000;
+}
+
+sub degree_between_points( $$$$ )
+{
+    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+
+    my $delta_x = $lonB_rad - $lonA_rad;
+    my $rad = atan2( cos( $latA_rad ) * tan( $latB_rad ) -
+        sin( $latA_rad ) * cos( $delta_x ),
+        sin( $delta_x ) );
+    my $ret_deg = 90 - rad2deg( $rad );
+
+    return $ret_deg;
+}
+
+sub distance_m_and_degree_between_points( $$$$ )
+{
+    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+
+    my $dist = &distance_between_points( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
+    my $deg  = &degree_between_points( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
+
+    return ( $dist, $deg );
+}
+
+sub distance_km_and_degree_between_points( $$$$ )
+{
+    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+
+    my $dist = &distance_between_points_km( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
+    my $deg  = &degree_between_points( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
+
+    return ( $dist, $deg );
 }
 
 sub is_leap_year( $ )
@@ -2140,6 +2188,9 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!angle\(!angle_between_points(!go;
     $expr =~ s!gd_m\(!geo_distance_m(!go;
     $expr =~ s!gd_km\(!geo_distance_km(!go;
+    $expr =~ s!gazm\(!geo_azimuth(!go;
+    $expr =~ s!gd_m_azm\(!g_dist_m_and_azimuth(!go;
+    $expr =~ s!gd_km_azm\(!g_dist_km_and_azimuth(!go;
     $expr =~ s!lt\(!laptimer(!go;
     $expr =~ s!sw\(!stopwatch(!go;
     $expr =~ s!l2e\(!local2epoch(!go;
@@ -2373,7 +2424,7 @@ sub GetConstants()
     my $self = shift( @_ );
     my @kvs = ();
     for my $key( sort( keys( %{ $self->{CONSTANTS} } ) ) ){
-        my $kv = sprintf( '%s = "%s"', $key, ${ $self->{CONSTANTS} }{ $key } );
+        my $kv = sprintf( '%s = "%s"', uc( $key ), ${ $self->{CONSTANTS} }{ $key } );
         push( @kvs, $kv );
     }
     return @kvs;
@@ -3568,10 +3619,10 @@ abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_
 get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each,
 linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
 pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, slope_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
-radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, is_leap, age_of_moon, local2epoch,
-gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
-tachymeter, telemeter, telemeter_m, telemeter_km
+atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
+radius_of_lat, geo_distance, geo_distance_m, geo_distance_km, geo_azimuth, g_dist_m_and_azimuth,
+g_dist_km_and_azimuth, is_leap, age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -4567,12 +4618,13 @@ Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very lar
   $ c 'hypot( 3, 4 )'
   5
 
-=item C<slope_deg>
+=item C<angle_deg>
 
-slope_deg( I<X>, I<Y> ).
+angle_deg( I<X>, I<Y> ).
 Returns the straight line distance from (0,0) to (I<X>,I<Y>).
+Returns the standard mathematical angle (0 degree = East, counter-clockwise).
 
-  $ c 'slope_deg( 3, 4 )'
+  $ c 'angle_deg( 3, 4 )'
   53.130102354156
 
 =item C<dist_between_points>
@@ -4603,6 +4655,7 @@ alias: midpt().
 
 angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
 Returns the angle (in degrees) from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+Returns the standard mathematical angle (0 degree = East, counter-clockwise).
 alias: angle().
 
   $ c 'angle_between_points( 100, 10, 200, 110 )'
@@ -4669,6 +4722,39 @@ alias: gd_km().
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
   403.505099759608  # 403.51 km
+
+=item C<geo_azimuth>
+
+geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ).
+Returns the geographic azimuth (bearing) in degrees from A to B.
+Note: 0 degree is North, 90 degrees is East (clockwise).
+Input: Latitude/Longitude in radians.
+alias: gazm().
+
+  $ c 'geo_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+  257.090172330251
+
+=item C<g_dist_m_and_azimuth>
+
+g_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ).
+Returns the distance (in meters) and bearing (in degrees) from A to B.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_m_azm().
+
+  $ c 'g_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+  ( 912659.532308568, 257.090172330251 )
+
+=item C<g_dist_km_and_azimuth>
+
+g_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ).
+Returns the distance (in kilometers) and bearing (in degrees) from A to B.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_km_azm().
+
+  $ c 'g_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+  ( 912.659532308568, 257.090172330251 )
 
 =item C<is_leap>
 
