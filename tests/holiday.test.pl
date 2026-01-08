@@ -62,13 +62,13 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD | cat -} );
     $cmd->exit_is_num( 0, qq{./holiday | cat -} );
-    $cmd->stdout_like( qr/^## \$Id: cl\.holiday,v / );
+    $cmd->stdout_like( qr/^## \$Revision: 20/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{PAGER=cat $TARGCMD} );
     $cmd->exit_is_num( 0, qq{PAGER=cat ./holiday} );
-    $cmd->stdout_like( qr/^## \$Id: cl\.holiday,v / );
+    $cmd->stdout_like( qr/^## \$Revision: 20/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -80,7 +80,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD unknown_argument | cat -} );
     $cmd->exit_is_num( 0, qq{./holiday unknown_argument | cat -} );
-    $cmd->stdout_like( qr/^## \$Id: cl\.holiday,v / );
+    $cmd->stdout_like( qr/^## \$Revision: 20/ );
     $cmd->stderr_is_eq( qq{holiday: warn: unknown_argument: unknown argument\n} );
     undef( $cmd );
 
