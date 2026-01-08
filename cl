@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.28 $
+## - $Revision: 2.29 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -99,7 +99,6 @@ sub init_script()
     $main::appname = basename( $0 );
     $main::interval = 1;
     $main::use_large_font = 0;
-    $main::bRun = 0;
 
     return;
 }
@@ -170,7 +169,7 @@ sub GetHelpMsg()
 ## Revision: 1.1
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.28 $};
+    my $rev = q{$Revision: 2.29 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -242,8 +241,6 @@ sub setup_clock()
     # 標準出力をオートフラッシュ（バッファリング無効）
     $| = 1;
 
-    $main::bRun = 1;
-
     return 0;
 }
 
@@ -269,11 +266,11 @@ sub setup_clock_normal()
 
     my $label_w = 5;
     my $myY = 18;
-    &pos_printf( 2, $myY++, qq{%${label_w}s: '%s' (%s, %s)\n}, 'HOST', ( uname() )[ 1, 4, 0 ] );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s' (%s, %s)\n}, 'HOST', ( uname() )[ 1, 4, 0 ] );
     my $user_name = getpwuid( $< ); ## "$<": プロセスの実ユーザーID
-    &pos_printf( 2, $myY++, qq{%${label_w}s: '%s', USER: '%s'\n}, 'LOGIN', getlogin(), $user_name );
-    &pos_printf( 2, $myY++, qq{%${label_w}s: '%s'\n}, 'DIR', getcwd() );
-    &pos_printf( 2, $myY++, qq{%${label_w}s: WIDTH='%d'\n}, 'TERM', $main::screenX );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s', USER: '%s'\n}, 'LOGIN', getlogin(), $user_name );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s'\n}, 'DIR', getcwd() );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: WIDTH='%d', HEIGHT='%d'\n}, 'TERM', $main::termX, $main::termY );
 }
 
 sub setup_clock_use_large_font()
@@ -878,12 +875,12 @@ sub bar_rewrite( $$$ )
 
 sub screen_clear()
 {
-    if( $main::bRun == 0 ){
-        print( "\n" x $main::termY . "\e[2J" );
-    }
-    print( $DEF_COLOR );
+    my $clear_cmd = '';
+    $clear_cmd .= "\n" x $main::termY;  # 行送り
+    $clear_cmd .= "\e[2J";              # 画面全体を消去
+    $clear_cmd .= $DEF_COLOR;
+    print( $clear_cmd );
 
-    my $line_buff = ' ' x $main::screenX;
     for( my $i=1; $i<=$main::screenY; $i++ ){
         &pos_printf( 1, $i, "\e[2K" );    # 現在行全体を削除
     }
