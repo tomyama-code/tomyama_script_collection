@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.4 $
+## - $Revision: 2.5 $
 ##
 ## - Author: 2006-2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -161,6 +161,7 @@ sub pl_main()
 
 ##########
 ## 初期化処理
+## Revision: 1.3
 sub init_script()
 {
     ### GLOBAL ###
@@ -331,12 +332,13 @@ sub myerr()
     warn( qq{$main::appname: error: }, @_ );
 }
 
-## Revision: 1.1
-sub GetRevision()
+## Revision: 1.2
+sub PrintVersion()
 {
-    my $rev = q{$Revision: 2.4 $};
-    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
-    return $rev;
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
 sub GetVersion()
 {
@@ -348,16 +350,16 @@ sub GetVersion()
 
     return $version;
 }
-sub PrintVersion()
+sub GetRevision()
 {
-    my $ver = &GetVersion();
-    my $v = qq{Version: $ver\n} .
-            qq{   Perl: $^V\n};
-    print( $v );
+    my $rev = q{$Revision: 2.5 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 
 ##########
 ## 書式表示
+## Revision: 1.2
 sub usage( $ )
 {
     my $msg = "Usage: " .

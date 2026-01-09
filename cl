@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.29 $
+## - $Revision: 2.31 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -166,14 +166,14 @@ sub GetHelpMsg()
     return $msg;
 }
 
-## Revision: 1.1
-sub GetRevision()
+## Revision: 1.2
+sub PrintVersion()
 {
-    my $rev = q{$Revision: 2.29 $};
-    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
-    return $rev;
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
-
 sub GetVersion()
 {
     my $rev = &GetRevision();
@@ -184,15 +184,11 @@ sub GetVersion()
 
     return $version;
 }
-
-sub PrintVersion()
+sub GetRevision()
 {
-    my $self = shift( @_ );
-
-    my $ver = &GetVersion();
-    my $v = qq{Version: $ver\n} .
-            qq{   Perl: $^V\n};
-    print( $v );
+    my $rev = q{$Revision: 2.31 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 
 sub is_interval_sec( $ )
@@ -970,7 +966,7 @@ sub get_tm_str( @ )
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
 # インストール時に C コンパイラが必要となる環境もある。
 # ビルド要件を増やしたくない場合にこのサブルーチンを使用するという前提。
-## Revision: 1.2
+## Revision: 1.4
 sub GetTermSize()
 {
     my( $width, $height ) = ( undef, undef );
@@ -978,7 +974,7 @@ sub GetTermSize()
     # Try stty
     if( -t STDOUT ){
         #my( $trm_columns, $trm_lines,
-        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTermSize();
+        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
         # ビルド要件を増やさない為に使用しない。
 
         my $stty_out = `stty size 2>/dev/null`;
@@ -1003,6 +999,7 @@ sub GetTermSize()
     return ( $width, $height );
 }
 
+## Revision: 1.1
 sub is_leap_year( $ )
 {
     my $year = shift( @_ );
@@ -1013,6 +1010,7 @@ sub is_leap_year( $ )
     return $retBool;
 }
 
+## Revision: 1.1
 sub age_of_moon( $$$ )
 {
     my $Y = shift( @_ );

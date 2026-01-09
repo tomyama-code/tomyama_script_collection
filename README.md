@@ -15,7 +15,7 @@
 ![Image of the c command execution](docs/img/c.jpg)
 
 - [POD](docs/c.md) \[ Plain Old Documentation \]
-- [blog:『計算スクリプト c』の紹介](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)
+- blog:『[計算スクリプト c](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)』
 
 ### cl -- 時計スクリプト
 
@@ -23,13 +23,14 @@
 
 - リモート操作中にアクティブなトラフィックを維持することで TCP セッションのタイムアウトを防ぐ、Keep-Alive 機能が欲しくて作成しました。シンプルなクロック スクリプトです。
 - [POD](docs/cl.md) \[ Plain Old Documentation \]
+- blog:『[CLIで使える時計コマンド、cl](https://tomyama.hatenablog.jp/entry/2026/01/09/173137)』
 
 ### fill -- オートフィル風コマンド
 
 ![Image of the fill command execution](docs/img/fill.jpg)
 
 - [POD](docs/fill.md) \[ Plain Old Documentation \]
-- [blog:『オートフィルっぽいコマンド、fill』](https://tomyama.hatenablog.jp/entry/2025/12/19/131224)
+- blog:『[オートフィルっぽいコマンド、fill](https://tomyama.hatenablog.jp/entry/2025/12/19/131224)』
 
 ### holiday -- 次の休日はいつか？などを確認するためのスクリプト
 
@@ -37,13 +38,14 @@
 
 - clスクリプトが参照している休日データのファイル（cl.holiday）を閲覧できるようにする為に書いたスクリプトです。
 - [POD](docs/holiday.md) \[ Plain Old Documentation \]
+- blog:『[日本の祝日を確認するコマンド、holiday](https://tomyama.hatenablog.jp/entry/2026/01/10/000000)』
 
 ### mark -- パターンに一致する部分をマーカーペンのように強調表示
 
 ![Image of the mark command execution](docs/img/mark.jpg)
 
 - [POD](docs/mark.md) \[ Plain Old Documentation \]
-- [blog: 検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)
+- blog:『[検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)』
 
 * * *
 

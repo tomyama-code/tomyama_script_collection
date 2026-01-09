@@ -2,7 +2,7 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.5 $
+## - $Revision: 1.6 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -170,6 +170,7 @@ sub pl_main()
 
 ##########
 ## 初期化処理
+## Revision: 1.3
 sub init_script()
 {
     ### GLOBAL ###
@@ -450,12 +451,13 @@ sub dPrintf( @ )
     }
 }
 
-## Revision: 1.1
-sub GetRevision()
+## Revision: 1.2
+sub PrintVersion()
 {
-    my $rev = q{$Revision: 1.5 $};
-    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
-    return $rev;
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
 sub GetVersion()
 {
@@ -467,16 +469,16 @@ sub GetVersion()
 
     return $version;
 }
-sub PrintVersion()
+sub GetRevision()
 {
-    my $ver = &GetVersion();
-    my $v = qq{Version: $ver\n} .
-            qq{   Perl: $^V\n};
-    print( $v );
+    my $rev = q{$Revision: 1.6 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 
 ##########
 ## 書式表示
+## Revision: 1.2
 sub usage( $ )
 {
     my $msg = "usage: " .

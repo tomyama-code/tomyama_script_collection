@@ -5,7 +5,7 @@
 ## - Displays the holiday data "cl.holiday" in the pager.
 ##
 ## - Version: 1
-## - $Revision: 1.4 $
+## - $Revision: 1.5 $
 ##
 ## - Author: 2022-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -126,12 +126,13 @@ sub GetHelpMsg()
     return $msg;
 }
 
-## Revision: 1.1
-sub GetRevision()
+## Revision: 1.2
+sub PrintVersion()
 {
-    my $rev = q{$Revision: 1.4 $};
-    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
-    return $rev;
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
 sub GetVersion()
 {
@@ -143,12 +144,11 @@ sub GetVersion()
 
     return $version;
 }
-sub PrintVersion()
+sub GetRevision()
 {
-    my $ver = &GetVersion();
-    my $v = qq{Version: $ver\n} .
-            qq{   Perl: $^V\n};
-    print( $v );
+    my $rev = q{$Revision: 1.5 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 __END__
 

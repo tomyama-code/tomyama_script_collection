@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.112 $
+## - $Revision: 4.113 $
 ##
 ## - Script Structure
 ##   - main
@@ -38,7 +38,6 @@
 package OutputFunc;
 use strict;
 use warnings 'all';
-#use Term::ReadKey;  ## GetTerminalSize()
 
 # OutputFunc コンストラクタ
 sub new {
@@ -87,7 +86,7 @@ sub GetHelpMsg()
 
     my $ver = &GetVersion();
 
-    my $trm_columns = $self->GetTerminalWidth();
+    my $trm_columns = ( $self->GetTermSize() )[ 0 ];
     #print( qq{$trm_columns, $trm_lines\n} );
 
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -146,13 +145,14 @@ sub GetHelpMsg()
     return $msg;
 }
 
-sub GetRevision()
+## Revision: 1.2
+sub PrintVersion()
 {
-    my $rev = q{$Revision: 4.112 $};
-    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
-    return $rev;
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
 }
-
 sub GetVersion()
 {
     my $rev = &GetRevision();
@@ -163,44 +163,47 @@ sub GetVersion()
 
     return $version;
 }
-
-sub PrintVersion()
+sub GetRevision()
 {
-    my $self = shift( @_ );
-
-    my $ver = &GetVersion();
-    my $v = qq{Version: $ver\n} .
-            qq{   Perl: $^V\n};
-    print( $v );
+    my $rev = q{$Revision: 4.113 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
 # インストール時に C コンパイラが必要となる環境もある。
 # ビルド要件を増やしたくない場合にこのサブルーチンを使用するという前提。
-## Revision: 1.2
-sub GetTerminalWidth()
+## Revision: 1.4
+sub GetTermSize()
 {
-    my $self = shift( @_ );
+    my( $width, $height ) = ( undef, undef );
 
     # Try stty
-    if( $self->{APPCONFIG}->GetBIsStdoutTty() ){
-        #my( $trm_columns, $trm_lines, $trm_width, $trm_height ) =
-        #    &Term::ReadKey::GetTerminalSize();
-        # 「ヘルプ整形」程度でビルド要件を増やすのは避けたいので、使用しないことに。
+    if( -t STDOUT ){
+        #my( $trm_columns, $trm_lines,
+        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+        # ビルド要件を増やさない為に使用しない。
 
         my $stty_out = `stty size 2>/dev/null`;
         if( $stty_out =~ m/^\s*(\d+)\s+(\d+)/ ){
-            return $2;
+            $height = $1;
+            $width  = $2;
         }
+    }else{
+        # COLUMNS/LINES 環境変数は多くのシェルが設定するが、
+        # export されていない場合もあるため // (defined-or) でフォールバック。
+        # ▼ 代表的な歴史的/実用的な幅
+        #   72 : GNU 系コマンド／メール折り返しの伝統
+        #   76 : perldoc が使用
+        #   78 : 80 の“2字控え”として昔使われた妥協値
+        #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
+        # DEC VT100 の画面サイズは 80x24
+        # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
+        $width  = $ENV{COLUMNS} // 80;  # Fall back to environment
+        $height = $ENV{LINES}   // 24;  # 24 は歴史的・実用的に最も無難な値
     }
 
-    # ▼ 代表的な歴史的/実用的な幅
-    #   72 : GNU 系コマンド／メール折り返しの伝統
-    #   76 : perldoc が使用
-    #   78 : 80 の“2字控え”として昔使われた妥協値
-    #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
-    # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
-    return $ENV{COLUMNS} // 80;     # Fall back to environment
+    return ( $width, $height );
 }
 
 sub FmtHelp( $ )
@@ -1724,6 +1727,7 @@ sub distance_km_and_degree_between_points( $$$$ )
     return ( $dist, $deg );
 }
 
+## Revision: 1.1
 sub is_leap_year( $ )
 {
     my $year = shift( @_ );
@@ -1743,6 +1747,7 @@ sub is_leap( @ )
     return @ret_vals;
 }
 
+## Revision: 1.1
 sub age_of_moon( $$$ )
 {
     my $y = shift( @_ );

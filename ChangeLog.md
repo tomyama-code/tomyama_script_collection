@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.2.50] - 2026-01-1x
+### Change
+- Code cleanup. Behavior remains the same.
+  - c       [1.04.113]
+  - cl      [1.02.031]
+  - fill    [1.01.006]
+  - holiday [1.01.005]
+  - mark    [1.02.005]
+- cl.holiday [2026.1]: Added Japanese holiday data from 1949 to 1954.
+
 ## [0.2.49] - 2026-01-09
 ### Added
 - c [1.04.111]: Add a function.

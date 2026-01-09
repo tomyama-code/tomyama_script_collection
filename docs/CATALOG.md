@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.112 $
+- $Revision: 4.113 $
 
 - Script Structure
   - main
@@ -52,7 +52,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.29 $
+- $Revision: 2.31 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -69,7 +69,7 @@ For details, please refer to [cl.md](cl.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.5 $
+- $Revision: 1.6 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -89,7 +89,7 @@ Displaying holiday data in the pager
 - Displays the holiday data "cl.holiday" in the pager.
 
 - Version: 1
-- $Revision: 1.4 $
+- $Revision: 1.5 $
 
 - Author: 2022-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -109,7 +109,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.4 $
+- $Revision: 2.5 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -171,7 +171,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.43 $
+- $Revision: 2.44 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
