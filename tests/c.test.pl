@@ -2601,22 +2601,28 @@ subtest qq{-h, --help} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{export PATH="./tests:\$PATH" && $TARGCMD --test-test --help} );
-    $cmd->exit_is_num( 0, qq{export PATH="./tests:\$PATH" && ./c --test-test --help} );
+#    $cmd = Test::Command->new( cmd => qq{export PATH="./tests:\$PATH" && $TARGCMD --test-test --help} );
+#    $cmd->exit_is_num( 0, qq{export PATH="./tests:\$PATH" && ./c --test-test --help} );
+    $cmd = Test::Command->new( cmd => qq{PATH="./tests:\$PATH" $TARGCMD --test-test --help} );
+    $cmd->exit_is_num( 0, qq{PATH="./tests:\$PATH" ./c --test-test --help} );
     $cmd->stdout_like( qr/^Usage: c / );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{export COLUMNS="70" && $TARGCMD --help} );
-    $cmd->exit_is_num( 0, qq{export COLUMNS="70" && ./c --help} );
+#    $cmd = Test::Command->new( cmd => qq{export COLUMNS="70" && export LINES="30" && $TARGCMD --help} );
+#    $cmd->exit_is_num( 0, qq{export COLUMNS="70" && export LINES="30" && ./c --help} );
+    $cmd = Test::Command->new( cmd => qq{COLUMNS="70" LINES="30" $TARGCMD --help} );
+    $cmd->exit_is_num( 0, qq{COLUMNS="70" LINES="30" ./c --help} );
     $cmd->stdout_like( qr/^Usage: c /, qq{Specified character width.} );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{unset COLUMNS && $TARGCMD --help} );
-    $cmd->exit_is_num( 0, qq{unset COLUMNS && ./c --help} );
+#    $cmd = Test::Command->new( cmd => qq{unset COLUMNS && unset LINES && $TARGCMD --help} );
+#    $cmd->exit_is_num( 0, qq{unset COLUMNS && unset LINES && ./c --help} );
+    $cmd = Test::Command->new( cmd => qq{env -u COLUMNS -u LINES $TARGCMD --help} );
+    $cmd->exit_is_num( 0, qq{env -u COLUMNS -u LINES ./c --help} );
     $cmd->stdout_like( qr/^Usage: c / );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );

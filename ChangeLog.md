@@ -7,7 +7,20 @@
 ### Changed
 - xxx
 
-## [0.2.50] - 2026-01-1x
+## [0.2.51] - 2026-01-11
+### Added
+- Add a script.
+  - `domsort` [1.01.006]: Sort by domain or IP address hierarchy.
+
+### Change
+- Code cleanup. Behavior remains the same.
+  - c       [1.04.115]
+  - cl      [1.02.032]
+  - fill    [1.01.007]
+  - holiday [1.01.006]
+  - mark    [1.02.006]
+
+## [0.2.50] - 2026-01-10
 ### Change
 - Code cleanup. Behavior remains the same.
   - c       [1.04.113]

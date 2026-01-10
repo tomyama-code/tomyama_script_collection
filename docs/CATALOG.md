@@ -21,7 +21,7 @@ The Flat Text Calculator
 - The "c" script displays the result of the given expression.
 
 - Version: 1
-- $Revision: 4.113 $
+- $Revision: 4.115 $
 
 - Script Structure
   - main
@@ -52,7 +52,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.31 $
+- $Revision: 2.32 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -65,11 +65,29 @@ All rights reserved.
 
 For details, please refer to [cl.md](cl.md).
 
+### domsort
+
+Sort by domain or IP address hierarchy.
+
+- Version: 1
+- $Revision: 1.6 $
+
+- Author: 2005-2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2005-2026, tomyama
+All rights reserved.
+
+![Image of the domsort command execution](img/domsort.jpg)
+
+For details, please refer to [domsort.md](domsort.md).
+
 ### fill
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.6 $
+- $Revision: 1.7 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -89,7 +107,7 @@ Displaying holiday data in the pager
 - Displays the holiday data "cl.holiday" in the pager.
 
 - Version: 1
-- $Revision: 1.5 $
+- $Revision: 1.6 $
 
 - Author: 2022-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -109,7 +127,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.5 $
+- $Revision: 2.6 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -156,11 +174,11 @@ Generate and manage autotools "ac" and "am" files from a single source.
 
 - $Revision: 1.9 $
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 For details, please refer to [gen_autotools_acam.pl.md](gen_autotools_acam.pl.md).
@@ -171,13 +189,13 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.44 $
+- $Revision: 2.45 $
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 For details, please refer to [GenAutotoolsAcAm_UserFile.pm.md](GenAutotoolsAcAm_UserFile.pm.md).

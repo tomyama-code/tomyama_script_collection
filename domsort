@@ -1,0 +1,584 @@
+#!/usr/bin/perl -w
+################################################################################
+## DOMSORT -- Sort by domain or IP address hierarchy.
+##
+## - Version: 1
+## - $Revision: 1.6 $
+##
+## - Author: 2005-2026, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2005-2026, tomyama
+## All rights reserved.
+################################################################################
+
+use strict;
+use warnings 'all';
+use File::Basename      qw{ dirname basename };
+
+
+exit( &pl_main( @ARGV ) );
+
+
+##########
+## プログラムのエントリポイント
+sub pl_main( @ )
+{
+    my %param;
+
+    ## 初期化
+    &init_script( \%param );
+
+    ## 引数処理
+    &parse_arg( \%param, @_ );
+
+    ## データ読み込み
+    my @dom_data = ();
+    foreach my $file ( @{ $param{ 'FILE_INPUT' } } ){
+        &open_data( \@dom_data, $file );
+    }
+
+    ## ソート処理
+    my @sorted_data = sort { &myCompareFunc( \%param ) } ( @dom_data );
+    if( $param{ 'B_REVERSE' } ){
+        @sorted_data = reverse( @sorted_data );
+    }
+
+    ## 出力する
+    print( @sorted_data );
+
+    return 0;
+}
+
+##########
+## 初期化処理
+## Revision: 1.3
+sub init_script()
+{
+    my $ref_param = shift( @_ );
+
+    ### GLOBAL ###
+    $main::apppath = dirname( $0 );
+    $main::appname = basename( $0 );
+    ##############
+
+    ##### DEFAULT PARAMETER ######
+    @{ ${ $ref_param }{ 'FILE_INPUT' } } = ();
+    ${ $ref_param }{ 'START_FIELD' } = 0;
+    ${ $ref_param }{ 'B_REVERSE' } = 0;
+    ${ $ref_param }{ 'B_SORTBYDIAL' } = 0;
+    ${ $ref_param }{ 'B_IGNORE_CASE' } = 1;
+    ${ $ref_param }{ 'DELIMITER' } = '\s+';
+    ##############################
+}
+
+##########
+## 引数処理
+sub parse_arg( \%@ )
+{
+    my $ref_param = shift( @_ );
+    my @myArgv = @_;
+
+    ## 引数解析
+    while( my $myparam = shift( @myArgv ) ){
+        if( $myparam =~ s/^-([dfhkrt])(.+)$/-$2/o ){
+            unshift( @myArgv, $myparam );
+            $myparam = qq{-$1};
+        }
+
+        ## 「電話帳」順でソートする
+        if( $myparam eq '-d' ){
+            ${ $ref_param }{ 'B_SORTBYDIAL' } = 1;
+        ## 大文字小文字の違いを強制する
+        }elsif( $myparam eq '-f' ){
+            ${ $ref_param }{ 'B_IGNORE_CASE' } = 0;
+        }elsif( ( $myparam eq '-h' ) || ( $myparam eq '--help' ) ){
+            &usage( 0 );
+            exit( 0 );
+        ## 着目するフィールド
+        }elsif( $myparam eq '-k' ){
+            my $field = shift( @myArgv ) ||
+                die( "Usage: domsort -k <column> <file...>\n" );
+            if( !( $field =~ m/^[0-9]+$/o ) ){
+                die( qq{"$field" is not a number.\n} );
+            }
+            ${ $ref_param }{ 'START_FIELD' } = $field - 1;
+        ## 逆順に並べる
+        }elsif( $myparam eq '-r' ){
+            ${ $ref_param }{ 'B_REVERSE' } = 1;
+        ## フィールドセパレータ
+        }elsif( $myparam eq '-t' ){
+            my $delimiter = shift( @myArgv ) ||
+                die( "Usage: domsort -t <delimiter> <file...>\n" );
+            ${ $ref_param }{ 'DELIMITER' } = $delimiter;
+        }elsif( $myparam eq '-v' || $myparam eq '--version' ){
+            &PrintVersion();
+            exit( 0 );
+        }else{
+            push( @{ ${ $ref_param }{ 'FILE_INPUT' } }, $myparam );
+        }
+    }
+
+    ## ファイルが指定されていなかったら、標準入力から受け付ける
+    if( scalar( @{ ${ $ref_param }{ 'FILE_INPUT' } } ) == 0 ){
+        ${ $ref_param }{ 'FILE_INPUT' }[ 0 ] = '-';
+    }
+}
+
+## Revision: 1.2
+sub PrintVersion()
+{
+    my $ver = &GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
+}
+sub GetVersion()
+{
+    my $rev = &GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    return $version;
+}
+sub GetRevision()
+{
+    my $rev = q{$Revision: 1.6 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+
+##########
+## 入力データを処理
+sub open_data( \@$ )
+{
+    my $pData  = shift( @_ );
+    my $inFile = shift( @_ );
+
+    open( hFI_IN, "<$inFile" ) ||
+        die( "$main::appname: $inFile: cannot open file: $!" );
+    @{$pData} = ( @{$pData}, <hFI_IN> );
+    close( hFI_IN );
+
+    return 0;
+}
+
+##########
+## ソート用コンペア関数
+sub myCompareFunc()
+{
+    ##########
+    local *mkCmpStr = sub( $ ){
+        my $ref_param = shift( @_ );
+        my $myStr = $_[0];
+        $myStr =~ s/\r?\n$//o;
+
+        ## -d が指定されていたら、「電話帳」順でソートする
+        ## アルファベット、数字、空白以外のキャラクタをすべて無視
+        $myStr =~ s/[^a-zA-Z0-9 \t]//go if( ${ $ref_param }{ 'B_SORTBYDIAL' } );
+        ## -f が指定されていなかったら、小文字に変換する
+        $myStr = lc( $myStr ) if( ${ $ref_param }{ 'B_IGNORE_CASE' } );
+        ## フィールドに分解する
+        my $delim = ${ $ref_param }{ 'DELIMITER' };
+        my @field = split( /$delim/, $myStr );
+        if( ! defined( $field[ ${ $ref_param }{ 'START_FIELD' } ] ) ){
+            my $msg = sprintf( qq{"$myStr": There is no data in the %d column.\n},
+                ${ $ref_param }{ 'START_FIELD' } + 1 );
+            die( $msg );
+        }
+
+        my $target_field = $field[ ${ $ref_param }{ 'START_FIELD' } ];
+
+        ## IPアドレスかどうか検証
+        if( $target_field =~ m/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/o) {
+            if( ( $1 < 256 ) &&
+                ( $2 < 256 ) &&
+                ( $3 < 256 ) &&
+                ( $4 < 256 ) ){
+                    return sprintf( "%03d.%03d.%03d.%03d", $1, $2, $3, $4 );
+            }
+        }else{
+            ## メールアドレスかどうか検証
+            my $username = '' ;
+            my $domain   = "$target_field";
+            if( $target_field =~ m/^(.*)\@(.*)$/o ){
+                $username = $1;
+                $domain = $2;
+            }
+            ## ドメインを分解
+            my @item_dom = split( /\./, $domain );
+            $domain = join( ".", reverse( @item_dom ) );
+            return sprintf( "%s %s", $domain, $username );
+        }
+        return $target_field;
+    };
+    ##########
+    my $ref_param = shift( @_ );
+    my $ret = &mkCmpStr( $ref_param, $a ) cmp &mkCmpStr( $ref_param, $b );
+    if( $ret != 0 ){
+        return $ret;
+    }
+    return $a cmp $b;
+}
+
+##########
+## 書式表示
+## Revision: 1.2
+sub usage( $ )
+{
+    my $msg = "Usage: $main::appname [<OPTIONS...>] [<FILE...>]\n" .
+        qq{\n} .
+        qq{DESCRIPTION\n} .
+        qq{  Sort the list of domain names,\n} .
+        qq{  email addresses, and IP addresses in tree order.\n} .
+        qq{\n} .
+        qq{OPTIONS\n} .
+        qq{  -d  Sort in phone book order (ignoring symbols).\n} .
+        qq{  -f  Force case sensitivity.\n} .
+        qq{  -h, --help\n} .
+        qq{      Display this help and exit.\n} .
+        qq{  -k <COLUMN>\n} .
+        qq{      Specifies the <COLUMN> to use for sorting.\n} .
+        qq{  -r  Reverse the result of comparisons.\n} .
+        qq{  -t <SEP>\n} .
+        qq{      Specify <SEP> as the field separator.\n} .
+        qq{  -v, --version\n} .
+        qq{      Display script version, Perl version, and exit.\n} .
+        qq{\n} .
+        qq{Try `perldoc $main::apppath/$main::appname' for more information.\n};
+
+#    if( $_[0] ){
+#        print STDERR ( $msg );
+#    } else {
+        print STDOUT ( $msg );
+#    }
+
+    return 0;
+}
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+DOMSORT - Sort by domain or IP address hierarchy.
+
+=head1 SYNOPSIS
+
+$ domsort [I<OPTIONS...>] [I<FILE...>]
+
+=head1 DESCRIPTION
+
+Sort the list of domain names, email addresses, and IP addresses in tree order.
+
+I<FILE>s specifies the input file name.
+If it is a standard input, "B<->" is given.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -d
+
+Sort in phone book order (ignoring symbols).
+
+=item -f
+
+Force case sensitivity.
+
+=item -h, --help
+
+Display simple help and exit.
+
+=item -k I<column>
+
+Specifies the I<column> to use for sorting.
+
+=item -r
+
+Reverse the result of comparisons.
+
+=item -t I<SEP>
+
+Specify I<SEP> as the field separator.
+
+=item -v, --version
+
+Display script version, Perl version, and exit.
+
+=back
+
+=head1 ADVANCED USAGE
+
+Sort by domain name
+
+    $ cat <<__EOD__ | domsort -
+    w.x.y.z.co.jp
+    W.X.Y.Z.CO.JP
+    W.X.Y.Z.COM
+    mail2.abc.com
+    mail1.abc.com
+    mail1.abc.com
+    abc.com
+    freemail.abc.com
+    a.b.c.d.co.jp
+    a.b.c.co.jp
+    X.Y.Z.com
+    freemail.abc.com
+    FREEMAIL.ABC.COM
+    A.B.C.D.CO.JP
+    x.y.z.co.jp
+    X.Y.Z.com
+    X.Y.Z.CO.JP
+    freemail.abc.com
+    x.y.z.com
+    __EOD__
+    abc.com
+    FREEMAIL.ABC.COM
+    freemail.abc.com
+    freemail.abc.com
+    freemail.abc.com
+    mail1.abc.com
+    mail1.abc.com
+    mail2.abc.com
+    X.Y.Z.com
+    X.Y.Z.com
+    x.y.z.com
+    W.X.Y.Z.COM
+    a.b.c.co.jp
+    A.B.C.D.CO.JP
+    a.b.c.d.co.jp
+    X.Y.Z.CO.JP
+    x.y.z.co.jp
+    W.X.Y.Z.CO.JP
+    w.x.y.z.co.jp
+
+Case Sensitive (C<-f>)
+
+    $ cat <<__EOD__ | domsort -f -
+    w.x.y.z.co.jp
+    W.X.Y.Z.CO.JP
+    W.X.Y.Z.COM
+    mail2.abc.com
+    mail1.abc.com
+    mail1.abc.com
+    abc.com
+    freemail.abc.com
+    a.b.c.d.co.jp
+    a.b.c.co.jp
+    X.Y.Z.com
+    freemail.abc.com
+    FREEMAIL.ABC.COM
+    A.B.C.D.CO.JP
+    x.y.z.co.jp
+    X.Y.Z.com
+    X.Y.Z.CO.JP
+    freemail.abc.com
+    x.y.z.com
+    __EOD__
+    FREEMAIL.ABC.COM
+    W.X.Y.Z.COM
+    A.B.C.D.CO.JP
+    X.Y.Z.CO.JP
+    W.X.Y.Z.CO.JP
+    X.Y.Z.com
+    X.Y.Z.com
+    abc.com
+    freemail.abc.com
+    freemail.abc.com
+    freemail.abc.com
+    mail1.abc.com
+    mail1.abc.com
+    mail2.abc.com
+    x.y.z.com
+    a.b.c.co.jp
+    a.b.c.d.co.jp
+    x.y.z.co.jp
+    w.x.y.z.co.jp
+
+Sort by IP address
+
+    $ cat <<__EOD__ | domsort -
+    12.34.56.90
+    12.34.56.78
+    12.34.56.9
+    12.34.55.90
+    12.34.55.78
+    12.34.55.9
+    12.34.8.90
+    12.34.8.78
+    12.34.8.9
+    __EOD__
+    12.34.8.9
+    12.34.8.78
+    12.34.8.90
+    12.34.55.9
+    12.34.55.78
+    12.34.55.90
+    12.34.56.9
+    12.34.56.78
+    12.34.56.90
+
+Specifying fields (C<-k>)
+
+    $ dig amazon.com. | grep '^amazon\.com\.' | domsort -k 5 -
+    amazon.com.             347     IN      A       98.82.161.185
+    amazon.com.             347     IN      A       98.87.170.71
+    amazon.com.             347     IN      A       98.87.170.74
+    $ dig yahoo.co.jp. | grep '^yahoo\.co\.jp\.' | domsort -k 5 -
+    yahoo.co.jp.            40      IN      A       124.83.184.124
+    yahoo.co.jp.            40      IN      A       124.83.184.252
+    yahoo.co.jp.            40      IN      A       124.83.185.124
+    yahoo.co.jp.            40      IN      A       124.83.185.252
+    yahoo.co.jp.            40      IN      A       182.22.16.123
+    yahoo.co.jp.            40      IN      A       182.22.16.251
+    yahoo.co.jp.            40      IN      A       182.22.24.124
+    yahoo.co.jp.            40      IN      A       182.22.24.252
+    yahoo.co.jp.            40      IN      A       182.22.25.124
+    yahoo.co.jp.            40      IN      A       182.22.25.252
+    yahoo.co.jp.            40      IN      A       182.22.28.252
+    yahoo.co.jp.            40      IN      A       182.22.31.124
+    yahoo.co.jp.            40      IN      A       182.22.31.252
+    yahoo.co.jp.            40      IN      A       183.79.219.124
+    yahoo.co.jp.            40      IN      A       183.79.219.252
+    yahoo.co.jp.            40      IN      A       183.79.249.124
+    yahoo.co.jp.            40      IN      A       183.79.249.252
+    yahoo.co.jp.            40      IN      A       183.79.250.251
+
+Reverse order (C<-r>)
+
+    $ dig yahoo.co.jp. | grep '^yahoo\.co\.jp\.' | domsort -r -k 5 -
+    yahoo.co.jp.            135     IN      A       183.79.250.251
+    yahoo.co.jp.            135     IN      A       183.79.249.252
+    yahoo.co.jp.            135     IN      A       183.79.249.124
+    yahoo.co.jp.            135     IN      A       183.79.219.252
+    yahoo.co.jp.            135     IN      A       183.79.219.124
+    yahoo.co.jp.            135     IN      A       182.22.31.252
+    yahoo.co.jp.            135     IN      A       182.22.31.124
+    yahoo.co.jp.            135     IN      A       182.22.28.252
+    yahoo.co.jp.            135     IN      A       182.22.25.252
+    yahoo.co.jp.            135     IN      A       182.22.25.124
+    yahoo.co.jp.            135     IN      A       182.22.24.252
+    yahoo.co.jp.            135     IN      A       182.22.24.124
+    yahoo.co.jp.            135     IN      A       182.22.16.251
+    yahoo.co.jp.            135     IN      A       182.22.16.123
+    yahoo.co.jp.            135     IN      A       124.83.185.252
+    yahoo.co.jp.            135     IN      A       124.83.185.124
+    yahoo.co.jp.            135     IN      A       124.83.184.252
+    yahoo.co.jp.            135     IN      A       124.83.184.124
+
+Sort by phone book order (ignoring symbols) (C<-d>)
+
+    $ cat <<__EOD__ | domsort -d -
+    1234-5678
+    03-1234-5678
+    044-1234-568
+    044-123-4567
+    0123-111-222
+    044-1234-566
+    08-03-1234-5678
+    __EOD__
+    0123-111-222
+    03-1234-5678
+    044-1234-566
+    044-123-4567
+    044-1234-568
+    08-03-1234-5678
+    1234-5678
+
+=head1 DEPENDENCIES
+
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
+
+=over 4
+
+=item * L<File::Basename> - first included in perl 5
+
+=item * L<strict> - first included in perl 5
+
+=item * L<warnings> - first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
+
+  $ target_script=domsort
+
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
+=back
+
+=head1 SEE ALSO
+
+Other more basic references
+
+=over 4
+
+=item L<perl>(1)
+
+=item sort(1)
+
+=back
+
+=head1 AUTHOR
+
+2005-2026, tomyama
+
+=head1 LICENSE
+
+Copyright (c) 2005-2026, tomyama
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of tomyama nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut

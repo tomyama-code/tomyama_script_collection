@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.113 $
+## - $Revision: 4.115 $
 ##
 ## - Script Structure
 ##   - main
@@ -87,7 +87,7 @@ sub GetHelpMsg()
     my $ver = &GetVersion();
 
     my $trm_columns = ( $self->GetTermSize() )[ 0 ];
-    #print( qq{$trm_columns, $trm_lines\n} );
+    #print( qq{$trm_columns\n} );
 
     my $ops = join( ' ', &TableProvider::GetOperatorsList() );
     my $fns = &ArrayFitToDeviceWidth( $trm_columns, 4, &TableProvider::GetFunctionsList() );
@@ -165,7 +165,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.113 $};
+    my $rev = q{$Revision: 4.115 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -176,10 +176,12 @@ sub GetRevision()
 ## Revision: 1.4
 sub GetTermSize()
 {
+    my $self = shift( @_ );
+
     my( $width, $height ) = ( undef, undef );
 
     # Try stty
-    if( -t STDOUT ){
+    if( $self->{APPCONFIG}->GetBIsStdoutTty() ){
         #my( $trm_columns, $trm_lines,
         #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
         # ビルド要件を増やさない為に使用しない。
@@ -188,20 +190,21 @@ sub GetTermSize()
         if( $stty_out =~ m/^\s*(\d+)\s+(\d+)/ ){
             $height = $1;
             $width  = $2;
+            return ( $width, $height );
         }
-    }else{
-        # COLUMNS/LINES 環境変数は多くのシェルが設定するが、
-        # export されていない場合もあるため // (defined-or) でフォールバック。
-        # ▼ 代表的な歴史的/実用的な幅
-        #   72 : GNU 系コマンド／メール折り返しの伝統
-        #   76 : perldoc が使用
-        #   78 : 80 の“2字控え”として昔使われた妥協値
-        #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
-        # DEC VT100 の画面サイズは 80x24
-        # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
-        $width  = $ENV{COLUMNS} // 80;  # Fall back to environment
-        $height = $ENV{LINES}   // 24;  # 24 は歴史的・実用的に最も無難な値
     }
+
+    # COLUMNS/LINES 環境変数は多くのシェルが設定するが、
+    # export されていない場合もあるため // (defined-or) でフォールバック。
+    # ▼ 代表的な歴史的/実用的な幅
+    #   72 : GNU 系コマンド／メール折り返しの伝統
+    #   76 : perldoc が使用
+    #   78 : 80 の“2字控え”として昔使われた妥協値
+    #   80 : 端末標準幅。多くの CLI のデフォルト。最も一般的。
+    # DEC VT100 の画面サイズは 80x24
+    # 今回は汎用性と説明のしやすさを優先し、80 を採用する。
+    $width  = $ENV{COLUMNS} // 80;  # Fall back to environment
+    $height = $ENV{LINES}   // 24;  # 24 は歴史的・実用的に最も無難な値
 
     return ( $width, $height );
 }
@@ -5096,9 +5099,11 @@ modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
+
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
+
 3. Neither the name of tomyama nor the names of its contributors
    may be used to endorse or promote products derived from this software
    without specific prior written permission.

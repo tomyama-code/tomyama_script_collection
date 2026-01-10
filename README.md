@@ -25,6 +25,14 @@
 - [POD](docs/cl.md) \[ Plain Old Documentation \]
 - blog:『[CLIで使える時計コマンド、cl](https://tomyama.hatenablog.jp/entry/2026/01/09/173137)』
 
+### domsort -- ドメイン や IP アドレス の階層順に並べ替える
+
+![Image of the domsort command execution](docs/img/domsort.jpg)
+
+- ドメイン名，電子メールアドレス，IP アドレスのリストを、階層に従って並べ替えます。
+- [POD](docs/domsort.md) \[ Plain Old Documentation \]
+- blog:『[ドメインの階層順に並べ替えるコマンド、domsort](https://tomyama.hatenablog.jp/entry/2026/01/11/031654)』
+
 ### fill -- オートフィル風コマンド
 
 ![Image of the fill command execution](docs/img/fill.jpg)

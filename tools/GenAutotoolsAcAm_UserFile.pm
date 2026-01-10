@@ -3,13 +3,13 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.44 $
+## - $Revision: 2.45 $
 ##
-## - Author: 2025, tomyama
+## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##
 ## BSD 2-Clause License:
-## Copyright (c) 2025, tomyama
+## Copyright (c) 2025-2026, tomyama
 ## All rights reserved.
 ################################################################################
 
@@ -20,7 +20,7 @@ use warnings 'all';
 use File::Basename;
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c fill mark holiday';
+$ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c domsort fill holiday mark';
 $ACAM_KYVL{ '$MY_SCR_NOTEST$' } = 'cl';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
                             ' tools/gen_autotools_acam.pl' .
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.44 $)
+AC_REVISION($Revision: 2.45 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.50], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.51], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -95,6 +95,8 @@ EXTRA_DIST = LICENSE \
   $MY_TL_DOCS$ \
   $MY_TOOLS$ \
   .c.rc \
+  tests/addr_fake_ip.txt \
+  tests/address.tab \
   tests/c.rc.tar.gz \
   tests/cmd_wrapper \
   tests/prt \
@@ -141,7 +143,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.44 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.45 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
@@ -288,11 +290,11 @@ L<gen_autotools_acam.pl>, perl(1)
 
 =head1 AUTHOR
 
-2025, tomyama
+2025-2026, tomyama
 
 =head1 LICENSE
 
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 
 All rights reserved.
 
@@ -301,9 +303,11 @@ modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
+
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
+
 3. Neither the name of tomyama nor the names of its contributors
    may be used to endorse or promote products derived from this software
    without specific prior written permission.
