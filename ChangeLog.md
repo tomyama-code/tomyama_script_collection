@@ -7,6 +7,15 @@
 ### Changed
 - xxx
 
+## [0.2.52] - 2026-01-12
+### Change
+- `c` [1.04.116]:
+  - angle_between_points(): When Z1 and Z2 are specified,
+    it now returns two angles, horizontal and vertical.
+  - angle_between_points(), angle_deg():
+    Added optional argument "IS_AZIMUTH". When set to true,
+    north is 0 degrees and the direction is returned clockwise.
+
 ## [0.2.51] - 2026-01-11
 ### Added
 - Add a script.
@@ -14,31 +23,31 @@
 
 ### Change
 - Code cleanup. Behavior remains the same.
-  - c       [1.04.115]
-  - cl      [1.02.032]
-  - fill    [1.01.007]
-  - holiday [1.01.006]
-  - mark    [1.02.006]
+  - `c`       [1.04.115]
+  - `cl`      [1.02.032]
+  - `fill`    [1.01.007]
+  - `holiday` [1.01.006]
+  - `mark`    [1.02.006]
 
 ## [0.2.50] - 2026-01-10
 ### Change
 - Code cleanup. Behavior remains the same.
-  - c       [1.04.113]
-  - cl      [1.02.031]
-  - fill    [1.01.006]
-  - holiday [1.01.005]
-  - mark    [1.02.005]
-- cl.holiday [2026.1]: Added Japanese holiday data from 1949 to 1954.
+  - `c`       [1.04.113]
+  - `cl`      [1.02.031]
+  - `fill`    [1.01.006]
+  - `holiday` [1.01.005]
+  - `mark`    [1.02.005]
+- `cl.holiday` [2026.1]: Added Japanese holiday data from 1949 to 1954.
 
 ## [0.2.49] - 2026-01-09
 ### Added
-- c [1.04.111]: Add a function.
+- `c` [1.04.111]: Add a function.
   - geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gazm().
   - g_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gd_m_azm().
   - g_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). alias: gd_km_azm().
 
 ### Change
-- c [1.04.112]: Rename the function.
+- `c` [1.04.112]: Rename the function.
   - slope_deg() -> angle_deg()
 
 ## [0.2.48] - 2026-01-08

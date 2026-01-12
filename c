@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.115 $
+## - $Revision: 4.116 $
 ##
 ## - Script Structure
 ##   - main
@@ -165,7 +165,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.115 $};
+    my $rev = q{$Revision: 4.116 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -612,16 +612,16 @@ use constant {
     H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]},
     H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
-    H_SLPD => qq{angle_deg( X, Y ). Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degree = East, counter-clockwise).},
+    H_SLPD => qq{angle_deg( X, Y [, IS_AZIMUTH ] ). Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degrees = east, counterclockwise). If IS_AZIMUTH is set to true, returns the angle (0 degrees = north, clockwise).},
     H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
     H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
-    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the angle (in degrees) from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). Returns the standard mathematical angle (0 degree = East, counter-clockwise). alias: angle().},
+    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ). Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
-    H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degree is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
+    H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
     H_DD_M => qq{g_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_m_azm().},
     H_DDKM => qq{g_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_km_azm().},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
@@ -721,10 +721,10 @@ use constant {
     'atan'                 => [ 1530, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
     'atan2'                => [ 1540, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
     'hypot'                => [ 1550, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'            => [ 1560, T_FUNCTION,     2, H_SLPD, sub{ &angle_deg( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'            => [ 1560, T_FUNCTION, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
     'dist_between_points'  => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
     'midpt_between_points' => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points' => [ 1590, T_FUNCTION, '4-6', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'angle_between_points' => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
     'geo_radius'           => [ 1600, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_lat'        => [ 1610, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
     'geo_distance'         => [ 1620, T_FUNCTION,     4, H_GDIS, sub{ &distance_between_points( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
@@ -1526,11 +1526,14 @@ sub DMS2DMS( $$$ )
     return @dms_array;
 }
 
-sub angle_deg( $$ )
+sub angle_deg( $$;$ )
 {
-    my $x = shift( @_ );
-    my $y = shift( @_ );
-    return &angle_between_points( 0, 0, $x, $y );
+    my( $x, $y, $is_azimuth ) = @_;
+    if( !defined( $is_azimuth ) ){
+        $is_azimuth = 0;
+    }
+    my $degree = ( &angle_between_points( 0, 0, $x, $y, $is_azimuth ) )[ 0 ];
+    return $degree;
 }
 
 sub dist_between_points( $$$$;$$ )
@@ -1585,27 +1588,40 @@ sub midpt_between_points( $$$$;$$ )
     return @ret_val;
 }
 
-sub angle_between_points( $$$$;$$ )
+#引数4個: angle_between_points( X1, Y1, X2, Y2 ) => BEARING [ East is 0 degrees, CCW ]
+#引数5個: angle_between_points( X1, Y1, X2, Y2, IS_AZIMUTH ) => IS_AZIMUTHに従った角度]
+#引数6個: angle_between_points( X1, Y1, Z1, X2, Y2, Z2 ) => ( AZIMUTH, ELEVATION ) [ East is 0 degrees, CCW ]
+#引数7個: angle_between_points( X1, Y1, Z1, X2, Y2, Z2, IS_AZIMUTH ) => ( AZIMUTH, ELEVATION ) [ East is 0 degrees, CCW ]
+sub angle_between_points( $$$$;$$$ )
 {
     my $argc = scalar( @_ );
     my $b3d = 0;
-    if( $argc == 5 ){
-        die( qq{angle_between_points: \$argc=$argc: Invalid number of arguments.\n} );
-    }elsif( $argc == 6 ){
+    if( $argc == 6 || $argc == 7 ){
         $b3d = 1;
     }
 
-    my $ret_val = 0;
+    my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_azimuth ) = ();
+    my $elevation = undef;
+    my @ret_val = ();
     if( $b3d ){
-        my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
+        ( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_azimuth ) = @_;
         my $hypotenuse_x_y = &dist_between_points( $p1x, $p1y, $p2x, $p2y );
-        $ret_val = rad2deg( atan2( $p2z - $p1z, $hypotenuse_x_y ) );
+        $elevation = rad2deg( atan2( $p2z - $p1z, $hypotenuse_x_y ) );
+        unshift( @ret_val, $elevation );
     }else{
-        my( $p1x, $p1y, $p2x, $p2y ) = @_;
-        $ret_val = rad2deg( atan2( $p2y - $p1y, $p2x - $p1x ) );
+        ( $p1x, $p1y, $p2x, $p2y, $is_azimuth ) = @_;
     }
 
-    return $ret_val;
+    my $bearing = rad2deg( atan2( $p2y - $p1y, $p2x - $p1x ) );
+    if( defined( $is_azimuth ) ){
+        if( $is_azimuth ){
+            $bearing = 90 - $bearing;
+        }
+    }
+
+    unshift( @ret_val, $bearing );
+
+    return @ret_val;
 }
 
 # === 地球の中心から地表までの動径を計算する関数 ===
@@ -4628,9 +4644,10 @@ Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very lar
 
 =item C<angle_deg>
 
-angle_deg( I<X>, I<Y> ).
+angle_deg( I<X>, I<Y> [, I<IS_AZIMUTH> ] ).
 Returns the straight line distance from (0,0) to (I<X>,I<Y>).
-Returns the standard mathematical angle (0 degree = East, counter-clockwise).
+Returns the standard mathematical angle (0 degrees = east, counterclockwise).
+If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise).
 
   $ c 'angle_deg( 3, 4 )'
   53.130102354156
@@ -4661,16 +4678,26 @@ alias: midpt().
 
 =item C<angle_between_points>
 
-angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
-Returns the angle (in degrees) from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
-Returns the standard mathematical angle (0 degree = East, counter-clockwise).
+angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_AZIMUTH> ] ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_AZIMUTH> ] ).
+Returns the angle from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or the horizontal and vertical angles from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+Angles are in degrees.
+Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
+If I<IS_AZIMUTH> is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
 alias: angle().
 
-  $ c 'angle_between_points( 100, 10, 200, 110 )'
-  45
+  $ c 'angle_between_points( 100, 10, 150, 110 )'
+  63.434948822922
 
-  $ c 'angle_between_points( 100, 10, 50, 200, 110, 150 )'
-  35.2643896827547
+  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
+  ( 63.434948822922, 41.8103148957786 )
+
+I<IS_AZIMUTH> is set to true
+
+  $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
+  26.565051177078
+
+  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
+  ( 26.565051177078, 41.8103148957786 )
 
 =item C<geo_radius>
 
@@ -4735,7 +4762,7 @@ alias: gd_km().
 
 geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ).
 Returns the geographic azimuth (bearing) in degrees from A to B.
-Note: 0 degree is North, 90 degrees is East (clockwise).
+Note: 0 degrees is North, 90 degrees is East (clockwise).
 Input: Latitude/Longitude in radians.
 alias: gazm().
 

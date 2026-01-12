@@ -1062,9 +1062,10 @@ The **c** script was created with the following in mind:
 
 - `angle_deg`
 
-    angle\_deg( _X_, _Y_ ).
+    angle\_deg( _X_, _Y_ \[, _IS\_AZIMUTH_ \] ).
     Returns the straight line distance from (0,0) to (_X_,_Y_).
-    Returns the standard mathematical angle (0 degree = East, counter-clockwise).
+    Returns the standard mathematical angle (0 degrees = east, counterclockwise).
+    If _IS\_AZIMUTH_ is set to true, returns the angle (0 degrees = north, clockwise).
 
         $ c 'angle_deg( 3, 4 )'
         53.130102354156
@@ -1095,16 +1096,26 @@ The **c** script was created with the following in mind:
 
 - `angle_between_points`
 
-    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
-    Returns the angle (in degrees) from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
-    Returns the standard mathematical angle (0 degree = East, counter-clockwise).
+    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_AZIMUTH_ \] ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_AZIMUTH_ \] ).
+    Returns the angle from (_X1_,_Y1_) to (_X2_,_Y2_) or the horizontal and vertical angles from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    Angles are in degrees.
+    Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
+    If _IS\_AZIMUTH_ is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
     alias: angle().
 
-        $ c 'angle_between_points( 100, 10, 200, 110 )'
-        45
+        $ c 'angle_between_points( 100, 10, 150, 110 )'
+        63.434948822922
 
-        $ c 'angle_between_points( 100, 10, 50, 200, 110, 150 )'
-        35.2643896827547
+        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
+        ( 63.434948822922, 41.8103148957786 )
+
+    _IS\_AZIMUTH_ is set to true
+
+        $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
+        26.565051177078
+
+        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
+        ( 26.565051177078, 41.8103148957786 )
 
 - `geo_radius`
 
@@ -1169,7 +1180,7 @@ The **c** script was created with the following in mind:
 
     geo\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
     Returns the geographic azimuth (bearing) in degrees from A to B.
-    Note: 0 degree is North, 90 degrees is East (clockwise).
+    Note: 0 degrees is North, 90 degrees is East (clockwise).
     Input: Latitude/Longitude in radians.
     alias: gazm().
 

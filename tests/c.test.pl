@@ -357,6 +357,18 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_deg( 1920, 1080, 0 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_deg( 1920, 1080, 0 )='} );
+    $cmd->stdout_is_eq( qq{29.3577535427913\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_deg( 1920, 1080, 1 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_deg( 1920, 1080, 1 )='} );
+    $cmd->stdout_is_eq( qq{60.6422464572087\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist_between_points( -50, -50, 50, 50 )='} );
     $cmd->exit_is_num( 0, qq{./c 'dist_between_points( -50, -50, 50, 50 )='} );
     $cmd->stdout_is_eq( qq{141.42135623731\n} );
@@ -393,21 +405,39 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 50 )='} );
-    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 50 )='} );
-    $cmd->stdout_is_eq( qq{45\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75 )='} );
+    $cmd->stdout_is_eq( qq{51.3401917459099\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 50 )='} );
-    $cmd->exit_isnt_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 50 )='} );
-    $cmd->stdout_is_eq( qq{}, qq{STDOUT is silent.} );
-    $cmd->stderr_like( qr/^c: evaluator: error: angle_between_points: \$argc=5: Invalid number of arguments\.\n/ );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75, 0 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75, 0 )='} );
+    $cmd->stdout_is_eq( qq{51.3401917459099\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 50, 50 )='} );
-    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 50, 50 )='} );
-    $cmd->stdout_is_eq( qq{35.2643896827547\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75, 1 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75, 1 )='} );
+    $cmd->stdout_is_eq( qq{38.6598082540901\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
+    $cmd->stdout_is_eq( qq{( 51.3401917459099, 31.9928170001817 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50, 0 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50, 0 )='} );
+    $cmd->stdout_is_eq( qq{( 51.3401917459099, 31.9928170001817 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
+    $cmd->stdout_is_eq( qq{( 38.6598082540901, 31.9928170001817 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
