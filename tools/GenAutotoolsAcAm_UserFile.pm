@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.46 $
+## - $Revision: 2.47 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.46 $)
+AC_REVISION($Revision: 2.47 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.52], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.53], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -106,6 +106,11 @@ EXTRA_DIST = LICENSE \
 
 SUBDIRS = $SUBDIRS$
 
+# デフォルトは
+# INSTALL = /usr/bin/install -c
+# 転送先ファイルを一旦消してから置き換えようとする。
+INSTALL = \cp -fp
+
 docs/CATALOG.md: $MY_SCR_ALL$ $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
 
@@ -143,7 +148,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.46 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.47 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );

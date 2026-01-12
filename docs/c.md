@@ -52,7 +52,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
         my %user_constant;
 
-        ## ex.) $ ./c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
+        ## ex.) $ c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
         ##      14907.357977036
         $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
         $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
@@ -67,14 +67,14 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
-linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
-pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, g\_dist\_m\_and\_azimuth,
-g\_dist\_km\_and\_azimuth, is\_leap, age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize, get\_prime, gcd, lcm, ncr, min,
+max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each, linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp,
+exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance,
+geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, is\_leap, age\_of\_moon, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile,
+pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+telemeter\_km
 
 # OPTIONS
 
@@ -310,15 +310,10 @@ Time elapsed since a specified date:
     $ c 'sec2dhms( now - local2epoch( 2011, 03, 11, 14, 46 ) )'
     ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
-Time interval:
-
-    $ c 'sec2dhms( local2epoch( 2024, 01, 01, 16, 10 ) - local2epoch( 2011, 03, 11, 14, 46 ) )'
-    ( 4679, 1, 24, 0 )
-
 1 hour and 45 minutes before two days later:
 
     $ c 'epoch2local( local2epoch( 2020, 1, 1, 15, 0, 0 ) + dhms2sec( 2, -1, -45 ) )'
-    ( 2020, 1, 3, 13, 15, 0 )
+    ( 2020, 1, 3, 13, 15, 0 ) # Jan. 3, 2020 at 13:15:00.
 
 If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
 
@@ -326,7 +321,7 @@ If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
            local2epoch( 2025, 11, 25, 09, 00 ) +
            ratio_scaling( 3, dhms2sec( 0, 1, 18 ), 15 )
          )'
-    ( 2025, 11, 25, 15, 30, 0 )
+    ( 2025, 11, 25, 15, 30, 0 )   # Pace to complete on Nov. 25, 2025 at 15:30:00.
 
 ## COORDINATE CALCULATION
 
@@ -344,7 +339,7 @@ Calculate the distance between two points.
            deg2rad( -18.76694, 46.8691 ),
            deg2rad( -0.3831, -90.42333 )
          ) ='
-    14907.357977036
+    14890.6974607313  # 14891 km
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
@@ -355,21 +350,38 @@ Be sure to include the sign if the value is negative.
     $ c 'gd_km(
            dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
            dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
-    14907.357977036
+    14890.6974607313  # 14891 km
+
+The direction can also be calculated.
+
+    $ c 'geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) )'
+    250.3084344602    # About west-southwest ( WSW )
+
+It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-S-W) rather than 0 to 360 degrees.
+
+    $ c 'ratio_scaling(
+           360,
+           geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) ),
+           4
+         )'
+    2.78120482733556  # Direction Index (2.78 is between South(2) and West(3), closer to West)
+                      # Approx: West-Southwest (WSW)
 
 If you record the calculation as shown below,
 you can save not only the calculation results but also the calculation method,
 which I think will be easy to reuse and convenient.
 This is one of the reasons why I wrote this tool.
 
+Calculates distance and direction simultaneously.
+
     $ Madagascar_coord='-18.76694, 46.8691'
     $ Galapagos_Islands_coord='-0.3831, -90.42333'
-    $ c "geo_distance_km(
+    $ c "gd_km_azm(
            deg2rad(
              $Madagascar_coord, $Galapagos_Islands_coord
            )
          )"
-    14907.357977036
+    ( 14890.6974607313, 250.3084344602 )  # Dist: 14891 km, Brg: 250 degrees (WSW)
     $
 
 The **c** script was created with the following in mind:
@@ -1148,7 +1160,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403505.099759608  # 403,505.10 m
+        403054.141024738  # 403,054.14 m
 
 - `geo_distance_m`
 
@@ -1161,7 +1173,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403505.099759608  # 403,505.10 m
+        403054.141024738  # 403,054.11 m
 
 - `geo_distance_km`
 
@@ -1174,7 +1186,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403.505099759608  # 403.51 km
+        403.054141024738  # 403.05 km
 
 - `geo_azimuth`
 
@@ -1187,27 +1199,27 @@ The **c** script was created with the following in mind:
         $ c 'geo_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
         257.090172330251
 
-- `g_dist_m_and_azimuth`
+- `geo_dist_m_and_azimuth`
 
-    g\_dist\_m\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
+    geo\_dist\_m\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
     Returns the distance (in meters) and bearing (in degrees) from A to B.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_m\_azm().
 
-        $ c 'g_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
-        ( 912659.532308568, 257.090172330251 )
+        $ c 'geo_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+        ( 911639.540768677, 257.090172330251 )    # 911,639.54 m ; 257 degrees
 
-- `g_dist_km_and_azimuth`
+- `geo_dist_km_and_azimuth`
 
-    g\_dist\_km\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
+    geo\_dist\_km\_and\_azimuth( A\_LAT, A\_LON, B\_LAT, B\_LON ).
     Returns the distance (in kilometers) and bearing (in degrees) from A to B.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_km\_azm().
 
-        $ c 'g_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
-        ( 912.659532308568, 257.090172330251 )
+        $ c 'geo_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706 ), dms2rad( 33, 27, 56, 130, 10, 32 )  )'
+        ( 911.639540768677, 257.090172330251 )    # 911.64 km ; 257 degrees
 
 - `is_leap`
 
@@ -1294,6 +1306,86 @@ The **c** script was created with the following in mind:
 
         $ c 'dhms2sec( 4, 03, 02, 01 )'
         356521            # 356,521 seconds
+
+- `ri2meter`
+
+    ri2meter( RI ) --Convert-to--> METER.
+    alias: 里→メートル(), 里２メートル().
+
+        $ c 'ri2meter( 1 )'
+        3927.2727272727
+
+- `meter2ri`
+
+    meter2ri( METER ) --Convert-to--> RI.
+    alias: メートル→里(), メートル２里().
+
+        $ c 'meter2ri( 4000 )'
+        1.01851851851853
+
+- `mile2meter`
+
+    mile2meter( MILE ) --Convert-to--> METER.
+    alias: マイル→メートル(), マイル２メートル().
+
+        $ c 'mile2meter( 1 )'
+        1609.344
+
+- `meter2mile`
+
+    meter2mile( METER ) --Convert-to--> MILE.
+    alias: メートル→マイル(), メートル２マイル().
+
+        $ c 'meter2mile( 2000 )'
+        1.24274238447467
+
+- `nautical_mile2meter`
+
+    nautical\_mile2meter( NAUTICAL\_MILE ) --Convert-to--> METER.
+    alias: 海里→メートル(), 海里２メートル().
+
+        $ c 'nautical_mile2meter( 1 )'
+        1852
+
+- `meter2nautical_mile`
+
+    meter2nautical\_mile( METER ) --Convert-to--> NAUTICAL\_MILE.
+    alias: メートル→海里(), メートル２海里().
+
+        $ c 'meter2nautical_mile( 2000 )'
+        1.07991360691145
+
+- `pound2gram`
+
+    pound2gram( POUND ) --Convert-to--> GRAM.
+    alias: ポンド→グラム(), ポンド２グラム().
+
+        $ c 'pound2gram( 1 )'
+        453.59237
+
+- `gram2pound`
+
+    gram2pound( GRAM ) --Convert-to--> POUND.
+    alias: グラム→ポンド(), グラム２ポンド().
+
+        $ c 'gram2pound( 500 )'
+        1.10231131092439
+
+- `ounce2gram`
+
+    ounce2gram( OUNCE ) -->Convert-to--> GRAM.
+    alias: オンス→グラム(), オンス２グラム().
+
+        $ c 'ounce2gram( 1 )'
+        28.349523125
+
+- `gram2ounce`
+
+    gram2ounce( GRAM ) -->Convert-to--> OUNCE.
+    alias: グラム→オンス(), グラム２オンス().
+
+        $ c 'gram2ounce( 30 )'
+        1.05821885848741
 
 - `laptimer`
 

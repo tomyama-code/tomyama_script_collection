@@ -7,6 +7,29 @@
 ### Changed
 - xxx
 
+## [0.2.53] - 2026-01-13
+### Added
+- `c` [1.04.117]: Add a function.
+  - ri2meter( RI ) --Convert-to--> METER.
+  - meter2ri( METER ) --Convert-to--> RI.
+  - mile2meter( MILE ) --Convert-to--> METER.
+  - meter2mile( METER ) --Convert-to--> MILE.
+  - nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER.
+  - meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE.
+  - pound2gram( POUND ) --Convert-to--> GRAM.
+  - gram2pound( GRAM ) --Convert-to--> POUND.
+  - ounce2gram( OUNCE ) -->Convert-to--> GRAM.
+  - gram2ounce( GRAM ) -->Convert-to--> OUNCE.
+
+### Change
+- `c` [1.04.119]: Changed the function name.
+  - old: g_dist_m_and_azimuth()  , g_dist_km_and_azimuth()
+  - new: geo_dist_m_and_azimuth(), geo_dist_km_and_azimuth()
+- `c` [1.04.117]: geo_distance_m():
+  - Changed the radius of the Earth used in calculations
+    to use the mean radius as per the formula,
+    instead of the equatorial radius.
+
 ## [0.2.52] - 2026-01-12
 ### Change
 - `c` [1.04.116]:
