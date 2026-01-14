@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.54] - 2026-01-15
+### Removed
+- `c` [1.04.125]: delete function: geo_distance(). Deleted as it is the same as geo_distance_m().
+
+### Change
+- `c` [1.04.124]: geo_distance_m(): Added distance calculation algorithm.
+
 ## [0.2.53] - 2026-01-13
 ### Added
 - `c` [1.04.117]: Add a function.

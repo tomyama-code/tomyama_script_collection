@@ -53,7 +53,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
         my %user_constant;
 
         ## ex.) $ c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
-        ##      14907.357977036
+        ##      14890.6974607313
         $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
         $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
 
@@ -70,7 +70,7 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize, get\_prime, gcd, lcm, ncr, min,
 max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each, linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp,
 exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat, geo\_distance,
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius, radius\_of\_lat,
 geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, is\_leap, age\_of\_moon, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile,
 pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
@@ -1150,30 +1150,17 @@ The **c** script was created with the following in mind:
         $ c 'radius_of_lat( deg2rad( 45 ) )'
         4517590.87888605  # 4,517,590.88 m
 
-- `geo_distance`
-
-    geo\_distance( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Calculates and returns the distance (in meters) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    Same as geo\_distance\_m().
-
-        $ TOKYO_ST='35.68129, 139.76706'
-        $ OSAKA_ST='34.70248, 135.49595'
-        $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403054.141024738  # 403,054.14 m
-
 - `geo_distance_m`
 
     geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
     Calculates and returns the distance (in meters) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
-    Same as geo\_distance().
     alias: gd\_m().
 
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403054.141024738  # 403,054.11 m
+        403862.905334285  # 403,862.91 m
 
 - `geo_distance_km`
 
@@ -1186,7 +1173,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403.054141024738  # 403.05 km
+        403.862905334285  # 403.86 km
 
 - `geo_azimuth`
 

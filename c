@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.119 $
+## - $Revision: 4.125 $
 ##
 ## - Script Structure
 ##   - main
@@ -165,7 +165,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.119 $};
+    my $rev = q{$Revision: 4.125 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -473,16 +473,6 @@ use constant UCFACTOR_NAUTICAL_MILE => 1852; # 1,852 meters, 1海里は、緯度
     # 緯度1分の定義は「子午線の曲率」に基づくため、厳密には場所によって以下の通り変化します：
     # - 赤道付近: 約 1843 m（地球のカーブが急なため、1分あたりの距離は短い）
     # - 極地付近: 約 1862 m（地球のカーブが緩やかなため、1分あたりの距離は長い）
-    # $ c 'geo_distance_m( dms2rad( 0, 0, 0 ), 0, dms2rad( 0, 1, 0 ), 0 )'
-    # 1853.25132890615
-    # $ c 'geo_distance_m( dms2rad( 0, 1, 0 ), 0, dms2rad( 0, 2, 0 ), 0 )'
-    # 1853.25132890615
-    # $ c 'geo_distance_m( dms2rad( 44, 59, 0 ), 0, dms2rad( 45, 0, 0 ), 0 )'
-    # 1853.25132890627
-    # $ c 'geo_distance_m( dms2rad( 89, 58, 0 ), 0, dms2rad( 89, 59, 0 ), 0 )'
-    # 1853.25132890697
-    # $ c 'geo_distance_m( dms2rad( 89, 59, 0 ), 0, dms2rad( 90, 0, 0 ), 0 )'
-    # 1853.25132890556
 
 ## 重さ
 use constant UCFACTOR_POUND => 453.59237; # 453.59 grams
@@ -641,8 +631,7 @@ use constant {
     H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ). Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
-    H_GDIS => qq{geo_distance( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m().},
-    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance(). alias: gd_m().},
+    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_m().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
     H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
     H_DD_M => qq{geo_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_m_azm().},
@@ -760,9 +749,8 @@ use constant {
     'angle_between_points'   => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
     'geo_radius'             => [ 1600, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_lat'          => [ 1610, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance'           => [ 1620, T_FUNCTION,     4, H_GDIS, sub{ &geo_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_m'         => [ 1630, T_FUNCTION,     4, H_GDIM, sub{ &geo_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_distance_km'        => [ 1640, T_FUNCTION,     4, H_GDKM, sub{ &geo_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_distance_m'         => [ 1630, T_FUNCTION, '4-5', H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'        => [ 1640, T_FUNCTION, '4-5', H_GDKM, sub{ &geo_distance_km( @_ ) } ],
     'geo_azimuth'            => [ 1650, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_dist_m_and_azimuth' => [ 1660, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_dist_km_and_azimuth'=> [ 1670, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
@@ -1710,29 +1698,57 @@ sub radius_of_latitude_circle( $ )
     return $r;
 }
 
-## 地球上の2地点間の距離をメートル単位で計算する (ハバーサイン公式)
+## --- 距離計算に関するメモ ---
+## 1. ハバーサイン (Haversine) 公式 :
+##    地球を球体と仮定。計算が高速で一般的。
+##    半径に IUGG推奨の平均半径 (6371008.7714m) を使用することで、
+##    誤差を最小（最大0.5%程度）に抑えている。
+##
+## 2. ヒュベニ (Hubeny) の公式 :
+##    地球を楕円体として計算。日本近海など数〜数百kmの距離で非常に高精度。
+##    緯度によって1分の長さが変わる性質を考慮できる。
+##
+## 3. ヴィンセンティ (Vincenty) 法 :
+##    楕円体上での最短距離を求める反復計算式。
+##    数千km以上の長距離でもミリ単位の精度が出るが、計算負荷が高い。
+##    https://ja.wikipedia.org/wiki/Vincenty%E6%B3%95
+##
+## 4. カーニー法（Karney's algorithm） :
+##    2013年に開発されたカーニー法は、ヴィンセンティ法より
+##    もさらに精度と速度が向上しており、現在ではより広く使われています。
+## ----------------------------
+##
+## 地球上の2地点間の距離をメートル単位で計算する
 ## 引数はすべてラジアン単位で受け取る
 ## 引数: Point A 緯度（ラジアン）
 ## 引数: Point A 経度（ラジアン）
 ## 引数: Point B 緯度（ラジアン）
 ## 引数: Point B 経度（ラジアン）
 ## 戻り値: 2地点間の距離 (メートル)
-##
-## --- 距離計算に関するメモ ---
-## 1. ハバーサイン公式 (本実装):
-##    地球を球体と仮定。計算が高速で一般的。
-##    半径に IUGG推奨の平均半径 (6371008.7714m) を使用することで、
-##    誤差を最小（最大0.5%程度）に抑えている。
-##
-## 2. ヒュベニ (Hubeny) の公式:
-##    地球を楕円体として計算。日本近海など数〜数百kmの距離で非常に高精度。
-##    緯度によって1分の長さが変わる性質を考慮できる。
-##
-## 3. ヴィンセンティ (Vincenty) 法:
-##    楕円体上での最短距離を求める反復計算式。
-##    数千km以上の長距離でもミリ単位の精度が出るが、計算負荷が高い。
-## ----------------------------
-sub geo_distance_m( $$$$ )
+sub geo_distance_m( $$$$;$ )
+{
+    my $argc = scalar( @_ );
+    my $algorithm = 0;
+    if( $argc == 5 ){
+        $algorithm = pop( @_ );
+    }
+    my $distance_m = 0;
+
+    if( $algorithm == 0 ){
+        # Auto Select ( See: geo_distance_m.pdf )
+        $distance_m = &geo_distance_m_Hubeny( @_ );
+        if( $distance_m > 1_350_000 ){
+            $distance_m = &geo_distance_m_Haversine( @_ );
+        }
+    }elsif( $algorithm == 1 ){
+        $distance_m = &geo_distance_m_Haversine( @_ );
+    }else{
+        $distance_m = &geo_distance_m_Hubeny( @_ );
+    }
+    return $distance_m;
+}
+
+sub geo_distance_m_Haversine( $$$$ )
 {
     my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
     my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
@@ -1752,13 +1768,46 @@ sub geo_distance_m( $$$$ )
     # 地球の半径 (メートル)
     my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
 #    my $earth_radius_m = GRS80_EQUATORIAL_RADIUS_M; # 赤道半径（長半径）
+#    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
+#    my $earth_radius_m = &geocentric_radius( $P );  # 緯度$Pの半径 (メートル)
+#    print( qq{\$earth_radius_m="$earth_radius_m", \$P="$P"\n} );
 
     my $distance_m = $earth_radius_m * $distance;
 
     return $distance_m;
 }
 
-sub geo_distance_km( $$$$ )
+sub geo_distance_m_Hubeny( $$$$ )
+{
+    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+
+    my $Dy = $latB_rad - $latA_rad;             # 2点の緯度（ラジアン）の差
+    my $Dx = $lonB_rad - $lonA_rad;             # 2点の経度（ラジアン）の差
+    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
+    my $Rx = GRS80_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
+    my $Ry = GRS80_POLAR_RADIUS_M;              # 短半径（極半径）
+    my $E  = sqrt(                              # 離心率
+                 ( ( $Rx ** 2 ) - ( $Ry ** 2 ) ) /
+                 ( $Rx ** 2 )
+             );
+    my $W  = sqrt(
+                 1 - ( ( $E ** 2 ) * ( sin( $P ) ** 2 ) )
+             );
+    my $M = ( $Rx * ( 1 - ( $E ** 2 ) ) ) /     # 子午線曲率半径
+            ( $W ** 3 );
+    my $N = $Rx / $W;                           # 卯酉線曲線半径
+
+    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * cos( $P ) ) ** 2 ) );
+
+    my $distance_m = $D;
+
+    return $distance_m;
+}
+
+sub geo_distance_km( $$$$;$ )
 {
     return &geo_distance_m( @_ ) / 1000;
 }
@@ -3771,7 +3820,7 @@ CURRENT-TIME
   my %user_constant;
 
   ## ex.) $ c 'geo_distance_km( MADAGASCAR_COORD, GALAPAGOS_ISLANDS_COORD )'
-  ##      14907.357977036
+  ##      14890.6974607313
   $user_constant{MADAGASCAR_COORD} = 'deg2rad( -18.76694, 46.8691 )';
   $user_constant{GALAPAGOS_ISLANDS_COORD} = 'deg2rad( -0.3831, -90.42333 )';
 
@@ -3790,7 +3839,7 @@ CURRENT-TIME
 abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize, get_prime, gcd, lcm, ncr, min,
 max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each, linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp,
 exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius, radius_of_lat, geo_distance,
+atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius, radius_of_lat,
 geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, is_leap, age_of_moon, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile,
 pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
@@ -4880,30 +4929,17 @@ Radius of the parallel at 45 degrees latitude (distance of 1 radian):
   $ c 'radius_of_lat( deg2rad( 45 ) )'
   4517590.87888605  # 4,517,590.88 m
 
-=item C<geo_distance>
-
-geo_distance( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Calculates and returns the distance (in meters) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-Same as geo_distance_m().
-
-  $ TOKYO_ST='35.68129, 139.76706'
-  $ OSAKA_ST='34.70248, 135.49595'
-  $ c "geo_distance( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403054.141024738  # 403,054.14 m
-
 =item C<geo_distance_m>
 
 geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
 Calculates and returns the distance (in meters) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
-Same as geo_distance().
 alias: gd_m().
 
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403054.141024738  # 403,054.11 m
+  403862.905334285  # 403,862.91 m
 
 =item C<geo_distance_km>
 
@@ -4916,7 +4952,7 @@ alias: gd_km().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403.054141024738  # 403.05 km
+  403.862905334285  # 403.86 km
 
 =item C<geo_azimuth>
 
