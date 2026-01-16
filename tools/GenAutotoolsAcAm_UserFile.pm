@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.48 $
+## - $Revision: 2.49 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.48 $)
+AC_REVISION($Revision: 2.49 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.54], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.55], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -108,19 +108,7 @@ SUBDIRS = $SUBDIRS$
 
 ## デフォルトは
 ## INSTALL = /usr/bin/install -c
-## 転送先ファイルを一旦消してから置き換えようとする。
 ##INSTALL = \cp -fp
-# make[2]: ディレクトリ '/home/tom/ドキュメント/work/script/tomyama_script_collection' に入ります
-#  /usr/bin/mkdir -p '/usr/local/bin'
-#  \cp -fp c domsort fill holiday mark cl cl.holiday '/usr/local/bin'
-# cp: '/usr/local/bin/c' を削除できません: 許可がありません
-# cp: '/usr/local/bin/domsort' を削除できません: 許可がありません
-# cp: '/usr/local/bin/fill' を削除できません: 許可がありません
-# cp: '/usr/local/bin/holiday' を削除できません: 許可がありません
-# cp: '/usr/local/bin/mark' を削除できません: 許可がありません
-# cp: '/usr/local/bin/cl' を削除できません: 許可がありません
-# cp: '/usr/local/bin/cl.holiday' を削除できません: 許可がありません
-# make[2]: *** [Makefile:366: install-dist_binSCRIPTS] エラー 1
 
 docs/CATALOG.md: $MY_SCR_ALL$ $MY_TOOLS$
 	$(builddir)/tools/create_CATALOG.sh docs/CATALOG.md $^
@@ -159,7 +147,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.48 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.49 $';
     $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
     $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );

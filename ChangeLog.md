@@ -7,6 +7,22 @@
 ### Changed
 - xxx
 
+## [0.2.55] - 2026-01-17
+### Added
+- `c` [1.04.129]: Add a function.
+ - geo_rl_distance_m(): alias: gd_rl_m()
+ - geo_rl_distance_km(): alias: gd_rl_km()
+ - geo_rl_azimuth(): alias: gazm_rl()
+ - geo_rl_dist_m_and_azimuth(): alias: gd_rl_m_azm()
+ - geo_rl_dist_km_and_azimuth(): alias: gd_rl_km_azm()
+ - geo_all_m()
+ - geo_all_km()
+
+### Change
+- `c` [1.04.126]: Fixed mathematical angles to not become negative when converted to azimuth angles.
+  - angle_between_points()
+  - geo_azimuth()
+
 ## [0.2.54] - 2026-01-15
 ### Removed
 - `c` [1.04.125]: delete function: geo_distance(). Deleted as it is the same as geo_distance_m().

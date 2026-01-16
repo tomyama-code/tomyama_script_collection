@@ -423,6 +423,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( 50, -50, -50, 75, 1 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( 50, -50, -50, 75, 1 )='} );
+    $cmd->stdout_is_eq( qq{321.34019174591\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
     $cmd->stdout_is_eq( qq{( 51.3401917459099, 31.9928170001817 )\n} );
@@ -438,6 +444,12 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
     $cmd->stdout_is_eq( qq{( 38.6598082540901, 31.9928170001817 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( 50, -50, -50, -50, 75, 50, 1 )='} );
+    $cmd->exit_is_num( 0, qq{./c 'angle_between_points( 50, -50, -50, -50, 75, 50, 1 )='} );
+    $cmd->stdout_is_eq( qq{( 321.34019174591, 31.9928170001817 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -756,19 +768,19 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_radius( deg2rad( 35.68129 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'geo_radius( deg2rad( 35.68129 ) ) / 1000 ='} );
-    $cmd->stdout_is_eq( qq{6370.9019434243\n}, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
+    $cmd->stdout_is_eq( qq{6370.9019434395\n}, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
-    $cmd->stdout_is_eq( qq{5186.70483557997\n}, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
+    $cmd->stdout_is_eq( qq{5186.704835551\n}, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_m( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_m( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
-    $cmd->stdout_like( qr/^403\.862905334285\n/, qq{東京駅から大阪駅までの距離（km）} );
+    $cmd->stdout_like( qr/^403\.862905333613\n/, qq{東京駅から大阪駅までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -792,13 +804,19 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 2 )'} );
-    $cmd->stdout_is_eq( qq{927.683443441365\n}, qq{昭和基地からドームふじ基地までの距離（km）, ヒュベニ (Hubeny) の公式} );
+    $cmd->stdout_is_eq( qq{927.683443436442\n}, qq{昭和基地からドームふじ基地までの距離（km）, ヒュベニ (Hubeny) の公式} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->stdout_is_eq( qq{206.051582912837\n}, qq{東京駅から昭和基地までの方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_azimuth( deg2rad( 51.50324, -0.1134, 43.64524, -79.38063 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_azimuth( deg2rad( 51.50324, -0.1134, 43.64524, -79.38063 ) )'} );
+    $cmd->stdout_is_eq( qq{294.50984481579\n}, qq{ウォータールー駅からユニオン駅までの方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -811,6 +829,60 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_dist_km_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_dist_km_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（km）と方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_distance_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_distance_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{15688744.5265307\n}, qq{東京駅から昭和基地までの等角航路の距離（m）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_distance_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_distance_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの等角航路の距離（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{216.614405712247\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( -0.3831, -90.42333, 35.68129, 139.76706 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( -0.3831, -90.42333, 35.68129, 139.76706 ) )'} );
+    $cmd->stdout_is_eq( qq{286.56965865758\n}, qq{ガラパゴス諸島から東京駅。( \$dlon > pi )} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -0.3831, -90.42333 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -0.3831, -90.42333 ) )'} );
+    $cmd->stdout_is_eq( qq{106.56965865758\n}, qq{東京駅からガラパゴス諸島。( \$dlon < -pi )} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 15688744.5265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_rl_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 15688.7445265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_all_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837, 15688744.5265307, 216.614405712247 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（m）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_all_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837, 15688.7445265307, 216.614405712247 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2482,13 +2554,13 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（m）} );
+    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m->km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2500,13 +2572,43 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_m_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_m_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（m）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_km_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（km）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）と方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_rl_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの距離（等角航路）（m->km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_rl_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの距離（等角航路）（km）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gazm_rl( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gazm_rl( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{216.614405712247\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_m_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_rl_m_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 15688744.5265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_km_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'gd_rl_km_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
+    $cmd->stdout_is_eq( qq{( 15688.7445265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2766,7 +2868,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_is_eq( qq{403\.862905334285\n} );
+    $cmd->stdout_is_eq( qq{403\.862905333613\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2790,7 +2892,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.862905334285\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.862905333613\n/ );
     $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
     undef( $cmd );
 
@@ -2798,7 +2900,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.862905334285\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.862905333613\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
