@@ -946,6 +946,24 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'local2epoch( ２０２６／３／１１　１６：００：０１ )'} );
+    $cmd->exit_is_num( 0, qq{./c 'local2epoch( ２０２６／３／１１　１６：００：０１ )'} );
+    $cmd->stdout_is_eq( qq{1773212401\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'local2epoch( 2026-03-11 16:00:01 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'local2epoch( 2026-03-11 16:00:01 )'} );
+    $cmd->stdout_is_eq( qq{1773212401\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'local2epoch( 2026-03-11, 16:00:01 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'local2epoch( 2026-03-11, 16:00:01 )'} );
+    $cmd->stdout_is_eq( qq{1773212401\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gmt2epoch( 2000, 12, 31, 23, 59, 59 )'} );
     $cmd->exit_is_num( 0, qq{./c 'gmt2epoch( 2000, 12, 31, 23, 59, 59 )'} );
     $cmd->stdout_is_eq( qq{978307199\n} );

@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.129 $
+## - $Revision: 4.130 $
 ##
 ## - Script Structure
 ##   - main
@@ -165,7 +165,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.129 $};
+    my $rev = q{$Revision: 4.130 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -2501,7 +2501,7 @@ sub FormulaNormalizationOneLine( $ )
     ##########
     ## コーディングが面倒になるので全角文字はこの区間内に留める事。
     $expr = &str2p( $expr );
-    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．＋＊・･／＾（）＝　”゛“’′!a-za-z0-9,,.+***/^()= """''!;
+    $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．：＋＊・･／＾（）＝　”゛“’′!a-za-z0-9,,.:+***/^()= """''!;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
     $expr =~ s!√!sqrt!go;
@@ -2534,6 +2534,11 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\s+$!!o;
     $expr = lc( $expr );                # 小文字に
 
+    $expr =~ s!(20\d{2})/(\d{1,2})/(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
+    $expr =~ s!(20\d{2})-(\d{1,2})-(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
+    $expr =~ s!(20\d{2})/(\d{1,2})/(\d{1,2})!$1, $2, $3!go;
+    $expr =~ s!(20\d{2})-(\d{1,2})-(\d{1,2})!$1, $2, $3!go;
+    $expr =~ s!(\d{2}):(\d{2}):(\d{2})!$1, $2, $3!go;
     $expr =~ s!([a-z]+)\s*\(!$1(!go;    # アルファベットと括弧（始）の間の空白は無視
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
