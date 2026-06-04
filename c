@@ -14,7 +14,7 @@
 ## - The "c" script displays the result of the given expression.
 ##
 ## - Version: 1
-## - $Revision: 4.130 $
+## - $Revision: 4.131 $
 ##
 ## - Script Structure
 ##   - main
@@ -165,7 +165,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.130 $};
+    my $rev = q{$Revision: 4.131 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -2018,17 +2018,51 @@ sub is_leap( @ )
 }
 
 ## Revision: 1.1
+#sub age_of_moon( $$$ )
+#{
+#    my $y = shift( @_ );
+#    my $m = shift( @_ );
+#    my $d = shift( @_ );
+#    #my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
+#    # 現代の軌道に合わせて全体を0.7日分引き下げ、月ごとのゆらぎを最適化
+#    my @c = ( 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
+#    #printf ("DATE: %04d/%02d/%02d\n", $y, $m, $d) ;
+#
+#    my $age = ( ( ( $y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
+#
+#    return $age ;
+#}
 sub age_of_moon( $$$ )
 {
     my $y = shift( @_ );
     my $m = shift( @_ );
     my $d = shift( @_ );
-    my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
-    #printf ("DATE: %04d/%02d/%02d\n", $y, $m, $d) ;
 
-    my $age = ( ( ( $y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
+    # 1月、2月を前年の13月、14月として処理（ツェラーの公式等の定石）
+    if( $m <= 2 ){
+        $y--;
+        $m += 12;
+    }
 
-    return $age ;
+    # 完全整数処理による「修正ユリウス日 (MJD)」の算出
+    my $mjd = int( 365.25 * $y ) + int( $y / 400 ) - int( $y / 100 )
+            + int( ( 153 * $m - 162 ) / 5 ) + $d - 678912;
+
+    # 上記の整数日数変換に100%適合させた「新月基準点 (Epoch)」
+    my $diff_days = $mjd - 51549.1;
+
+    # 天文学における平均朔望月（月の満ち欠けの平均周期）
+    my $synodic_month = 29.530588853;
+
+    # 経過日数から現在の月齢を算出
+    my $age = $diff_days / $synodic_month;
+    $age = ( $age - int( $age ) ) * $synodic_month;
+
+    # マイナス値になった場合の補正
+    $age += $synodic_month if $age < 0;
+
+    # 小数第1位に丸めて出力
+    return sprintf( "%.1f", $age );
 }
 
 sub local2epoch( $$$;$$$ )
@@ -2543,6 +2577,8 @@ sub FormulaNormalizationOneLine( $ )
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
     $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
+    $expr =~ s!sakubou!29.530588853!go; # 朔望: 平均朔望月
+    $expr =~ s!chijiku!23.436!go;       # 地球の地軸の傾き
     $expr =~ s!power!pow!go;
     ## alias
     ## (?<!..): 否定的後読み

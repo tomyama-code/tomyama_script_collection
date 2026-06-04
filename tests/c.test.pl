@@ -922,21 +922,57 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 0, 1, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 0, 1, 1 )'} );
+    $cmd->stdout_is_eq( qq{8.5\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 1900, 2, 28 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 1900, 2, 28 )'} );
+    $cmd->stdout_is_eq( qq{28.2\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 1969, 07, 20 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 1969, 07, 20 )'} );
+    $cmd->stdout_is_eq( qq{5.4\n}, qq{アポロ11号が月面着陸した日} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 1999, 12, 31 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 1999, 12, 31 )'} );
+    $cmd->stdout_is_eq( qq{22.9\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2000, 1, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2000, 1, 1 )'} );
+    $cmd->stdout_is_eq( qq{23.9\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2000, 2, 29 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2000, 2, 29 )'} );
+    $cmd->stdout_is_eq( qq{23.8\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 13 )'} );
     $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 13 )'} );
-    $cmd->stdout_is_eq( qq{23\n} );
+    $cmd->stdout_is_eq( qq{22.6\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 19 )'} );
     $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 19 )'} );
-    $cmd->stdout_is_eq( qq{29\n} );
+    $cmd->stdout_is_eq( qq{28.6\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 20 )'} );
     $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 20 )'} );
-    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stdout_is_eq( qq{0.1\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2702,6 +2738,18 @@ subtest qq{aliases} => sub{
     $cmd->exit_is_num( 0, qq{echo '' | ./c 'sw()'} );
     $cmd->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $cmd->stdout_like( qr/\n0\./ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '90 - CHIJIKU'} );
+    $cmd->exit_is_num( 0, qq{./c '90 - CHIJIKU'} );
+    $cmd->stdout_is_eq( qq{66.564\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

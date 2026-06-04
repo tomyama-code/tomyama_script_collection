@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.58] - 2026-06-04
+### Change
+- `c` [1.04.131]:
+  - The logic for the age_of_moon function has been changed.
+  - Add constant
+    - CHIJIKU => 23.436
+    - SAKUBOU => 29.530588853
+
 ## [0.2.57] - 2026-03-27
 ### Added
 - `cl.holiday` [2026.2]: Added Japanese public holidays for 2027.
@@ -18,13 +26,13 @@
 ## [0.2.55] - 2026-01-17
 ### Added
 - `c` [1.04.129]: Add a function.
- - geo_rl_distance_m(): alias: gd_rl_m()
- - geo_rl_distance_km(): alias: gd_rl_km()
- - geo_rl_azimuth(): alias: gazm_rl()
- - geo_rl_dist_m_and_azimuth(): alias: gd_rl_m_azm()
- - geo_rl_dist_km_and_azimuth(): alias: gd_rl_km_azm()
- - geo_all_m()
- - geo_all_km()
+  - geo_rl_distance_m(): alias: gd_rl_m()
+  - geo_rl_distance_km(): alias: gd_rl_km()
+  - geo_rl_azimuth(): alias: gazm_rl()
+  - geo_rl_dist_m_and_azimuth(): alias: gd_rl_m_azm()
+  - geo_rl_dist_km_and_azimuth(): alias: gd_rl_km_azm()
+  - geo_all_m()
+  - geo_all_km()
 
 ### Change
 - `c` [1.04.126]: Fixed mathematical angles to not become negative when converted to azimuth angles.
