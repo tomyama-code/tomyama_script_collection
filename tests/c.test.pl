@@ -952,15 +952,21 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2000, 2, 28 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2000, 2, 28 )'} );
+    $cmd->stdout_is_eq( qq{22.8\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2000, 2, 29 )'} );
     $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2000, 2, 29 )'} );
     $cmd->stdout_is_eq( qq{23.8\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2025, 12, 13 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2025, 12, 13 )'} );
-    $cmd->stdout_is_eq( qq{22.6\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 2000, 03, 01 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 2000, 03, 01 )'} );
+    $cmd->stdout_is_eq( qq{24.8\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2926,6 +2932,22 @@ subtest qq{-h, --help} => sub{
     $cmd->stdout_like( qr/^Usage: c / );
     $cmd->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+};
+
+subtest qq{-b, --banner} => sub{
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45 )\n} );
+    $cmd->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD --banner 'paper_size( 4 )'} );
+    $cmd->exit_is_num( 0, qq{./c --banner 'paper_size( 4 )'} );
+    $cmd->stdout_is_eq( qq{( 210, 297 )\n} );
+    $cmd->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
     undef( $cmd );
 
 };

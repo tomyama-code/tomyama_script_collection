@@ -7,6 +7,20 @@
 ### Changed
 - xxx
 
+## [0.2.59] - 2026-06-14
+### Added
+- `c` [1.04.132]:
+  - Added the "-b, --banner" option.
+    - Display a script banner in STDERR.
+    - example)
+        $ c --banner '18 * 3'
+        --------------------------------------------------
+        C - The Flat-Text Calculator (Perl Script)
+        - Turn your formulas into reusable data.
+        - https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md
+        --------------------------------------------------
+        54
+
 ## [0.2.58] - 2026-06-04
 ### Change
 - `c` [1.04.131]:

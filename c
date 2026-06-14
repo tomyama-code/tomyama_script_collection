@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 ################################################################################
-## C -- The Flat Text Calculator
+## C -- The Flat-Text Calculator (Perl Script)
 ##
 ## << Doctrine of the Flat-Text Faith >>
 ##   - Blessed are the plain, for they shall be grepped.
@@ -12,9 +12,10 @@
 ##     (They pretend to be text, but they are pictures in disguise.)
 ##
 ## - The "c" script displays the result of the given expression.
+## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.131 $
+## - $Revision: 4.132 $
 ##
 ## - Script Structure
 ##   - main
@@ -126,6 +127,8 @@ sub GetHelpMsg()
         qq{$fns\n} .
         qq{\n} .
         qq{<OPTIONS>:\n} .
+        qq{  -b, --banner:\n} .
+        qq{    Show script banner.\n} .
         qq{  -v, --verbose:\n} .
         qq{    The intermediate steps of the calculation will also be displayed.\n} .
         qq{  -r, --rpn:\n} .
@@ -165,9 +168,21 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.131 $};
+    my $rev = q{$Revision: 4.132 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
+}
+
+sub PrintBannerMsg()
+{
+    my $self = shift( @_ );
+    my $banner_msg = '' .
+        qq{--------------------------------------------------\n} .
+        uc( $self->{APPCONFIG}->{APPNAME} ) . qq{ - The Flat-Text Calculator (Perl Script)\n} .
+        qq{- Turn your formulas into reusable data.\n} .
+        qq{- https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/$self->{APPCONFIG}->{APPNAME}.md\n} .
+        qq{--------------------------------------------------\n};
+    print STDERR ( $banner_msg );
 }
 
 # 端末幅を取得するための Term::ReadKey は非コアモジュールで、
@@ -3693,6 +3708,10 @@ sub Run( @ )
     my $self = shift( @_ );
     my @exprs_raw = @_;
 
+    if( $self->{APPCONFIG}->GetBBanner() ){
+        $self->PrintBannerMsg();
+    }
+
     my $expr = $self->Parser->FormulaNormalization( @exprs_raw );
     my $status = 0;
     my $bReadStdin = ! -t STDIN;
@@ -3783,6 +3802,7 @@ sub new {
     $self->{DEBUG} = shift( @_ );
     $self->{B_TEST} = shift( @_ );
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
+    $self->{B_BANNER} = shift( @_ );
     $self->{B_RPN} = shift( @_ );
     $self->{B_IS_STDOUT_TTY} = shift( @_ );
     $self->{B_PRINT_USER_DEFINED} = shift( @_ );
@@ -3820,6 +3840,17 @@ sub GetBVerboseOutput( $ )
 {
     my $self = shift( @_ );
     return $self->{B_VERBOSEOUTPUT};
+}
+
+sub SetBBanner( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_BANNER} = shift( @_ );
+}
+sub GetBBanner( $ )
+{
+    my $self = shift( @_ );
+    return $self->{B_BANNER};
 }
 
 sub SetBRpn( $ )
@@ -3894,12 +3925,13 @@ sub init_script()
     my $debug = 0;
     my $bTest = 0;
     my $bVerboseOutput = 0;
+    my $bBanner = 0;
     my $bRpn = 0;
     my $bIsStdoutTty = -t STDOUT;
     my $bPrintUserDefined = 0;
 
     my $config = CAppConfig->new( $apppath, $appname, $debug,
-        $bTest, $bVerboseOutput, $bRpn, $bIsStdoutTty, $bPrintUserDefined );
+        $bTest, $bVerboseOutput, $bBanner, $bRpn, $bIsStdoutTty, $bPrintUserDefined );
 
     $opf = OutputFunc->new( $config, 'dbg' );
 
@@ -3924,7 +3956,9 @@ sub parse_arg()
         }
 
         ## デバッグモードOn
-        if    ( $myparam eq '-d' || $myparam eq '--debug' ){
+        if    ( $myparam eq '-b' || $myparam eq '--banner' ){
+            $conf->SetBBanner( 1 );
+        }elsif( $myparam eq '-d' || $myparam eq '--debug' ){
             $conf->SetDebug( 1 );
             $conf->SetBVerboseOutput( 1 );
         }elsif( $myparam eq '-h' || $myparam eq '--help' ){
@@ -3958,11 +3992,13 @@ __END__
 
 =head1 NAME
 
-C - The Flat Text Calculator
+C - The Flat-Text Calculator (Perl Script)
 
 =head1 DESCRIPTION
 
 The B<c> script displays the result of the given expression.
+
+Turn your formulas into reusable data.
 
 =head1 SYNOPSIS
 
@@ -4039,6 +4075,10 @@ stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
 =head1 OPTIONS
 
 =over 4
+
+=item -b, --banner
+
+  Show script banner.
 
 =item -d, --debug
 

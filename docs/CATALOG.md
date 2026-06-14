@@ -7,7 +7,7 @@
 
 ### c
 
-The Flat Text Calculator
+The Flat-Text Calculator (Perl Script)
 
 << Doctrine of the Flat-Text Faith >>
   - Blessed are the plain, for they shall be grepped.
@@ -19,9 +19,10 @@ The Flat Text Calculator
     (They pretend to be text, but they are pictures in disguise.)
 
 - The "c" script displays the result of the given expression.
+- Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 4.131 $
+- $Revision: 4.132 $
 
 - Script Structure
   - main
@@ -189,7 +190,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.52 $
+- $Revision: 2.53 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

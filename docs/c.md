@@ -5,11 +5,13 @@
 * * *
 # NAME
 
-C - The Flat Text Calculator
+C - The Flat-Text Calculator (Perl Script)
 
 # DESCRIPTION
 
 The **c** script displays the result of the given expression.
+
+Turn your formulas into reusable data.
 
 # SYNOPSIS
 
@@ -80,6 +82,10 @@ nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, 
 stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
+
+- -b, --banner
+
+        Show script banner.
 
 - -d, --debug
 
