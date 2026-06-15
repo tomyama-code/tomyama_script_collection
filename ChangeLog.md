@@ -7,6 +7,10 @@
 ### Changed
 - xxx
 
+## [0.2.61] - 2026-06-15
+### Changed
+- `c` [1.04.137]: Only the document has been edited.
+
 ## [0.2.60] - 2026-06-15
 ### Added
 - `c` [1.04.136]: Add a function.

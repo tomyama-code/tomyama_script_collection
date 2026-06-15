@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.136 $
+## - $Revision: 4.137 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.136 $};
+    my $rev = q{$Revision: 4.137 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -4395,6 +4395,46 @@ If only age is required:
 
   $ c 'first( age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) ) )'
   24
+
+The age() function can also handle future events.
+For example,
+there is a celestial event scheduled for February 5, 2040,
+called "Asteroid 2011 AG5's closest approach to Earth."
+
+  $ AG5_APPROACH_2040='local2epoch( 2040, 2, 5 )'
+
+Let's try inputting this into the age() function.
+
+  $ c "age( $AG5_APPROACH_2040 )"
+  ( -13, -234 ) # -13 years and -234 days
+
+If negative values ​​are inconvenient,
+you can reverse them by multiplying each value by -1 using mul_each().
+
+  $ c "mul_each(
+         age( $AG5_APPROACH_2040 ),
+         -1
+       )"
+  ( 13, 234 )   # 13 years and 234 days
+
+Alternatively,
+you can achieve the same result by swapping the birthday and reference date
+in the age() function and changing the direction of the vector.
+
+  $ c "age( now, $AG5_APPROACH_2040 )"
+  ( 13, 234 )   # 13 years and 234 days
+
+If you want to change the format, do so after the pipe:
+
+  $ c "sec2dhms( $AG5_APPROACH_2040 - now )" | \
+    sed 's!^( \([0-9][0-9]*\), \([0-9][0-9]*\), \([0-9][0-9]*\), .*$!\1 days, \2 hours, and \3 minutes remaining!'
+  4982 days, 5 hours, and 28 minutes remaining
+
+You can also count down by specifying epoch seconds in the timer() function:
+
+  $ c "timer( $AG5_APPROACH_2040 )"
+  2040-02-05 00:00:00.000  TARGET
+  4982 07:35:31.743
 
 =head2 COORDINATE CALCULATION
 
