@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.60] - 2026-06-15
+### Added
+- `c` [1.04.136]: Add a function.
+  - age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] )
+    - Returns a list of ( age, days )
+
 ## [0.2.59] - 2026-06-14
 ### Added
 - `c` [1.04.132]:

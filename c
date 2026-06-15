@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.132 $
+## - $Revision: 4.136 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.132 $};
+    my $rev = q{$Revision: 4.136 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -668,6 +668,7 @@ use constant {
     H_GA_M => qq{geo_all_m( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
+    H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_AOMN => qq{age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
@@ -793,6 +794,7 @@ use constant {
     'geo_all_m'                  => [ 1720, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_all_km'                 => [ 1730, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'is_leap'                    => [ 1740, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
+    'age'                        => [ 1745, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
     'age_of_moon'                => [ 1750, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'local2epoch'                => [ 1760, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
     'gmt2epoch'                  => [ 1770, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
@@ -1997,8 +1999,7 @@ sub geo_all_m( $$$$ )
     return @ret_vals;
 }
 
-sub geo_all_km(
- $$$$ )
+sub geo_all_km( $$$$ )
 {
     my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
     my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
@@ -2030,6 +2031,43 @@ sub is_leap( @ )
         push( @ret_vals, &is_leap_year( $year ) );
     }
     return @ret_vals;
+}
+
+sub age( $;$ )
+{
+    my( $birthday_epoch, $ref_date_epoch ) = @_;
+    $ref_date_epoch = time() if( !defined( $ref_date_epoch ) );
+
+    my $negFlag = 0;
+    if( $birthday_epoch > $ref_date_epoch ){
+        $negFlag = 1;
+        my $tmp_epoch = $birthday_epoch;
+        $birthday_epoch = $ref_date_epoch;
+        $ref_date_epoch = $tmp_epoch;
+    }
+
+    my( $bY, $bm, $bd, $bH, $bM, $bS ) = &epoch2local( $birthday_epoch );
+    my( $rY, $rm, $rd, $rH, $rM, $rS ) = &epoch2local( $ref_date_epoch );
+
+    my $bYear = sprintf( "%04d.%02d%02d", $bY, $bm, $bd );
+    my $rYear = sprintf( "%04d.%02d%02d", $rY, $rm, $rd );
+
+    my $age = int( $rYear - $bYear );
+
+    my $lY = $rY;
+    my $bmmdd = sprintf( "%02d%02d", $bm, $bd );
+    my $rmmdd = sprintf( "%02d%02d", $rm, $rd );
+    $lY -= 1 if( $bmmdd > $rmmdd );
+    my $lastbirthday_epoch = &local2epoch( $lY, $bm, $bd, $bH, $bM, $bS );
+
+    my $days = int( ( $ref_date_epoch - $lastbirthday_epoch ) / 86400 );
+
+    if( $negFlag ){
+        $age *= -1;
+        $days *= -1;
+    }
+
+    return ( $age, $days );
 }
 
 ## Revision: 1.1
@@ -2555,6 +2593,9 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!－!-!go;
     $expr =~ s!√!sqrt!go;
     $expr =~ s!π!pi!go;
+    $expr =~ s!((?:20|19)\d{2})年(\d{1,2})月(\d{1,2})日!$1, $2, $3!go;
+    $expr =~ s!(\d{1,2})時(\d{1,2})分(\d{1,2})秒!$1, $2, $3!go;
+    $expr =~ s!(\d{1,2})時(\d{1,2})分!$1, $2, 0!go;
     $expr =~ s!(?:北緯|東経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( $1, $2, $3 )!go;
     $expr =~ s!(?:南緯|西経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( -$1, -$2, -$3 )!go;
     $expr =~ s!(?:北緯|東経)(\d+)°(\d+(?:\.\d+)?)'!dms2rad( $1, $2, 0 )!go;
@@ -2583,11 +2624,15 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\s+$!!o;
     $expr = lc( $expr );                # 小文字に
 
-    $expr =~ s!(20\d{2})/(\d{1,2})/(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
-    $expr =~ s!(20\d{2})-(\d{1,2})-(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
-    $expr =~ s!(20\d{2})/(\d{1,2})/(\d{1,2})!$1, $2, $3!go;
-    $expr =~ s!(20\d{2})-(\d{1,2})-(\d{1,2})!$1, $2, $3!go;
-    $expr =~ s!(\d{2}):(\d{2}):(\d{2})!$1, $2, $3!go;
+#    $expr =~ s!((?:20|19)\d{2})/(\d{1,2})/(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
+#    $expr =~ s!((?:20|19)\d{2})-(\d{1,2})-(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})!$1, $2, $3, $4, $5, $6!go;
+    $expr =~ s!((?:20|19)\d{2})/(\d{1,2})/(\d{1,2})!$1, $2, $3!go;
+    $expr =~ s!((?:20|19)\d{2})-(\d{1,2})-(\d{1,2})!$1, $2, $3!go;
+    $expr =~ s!(\d{1,2}):(\d{2}):(\d{2})!$1, $2, $3!go;
+    $expr =~ s!(\d{1,2}):(\d{2})!$1, $2, 0!go;
+    # 「西暦, 数字, 数字（日付）」と「数字（時間）」がスペースで並んでいたら、カンマで繋ぐ
+    # 乗算（*） の補完の邪魔になるようであれば、↓この変換は諦める
+    $expr =~ s!(\b(?:20|19)\d{2},\s*\d{1,2},\s*\d{1,2})\s+(\d{1,2})!$1, $2!go;
     $expr =~ s!([a-z]+)\s*\(!$1(!go;    # アルファベットと括弧（始）の間の空白は無視
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
@@ -4060,17 +4105,22 @@ CURRENT-TIME
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each,
-linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
-pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo_radius,
-radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
-geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
-geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age_of_moon, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling,
+is_prime, prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle,
+first, slice, uniq, sum, prod, avg, add_each, mul_each, linspace, linstep,
+mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2,
+log10, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms,
+dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle_deg,
+dist_between_points, midpt_between_points, angle_between_points, geo_radius,
+radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth,
+geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m,
+geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
+geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age,
+age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
+meter2nautical_mile, pound2gram, gram2pound, ounce2gram, gram2ounce,
+laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter,
+telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -4326,6 +4376,25 @@ If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
          ratio_scaling( 3, dhms2sec( 0, 1, 18 ), 15 )
        )'
   ( 2025, 11, 25, 15, 30, 0 )   # Pace to complete on Nov. 25, 2025 at 15:30:00.
+
+Age calculation:
+
+  ## Calculate in YYYY.mmdd format.
+  $ c '2026.0614 - 2001.0615'
+  24.9999
+  ## - or -
+  $ c 'int( 2026.0614 - 2001.0615 )'
+  24
+
+There is also a function to calculate age.
+
+  $ c 'age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) )'
+  ( 24, 364 )   # 24 years and 364 days
+
+If only age is required:
+
+  $ c 'first( age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) ) )'
+  24
 
 =head2 COORDINATE CALCULATION
 
@@ -5336,6 +5405,15 @@ Evaluate together:
 
   $ c 'is_leap( 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100 )'
   ( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0 )
+
+=item C<age>
+
+age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ).
+Returns a list of ( age, days ).
+If REF_DATE_EPOCH is omitted, NOW is used.
+
+  $ c 'age( local2epoch( 2000, 1, 1 ) )'
+  ( 26, 165 )
 
 =item C<age_of_moon>
 

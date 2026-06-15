@@ -69,17 +69,22 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
-linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
-pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth,
-geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
-geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age\_of\_moon, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling,
+is\_prime, prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle,
+first, slice, uniq, sum, prod, avg, add\_each, mul\_each, linspace, linstep,
+mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2,
+log10, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms,
+dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle\_deg,
+dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
+radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth,
+geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m,
+geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
+geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age,
+age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
+meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, gram2ounce,
+laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter,
+telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -331,6 +336,25 @@ If it takes 1 hour and 18 minutes to make 3, when will 15 be completed?:
            ratio_scaling( 3, dhms2sec( 0, 1, 18 ), 15 )
          )'
     ( 2025, 11, 25, 15, 30, 0 )   # Pace to complete on Nov. 25, 2025 at 15:30:00.
+
+Age calculation:
+
+    ## Calculate in YYYY.mmdd format.
+    $ c '2026.0614 - 2001.0615'
+    24.9999
+    ## - or -
+    $ c 'int( 2026.0614 - 2001.0615 )'
+    24
+
+There is also a function to calculate age.
+
+    $ c 'age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) )'
+    ( 24, 364 )   # 24 years and 364 days
+
+If only age is required:
+
+    $ c 'first( age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) ) )'
+    24
 
 ## COORDINATE CALCULATION
 
@@ -1335,6 +1359,15 @@ The **c** script was created with the following in mind:
 
         $ c 'is_leap( 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100 )'
         ( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0 )
+
+- `age`
+
+    age( BIRTHDAY\_EPOCH \[, REF\_DATE\_EPOCH \] ).
+    Returns a list of ( age, days ).
+    If REF\_DATE\_EPOCH is omitted, NOW is used.
+
+        $ c 'age( local2epoch( 2000, 1, 1 ) )'
+        ( 26, 165 )
 
 - `age_of_moon`
 

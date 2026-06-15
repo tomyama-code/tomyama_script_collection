@@ -922,6 +922,60 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2026-05-01 ), l2e( 2026-06-14 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2026-05-01 ), l2e( 2026-06-14 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, 44 )\n}, qq{平月の31日（5月）を正しくまたいで計算できているか} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2025年12月25日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2025年12月25日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, 171 )\n}, qq{年をまたいでも、エポック秒ベースで正確な日数が引けているか} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2024年2月28日 ), l2e( 2024年3月1日 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2024年2月28日 ), l2e( 2024年3月1日 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, 2 )\n}, qq{1日齢ではなく2日齢になること} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2001年6月14日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2001年6月14日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->stdout_is_eq( qq{( 25, 0 )\n}, qq{当日なので、きっちり25歳になっていること} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2001年6月15日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2001年6月15日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->stdout_is_eq( qq{( 24, 364 )\n}, qq{フライングして25歳にならず「24歳」を維持できていること} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 1999-03-02 ), l2e( 2020-03-01 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 1999-03-02 ), l2e( 2020-03-01 ) )'} );
+    $cmd->stdout_is_eq( qq{( 20, 365 )\n}, qq{日齢の最大値} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2026年6月15日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2026年6月15日 ), l2e( 2026-06-14 ) )'} );
+    $cmd->stdout_is_eq( qq{( 0, -1 )\n}, qq{誕生日が未来} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2026年06月14日 ), l2e( 2001-6-15 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2026年06月14日 ), l2e( 2001-6-15 ) )'} );
+    $cmd->stdout_is_eq( qq{( -24, -364 )\n}, qq{誕生日が未来} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age( l2e( 2000年1月1日 ) )'} );
+    $cmd->exit_is_num( 0, qq{./c 'age( l2e( 2000年1月1日 ) )'} );
+    $cmd->stdout_like( qr/^\( \d+, \d+ \)\n$/ );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'age_of_moon( 0, 1, 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'age_of_moon( 0, 1, 1 )'} );
     $cmd->stdout_is_eq( qq{8.5\n} );
