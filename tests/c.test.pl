@@ -1544,9 +1544,33 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD '12(3' '2)2='} );
-    $cmd->exit_is_num( 0, qq{./c '12(3' '2)2='} );
-    $cmd->stdout_is_eq( qq{144\n}, qq{-10} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '10 % -3'} );
+    $cmd->exit_is_num( 0, qq{./c '10 % -3} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '10 % -3'} );
+    $cmd->exit_is_num( 0, qq{./c '10 % -3'} );
+    $cmd->stdout_is_eq( qq{1\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '-10 % 3'} );
+    $cmd->exit_is_num( 0, qq{./c '-10 % 3'} );
+    $cmd->stdout_is_eq( qq{-1\n}, qq{-10} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '-10 % -3'} );
+    $cmd->exit_is_num( 0, qq{./c '-10 % -3'} );
+    $cmd->stdout_is_eq( qq{-1\n}, qq{-10} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '10.987 % 3'} );
+    $cmd->exit_is_num( 0, qq{./c '10.987 % 3'} );
+    $cmd->stdout_is_eq( qq{1.987\n}, qq{-10} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1834,6 +1858,18 @@ subtest qq{Normal} => sub{
     $cmd->exit_isnt_num( 0, qq{./c 'ratio_scaling( 0, 10, 20 )'} );
     $cmd->stdout_is_eq( qq{} );
     $cmd->stderr_like( qr/^c: evaluator: error: Illegal division by zero.\n/ );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 29 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 29 )'} );
+    $cmd->stdout_is_eq( qq{1\n}, qq{29は素数} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( 29.1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'is_prime( 29.1 )'} );
+    $cmd->stdout_is_eq( qq{0\n}, qq{小数点付きの数は素数ではない} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'is_prime( -2 )'} );
@@ -2801,9 +2837,9 @@ subtest qq{aliases} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ) )'} );
-    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ) )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45 )\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 46 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2992,9 +3028,9 @@ subtest qq{-h, --help} => sub{
 
 subtest qq{-b, --banner} => sub{
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ) )'} );
-    $cmd->exit_is_num( 0, qq{./c -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ) )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45 )\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ), 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ), 0 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 46 )\n} );
     $cmd->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
     undef( $cmd );
 

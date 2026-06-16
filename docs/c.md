@@ -353,7 +353,9 @@ There is also a function to calculate age.
 
 If only age is required:
 
-    $ c 'first( age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) ) )'
+    $ c 'first(
+           age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) )
+         )'
     24
 
 The age() function can also handle future events.
@@ -384,6 +386,11 @@ in the age() function and changing the direction of the vector.
     $ c "age( now, $AG5_APPROACH_2040 )"
     ( 13, 234 )   # 13 years and 234 days
 
+If you want hours, minutes, and seconds:
+
+    $ c "sec2dhms( $AG5_APPROACH_2040 - now )"
+    ( 4982, 5, 28, 44 )   # 4982 days 5 hours 28 minutes 44 seconds
+
 If you want to change the format, do so after the pipe:
 
     $ c "sec2dhms( $AG5_APPROACH_2040 - now )" | \
@@ -394,7 +401,7 @@ You can also count down by specifying epoch seconds in the timer() function:
 
     $ c "timer( $AG5_APPROACH_2040 )"
     2040-02-05 00:00:00.000  TARGET
-    4982 07:35:31.743
+    4982 05:20:31.743
 
 ## COORDINATE CALCULATION
 
@@ -489,6 +496,7 @@ The **c** script was created with the following in mind:
 
     Modulo arithmetic.
     `5 % 3` -> `2`.
+    \[POSIX\]
 
 - `**`
 
@@ -1468,7 +1476,8 @@ The **c** script was created with the following in mind:
 
 - `sec2dhms`
 
-    sec2dhms( _SECOND_ ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+    sec2dhms( _SECOND_ \[, _DECIMAL\_PLACES_ \] ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+    Rounding the number if _DECIMAL\_PLACES_ is specified.
 
         $ c 'sec2dhms( 356521 )'
         ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second

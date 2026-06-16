@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.137 $
+## - $Revision: 4.145 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.137 $};
+    my $rev = q{$Revision: 4.145 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -582,7 +582,7 @@ use constant {
     H_MINU => qq{Subtraction. "3 - 2" -> 1.},
     H_MULT => qq{Multiplication. "1 * 2" -> 2.},
     H_DIVI => qq{Division. "1 / 2" -> 0.5.},
-    H_MODU => qq{Modulo arithmetic. "5 % 3" -> 2.},
+    H_MODU => qq{Modulo arithmetic. "5 % 3" -> 2. [POSIX]},
     H_EXPO => qq{Exponentiation. "2 ** 3" -> 8. Similarly, "pow( 2, 3 )".},
     H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 [ = 0x6 ]".},
     H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 [ = 0x4 ]".},
@@ -674,7 +674,7 @@ use constant {
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
     H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
-    H_SHMS => qq{sec2dhms( SECOND ) --Convert-to--> ( D, H, M, S ).},
+    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified.},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ).},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. alias: 里→メートル(), 里２メートル().},
     H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. alias: メートル→里(), メートル２里().},
@@ -800,7 +800,7 @@ use constant {
     'gmt2epoch'                  => [ 1770, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
     'epoch2local'                => [ 1780, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
     'epoch2gmt'                  => [ 1790, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                   => [ 1800, T_FUNCTION,     1, H_SHMS, sub{ &sec2dhms( $_[ 0 ] ) } ],
+    'sec2dhms'                   => [ 1800, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
     'dhms2sec'                   => [ 1810, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
     'ri2meter'                   => [ 1820, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
     'meter2ri'                   => [ 1830, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
@@ -963,7 +963,8 @@ sub _C_MOD( $$ )
     }elsif( -1 < $_[ 1 ] && $_[ 1 ] < 1 ){
         die( qq{"$_[0] \% $_[1]": Illegal modulus operand.\n} );
     }
-    return $_[ 0 ] % $_[ 1 ];
+    #return $_[ 0 ] % $_[ 1 ];
+    return POSIX::fmod( $_[ 0 ], $_[ 1 ] );
 }
 
 sub _C_ABS( @ )
@@ -1080,6 +1081,8 @@ sub is_prime_num( $ )
 {
     my $targ_num = shift( @_ );
 
+    ## 整数（小数点以下が0）でなければ素数ではない
+    return 0 if( ( $targ_num - int( $targ_num ) ) != 0 );
     ## 2未満の数は素数ではない
     return 0 if( $targ_num < 2 );
     ## 2は素数
@@ -2160,19 +2163,33 @@ sub epoch2gmt( $ )
     return ( $year, $month, $mday, $hour, $minute, $sec );
 }
 
-sub sec2dhms( $ )
+sub sec2dhms( $;$ )
 {
-    my $duration = shift( @_ );
+    my( $duration, $decimal_places ) = @_;
     #print( qq{\$duration="$duration"\n} );
 
     my $bNeg = ( $duration < 0 ? 1 : 0 );
     my $duration_abs = abs( $duration );
+    if( defined( $decimal_places ) ){
+        my @dum = &round( $duration_abs, $decimal_places );
+        $duration_abs = $dum[ 0 ];
+        #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
+    }
 
-    my $sec = $duration_abs % 60;
+    my $sec = POSIX::fmod( $duration_abs, 60 );
+    ## support:
+    ##   $ ./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'
+    ##   ( 0, 0, 48, 45.7800000000002 ) -> 45.78
+    ##   ( 0, 0, 48, 45.7799999999998 ) -> 45.78 （マイナス誤差も救済）
+    if( defined( $decimal_places ) ){
+#        # 指定された桁数で四捨五入し、末尾の不要な0を消すために + 0 で数値化
+#        $sec = sprintf( "%.${decimal_places}f", $sec ) + 0;
+        $sec = sprintf( "%.${decimal_places}f", $sec )
+    }
     my $remain = int( $duration_abs / 60 );
-    my $minute = $remain % 60;
+    my $minute = POSIX::fmod( $remain, 60 );
     $remain = int( $remain / 60 );
-    my $hour = $remain % 24;
+    my $hour = POSIX::fmod( $remain, 24 );
     my $days = int( $remain / 24 );
 
     if( $bNeg ){
@@ -2286,13 +2303,14 @@ sub msec2hms( $ )
     my $duration = shift( @_ );
     #print( qq{\$duration="$duration"\n} );
 
-    my $sec = $duration % 60;
-    $sec += $duration - int( $duration );
+    my $sec = POSIX::fmod( $duration, 60 );
     #print( qq{\$sec="$sec"\n} );
     my $remain = int( $duration / 60 );
     my $minute = $remain % 60;
     $remain = int( $remain / 60 );
     my $hour = $remain % 24;
+    ## 24時間以上は捨てる。
+    ## 0～24時間の間を環状に回り続けるイメージ。
 
     return ( $hour, $minute, $sec );
 }
@@ -4393,7 +4411,9 @@ There is also a function to calculate age.
 
 If only age is required:
 
-  $ c 'first( age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) ) )'
+  $ c 'first(
+         age( l2e( 2001, 06, 15 ), l2e( 2026, 06, 14 ) )
+       )'
   24
 
 The age() function can also handle future events.
@@ -4424,6 +4444,11 @@ in the age() function and changing the direction of the vector.
   $ c "age( now, $AG5_APPROACH_2040 )"
   ( 13, 234 )   # 13 years and 234 days
 
+If you want hours, minutes, and seconds:
+
+  $ c "sec2dhms( $AG5_APPROACH_2040 - now )"
+  ( 4982, 5, 28, 44 )   # 4982 days 5 hours 28 minutes 44 seconds
+
 If you want to change the format, do so after the pipe:
 
   $ c "sec2dhms( $AG5_APPROACH_2040 - now )" | \
@@ -4434,7 +4459,7 @@ You can also count down by specifying epoch seconds in the timer() function:
 
   $ c "timer( $AG5_APPROACH_2040 )"
   2040-02-05 00:00:00.000  TARGET
-  4982 07:35:31.743
+  4982 05:20:31.743
 
 =head2 COORDINATE CALCULATION
 
@@ -4531,6 +4556,7 @@ C<1 / 2> -> C<0.5>.
 
 Modulo arithmetic.
 C<5 % 3> -> C<2>.
+[POSIX]
 
 =item C<**>
 
@@ -5514,7 +5540,8 @@ alias: e2g().
 
 =item C<sec2dhms>
 
-sec2dhms( I<SECOND> ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+sec2dhms( I<SECOND> [, I<DECIMAL_PLACES> ] ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+Rounding the number if I<DECIMAL_PLACES> is specified.
 
   $ c 'sec2dhms( 356521 )'
   ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second

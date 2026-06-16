@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.62] - 2026-06-17
+### Changed
+- `c` [1.04.145]:
+  - Changed the system to use POSIX::fmod() instead of Perl's % operator when the % operator is specified.
+  - Fixed a bug where the sec2dhms() function truncated decimal values.
+
 ## [0.2.61] - 2026-06-15
 ### Changed
 - `c` [1.04.137]: Only the document has been edited.
