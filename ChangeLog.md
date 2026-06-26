@@ -7,6 +7,28 @@
 ### Changed
 - xxx
 
+## [0.2.63] - 2026-06-26
+### Added
+- `c` [1.04.154]:
+  - Added a function.
+    - dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value
+
+### Changed
+- `c` [1.04.154]:
+  - Modified the output of calculation results to use 12 significant digits for numbers with decimal points.
+  - Modified the code to flush the output when displaying calculation results.
+  - Changed the operation performed by the % operator from the native Perl % operator to the POSIX version.
+  - Modified to allow the temperature to be specified.
+    - telemeter( SECOND [, TEMPERATURE ] )
+    - telemeter_m( SECOND [, TEMPERATURE ] )
+    - telemeter_km( SECOND [, TEMPERATURE ] )
+  - I fixed an issue where normalization was not possible in some cases.
+    - dms2dms()
+  - Added an alias.
+    - d2s(): dhms2sec()
+    - s2d(): sec2dhms()
+  - Updated the documentation.
+
 ## [0.2.62] - 2026-06-17
 ### Changed
 - `c` [1.04.145]:

@@ -81,10 +81,10 @@ geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m,
 geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
 geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age,
 age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
-meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, gram2ounce,
-laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter,
-telemeter\_m, telemeter\_km
+dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
+nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound,
+ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
+tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -157,12 +157,12 @@ please use the _-v_ or _--verbose_ option switch.
     6.28318530717958 * 10 = 62.8318530717958
     Formula: '2 * 3.14159265358979 * 10 ='    <--- HERE
         RPN: '2 3.14159265358979 * 10 *'
-     Result: 62.8318530717958
+     Result: 62.8318530718
 
 Several functions are also available.
 
     $ c 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='
-    2202.9071700823
+    2202.90717008
 
 Example of using the functions.
 
@@ -188,12 +188,12 @@ and the radians of an arbitrarily selected value are calculated.
 
     $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
     linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
-    shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
-    first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
-    deg2rad( 10 ) = 0.174532925199433
+    shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 )
+    first( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 ) = 50
+    deg2rad( 50 ) = 0.872664625997165
     Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
         RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
-     Result: 0.174532925199433
+     Result: 0.872664625997
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -276,7 +276,7 @@ Example of running with the _-v_ or _--verbose_ option:
     sqrt( 2 ) = 1.4142135623731
     Formula: 'sqrt( 2 ) ='
         RPN: '# 2 sqrt'
-     Result: 1.4142135623731
+     Result: 1.41421356237
     ^D    <-- INPUT FROM KEYBOARD
 
 By constructing the calculation formula first,
@@ -419,7 +419,7 @@ Calculate the distance between two points.
            deg2rad( -18.76694, 46.8691 ),
            deg2rad( -0.3831, -90.42333 )
          ) ='
-    14890.6974607313  # 14891 km
+    14890.6974607     # 14891 km
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
@@ -430,12 +430,12 @@ Be sure to include the sign if the value is negative.
     $ c 'gd_km(
            dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
            dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
-    14890.6974607313  # 14891 km
+    14890.6974607     # 14891 km
 
 The direction can also be calculated.
 
     $ c 'geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) )'
-    250.3084344602    # About west-southwest ( WSW )
+    250.30843446      # About west-southwest ( WSW )
 
 It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-S-W) rather than 0 to 360 degrees.
 
@@ -444,7 +444,7 @@ It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-
            geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) ),
            4
          )'
-    2.78120482733556  # Direction Index (2.78 is between South(2) and West(3), closer to West)
+    2.78120482734     # Direction Index (2.78 is between South(2) and West(3), closer to West)
                       # Approx: West-Southwest (WSW)
 
 If you record the calculation as shown below,
@@ -461,7 +461,7 @@ Calculates distance and direction simultaneously.
              $Madagascar_coord, $Galapagos_Islands_coord
            )
          )"
-    ( 14890.6974607313, 250.3084344602 )  # Dist: 14891 km, Brg: 250 degrees (WSW)
+    ( 14890.6974607, 250.30843446 )   # Dist: 14891 km, Brg: 250 degrees (WSW)
     $
 
 The **c** script was created with the following in mind:
@@ -495,7 +495,7 @@ The **c** script was created with the following in mind:
 - `%`
 
     Modulo arithmetic.
-    `5 % 3` -> `2`.
+    `10.234 % 3` -> `1.234`.
     \[POSIX\]
 
 - `**`
@@ -636,7 +636,7 @@ The **c** script was created with the following in mind:
     If it takes 66 seconds to make 5 units, what will be the production quantity after 3600 seconds (1 hour)?:
 
         $ c 'ratio_scaling( 66, 5, 3600 )'
-        272.727272727273
+        272.727272727
         $ c 'ratio_scaling( 66, 5, 3600, 1 )'
         272.7
 
@@ -802,7 +802,7 @@ The **c** script was created with the following in mind:
     Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
 
         $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
-        ( 2480.31496062992, 3507.87401574803 )
+        ( 2480.31496063, 3507.87401575 )
 
 - `linspace`
 
@@ -902,7 +902,7 @@ The **c** script was created with the following in mind:
     The base of natural logarithms e (Napier's constant):
 
         $ c 'exp( 1 )'
-        2.71828182845905
+        2.71828182846
 
 - `log`
 
@@ -913,7 +913,7 @@ The **c** script was created with the following in mind:
     exp(1) is the base of the natural logarithm ( Napier's constant ):
 
         $ c 'log( 100 )'
-        4.60517018598809
+        4.60517018599
         $ c 'exp( log( 100 ) )'
         100
         $ c 'pow( exp( 1 ), log( 100 ) )'
@@ -922,32 +922,32 @@ The **c** script was created with the following in mind:
     A product of antilogarithms is transformed into a sum of logarithms:
 
         $ c 'log( 200 * 300 )'
-        11.0020998412042
+        11.0020998412
         $ c 'log( 200 ) + log( 300 )'
-        11.0020998412042
+        11.0020998412
 
     The quotient of real numbers is the difference of logarithms:
 
         $ c 'log( 200 / 300 )'
-        -0.405465108108164
+        -0.405465108108
         $ c 'log( 200 ) - log( 300 )'
-        -0.405465108108165
+        -0.405465108108
 
     Antilogarithmic exponents are converted to constant multiples of the logarithm:
 
         $ c 'log( power( 200, 100 ) )'
-        529.831736654804
+        529.831736655
         $ c '100 * log( 200 )'
-        529.831736654804
+        529.831736655
 
     The reciprocal of an antilogarithm reverses the sign of the logarithm.
 
         $ c 'log( 1 / 100 )'
-        -4.60517018598809
+        -4.60517018599
         $ c 'log( power( 100, -1 ) )'
-        -4.60517018598809
+        -4.60517018599
         $ c '-1 * log( 100 )'
-        -4.60517018598809
+        -4.60517018599
 
 - `exp2`
 
@@ -1060,14 +1060,14 @@ The **c** script was created with the following in mind:
     \[Math::Trig\]
 
         $ c 'deg2rad( 143.595 )'
-        2.50620553940126
+        2.5062055394
 
 - `dms2rad`
 
     dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
 
         $ c 'dms2rad( 143, 35, 42.0000000000002 )'
-        2.50620553940126
+        2.5062055394
 
 - `dms2deg`
 
@@ -1081,14 +1081,14 @@ The **c** script was created with the following in mind:
     deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
 
         $ c 'deg2dms( 143.595 )'
-        ( 143, 35, 41.9999999999959 )
+        ( 143, 35, 42 )
 
 - `dms2dms`
 
     dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
 
         $ c 'dms2dms( 143, 35.7, 0 )'
-        ( 143, 35, 42.0000000000002 )
+        ( 143, 35, 42 )
 
 - `sin`
 
@@ -1161,7 +1161,7 @@ The **c** script was created with the following in mind:
     If _IS\_AZIMUTH_ is set to true, returns the angle (0 degrees = north, clockwise).
 
         $ c 'angle_deg( 3, 4 )'
-        53.130102354156
+        53.1301023542
 
 - `dist_between_points`
 
@@ -1170,10 +1170,10 @@ The **c** script was created with the following in mind:
     alias: dist().
 
         $ c 'dist_between_points( 100, 10, 200, 110 )'
-        141.42135623731
+        141.421356237
 
         $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
-        173.205080756888
+        173.205080757
 
 - `midpt_between_points`
 
@@ -1197,18 +1197,18 @@ The **c** script was created with the following in mind:
     alias: angle().
 
         $ c 'angle_between_points( 100, 10, 150, 110 )'
-        63.434948822922
+        63.4349488229
 
         $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
-        ( 63.434948822922, 41.8103148957786 )
+        ( 63.4349488229, 41.8103148958 )
 
     _IS\_AZIMUTH_ is set to true
 
         $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
-        26.565051177078
+        26.5650511771
 
         $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
-        ( 26.565051177078, 41.8103148957786 )
+        ( 26.5650511771, 41.8103148958 )
 
 - `geo_radius`
 
@@ -1229,7 +1229,7 @@ The **c** script was created with the following in mind:
     Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
         $ c 'radius_of_lat( deg2rad( 45 ) )'
-        4517590.87884893  # 4,517,590.88 m
+        4517590.87885     # 4,517,590.88 m
 
 - `geo_distance_m`
 
@@ -1241,7 +1241,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403862.905333613  # 403,862.91 m
+        403862.905334     # 403,862.91 m
 
 - `geo_distance_km`
 
@@ -1254,7 +1254,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403.862905333613  # 403.86 km
+        403.862905334     # 403.86 km
 
 - `geo_azimuth`
 
@@ -1267,7 +1267,7 @@ The **c** script was created with the following in mind:
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        255.573489871266
+        255.573489871
 
 - `geo_dist_m_and_azimuth`
 
@@ -1281,7 +1281,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913789.412608934, 257.090172330251 )    # 913,789.41 m ; 257 degrees
+        ( 913789.412609, 257.09017233 )   # 913,789.41 m ; 257 degrees
 
 - `geo_dist_km_and_azimuth`
 
@@ -1295,7 +1295,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913.789412608934, 257.090172330251 )    # 913.79 km ; 257 degrees
+        ( 913.789412609, 257.09017233 )   # 913.79 km ; 257 degrees
 
 - `geo_rl_distance_m`
 
@@ -1308,7 +1308,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        913789.412608934  # 913,789.41 m
+        913789.412609     # 913,789.41 m
 
 - `geo_rl_distance_km`
 
@@ -1321,7 +1321,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        913.789412608934  # 913.79 km
+        913.789412609     # 913.79 km
 
 - `geo_rl_azimuth`
 
@@ -1335,7 +1335,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        254.326381534005  # 254 degrees
+        254.326381534     # 254 degrees
 
 - `geo_rl_dist_m_and_azimuth`
 
@@ -1349,7 +1349,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913789.412608934, 254.326381534005 )    # 913,789.41 m, 254 degrees
+        ( 913789.412609, 254.326381534 )  # 913,789.41 m, 254 degrees
 
 - `geo_rl_dist_km_and_azimuth`
 
@@ -1363,7 +1363,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913.789412608934, 254.326381534005 )    # 913.79 km, 254 degrees
+        ( 913.789412609, 254.326381534 )  # 913.79 km, 254 degrees
 
 - `geo_all_m`
 
@@ -1377,7 +1377,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913789.412608934, 257.090172330251, 913789.412608934, 254.326381534005 )
+        ( 913789.412609, 257.09017233, 913789.412609, 254.326381534 )
 
 - `geo_all_km`
 
@@ -1391,7 +1391,7 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913.789412608934, 257.090172330251, 913.789412608934, 254.326381534005 )
+        ( 913.789412609, 257.09017233, 913.789412609, 254.326381534 )
 
 - `is_leap`
 
@@ -1424,7 +1424,7 @@ The **c** script was created with the following in mind:
     Maximum deviation of about 2 days.
 
         $ c 'age_of_moon( 2025, 12, 5 )'
-        15    # Moon's age is 15 days
+        14.6  # Moon's age is 15 days
 
     Today's Moon Age:
 
@@ -1434,7 +1434,7 @@ The **c** script was created with the following in mind:
         age_of_moon( 2025, 12, 5 ) = 15
         Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
             RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
-         Result: 15
+         Result: 14.6
 
 - `local2epoch`
 
@@ -1478,6 +1478,7 @@ The **c** script was created with the following in mind:
 
     sec2dhms( _SECOND_ \[, _DECIMAL\_PLACES_ \] ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
     Rounding the number if _DECIMAL\_PLACES_ is specified.
+    alias: s2d.
 
         $ c 'sec2dhms( 356521 )'
         ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second
@@ -1485,9 +1486,19 @@ The **c** script was created with the following in mind:
 - `dhms2sec`
 
     dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _SECOND_ ).
+    alias: d2s.
 
         $ c 'dhms2sec( 4, 03, 02, 01 )'
         356521            # 356,521 seconds
+
+- `dhms2dhms`
+
+    dhms2dhms( D \[, H, M, S, DECIMAL\_PLACES \] ) -->Convert-to--> ( D, H, M, S ).
+    Returns the normalized value.
+    alias: d2d().
+
+        $ c 'dhms2dhms( 0, 24 / SAKUBOU )'
+        ( 0, 0, 48, 45.7797882084 )
 
 - `ri2meter`
 
@@ -1495,7 +1506,7 @@ The **c** script was created with the following in mind:
     alias: 里→メートル(), 里２メートル().
 
         $ c 'ri2meter( 1 )'
-        3927.2727272727
+        3927.27272727
 
 - `meter2ri`
 
@@ -1503,7 +1514,7 @@ The **c** script was created with the following in mind:
     alias: メートル→里(), メートル２里().
 
         $ c 'meter2ri( 4000 )'
-        1.01851851851853
+        1.01851851852
 
 - `mile2meter`
 
@@ -1519,7 +1530,7 @@ The **c** script was created with the following in mind:
     alias: メートル→マイル(), メートル２マイル().
 
         $ c 'meter2mile( 2000 )'
-        1.24274238447467
+        1.24274238447
 
 - `nautical_mile2meter`
 
@@ -1535,7 +1546,7 @@ The **c** script was created with the following in mind:
     alias: メートル→海里(), メートル２海里().
 
         $ c 'meter2nautical_mile( 2000 )'
-        1.07991360691145
+        1.07991360691
 
 - `pound2gram`
 
@@ -1551,7 +1562,7 @@ The **c** script was created with the following in mind:
     alias: グラム→ポンド(), グラム２ポンド().
 
         $ c 'gram2pound( 500 )'
-        1.10231131092439
+        1.10231131092
 
 - `ounce2gram`
 
@@ -1567,7 +1578,7 @@ The **c** script was created with the following in mind:
     alias: グラム→オンス(), グラム２オンス().
 
         $ c 'gram2ounce( 30 )'
-        1.05821885848741
+        1.05821885849
 
 - `laptimer`
 
@@ -1588,7 +1599,7 @@ The **c** script was created with the following in mind:
         2/3  00:00:39.562  00:00:19.777  2025-12-17 22:18:49
         <-- Enter key
         3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
-        59.8917651176453
+        59.8917651176
 
 - `timer`
 
@@ -1606,7 +1617,7 @@ The **c** script was created with the following in mind:
         $ c 'timer( 10 )'
         2025-12-27 06:02:58.002  TARGET
         2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
-        0.0172009468078613    # Number of seconds from the TARGET time
+        0.017200946808    # Number of seconds from the TARGET time
 
     Specify the epoch second in _SECOND_: ( Dates before 1971 cannot be specified )
 
@@ -1629,7 +1640,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 10.2675848007202 sec.
-        10.2675848007202
+        10.267584801
 
 - `bpm`
 
@@ -1640,7 +1651,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 2.15290594100952 sec.
-        111.477234294528
+        111.477234295
 
 - `bpm15`
 
@@ -1653,7 +1664,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 12.7652950286865 sec.
-        70.5036583939106
+        70.5036583939
 
 - `bpm30`
 
@@ -1666,7 +1677,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 24.9058220386505 sec.
-        72.2722581574156
+        72.2722581574
 
 - `tachymeter`
 
@@ -1681,40 +1692,43 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 35.5551850795746 sec.
-        101.251054999235  # 101 km/h
+        101.251054999     # 101 km/h
 
 - `telemeter`
 
-    telemeter( _SECOND_ ).
+    telemeter( _SECOND_ \[, _TEMPERATURE_ \] ).
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in meters.
+    If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
     Same as telemeter\_m().
 
         $ c 'telemeter( sw() )'
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 7.9051628112793 sec.
-        2687.75535583496  # 2687.76 m
+        2692.8937117      # 2692.89 m
 
 - `telemeter_m`
 
-    telemeter\_m( _SECOND_ ).
+    telemeter\_m( _SECOND_ \[, _TEMPERATURE_ \] ).
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in meters.
+    If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
     Same as telemeter().
 
         $ c 'telemeter_m( 8 )'
-        2720  # 2720 m
+        2725.2  # meters
 
 - `telemeter_km`
 
-    telemeter\_km( _SECOND_ ).
+    telemeter\_km( _SECOND_ \[, _TEMPERATURE_ \] ).
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in kilometers.
+    If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
     Same as telemeter\_m() / 1000.
 
         $ c 'telemeter_km( 8 )'
-        2.72  # 2.72 km
+        2.7252  # kilometers
 
 # DEPENDENCIES
 

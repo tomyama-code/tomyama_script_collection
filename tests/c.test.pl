@@ -311,31 +311,31 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '√(1920**2+1080**2)='} );
     $cmd->exit_is_num( 0, qq{./c '√(1920**2+1080**2)='} );
-    $cmd->stdout_is_eq( qq{2202.9071700823\n} );
+    $cmd->stdout_is_eq( qq{2202.90717008\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '２π１０＝'} );
     $cmd->exit_is_num( 0, qq{./c '２π１０＝'} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ＳＱＲＴ(1920**2+1080**2)='} );
     $cmd->exit_is_num( 0, qq{./c 'ＳＱＲＴ(1920**2+1080**2)='} );
-    $cmd->stdout_is_eq( qq{2202.9071700823\n} );
+    $cmd->stdout_is_eq( qq{2202.90717008\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(1920,2)+power(1080,2))='} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt(power(1920,2)+power(1080,2))='} );
-    $cmd->stdout_is_eq( qq{2202.9071700823\n} );
+    $cmd->stdout_is_eq( qq{2202.90717008\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='} );
-    $cmd->stdout_is_eq( qq{2202.9071700823\n} );
+    $cmd->stdout_is_eq( qq{2202.90717008\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -347,31 +347,31 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'hypot( 1920, 1080 )='} );
     $cmd->exit_is_num( 0, qq{./c 'hypot( 1920, 1080 )='} );
-    $cmd->stdout_is_eq( qq{2202.9071700823\n} );
+    $cmd->stdout_is_eq( qq{2202.90717008\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_deg( 1920, 1080 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_deg( 1920, 1080 )='} );
-    $cmd->stdout_is_eq( qq{29.3577535427913\n} );
+    $cmd->stdout_is_eq( qq{29.3577535428\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_deg( 1920, 1080, 0 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_deg( 1920, 1080, 0 )='} );
-    $cmd->stdout_is_eq( qq{29.3577535427913\n} );
+    $cmd->stdout_is_eq( qq{29.3577535428\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_deg( 1920, 1080, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_deg( 1920, 1080, 1 )='} );
-    $cmd->stdout_is_eq( qq{60.6422464572087\n} );
+    $cmd->stdout_is_eq( qq{60.6422464572\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist_between_points( -50, -50, 50, 50 )='} );
     $cmd->exit_is_num( 0, qq{./c 'dist_between_points( -50, -50, 50, 50 )='} );
-    $cmd->stdout_is_eq( qq{141.42135623731\n} );
+    $cmd->stdout_is_eq( qq{141.421356237\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -383,7 +383,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist_between_points( -50, -50, -50, 50, 50, 50 )='} );
     $cmd->exit_is_num( 0, qq{./c 'dist_between_points( -50, -50, -50, 50, 50, 50 )='} );
-    $cmd->stdout_is_eq( qq{173.205080756888\n} );
+    $cmd->stdout_is_eq( qq{173.205080757\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -407,49 +407,49 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75 )='} );
-    $cmd->stdout_is_eq( qq{51.3401917459099\n} );
+    $cmd->stdout_is_eq( qq{51.3401917459\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75, 0 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75, 0 )='} );
-    $cmd->stdout_is_eq( qq{51.3401917459099\n} );
+    $cmd->stdout_is_eq( qq{51.3401917459\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, 50, 75, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, 50, 75, 1 )='} );
-    $cmd->stdout_is_eq( qq{38.6598082540901\n} );
+    $cmd->stdout_is_eq( qq{38.6598082541\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( 50, -50, -50, 75, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( 50, -50, -50, 75, 1 )='} );
-    $cmd->stdout_is_eq( qq{321.34019174591\n} );
+    $cmd->stdout_is_eq( qq{321.340191746\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50 )='} );
-    $cmd->stdout_is_eq( qq{( 51.3401917459099, 31.9928170001817 )\n} );
+    $cmd->stdout_is_eq( qq{( 51.3401917459, 31.9928170002 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50, 0 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50, 0 )='} );
-    $cmd->stdout_is_eq( qq{( 51.3401917459099, 31.9928170001817 )\n} );
+    $cmd->stdout_is_eq( qq{( 51.3401917459, 31.9928170002 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( -50, -50, -50, 50, 75, 50, 1 )='} );
-    $cmd->stdout_is_eq( qq{( 38.6598082540901, 31.9928170001817 )\n} );
+    $cmd->stdout_is_eq( qq{( 38.6598082541, 31.9928170002 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle_between_points( 50, -50, -50, -50, 75, 50, 1 )='} );
     $cmd->exit_is_num( 0, qq{./c 'angle_between_points( 50, -50, -50, -50, 75, 50, 1 )='} );
-    $cmd->stdout_is_eq( qq{( 321.34019174591, 31.9928170001817 )\n} );
+    $cmd->stdout_is_eq( qq{( 321.340191746, 31.9928170002 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -491,7 +491,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ｄｅｇ２ｒａｄ（１８０）＝'} );
     $cmd->exit_is_num( 0, qq{./c 'ｄｅｇ２ｒａｄ（１８０）＝'} );
-    $cmd->stdout_is_eq( qq{3.14159265358979\n} );       ## 3.1415926535897932384626433832795
+    $cmd->stdout_is_eq( qq{3.14159265359\n} );       ## 3.1415926535897932384626433832795
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -503,19 +503,19 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1/cos(deg2rad(45))='} );
     $cmd->exit_is_num( 0, qq{./c '1/cos(deg2rad(45))='} );
-    $cmd->stdout_is_eq( qq{1.41421356237309\n} );
+    $cmd->stdout_is_eq( qq{1.41421356237\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '１' 'cos(deg2rad(45))'} );
     $cmd->exit_is_num( 0, qq{./c '１' 'cos(deg2rad(45))'} );
-    $cmd->stdout_is_eq( qq{0.707106781186548\n} );
+    $cmd->stdout_is_eq( qq{0.707106781187\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1080/sin(deg2rad(45))='} );
     $cmd->exit_is_num( 0, qq{./c '1080/sin(deg2rad(45))='} );
-    $cmd->stdout_is_eq( qq{1527.35064736294\n} );       ## 1527.3506473629426527058238221465
+    $cmd->stdout_is_eq( qq{1527.35064736\n} );  ## 1527.3506473629426527058238221465
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -527,7 +527,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1920/cos(deg2rad(45))='} );
     $cmd->exit_is_num( 0, qq{./c '1920/cos(deg2rad(45))='} );
-    $cmd->stdout_is_eq( qq{2715.29003975634\n} );       ## 2715.2900397563424936992423504826
+    $cmd->stdout_is_eq( qq{2715.29003976\n} );  ## 2715.2900397563424936992423504826
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -539,7 +539,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg(atan(1080/1920))='} );
     $cmd->exit_is_num( 0, qq{./c 'rad2deg(atan(1080/1920))='} );
-    $cmd->stdout_is_eq( qq{29.3577535427913\n} );
+    $cmd->stdout_is_eq( qq{29.3577535428\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -561,13 +561,13 @@ subtest qq{Normal} => sub{
     ## 北緯は+，東経も+。もし南緯なら-，西経なら-。
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 34, 42, 6.8 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( 34, 42, 6.8 )'} );
-    $cmd->stdout_is_eq( qq{34.7018888888889\n} );
+    $cmd->stdout_is_eq( qq{34.7018888889\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 135, 29, 41.9 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( 135, 29, 41.9 )'} );
-    $cmd->stdout_is_eq( qq{135.494972222222\n} );
+    $cmd->stdout_is_eq( qq{135.494972222\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -577,13 +577,13 @@ subtest qq{Normal} => sub{
     ## 北緯は+，東経も+。もし南緯なら-，西経なら-。
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 35, 40, 52 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( 35, 40, 52 )'} );
-    $cmd->stdout_is_eq( qq{35.6811111111111\n} );
+    $cmd->stdout_is_eq( qq{35.6811111111\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 139, 46, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( 139, 46, 0 )'} );
-    $cmd->stdout_is_eq( qq{139.766666666667\n} );
+    $cmd->stdout_is_eq( qq{139.766666667\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -602,77 +602,77 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2deg( 35, 40, 52, 139, 46, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2deg( 35, 40, 52, 139, 46, 0 )'} );
-    $cmd->stdout_is_eq( qq{( 35.6811111111111, 139.766666666667 )\n} );
+    $cmd->stdout_is_eq( qq{( 35.6811111111, 139.766666667 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     ## 大阪駅
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 34, 42, 6.8 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 34, 42, 6.8 )'} );
-    $cmd->stdout_is_eq( qq{0.605662217772348\n} );
+    $cmd->stdout_is_eq( qq{0.605662217772\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 135, 29, 41.9 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 135, 29, 41.9 )'} );
-    $cmd->stdout_is_eq( qq{2.36483338517604\n} );
+    $cmd->stdout_is_eq( qq{2.36483338518\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     ## 東京駅
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 35, 40, 52 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 35, 40, 52 )'} );
-    $cmd->stdout_is_eq( qq{0.622752869658821\n} );
+    $cmd->stdout_is_eq( qq{0.622752869659\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 139, 46, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 139, 46, 0 )'} );
-    $cmd->stdout_is_eq( qq{2.43938851787074\n} );
+    $cmd->stdout_is_eq( qq{2.43938851787\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     ## 大阪駅 → 東京駅
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 35, 40, 52 ) - dms2rad( 34, 42, 6.8 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 35, 40, 52 ) - dms2rad( 34, 42, 6.8 )'} );
-    $cmd->stdout_is_eq( qq{0.0170906518864732\n} );
+    $cmd->stdout_is_eq( qq{0.017090651886\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( 139, 46, 0 ) - dms2rad( 135, 29, 41.9 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( 139, 46, 0 ) - dms2rad( 135, 29, 41.9 )'} );
-    $cmd->stdout_is_eq( qq{0.074555132694706\n} );
+    $cmd->stdout_is_eq( qq{0.074555132695\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     ## Galapagos Islands: degrees: -0.3831, -90.42333
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -0, -22, -59.16 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -0, -22, -59.16 )'} );
-    $cmd->stdout_is_eq( qq{-0.00668635636439028\n} );
+    $cmd->stdout_is_eq( qq{-0.006686356364\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25, -23.9880000000255 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90, -25, -23.9880000000255 )'} );
-    $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
+    $cmd->stdout_is_eq( qq{-1.57818482912\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25.399800000000425, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90, -25.399800000000425, 0 )'} );
-    $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
+    $cmd->stdout_is_eq( qq{-1.57818482912\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90.42333, 0, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90.42333, 0, 0 )'} );
-    $cmd->stdout_is_eq( qq{-1.57818482911736\n} );
+    $cmd->stdout_is_eq( qq{-1.57818482912\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2rad( -90, -25, -23.9880000000255, -90, -25, -23.9880000000255 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2rad( -90, -25, -23.9880000000255, -90, -25, -23.9880000000255 )'} );
-    $cmd->stdout_is_eq( qq{( -1.57818482911736, -1.57818482911736 )\n} );
+    $cmd->stdout_is_eq( qq{( -1.57818482912, -1.57818482912 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -696,25 +696,25 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( -18.76694 )'} );
     $cmd->exit_is_num( 0, qq{./c 'deg2dms( -18.76694 )'} );
-    $cmd->stdout_is_eq( qq{( -18, -46, -0.984000000006233 )\n} );
+    $cmd->stdout_is_eq( qq{( -18, -46, -0.984000000006 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( 46.8691 )'} );
     $cmd->exit_is_num( 0, qq{./c 'deg2dms( 46.8691 )'} );
-    $cmd->stdout_is_eq( qq{( 46, 52, 8.76000000001113 )\n} );
+    $cmd->stdout_is_eq( qq{( 46, 52, 8.76000000001 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( dms2deg( -18, -46.01640000000010388333333333333333, -0 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'deg2dms( dms2deg( -18, -46.01640000000010388333333333333333, -0 ) )'} );
-    $cmd->stdout_is_eq( qq{( -18, -46, -0.984000000006233 )\n} );
+    $cmd->stdout_is_eq( qq{( -18, -46, -0.984000000006 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( dms2deg( 46, 52.1460000000001855, 0 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'deg2dms( dms2deg( 46, 52.1460000000001855, 0 ) )'} );
-    $cmd->stdout_is_eq( qq{( 46, 52, 8.76000000001113 )\n} );
+    $cmd->stdout_is_eq( qq{( 46, 52, 8.76000000001 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -744,7 +744,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'deg2dms( 40.6983333333333, 143.595 )'} );
     $cmd->exit_is_num( 0, qq{./c 'deg2dms( 40.6983333333333, 143.595 )'} );
-    $cmd->stdout_is_eq( qq{( 40, 41, 53.9999999998878, 143, 35, 41.9999999999959 )\n} );
+    $cmd->stdout_is_eq( qq{( 40, 41, 53.9999999999, 143, 35, 42 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -756,7 +756,13 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2dms( 0.3831, 0, 0, -69.00439, 0, 0, 39.5822, 0, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dms2dms( 0.3831, 0, 0, -69.00439, 0, 0, 39.5822, 0, 0 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 22, 59.16, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 )\n} );
+    $cmd->stdout_is_eq( qq{( 0, 22, 59.16, -69, 0, -15.804, 39, 34, 55.92 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dms2dms( -30, -5 + 5.5, -24 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dms2dms( -30, -5 + 5.5, -24 )'} );
+    $cmd->stdout_is_eq( qq{( -29, -59, -54 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -768,121 +774,121 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_radius( deg2rad( 35.68129 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'geo_radius( deg2rad( 35.68129 ) ) / 1000 ='} );
-    $cmd->stdout_is_eq( qq{6370.9019434395\n}, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
+    $cmd->stdout_is_eq( qq{6370.90194344\n}, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
     $cmd->exit_is_num( 0, qq{./c 'radius_of_lat( deg2rad( 35.68129 ) ) / 1000 ='} );
-    $cmd->stdout_is_eq( qq{5186.704835551\n}, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
+    $cmd->stdout_is_eq( qq{5186.70483555\n}, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_m( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_m( deg2rad( 35.68129 ), deg2rad( 139.76706 ), deg2rad( 34.70248 ), deg2rad( 135.49595 ) ) / 1000'} );
-    $cmd->stdout_like( qr/^403\.862905333613\n/, qq{東京駅から大阪駅までの距離（km）} );
+    $cmd->stdout_is_eq( qq{403.862905334\n}, qq{東京駅から大阪駅までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stdout_is_eq( qq{14075.6175289\n}, qq{東京駅から昭和基地までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（km）} );
+    $cmd->stdout_is_eq( qq{14075.6175289\n}, qq{東京駅から昭和基地までの距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 1 )'} );
-    $cmd->stdout_is_eq( qq{924.322901757007\n}, qq{昭和基地からドームふじ基地までの距離（km）, ハバーサイン (Haversine) 公式} );
+    $cmd->stdout_is_eq( qq{924.322901757\n}, qq{昭和基地からドームふじ基地までの距離（km）, ハバーサイン (Haversine) 公式} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( deg2rad( -69.00439, 39.5822, -77.3169444444444, 39.7033333333333 ), 2 )'} );
-    $cmd->stdout_is_eq( qq{927.683443436442\n}, qq{昭和基地からドームふじ基地までの距離（km）, ヒュベニ (Hubeny) の公式} );
+    $cmd->stdout_is_eq( qq{927.683443436\n}, qq{昭和基地からドームふじ基地までの距離（km）, ヒュベニ (Hubeny) の公式} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{206.051582912837\n}, qq{東京駅から昭和基地までの方角（度）} );
+    $cmd->stdout_is_eq( qq{206.051582913\n}, qq{東京駅から昭和基地までの方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_azimuth( deg2rad( 51.50324, -0.1134, 43.64524, -79.38063 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_azimuth( deg2rad( 51.50324, -0.1134, 43.64524, -79.38063 ) )'} );
-    $cmd->stdout_is_eq( qq{294.50984481579\n}, qq{ウォータールー駅からユニオン駅までの方角（度）} );
+    $cmd->stdout_is_eq( qq{294.509844816\n}, qq{ウォータールー駅からユニオン駅までの方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_dist_m_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_dist_m_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（m）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075617.5289, 206.051582913 )\n}, qq{東京駅から昭和基地までの距離（m）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_dist_km_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_dist_km_and_azimuth( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（km）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075.6175289, 206.051582913 )\n}, qq{東京駅から昭和基地までの距離（km）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_distance_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_distance_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{15688744.5265307\n}, qq{東京駅から昭和基地までの等角航路の距離（m）} );
+    $cmd->stdout_is_eq( qq{15688744.5265\n}, qq{東京駅から昭和基地までの等角航路の距離（m）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_distance_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_distance_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの等角航路の距離（km）} );
+    $cmd->stdout_is_eq( qq{15688.7445265\n}, qq{東京駅から昭和基地までの等角航路の距離（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{216.614405712247\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    $cmd->stdout_is_eq( qq{216.614405712\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( -0.3831, -90.42333, 35.68129, 139.76706 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( -0.3831, -90.42333, 35.68129, 139.76706 ) )'} );
-    $cmd->stdout_is_eq( qq{286.56965865758\n}, qq{ガラパゴス諸島から東京駅。( \$dlon > pi )} );
+    $cmd->stdout_is_eq( qq{286.569658658\n}, qq{ガラパゴス諸島から東京駅。( \$dlon > pi )} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -0.3831, -90.42333 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_azimuth( deg2rad( 35.68129, 139.76706, -0.3831, -90.42333 ) )'} );
-    $cmd->stdout_is_eq( qq{106.56965865758\n}, qq{東京駅からガラパゴス諸島。( \$dlon < -pi )} );
+    $cmd->stdout_is_eq( qq{106.569658658\n}, qq{東京駅からガラパゴス諸島。( \$dlon < -pi )} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_dist_m_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 15688744.5265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 15688744.5265, 216.614405712 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_rl_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_rl_dist_km_and_azimuth( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 15688.7445265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 15688.7445265, 216.614405712 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_all_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837, 15688744.5265307, 216.614405712247 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（m）} );
+    $cmd->stdout_is_eq( qq{( 14075617.5289, 206.051582913, 15688744.5265, 216.614405712 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（m）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_all_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837, 15688.7445265307, 216.614405712247 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（km）} );
+    $cmd->stdout_is_eq( qq{( 14075.6175289, 206.051582913, 15688.7445265, 216.614405712 )\n}, qq{大圏航路（Great Circle）と 等角航路（Rhumb Line）（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1096,15 +1102,21 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dhms2dhms( 0, 24 / SAKUBOU )'} );
+    $cmd->exit_is_num( 0, qq{./c 'dhms2dhms( 0, 24 / SAKUBOU )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45.7797882084 )\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ri2meter( 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'ri2meter( 1 )'} );
-    $cmd->stdout_is_eq( qq{3927.2727272727\n} );
+    $cmd->stdout_is_eq( qq{3927.27272727\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'meter2ri( 4000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'meter2ri( 4000 )'} );
-    $cmd->stdout_is_eq( qq{1.01851851851853\n} );
+    $cmd->stdout_is_eq( qq{1.01851851852\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1116,7 +1128,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'meter2mile( 2000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'meter2mile( 2000 )'} );
-    $cmd->stdout_is_eq( qq{1.24274238447467\n} );
+    $cmd->stdout_is_eq( qq{1.24274238447\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1128,7 +1140,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'meter2nautical_mile( 2000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'meter2nautical_mile( 2000 )'} );
-    $cmd->stdout_is_eq( qq{1.07991360691145\n} );
+    $cmd->stdout_is_eq( qq{1.07991360691\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1140,7 +1152,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gram2pound( 500 )'} );
     $cmd->exit_is_num( 0, qq{./c 'gram2pound( 500 )'} );
-    $cmd->stdout_is_eq( qq{1.10231131092439\n} );
+    $cmd->stdout_is_eq( qq{1.10231131092\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1152,7 +1164,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gram2ounce( 30 )'} );
     $cmd->exit_is_num( 0, qq{./c 'gram2ounce( 30 )'} );
-    $cmd->stdout_is_eq( qq{1.05821885848741\n} );
+    $cmd->stdout_is_eq( qq{1.05821885849\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1250,31 +1262,37 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'telemeter_m( 8 )'} );
     $cmd->exit_is_num( 0, qq{./c 'telemeter_m( 8 )'} );
-    $cmd->stdout_is_eq( qq{2720\n} );
+    $cmd->stdout_is_eq( qq{2725.2\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'telemeter_km( 8 )'} );
     $cmd->exit_is_num( 0, qq{./c 'telemeter_km( 8 )'} );
-    $cmd->stdout_is_eq( qq{2.72\n} );
+    $cmd->stdout_is_eq( qq{2.7252\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'telemeter( 8, 20 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'telemeter( 8, 20 )'} );
+    $cmd->stdout_is_eq( qq{2749.6\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -2.3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( -2.3 )'} );
-    $cmd->stdout_is_eq( qq{0.100258843722804\n} );
+    $cmd->stdout_is_eq( qq{0.100258843723\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( -2 )'} );
-    $cmd->stdout_is_eq( qq{0.135335283236613\n} );
+    $cmd->stdout_is_eq( qq{0.135335283237\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( -1 )'} );
-    $cmd->stdout_is_eq( qq{0.367879441171442\n} );
+    $cmd->stdout_is_eq( qq{0.367879441171\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1286,31 +1304,31 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( 1 )'} );
-    $cmd->stdout_is_eq( qq{2.71828182845905\n}, qq{Napier's number} );
+    $cmd->stdout_is_eq( qq{2.71828182846\n}, qq{Napier's number} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( 2 )'} );
-    $cmd->stdout_is_eq( qq{7.38905609893065\n} );
+    $cmd->stdout_is_eq( qq{7.38905609893\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( 2.3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( 2.3 )'} );
-    $cmd->stdout_is_eq( qq{9.97418245481472\n} );
+    $cmd->stdout_is_eq( qq{9.97418245481\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'exp( -1, 0, 1 )'} );
     $cmd->exit_is_num( 0, qq{./c 'exp( -1, 0, 1 )'} );
-    $cmd->stdout_is_eq( qq{( 0.367879441171442, 1, 2.71828182845905 )\n} );
+    $cmd->stdout_is_eq( qq{( 0.367879441171, 1, 2.71828182846 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log(3)='} );
     $cmd->exit_is_num( 0, qq{./c 'log(3)='} );
-    $cmd->stdout_is_eq( qq{1.09861228866811\n} );
+    $cmd->stdout_is_eq( qq{1.09861228867\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1338,7 +1356,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log( 10, 100, 1000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'log( 10, 100, 1000 )'} );
-    $cmd->stdout_is_eq( qq{( 2.30258509299405, 4.60517018598809, 6.90775527898214 )\n} );
+    $cmd->stdout_is_eq( qq{( 2.30258509299, 4.60517018599, 6.90775527898 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1404,7 +1422,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'log10( 4294967296 )'} );
     $cmd->exit_is_num( 0, qq{./c 'log10( 4294967296 )'} );
-    $cmd->stdout_is_eq( qq{9.6329598612474\n} );
+    $cmd->stdout_is_eq( qq{9.63295986125\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1442,46 +1460,46 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'pow_inv( 4294967297, 2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'pow_inv( 4294967297, 2 )'} );
-    $cmd->stdout_is_eq( qq{32.0000000003359\n} );
+    $cmd->stdout_is_eq( qq{32.0000000003\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2PI10='} );
     $cmd->exit_is_num( 0, qq{./c '2PI10='} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2･PI･10='} );
     $cmd->exit_is_num( 0, qq{./c '2PI10='} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '２・ＰＩ・１０＝'} );
     $cmd->exit_is_num( 0, qq{./c '2PI10='} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2PI10'} );
     $cmd->exit_is_num( 0, qq{./c '2PI10'} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD ' ' '2PI10='} );
     $cmd->exit_is_num( 0, qq{./c ' ' '2PI10='} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2PI10=' ' '} );
     $cmd->exit_is_num( 0, qq{./c '2PI10=' ' '} );
-    $cmd->stdout_like( qr/^62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_is_eq( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '2PI10=' ' ' -d} );
     $cmd->exit_is_num( 0, qq{./c '2PI10=' ' ' -d} );
-    $cmd->stdout_like( qr/\n Result: 62\.831853071795[89]\n$/ );  ## 62.83185307179586476925286766559
+    $cmd->stdout_like( qr/\n Result: 62\.8318530718\n$/ );  ## 62.83185307179586476925286766559
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD ')(='} );
@@ -1614,27 +1632,27 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg(atan2(100, 200='} );
     $cmd->exit_is_num( 0, qq{./c 'rad2deg(atan2(100, 200='} );
-    $cmd->stdout_is_eq( qq{26.565051177078\n} );
+    $cmd->stdout_is_eq( qq{26.5650511771\n} );
     $cmd->stderr_like( qr/^c: parser: warn: "atan2\(": "\)" may be incorrect\.\n/ );
     $cmd->stderr_like( qr/\nc: parser: warn: "rad2deg\(": "\)" may be incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg(atan2(100, 200)='} );
     $cmd->exit_is_num( 0, qq{./c 'rad2deg(atan2(100, 200)='} );
-    $cmd->stdout_is_eq( qq{26.565051177078\n} );
+    $cmd->stdout_is_eq( qq{26.5650511771\n} );
     $cmd->stderr_unlike( qr/^c: parser: warn: "atan2\(": "\)" may be incorrect\.\n/ );
     $cmd->stderr_like( qr/^c: parser: warn: "rad2deg\(": "\)" may be incorrect\.\n/ );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rad2deg(atan2(100, 200))='} );
     $cmd->exit_is_num( 0, qq{./c 'rad2deg(atan2(100, 200))='} );
-    $cmd->stdout_is_eq( qq{26.565051177078\n} );
+    $cmd->stdout_is_eq( qq{26.5650511771\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'abs(-29.3577535427913)='} );
     $cmd->exit_is_num( 0, qq{./c 'abs(-29.3577535427913)='} );
-    $cmd->stdout_is_eq( qq{29.3577535427913\n} );
+    $cmd->stdout_is_eq( qq{29.3577535428\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1802,7 +1820,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'percentage( 2, 3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'percentage( 2, 3 )'} );
-    $cmd->stdout_is_eq( qq{66.6666666666667\n} );
+    $cmd->stdout_is_eq( qq{66.6666666667\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -1844,7 +1862,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ratio_scaling( 3, 10, 20 )'} );
     $cmd->exit_is_num( 0, qq{./c 'ratio_scaling( 3, 10, 20 )'} );
-    $cmd->stdout_is_eq( qq{66.6666666666667\n} );
+    $cmd->stdout_is_eq( qq{66.6666666667\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2252,7 +2270,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'} );
     $cmd->exit_is_num( 0, qq{./c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'} );
-    $cmd->stdout_is_eq( qq{( 2480.31496062992, 3507.87401574803 )\n} );
+    $cmd->stdout_is_eq( qq{( 2480.31496063, 3507.87401575 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2360,7 +2378,7 @@ subtest qq{Normal} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'linstep( -1.1, -1 sqrt( 2 ), 3 )'} );
     $cmd->exit_is_num( 0, qq{./c 'linstep( -1.1, -1 sqrt( 2 ), 3 )'} );
-    $cmd->stdout_is_eq( qq{( -1.1, -2.5142135623731, -3.92842712474619 )\n} );
+    $cmd->stdout_is_eq( qq{( -1.1, -2.51421356237, -3.92842712475 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2622,6 +2640,30 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/^c: evaluator: error: Can't take sqrt of \-1\.\n/ );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '12345678901 + 0.1234'} );
+    $cmd->exit_is_num( 0, qq{./c '12345678901 + 0.1234'} );
+    $cmd->stdout_is_eq( qq{12345678901.1\n}, , qq{result: 12345678901.1} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '123456789012 + 0.1234'} );
+    $cmd->exit_is_num( 0, qq{./c '123456789012 + 0.1234'} );
+    $cmd->stdout_is_eq( qq{123456789012\n}, , qq{result: 123456789012} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '1234567890123 + 0.1234'} );
+    $cmd->exit_is_num( 0, qq{./c '1234567890123 + 0.1234'} );
+    $cmd->stdout_is_eq( qq{1234567890123\n}, , qq{result: 1234567890123} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD '-0.1234567890123'} );
+    $cmd->exit_is_num( 0, qq{./c '-0.1234567890123'} );
+    $cmd->stdout_is_eq( qq{-0.123456789012\n}, , qq{result: -0.123456789012} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     $cmd->exit_is_num( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     ## OutputFunc
@@ -2674,7 +2716,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'rs( 3, 10, 20 )'} );
     $cmd->exit_is_num( 0, qq{./c 'rs( 3, 10, 20 )'} );
-    $cmd->stdout_is_eq( qq{66.6666666666667\n} );
+    $cmd->stdout_is_eq( qq{66.6666666667\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2686,7 +2728,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist( 100, 100, 0, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'dist( 100, 100, 0, 0 )'} );
-    $cmd->stdout_is_eq( qq{141.42135623731\n} );
+    $cmd->stdout_is_eq( qq{141.421356237\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2704,73 +2746,73 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_m( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) ) / 1000'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m->km）} );
+    $cmd->stdout_is_eq( qq{14075.6175289\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m->km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_km( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{14075.6175288926\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）} );
+    $cmd->stdout_is_eq( qq{14075.6175289\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gazm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gazm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{206.051582912837\n}, qq{東京駅から昭和基地までの方角（度）} );
+    $cmd->stdout_is_eq( qq{206.051582913\n}, qq{東京駅から昭和基地までの方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_m_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_m_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075617.5288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075617.5289, 206.051582913 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（m）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_km_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_km_azm( dms2rad( 35, 40, 52.6439999999894, 139, 46, 1.41599999995151, -69, 0, -15.8040000000028, 39, 34, 55.920000000001 ) )'} );
-    $cmd->stdout_is_eq( qq{( 14075.6175288926, 206.051582912837 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 14075.6175289, 206.051582913 )\n}, qq{東京駅から昭和基地までの距離（大圏航路）（km）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_rl_m( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) ) / 1000'} );
-    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの距離（等角航路）（m->km）} );
+    $cmd->stdout_is_eq( qq{15688.7445265\n}, qq{東京駅から昭和基地までの距離（等角航路）（m->km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_rl_km( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{15688.7445265307\n}, qq{東京駅から昭和基地までの距離（等角航路）（km）} );
+    $cmd->stdout_is_eq( qq{15688.7445265\n}, qq{東京駅から昭和基地までの距離（等角航路）（km）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gazm_rl( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gazm_rl( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{216.614405712247\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    $cmd->stdout_is_eq( qq{216.614405712\n}, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_m_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_rl_m_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 15688744.5265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 15688744.5265, 216.614405712 )\n}, qq{東京駅から昭和基地までの等角航路の距離（m）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'gd_rl_km_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
     $cmd->exit_is_num( 0, qq{./c 'gd_rl_km_azm( deg2rad( 35.68129, 139.76706, -69.00439, 39.5822 ) )'} );
-    $cmd->stdout_is_eq( qq{( 15688.7445265307, 216.614405712247 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
+    $cmd->stdout_is_eq( qq{( 15688.7445265, 216.614405712 )\n}, qq{東京駅から昭和基地までの等角航路の距離（km）と方角（度）} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '里→メートル( 1 )'} );
     $cmd->exit_is_num( 0, qq{./c '里→メートル( 1 )'} );
-    $cmd->stdout_is_eq( qq{3927.2727272727\n} );
+    $cmd->stdout_is_eq( qq{3927.27272727\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'メートル→里( 4000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'メートル→里( 4000 )'} );
-    $cmd->stdout_is_eq( qq{1.01851851851853\n} );
+    $cmd->stdout_is_eq( qq{1.01851851852\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2782,7 +2824,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'メートル→マイル( 2000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'メートル→マイル( 2000 )'} );
-    $cmd->stdout_is_eq( qq{1.24274238447467\n} );
+    $cmd->stdout_is_eq( qq{1.24274238447\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2794,7 +2836,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'メートル→海里( 2000 )'} );
     $cmd->exit_is_num( 0, qq{./c 'メートル→海里( 2000 )'} );
-    $cmd->stdout_is_eq( qq{1.07991360691145\n} );
+    $cmd->stdout_is_eq( qq{1.07991360691\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2806,7 +2848,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'グラム→ポンド( 500 )'} );
     $cmd->exit_is_num( 0, qq{./c 'グラム→ポンド( 500 )'} );
-    $cmd->stdout_is_eq( qq{1.10231131092439\n} );
+    $cmd->stdout_is_eq( qq{1.10231131092\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2818,7 +2860,7 @@ subtest qq{aliases} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'グラム→オンス( 30 )'} );
     $cmd->exit_is_num( 0, qq{./c 'グラム→オンス( 30 )'} );
-    $cmd->stdout_is_eq( qq{1.05821885848741\n} );
+    $cmd->stdout_is_eq( qq{1.05821885849\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -2837,9 +2879,9 @@ subtest qq{aliases} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 0 )'} );
-    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 0 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 48, 46 )\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45.78 )\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -3028,9 +3070,9 @@ subtest qq{-h, --help} => sub{
 
 subtest qq{-b, --banner} => sub{
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ), 0 )'} );
-    $cmd->exit_is_num( 0, qq{./c -b 'sec2dhms( dhms2sec( 0, 24 / 29.53, 0, 0 ), 0 )'} );
-    $cmd->stdout_is_eq( qq{( 0, 0, 48, 46 )\n} );
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
+    $cmd->stdout_is_eq( qq{( 0, 0, 48, 45.8 )\n} );
     $cmd->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
     undef( $cmd );
 
@@ -3046,7 +3088,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $cmd->stdout_is_eq( qq{403\.862905333613\n} );
+    $cmd->stdout_is_eq( qq{403.862905334\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
@@ -3070,7 +3112,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.862905333613\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.862905334\n/ );
     $cmd->stderr_is_eq( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
     undef( $cmd );
 
@@ -3078,7 +3120,7 @@ subtest qq{user-rc ( Run Command )} => sub{
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $cmd->stdout_like( qr/\n Result: 403\.862905333613\n/ );
+    $cmd->stdout_like( qr/\n Result: 403\.862905334\n/ );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

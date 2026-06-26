@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.145 $
+## - $Revision: 4.154 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.145 $};
+    my $rev = q{$Revision: 4.154 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -582,7 +582,7 @@ use constant {
     H_MINU => qq{Subtraction. "3 - 2" -> 1.},
     H_MULT => qq{Multiplication. "1 * 2" -> 2.},
     H_DIVI => qq{Division. "1 / 2" -> 0.5.},
-    H_MODU => qq{Modulo arithmetic. "5 % 3" -> 2. [POSIX]},
+    H_MODU => qq{Modulo arithmetic. "10.234 % 3" -> 1.234. [POSIX]},
     H_EXPO => qq{Exponentiation. "2 ** 3" -> 8. Similarly, "pow( 2, 3 )".},
     H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 [ = 0x6 ]".},
     H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 [ = 0x4 ]".},
@@ -674,8 +674,9 @@ use constant {
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
     H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
-    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified.},
-    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ).},
+    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ). alias: d2s().},
+    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value. alias: d2d().},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. alias: 里→メートル(), 里２メートル().},
     H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. alias: メートル→里(), メートル２里().},
     H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. alias: マイル→メートル(), マイル２メートル().},
@@ -693,9 +694,9 @@ use constant {
     H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
     H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
     H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
-    H_TLMR => qq{telemeter( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter_m().},
-    H_TM_M => qq{telemeter_m( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. Same as telemeter().},
-    H_TMKM => qq{telemeter_km( SECOND ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. Same as telemeter_m() / 1000.},
+    H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
+    H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
+    H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
 };
 
 %TableProvider::operators = (
@@ -802,6 +803,7 @@ use constant {
     'epoch2gmt'                  => [ 1790, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
     'sec2dhms'                   => [ 1800, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
     'dhms2sec'                   => [ 1810, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                  => [ 1815, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
     'ri2meter'                   => [ 1820, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
     'meter2ri'                   => [ 1830, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
     'mile2meter'                 => [ 1840, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
@@ -819,9 +821,9 @@ use constant {
     'bpm15'                      => [ 1960, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
     'bpm30'                      => [ 1970, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
     'tachymeter'                 => [ 1980, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                  => [ 1990, T_FUNCTION,     1, H_TLMR, sub{ &telemeter( $_[ 0 ] ) } ],
-    'telemeter_m'                => [ 2000, T_FUNCTION,     1, H_TM_M, sub{ &telemeter_m( $_[ 0 ] ) } ],
-    'telemeter_km'               => [ 2010, T_FUNCTION,     1, H_TMKM, sub{ &telemeter_km( $_[ 0 ] ) } ],
+    'telemeter'                  => [ 1990, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                => [ 2000, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'               => [ 2010, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1587,15 +1589,10 @@ sub DMS2DMS( $$$ )
 {
     my @dms_array = ();
     while( defined( $_[ 0 ] ) ){
-        my $degrees = shift( @_ );
+        my $deg = shift( @_ );
         my $min = shift( @_ );
         my $sec = shift( @_ );
-        my $d = int( $degrees );
-        $d = '-0' if( $d == 0 && $degrees < 0 );
-        my $m_raw = ( ( $degrees - $d ) * 60 ) + $min;
-        my $m = int( $m_raw );
-        my $s = ( ( $m_raw - $m ) * 60 ) + $sec;
-        push( @dms_array, $d, $m, $s );
+        push( @dms_array, &DEG2DMS( DMS2DEG( $deg, $min, $sec ) ) );
     }
     return @dms_array;
 }
@@ -2218,6 +2215,12 @@ sub dhms2sec( $;$$$ )
     return $duration_sec;
 }
 
+sub dhms2dhms( $;$$$$ )
+{
+    my( $days, $hour, $minute, $sec, $decimal_places ) = @_;
+    return &sec2dhms( &dhms2sec( $days, $hour, $minute, $sec ), $decimal_places );
+}
+
 ## 長さ変換: 里→メートル[m]
 sub ri2meter( $ )
 {
@@ -2520,24 +2523,32 @@ sub tachymeter( $ )
     return 3600 / $sec;
 }
 
-sub telemeter( $ )
+sub telemeter( $;$ )
 {
-    my $sec = shift( @_ );
-    ## 音の伝播速度は、標準大気中の音速 1225km/h から、 340m/秒 と考える。
-    ## 光の速度は無視した。(光速 ＝ 299792458 m/s ≒ 30万キロメートル毎秒)
-    return $sec * 340;
+    my( $sec, $temperature ) = @_;
+
+    ## 国際標準大気(ISA)の基準気温 15℃ をデフォルト値にする。
+    # (15℃のとき音速は 340.65 m/s となり、一般的な 340 m/s に最も近くなる)
+    ## 光の速度は無視。(光速 ＝ 299792458 m/s ≒ 30万キロメートル毎秒)
+    $temperature = 15 if( !defined( $temperature ) );
+
+    my $sound_speed_at_zero = 331.5;
+    my $temp_coefficient    = 0.61;
+
+    my $speed_of_sound = $sound_speed_at_zero +
+        ( $temp_coefficient * $temperature );
+
+    return $sec * $speed_of_sound;
 }
 
-sub telemeter_m( $ )
+sub telemeter_m( $;$ )
 {
-    my $sec = shift( @_ );
-    return &telemeter( $sec );
+    return &telemeter( @_ );
 }
 
-sub telemeter_km( $ )
+sub telemeter_km( $;$ )
 {
-    my $sec = shift( @_ );
-    return &telemeter( $sec ) / 1000;
+    return &telemeter( @_ ) / 1000;
 }
 
 
@@ -2684,6 +2695,9 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!g2e\(!gmt2epoch(!go;
     $expr =~ s!e2l\(!epoch2local(!go;
     $expr =~ s!e2g\(!epoch2gmt(!go;
+    $expr =~ s!d2s\(!dhms2sec(!go;
+    $expr =~ s!s2d\(!sec2dhms(!go;
+    $expr =~ s!d2d\(!dhms2dhms(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -3579,7 +3593,23 @@ sub ResultPrint()
             $self->warnPrint( qq{Remain RPN: } . $self->GetTokens() . "\n" );
             last;
         }
-        my $reg_raw = $item->data;
+        my $val = $item->data;
+        my $reg_raw = $val;
+        if( $val =~ /\./o ){
+            # 整数部分（符号を除く数字）の桁数を数える
+            # 例: "-54.000000000005" ＝＞ 整数部は "54"（2桁）
+            my( $int_part ) = $val =~ /(\d+)\./o;
+            $int_part = '' if( ( $int_part + 0 ) == 0 );
+            my $int_digits = length( $int_part );
+
+            # 有効桁数12桁から、整数部の桁数を引いて「小数点以下の丸め桁数」を決める
+            # 例: 12 - 2桁 ＝ 10桁
+            my $round_digits = 12 - $int_digits;
+            $round_digits = 0 if( $round_digits < 0 ); # 巨大整数の安全弁
+
+            # 動的に決まった桁数で丸める
+            $reg_raw = sprintf( "%.*f", $round_digits, $val ) + 0;
+        }
         my $reg_str = undef;
         if( &NumberToString( $reg_raw, \$reg_str ) ){
             $bDispRaw = 1;
@@ -3845,6 +3875,11 @@ sub Calculate( $ )
     }else{
         print( $self->Evaluator->ResultPrint() . "\n" );
     }
+
+    # 現在の出力を強制フラッシュ
+    my $old_fh = select( STDOUT );
+    local $| = 1;
+    select( $old_fh );
 
     return 0;
 }
@@ -4135,10 +4170,10 @@ geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m,
 geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
 geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age,
 age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
-meter2nautical_mile, pound2gram, gram2pound, ounce2gram, gram2ounce,
-laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter,
-telemeter_m, telemeter_km
+dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
+nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound,
+ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
+tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -4215,12 +4250,12 @@ please use the I<-v> or I<--verbose> option switch.
   6.28318530717958 * 10 = 62.8318530717958
   Formula: '2 * 3.14159265358979 * 10 ='    <--- HERE
       RPN: '2 3.14159265358979 * 10 *'
-   Result: 62.8318530717958
+   Result: 62.8318530718
 
 Several functions are also available.
 
   $ c 'sqrt( power( 1920, 2 ) + power( 1080, 2 ) ) ='
-  2202.9071700823
+  2202.90717008
 
 Example of using the functions.
 
@@ -4246,12 +4281,12 @@ and the radians of an arbitrarily selected value are calculated.
 
   $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
   linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
-  shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 )
-  first( 10, 80, 60, 40, 30, 90, 50, 70, 20, 0 ) = 10
-  deg2rad( 10 ) = 0.174532925199433
+  shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 )
+  first( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 ) = 50
+  deg2rad( 50 ) = 0.872664625997165
   Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
       RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
-   Result: 0.174532925199433
+   Result: 0.872664625997
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -4334,7 +4369,7 @@ Example of running with the I<-v> or I<--verbose> option:
   sqrt( 2 ) = 1.4142135623731
   Formula: 'sqrt( 2 ) ='
       RPN: '# 2 sqrt'
-   Result: 1.4142135623731
+   Result: 1.41421356237
   ^D    <-- INPUT FROM KEYBOARD
 
 By constructing the calculation formula first,
@@ -4477,7 +4512,7 @@ Calculate the distance between two points.
          deg2rad( -18.76694, 46.8691 ),
          deg2rad( -0.3831, -90.42333 )
        ) ='
-  14890.6974607313  # 14891 km
+  14890.6974607     # 14891 km
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
@@ -4488,12 +4523,12 @@ Be sure to include the sign if the value is negative.
   $ c 'gd_km(
          dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
          dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
-  14890.6974607313  # 14891 km
+  14890.6974607     # 14891 km
 
 The direction can also be calculated.
 
   $ c 'geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) )'
-  250.3084344602    # About west-southwest ( WSW )
+  250.30843446      # About west-southwest ( WSW )
 
 It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-S-W) rather than 0 to 360 degrees.
 
@@ -4502,7 +4537,7 @@ It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-
          geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) ),
          4
        )'
-  2.78120482733556  # Direction Index (2.78 is between South(2) and West(3), closer to West)
+  2.78120482734     # Direction Index (2.78 is between South(2) and West(3), closer to West)
                     # Approx: West-Southwest (WSW)
 
 If you record the calculation as shown below,
@@ -4519,7 +4554,7 @@ Calculates distance and direction simultaneously.
            $Madagascar_coord, $Galapagos_Islands_coord
          )
        )"
-  ( 14890.6974607313, 250.3084344602 )  # Dist: 14891 km, Brg: 250 degrees (WSW)
+  ( 14890.6974607, 250.30843446 )   # Dist: 14891 km, Brg: 250 degrees (WSW)
   $
 
 The B<c> script was created with the following in mind:
@@ -4555,7 +4590,7 @@ C<1 / 2> -> C<0.5>.
 =item C<%>
 
 Modulo arithmetic.
-C<5 % 3> -> C<2>.
+C<10.234 % 3> -> C<1.234>.
 [POSIX]
 
 =item C<**>
@@ -4700,7 +4735,7 @@ alias: rs().
 If it takes 66 seconds to make 5 units, what will be the production quantity after 3600 seconds (1 hour)?:
 
   $ c 'ratio_scaling( 66, 5, 3600 )'
-  272.727272727273
+  272.727272727
   $ c 'ratio_scaling( 66, 5, 3600, 1 )'
   272.7
 
@@ -4866,7 +4901,7 @@ mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
 Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
 
   $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
-  ( 2480.31496062992, 3507.87401574803 )
+  ( 2480.31496063, 3507.87401575 )
 
 =item C<linspace>
 
@@ -4966,7 +5001,7 @@ Returns e (the natural logarithm base) to the power of I<N>.
 The base of natural logarithms e (Napier's constant):
 
   $ c 'exp( 1 )'
-  2.71828182845905
+  2.71828182846
 
 =item C<log>
 
@@ -4977,7 +5012,7 @@ Returns the natural logarithm (base e) of I<N>.
 exp(1) is the base of the natural logarithm ( Napier's constant ):
 
   $ c 'log( 100 )'
-  4.60517018598809
+  4.60517018599
   $ c 'exp( log( 100 ) )'
   100
   $ c 'pow( exp( 1 ), log( 100 ) )'
@@ -4986,32 +5021,32 @@ exp(1) is the base of the natural logarithm ( Napier's constant ):
 A product of antilogarithms is transformed into a sum of logarithms:
 
   $ c 'log( 200 * 300 )'
-  11.0020998412042
+  11.0020998412
   $ c 'log( 200 ) + log( 300 )'
-  11.0020998412042
+  11.0020998412
 
 The quotient of real numbers is the difference of logarithms:
 
   $ c 'log( 200 / 300 )'
-  -0.405465108108164
+  -0.405465108108
   $ c 'log( 200 ) - log( 300 )'
-  -0.405465108108165
+  -0.405465108108
 
 Antilogarithmic exponents are converted to constant multiples of the logarithm:
 
   $ c 'log( power( 200, 100 ) )'
-  529.831736654804
+  529.831736655
   $ c '100 * log( 200 )'
-  529.831736654804
+  529.831736655
 
 The reciprocal of an antilogarithm reverses the sign of the logarithm.
 
   $ c 'log( 1 / 100 )'
-  -4.60517018598809
+  -4.60517018599
   $ c 'log( power( 100, -1 ) )'
-  -4.60517018598809
+  -4.60517018599
   $ c '-1 * log( 100 )'
-  -4.60517018598809
+  -4.60517018599
 
 =item C<exp2>
 
@@ -5124,14 +5159,14 @@ deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
 [Math::Trig]
 
   $ c 'deg2rad( 143.595 )'
-  2.50620553940126
+  2.5062055394
 
 =item C<dms2rad>
 
 dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
 
   $ c 'dms2rad( 143, 35, 42.0000000000002 )'
-  2.50620553940126
+  2.5062055394
 
 =item C<dms2deg>
 
@@ -5145,14 +5180,14 @@ dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> 
 deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
 
   $ c 'deg2dms( 143.595 )'
-  ( 143, 35, 41.9999999999959 )
+  ( 143, 35, 42 )
 
 =item C<dms2dms>
 
 dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
 
   $ c 'dms2dms( 143, 35.7, 0 )'
-  ( 143, 35, 42.0000000000002 )
+  ( 143, 35, 42 )
 
 =item C<sin>
 
@@ -5225,7 +5260,7 @@ Returns the standard mathematical angle (0 degrees = east, counterclockwise).
 If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise).
 
   $ c 'angle_deg( 3, 4 )'
-  53.130102354156
+  53.1301023542
 
 =item C<dist_between_points>
 
@@ -5234,10 +5269,10 @@ Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (
 alias: dist().
 
   $ c 'dist_between_points( 100, 10, 200, 110 )'
-  141.42135623731
+  141.421356237
 
   $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
-  173.205080756888
+  173.205080757
 
 =item C<midpt_between_points>
 
@@ -5261,18 +5296,18 @@ If I<IS_AZIMUTH> is set to true, the horizontal angle is returned (0 degrees = n
 alias: angle().
 
   $ c 'angle_between_points( 100, 10, 150, 110 )'
-  63.434948822922
+  63.4349488229
 
   $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
-  ( 63.434948822922, 41.8103148957786 )
+  ( 63.4349488229, 41.8103148958 )
 
 I<IS_AZIMUTH> is set to true
 
   $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
-  26.565051177078
+  26.5650511771
 
   $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
-  ( 26.565051177078, 41.8103148957786 )
+  ( 26.5650511771, 41.8103148958 )
 
 =item C<geo_radius>
 
@@ -5293,7 +5328,7 @@ Given a latitude (in radians), returns the radius of that parallel (in meters).
 Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
   $ c 'radius_of_lat( deg2rad( 45 ) )'
-  4517590.87884893  # 4,517,590.88 m
+  4517590.87885     # 4,517,590.88 m
 
 =item C<geo_distance_m>
 
@@ -5305,7 +5340,7 @@ alias: gd_m().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403862.905333613  # 403,862.91 m
+  403862.905334     # 403,862.91 m
 
 =item C<geo_distance_km>
 
@@ -5318,7 +5353,7 @@ alias: gd_km().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403.862905333613  # 403.86 km
+  403.862905334     # 403.86 km
 
 =item C<geo_azimuth>
 
@@ -5331,7 +5366,7 @@ alias: gazm().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  255.573489871266
+  255.573489871
 
 =item C<geo_dist_m_and_azimuth>
 
@@ -5345,7 +5380,7 @@ alias: gd_m_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412608934, 257.090172330251 )    # 913,789.41 m ; 257 degrees
+  ( 913789.412609, 257.09017233 )   # 913,789.41 m ; 257 degrees
 
 =item C<geo_dist_km_and_azimuth>
 
@@ -5359,7 +5394,7 @@ alias: gd_km_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412608934, 257.090172330251 )    # 913.79 km ; 257 degrees
+  ( 913.789412609, 257.09017233 )   # 913.79 km ; 257 degrees
 
 =item C<geo_rl_distance_m>
 
@@ -5372,7 +5407,7 @@ alias: gd_rl_m().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  913789.412608934  # 913,789.41 m
+  913789.412609     # 913,789.41 m
 
 =item C<geo_rl_distance_km>
 
@@ -5385,7 +5420,7 @@ alias: gd_rl_km().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  913.789412608934  # 913.79 km
+  913.789412609     # 913.79 km
 
 =item C<geo_rl_azimuth>
 
@@ -5399,7 +5434,7 @@ alias: gazm_rl().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  254.326381534005  # 254 degrees
+  254.326381534     # 254 degrees
 
 =item C<geo_rl_dist_m_and_azimuth>
 
@@ -5413,7 +5448,7 @@ alias: gd_rl_m_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412608934, 254.326381534005 )    # 913,789.41 m, 254 degrees
+  ( 913789.412609, 254.326381534 )  # 913,789.41 m, 254 degrees
 
 =item C<geo_rl_dist_km_and_azimuth>
 
@@ -5427,7 +5462,7 @@ alias: gd_rl_km_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412608934, 254.326381534005 )    # 913.79 km, 254 degrees
+  ( 913.789412609, 254.326381534 )  # 913.79 km, 254 degrees
 
 =item C<geo_all_m>
 
@@ -5441,7 +5476,7 @@ Latitude and longitude must be specified in radians.
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412608934, 257.090172330251, 913789.412608934, 254.326381534005 )
+  ( 913789.412609, 257.09017233, 913789.412609, 254.326381534 )
 
 =item C<geo_all_km>
 
@@ -5455,7 +5490,7 @@ Latitude and longitude must be specified in radians.
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412608934, 257.090172330251, 913.789412608934, 254.326381534005 )
+  ( 913.789412609, 257.09017233, 913.789412609, 254.326381534 )
 
 =item C<is_leap>
 
@@ -5488,7 +5523,7 @@ Simple calculation of the age of the moon.
 Maximum deviation of about 2 days.
 
   $ c 'age_of_moon( 2025, 12, 5 )'
-  15    # Moon's age is 15 days
+  14.6  # Moon's age is 15 days
 
 Today's Moon Age:
 
@@ -5498,7 +5533,7 @@ Today's Moon Age:
   age_of_moon( 2025, 12, 5 ) = 15
   Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
       RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
-   Result: 15
+   Result: 14.6
 
 =item C<local2epoch>
 
@@ -5542,6 +5577,7 @@ alias: e2g().
 
 sec2dhms( I<SECOND> [, I<DECIMAL_PLACES> ] ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 Rounding the number if I<DECIMAL_PLACES> is specified.
+alias: s2d.
 
   $ c 'sec2dhms( 356521 )'
   ( 4, 3, 2, 1 )    # 4 days, 3 hours, 2 minutes and 1 second
@@ -5549,9 +5585,19 @@ Rounding the number if I<DECIMAL_PLACES> is specified.
 =item C<dhms2sec>
 
 dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<SECOND> ).
+alias: d2s.
 
   $ c 'dhms2sec( 4, 03, 02, 01 )'
   356521            # 356,521 seconds
+
+=item C<dhms2dhms>
+
+dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ).
+Returns the normalized value.
+alias: d2d().
+
+  $ c 'dhms2dhms( 0, 24 / SAKUBOU )'
+  ( 0, 0, 48, 45.7797882084 )
 
 =item C<ri2meter>
 
@@ -5559,7 +5605,7 @@ ri2meter( RI ) --Convert-to--> METER.
 alias: 里→メートル(), 里２メートル().
 
   $ c 'ri2meter( 1 )'
-  3927.2727272727
+  3927.27272727
 
 =item C<meter2ri>
 
@@ -5567,7 +5613,7 @@ meter2ri( METER ) --Convert-to--> RI.
 alias: メートル→里(), メートル２里().
 
   $ c 'meter2ri( 4000 )'
-  1.01851851851853
+  1.01851851852
 
 =item C<mile2meter>
 
@@ -5583,7 +5629,7 @@ meter2mile( METER ) --Convert-to--> MILE.
 alias: メートル→マイル(), メートル２マイル().
 
   $ c 'meter2mile( 2000 )'
-  1.24274238447467
+  1.24274238447
 
 =item C<nautical_mile2meter>
 
@@ -5599,7 +5645,7 @@ meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE.
 alias: メートル→海里(), メートル２海里().
 
   $ c 'meter2nautical_mile( 2000 )'
-  1.07991360691145
+  1.07991360691
 
 =item C<pound2gram>
 
@@ -5615,7 +5661,7 @@ gram2pound( GRAM ) --Convert-to--> POUND.
 alias: グラム→ポンド(), グラム２ポンド().
 
   $ c 'gram2pound( 500 )'
-  1.10231131092439
+  1.10231131092
 
 =item C<ounce2gram>
 
@@ -5631,7 +5677,7 @@ gram2ounce( GRAM ) -->Convert-to--> OUNCE.
 alias: グラム→オンス(), グラム２オンス().
 
   $ c 'gram2ounce( 30 )'
-  1.05821885848741
+  1.05821885849
 
 =item C<laptimer>
 
@@ -5652,7 +5698,7 @@ The time for 3 laps was measured:
   2/3  00:00:39.562  00:00:19.777  2025-12-17 22:18:49
   <-- Enter key
   3/3  00:00:59.892  00:00:20.330  2025-12-17 22:19:09
-  59.8917651176453
+  59.8917651176
 
 =item C<timer>
 
@@ -5670,7 +5716,7 @@ Specify the seconds in I<SECOND>:
   $ c 'timer( 10 )'
   2025-12-27 06:02:58.002  TARGET
   2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
-  0.0172009468078613    # Number of seconds from the TARGET time
+  0.017200946808    # Number of seconds from the TARGET time
 
 Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
 
@@ -5693,7 +5739,7 @@ Usage example:
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 10.2675848007202 sec.
-  10.2675848007202
+  10.267584801
 
 =item C<bpm>
 
@@ -5704,7 +5750,7 @@ Specify the number of beats as I<COUNT> and the elapsed time as I<SECOND> to cal
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 2.15290594100952 sec.
-  111.477234294528
+  111.477234295
 
 =item C<bpm15>
 
@@ -5717,7 +5763,7 @@ The measured time is displayed on the screen.
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 12.7652950286865 sec.
-  70.5036583939106
+  70.5036583939
 
 =item C<bpm30>
 
@@ -5730,7 +5776,7 @@ The measured time is displayed on the screen.
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 24.9058220386505 sec.
-  72.2722581574156
+  72.2722581574
 
 =item C<tachymeter>
 
@@ -5745,40 +5791,43 @@ Measure the time for a 1km section and calculate the speed:
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 35.5551850795746 sec.
-  101.251054999235  # 101 km/h
+  101.251054999     # 101 km/h
 
 =item C<telemeter>
 
-telemeter( I<SECOND> ).
+telemeter( I<SECOND> [, I<TEMPERATURE> ] ).
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in meters.
+If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
 Same as telemeter_m().
 
   $ c 'telemeter( sw() )'
   <-- Enter key
   2025-11-25 01:53:17
   stopwatch() = 7.9051628112793 sec.
-  2687.75535583496  # 2687.76 m
+  2692.8937117      # 2692.89 m
 
 =item C<telemeter_m>
 
-telemeter_m( I<SECOND> ).
+telemeter_m( I<SECOND> [, I<TEMPERATURE> ] ).
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in meters.
+If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
 Same as telemeter().
 
   $ c 'telemeter_m( 8 )'
-  2720  # 2720 m
+  2725.2  # meters
 
 =item C<telemeter_km>
 
-telemeter_km( I<SECOND> ).
+telemeter_km( I<SECOND> [, I<TEMPERATURE> ] ).
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in kilometers.
+If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
 Same as telemeter_m() / 1000.
 
   $ c 'telemeter_km( 8 )'
-  2.72  # 2.72 km
+  2.7252  # kilometers
 
 =back
 
