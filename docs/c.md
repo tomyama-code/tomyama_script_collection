@@ -69,22 +69,17 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling,
-is\_prime, prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle,
-first, slice, uniq, sum, prod, avg, add\_each, mul\_each, linspace, linstep,
-mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2,
-log10, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms,
-dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle\_deg,
-dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo\_radius,
-radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth,
-geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m,
-geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
-geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age,
-age\_of\_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound,
-ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
-tachymeter, telemeter, telemeter\_m, telemeter\_km
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
+get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
+linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
+pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo2xyz,
+geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth,
+geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
+geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age, age\_of\_moon, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
+nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
+stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
 
 # OPTIONS
 
@@ -1209,6 +1204,20 @@ The **c** script was created with the following in mind:
 
         $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
         ( 26.5650511771, 41.8103148958 )
+
+- `geo2xyz`
+
+    geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ).
+    Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
+    If _HEIGHT\_M_ is omitted, the calculation is performed assuming an elevation of 0 m.
+    alias: g2xyz().
+
+        ## Calculate the straight-line distance from the epicenter to the observation point.
+        $ c 'dist_between_points(
+               geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
+               geo2xyz( deg2rad( 35.68129, 139.76706 ), 0 )
+             ) / 1000'
+        72.7492079698   ## 72.75 km
 
 - `geo_radius`
 

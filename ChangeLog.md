@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.64] - 2026-06-28
+### Added
+- `c` [1.04.155]:
+  - Added a function.
+    - geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ). Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
+
 ## [0.2.63] - 2026-06-26
 ### Added
 - `c` [1.04.154]:

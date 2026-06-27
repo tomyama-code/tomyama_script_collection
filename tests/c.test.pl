@@ -453,6 +453,12 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist_between_points( geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ), geo2xyz( deg2rad( 35.68129, 139.76706 ) ) ) / 1000'} );
+    $cmd->exit_is_num( 0, qq{./c 'dist_between_points( geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ), geo2xyz( deg2rad( 35.68129, 139.76706 ) ) ) / 1000'} );
+    $cmd->stdout_is_eq( qq{72.7492079698\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(power(2, 100)+power(2, 100))='} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt(power(2, 100)+power(2, 100))='} );
     $cmd->stdout_is_eq( qq{1592262918131443.25\n} );

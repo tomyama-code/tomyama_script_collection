@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.154 $
+## - $Revision: 4.155 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.154 $};
+    my $rev = q{$Revision: 4.155 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -488,18 +488,32 @@ use constant UCFACTOR_NAUTICAL_MILE => 1852; # 1,852 meters, 1海里は、緯度
     # 緯度1分の定義は「子午線の曲率」に基づくため、厳密には場所によって以下の通り変化します：
     # - 赤道付近: 約 1843 m（地球のカーブが急なため、1分あたりの距離は短い）
     # - 極地付近: 約 1862 m（地球のカーブが緩やかなため、1分あたりの距離は長い）
+    # もし測位に地心緯度が使われたとすると更に変化は大きくなるが、地理緯度だと19mの差で収まる
+
+    # 楕円体に対する緯度には2つの考え方がある。
+
+    # 地心緯度（ちしんいど）：
+    #   正体：「地球の中心」から見上げた本当の角度。
+    #   現実：一番直感的だが、Google MapsやGPS、地図の作成では一切使われていない。
+
+    # 地理緯度（ちりいど）：
+    #   正体：「楕円体の地面に対する垂直線」が自転軸と交わる角度。
+    #   現実：スマホや地図で「北緯35.6度」と呼んでいるものは、100%こちら（地理緯度）を指している。
+    #         メリット：
+    #         - 「真上（天頂）」と「緯度」が完全に一致すること。
+    #         - 地図の「1海里（1マイル）」が世界中でほぼ均等になること。
 
 ## 重さ
 use constant UCFACTOR_POUND => 453.59237; # 453.59 grams
 use constant UCFACTOR_OUNCE => 28.349523125; # 28.35 grams
 
-## GRS80 楕円体パラメータ（日本国内の測量・学術用）
-# 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257222101
-# 注意: e^2 = 2f - f^2 だが、浮動小数点誤差と定義の優先順位の関係で
-#       計算式を使わず、以下の測地系公式定数（ITRF/GRS80準拠）を直接採用すること。
-use constant GRS80_EQUATORIAL_RADIUS_M => 6378137;
-use constant GRS80_POLAR_RADIUS_M      => 6356752.314140356;    # b = a(1-f)
-use constant GRS80_POW_E               => 0.006694380022900787; # 離心率の二乗: e^2 = 2f - f^2
+### GRS80 楕円体パラメータ（日本国内の測量・学術用）
+## 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257222101
+## 注意: e^2 = 2f - f^2 だが、浮動小数点誤差と定義の優先順位の関係で
+##       計算式を使わず、以下の測地系公式定数（ITRF/GRS80準拠）を直接採用すること。
+#use constant GRS80_EQUATORIAL_RADIUS_M => 6378137;
+#use constant GRS80_POLAR_RADIUS_M      => 6356752.314140356;    # b = a(1-f)
+#use constant GRS80_POW_E               => 0.006694380022900787; # 離心率の二乗: e^2 = 2f - f^2
 
 ## WGS84 楕円体パラメータ（GPS・世界標準）
 # 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257223563
@@ -653,6 +667,7 @@ use constant {
     H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
     H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
     H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ). Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
+    H_GXYZ => qq{geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ). Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m. alias: g2xyz().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_m().},
@@ -780,6 +795,7 @@ use constant {
     'dist_between_points'        => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
     'midpt_between_points'       => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
     'angle_between_points'       => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'geo2xyz'                    => [ 1595, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
     'geo_radius'                 => [ 1600, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_lat'              => [ 1610, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
     'geo_distance_m'             => [ 1620, T_FUNCTION, '4-5', H_GDIM, sub{ &geo_distance_m( @_ ) } ],
@@ -1694,6 +1710,32 @@ sub angle_between_points( $$$$;$$$ )
     unshift( @ret_val, $bearing );
 
     return @ret_val;
+}
+
+sub geo2xyz( $$;$ )
+{
+    my( $lat, $lon, $h ) = @_;
+    $h //= 0; # 高度が省略された場合は0メートルとする
+
+    # 赤道半径と離心率の二乗
+    my $a   = WGS84_EQUATORIAL_RADIUS_M;
+    my $e2  = WGS84_POW_E;
+
+    # 緯度からその場所の「卯酉線曲率半径 (N)」を計算
+    my $sin_lat = sin( $lat );
+    my $n = $a / sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
+
+    # 三角関数の計算値をキャッシュしておく
+    my $cos_lat = cos( $lat );
+    my $cos_lon = cos( $lon );
+    my $sin_lon = sin( $lon );
+
+    # 厳密な楕円体公式によるXYZの算出
+    my $x = ( $n + $h ) * $cos_lat * $cos_lon;
+    my $y = ( $n + $h ) * $cos_lat * $sin_lon;
+    my $z = ( $n * ( 1 - $e2 ) + $h ) * $sin_lat;
+
+    return ( $x, $y, $z );
 }
 
 # === 地球の中心から地表までの動径を計算する関数 ===
@@ -2679,6 +2721,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!dist\(!dist_between_points(!go;
     $expr =~ s!midpt\(!midpt_between_points(!go;
     $expr =~ s!angle\(!angle_between_points(!go;
+    $expr =~ s!g2xyz\(!geo2xyz(!go;
     $expr =~ s!gd_m\(!geo_distance_m(!go;
     $expr =~ s!gd_km\(!geo_distance_km(!go;
     $expr =~ s!gazm\(!geo_azimuth(!go;
@@ -4158,22 +4201,17 @@ CURRENT-TIME
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling,
-is_prime, prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle,
-first, slice, uniq, sum, prod, avg, add_each, mul_each, linspace, linstep,
-mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2,
-log10, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms,
-dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle_deg,
-dist_between_points, midpt_between_points, angle_between_points, geo_radius,
-radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth,
-geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m,
-geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
-geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age,
-age_of_moon, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound,
-ounce2gram, gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30,
-tachymeter, telemeter, telemeter_m, telemeter_km
+abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
+get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each,
+linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
+pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo2xyz,
+geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
+geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
+geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age, age_of_moon, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
+nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
+stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -5308,6 +5346,20 @@ I<IS_AZIMUTH> is set to true
 
   $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
   ( 26.5650511771, 41.8103148958 )
+
+=item C<geo2xyz>
+
+geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ).
+Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
+If I<HEIGHT_M> is omitted, the calculation is performed assuming an elevation of 0 m.
+alias: g2xyz().
+
+    ## Calculate the straight-line distance from the epicenter to the observation point.
+    $ c 'dist_between_points(
+           geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
+           geo2xyz( deg2rad( 35.68129, 139.76706 ), 0 )
+         ) / 1000'
+    72.7492079698   ## 72.75 km
 
 =item C<geo_radius>
 
