@@ -453,6 +453,36 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'vector_angle( 100, 100, 100, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'vector_angle( 100, 100, 100, 0 )'} );
+    $cmd->stdout_is_eq( qq{45\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'vector_angle( 100, 0, 100, 100, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'vector_angle( 100, 0, 100, 100, 1 )'} );
+    $cmd->stdout_is_eq( qq{0.785398163397\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'vector_angle( 2309627.42153, -5833452.97682, 1143792.85864, -3959659.21279, 3350075.51702, 3699524.90488 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'vector_angle( 2309627.42153, -5833452.97682, 1143792.85864, -3959659.21279, 3350075.51702, 3699524.90488 )'} );
+    $cmd->stdout_is_eq( qq{127.008055363\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'vector_angle( -3959659.21279, 3350075.51702, 3699524.90488, 2309627.42153, -5833452.97682, 1143792.85864, 1 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'vector_angle( -3959659.21279, 3350075.51702, 3699524.90488, 2309627.42153, -5833452.97682, 1143792.85864, 1 )'} );
+    $cmd->stdout_is_eq( qq{2.21670874265\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'vector_angle( -100, -100, 100, -100, 0 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'vector_angle( -100, -100, 100, -100, 0 )'} );
+    $cmd->stdout_is_eq( qq{90\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'dist_between_points( geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ), geo2xyz( deg2rad( 35.68129, 139.76706 ) ) ) / 1000'} );
     $cmd->exit_is_num( 0, qq{./c 'dist_between_points( geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ), geo2xyz( deg2rad( 35.68129, 139.76706 ) ) ) / 1000'} );
     $cmd->stdout_is_eq( qq{72.7492079698\n} );
@@ -2747,6 +2777,24 @@ subtest qq{aliases} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angle( 100, 100, 0, 0 )'} );
     $cmd->exit_is_num( 0, qq{./c 'angle( 100, 100, 0, 0 )'} );
     $cmd->stdout_is_eq( qq{-135\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'va( 100, 100, 100, 100 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'va( 100, 100, 100, 100 )'} );
+    $cmd->stdout_is_eq( qq{0\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'angular_distance( -100, 100, 100, -100 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'angular_distance( -100, 100, 100, -100 )'} );
+    $cmd->stdout_is_eq( qq{180\n} );
+    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'ang_dist( -100, 100, 100, -100 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'ang_dist( -100, 100, 100, -100 )'} );
+    $cmd->stdout_is_eq( qq{180\n} );
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 

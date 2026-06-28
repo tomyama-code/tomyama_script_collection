@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.65] - 2026-06-29
+### Added
+- `c` [1.04.156]:
+  - Added a function.
+    - vector_angle( X1, Y1, X2, Y2 [, IS_RADIAN ] ) or
+    - vector_angle( X1, Y1, Z1, X2, Y2, Z2 [, IS_RADIAN ] ).
+      - Returns the angle between two vectors as viewed from the origin.
+
 ## [0.2.64] - 2026-06-28
 ### Added
 - `c` [1.04.155]:

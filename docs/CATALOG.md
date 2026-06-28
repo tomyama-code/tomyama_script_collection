@@ -22,7 +22,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 4.155 $
+- $Revision: 4.156 $
 
 - Script Structure
   - main
@@ -190,7 +190,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.58 $
+- $Revision: 2.59 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

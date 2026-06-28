@@ -73,8 +73,8 @@ abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is
 get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add\_each, mul\_each,
 linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
 pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, geo2xyz,
-geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth,
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle,
+geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth,
 geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
 geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age, age\_of\_moon, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
@@ -1205,6 +1205,39 @@ The **c** script was created with the following in mind:
         $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
         ( 26.5650511771, 41.8103148958 )
 
+- `vector_angle`
+
+    vector\_angle( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_RADIAN_ \] ) or
+    vector\_angle( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_RADIAN_ \] ).
+    Returns the angle between two vectors as viewed from the origin.
+    Angles are in degrees.
+    If _IS\_RADIAN_ is set, it returns radians instead of degrees.
+    alias: va(), angular\_distance(), ang\_dist().
+
+    2D Angle (Degrees):
+
+        $ c 'vector_angle( -100, -100, 100, -100 )'
+        90
+
+    2D Angle (Radians):
+
+        $ c 'vector_angle( 100, -100, -100, -100, 1 )'
+        1.57079632679
+
+    3D Angle (Degrees):
+
+        ## Angular distance between Central America and Tokyo
+        $ c 'vector_angle(
+               geo2xyz( deg2rad( 10.4, -68.4 ) ),
+               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+             )'
+        127.008055363
+
+    3D Angle (Radians) using alias:
+
+        $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
+        3.14159265359
+
 - `geo2xyz`
 
     geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ).
@@ -1215,7 +1248,7 @@ The **c** script was created with the following in mind:
         ## Calculate the straight-line distance from the epicenter to the observation point.
         $ c 'dist_between_points(
                geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
-               geo2xyz( deg2rad( 35.68129, 139.76706 ), 0 )
+               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
              ) / 1000'
         72.7492079698   ## 72.75 km
 

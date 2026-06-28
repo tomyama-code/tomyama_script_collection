@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.155 $
+## - $Revision: 4.156 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.155 $};
+    my $rev = q{$Revision: 4.156 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -667,6 +667,7 @@ use constant {
     H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
     H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
     H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ). Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
+    H_VANG => qq{vector_angle( X1, Y1, X2, Y2 [, IS_RADIAN ] ) or vector_angle( X1, Y1, Z1, X2, Y2, Z2 [, IS_RADIAN ] ). Returns the angle between two vectors as viewed from the origin. Angles are in degrees. If IS_RADIAN is set, it returns radians instead of degrees. alias: va(), angular_distance(), ang_dist().},
     H_GXYZ => qq{geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ). Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m. alias: g2xyz().},
     H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
     H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
@@ -795,6 +796,7 @@ use constant {
     'dist_between_points'        => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
     'midpt_between_points'       => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
     'angle_between_points'       => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'vector_angle'               => [ 1593, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
     'geo2xyz'                    => [ 1595, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
     'geo_radius'                 => [ 1600, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
     'radius_of_lat'              => [ 1610, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
@@ -1710,6 +1712,39 @@ sub angle_between_points( $$$$;$$$ )
     unshift( @ret_val, $bearing );
 
     return @ret_val;
+}
+
+#引数4個: vector_angle( X1, Y1, X2, Y2 ) => Angle of a 2D vector in degree.
+#引数5個: vector_angle( X1, Y1, X2, Y2, IS_RADIAN ) => Angle of a 2D vector in radian.
+#引数6個: vector_angle( X1, Y1, Z1, X2, Y2, Z2 ) => Angle of a 3D vector in degree.
+#引数7個: vector_angle( X1, Y1, Z1, X2, Y2, Z2, IS_RADIAN ) => Angle of a 3D vector in radian.
+sub vector_angle( $$$$;$$$ )
+{
+    my $argc = scalar( @_ );
+
+    my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_radian ) = ();
+    if( $argc == 7 ){
+        ( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_radian ) = @_;
+    }elsif( $argc == 6 ){
+        ( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
+    }elsif( $argc == 5 ){
+        ( $p1x, $p1y, $p2x, $p2y, $is_radian ) = @_;
+        $p1z = 0;
+        $p2z = 0;
+    }else{
+        ( $p1x, $p1y, $p2x, $p2y ) = @_;
+        $p1z = 0;
+        $p2z = 0;
+    }
+
+    my $radian = &Math::Trig::acos(
+                   ( $p1x * $p2x + $p1y * $p2y + $p1z * $p2z ) /
+                   sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
+                         ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
+                 );
+
+    return $radian if( $is_radian );
+    return &Math::Trig::rad2deg( $radian );
 }
 
 sub geo2xyz( $$;$ )
@@ -2715,32 +2750,35 @@ sub FormulaNormalizationOneLine( $ )
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
     $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
-    $expr =~ s!pct\(!percentage(!go;
-    $expr =~ s!rs\(!ratio_scaling(!go;
-    $expr =~ s!pf\(!prime_factorize(!go;
-    $expr =~ s!dist\(!dist_between_points(!go;
-    $expr =~ s!midpt\(!midpt_between_points(!go;
-    $expr =~ s!angle\(!angle_between_points(!go;
-    $expr =~ s!g2xyz\(!geo2xyz(!go;
-    $expr =~ s!gd_m\(!geo_distance_m(!go;
-    $expr =~ s!gd_km\(!geo_distance_km(!go;
-    $expr =~ s!gazm\(!geo_azimuth(!go;
-    $expr =~ s!gd_m_azm\(!geo_dist_m_and_azimuth(!go;
-    $expr =~ s!gd_km_azm\(!geo_dist_km_and_azimuth(!go;
-    $expr =~ s!gd_rl_m\(!geo_rl_distance_m(!go;
-    $expr =~ s!gd_rl_km\(!geo_rl_distance_km(!go;
-    $expr =~ s!gazm_rl\(!geo_rl_azimuth(!go;
-    $expr =~ s!gd_rl_m_azm\(!geo_rl_dist_m_and_azimuth(!go;
-    $expr =~ s!gd_rl_km_azm\(!geo_rl_dist_km_and_azimuth(!go;
-    $expr =~ s!lt\(!laptimer(!go;
-    $expr =~ s!sw\(!stopwatch(!go;
-    $expr =~ s!l2e\(!local2epoch(!go;
-    $expr =~ s!g2e\(!gmt2epoch(!go;
-    $expr =~ s!e2l\(!epoch2local(!go;
-    $expr =~ s!e2g\(!epoch2gmt(!go;
-    $expr =~ s!d2s\(!dhms2sec(!go;
-    $expr =~ s!s2d\(!sec2dhms(!go;
-    $expr =~ s!d2d\(!dhms2dhms(!go;
+    $expr =~ s!\bpct\(!percentage(!go;
+    $expr =~ s!\brs\(!ratio_scaling(!go;
+    $expr =~ s!\bpf\(!prime_factorize(!go;
+    $expr =~ s!\bdist\(!dist_between_points(!go;
+    $expr =~ s!\bmidpt\(!midpt_between_points(!go;
+    $expr =~ s!\bangle\(!angle_between_points(!go;
+    $expr =~ s!\bva\(!vector_angle(!go;
+    $expr =~ s!\bangular_distance\(!vector_angle(!go;
+    $expr =~ s!\bang_dist\(!vector_angle(!go;
+    $expr =~ s!\bg2xyz\(!geo2xyz(!go;
+    $expr =~ s!\bgd_m\(!geo_distance_m(!go;
+    $expr =~ s!\bgd_km\(!geo_distance_km(!go;
+    $expr =~ s!\bgazm\(!geo_azimuth(!go;
+    $expr =~ s!\bgd_m_azm\(!geo_dist_m_and_azimuth(!go;
+    $expr =~ s!\bgd_km_azm\(!geo_dist_km_and_azimuth(!go;
+    $expr =~ s!\bgd_rl_m\(!geo_rl_distance_m(!go;
+    $expr =~ s!\bgd_rl_km\(!geo_rl_distance_km(!go;
+    $expr =~ s!\bgazm_rl\(!geo_rl_azimuth(!go;
+    $expr =~ s!\bgd_rl_m_azm\(!geo_rl_dist_m_and_azimuth(!go;
+    $expr =~ s!\bgd_rl_km_azm\(!geo_rl_dist_km_and_azimuth(!go;
+    $expr =~ s!\blt\(!laptimer(!go;
+    $expr =~ s!\bsw\(!stopwatch(!go;
+    $expr =~ s!\bl2e\(!local2epoch(!go;
+    $expr =~ s!\bg2e\(!gmt2epoch(!go;
+    $expr =~ s!\be2l\(!epoch2local(!go;
+    $expr =~ s!\be2g\(!epoch2gmt(!go;
+    $expr =~ s!\bd2s\(!dhms2sec(!go;
+    $expr =~ s!\bs2d\(!sec2dhms(!go;
+    $expr =~ s!\bd2d\(!dhms2dhms(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -4205,8 +4243,8 @@ abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_
 get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each,
 linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
 pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, geo2xyz,
-geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
+atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle,
+geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
 geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
 geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age, age_of_moon, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
@@ -5347,6 +5385,39 @@ I<IS_AZIMUTH> is set to true
   $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
   ( 26.5650511771, 41.8103148958 )
 
+=item C<vector_angle>
+
+vector_angle( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_RADIAN> ] ) or
+vector_angle( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_RADIAN> ] ).
+Returns the angle between two vectors as viewed from the origin.
+Angles are in degrees.
+If I<IS_RADIAN> is set, it returns radians instead of degrees.
+alias: va(), angular_distance(), ang_dist().
+
+2D Angle (Degrees):
+
+  $ c 'vector_angle( -100, -100, 100, -100 )'
+  90
+
+2D Angle (Radians):
+
+  $ c 'vector_angle( 100, -100, -100, -100, 1 )'
+  1.57079632679
+
+3D Angle (Degrees):
+
+  ## Angular distance between Central America and Tokyo
+  $ c 'vector_angle(
+         geo2xyz( deg2rad( 10.4, -68.4 ) ),
+         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+       )'
+  127.008055363
+
+3D Angle (Radians) using alias:
+
+  $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
+  3.14159265359
+
 =item C<geo2xyz>
 
 geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ).
@@ -5354,12 +5425,12 @@ Returns 3D Cartesian coordinates (in meters) with the origin at the center of th
 If I<HEIGHT_M> is omitted, the calculation is performed assuming an elevation of 0 m.
 alias: g2xyz().
 
-    ## Calculate the straight-line distance from the epicenter to the observation point.
-    $ c 'dist_between_points(
-           geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
-           geo2xyz( deg2rad( 35.68129, 139.76706 ), 0 )
-         ) / 1000'
-    72.7492079698   ## 72.75 km
+  ## Calculate the straight-line distance from the epicenter to the observation point.
+  $ c 'dist_between_points(
+         geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
+         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+       ) / 1000'
+  72.7492079698   ## 72.75 km
 
 =item C<geo_radius>
 
