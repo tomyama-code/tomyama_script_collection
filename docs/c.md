@@ -76,10 +76,11 @@ pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, t
 atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle,
 geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth,
 geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth,
-geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age, age\_of\_moon, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
+geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap, age, age\_of\_moon, age\_of\_moon\_instant,
+local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, pound2gram, gram2pound, ounce2gram,
+gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+telemeter\_km
 
 # OPTIONS
 
@@ -1462,21 +1463,39 @@ The **c** script was created with the following in mind:
 - `age_of_moon`
 
     age\_of\_moon( _Y_, _m_, _d_ ).
-    Simple calculation of the age of the moon.
+    Returns the moon age at "noon (12:00)" on the specified local date.
+    Returns the value rounded to the first decimal place.
     Maximum deviation of about 2 days.
 
         $ c 'age_of_moon( 2025, 12, 5 )'
-        14.6  # Moon's age is 15 days
+        14.7  # Moon's age is 15 days
 
     Today's Moon Age:
 
         $ c 'age_of_moon( slice( epoch2local( now ), 0, 3 ) )' -v
         epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
         slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
-        age_of_moon( 2025, 12, 5 ) = 15
-        Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
+        age_of_moon( 2025, 12, 5 ) = 14.7
+        Formula: 'age_of_moon( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
             RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
-         Result: 14.6
+         Result: 14.7
+
+- `age_of_moon_instant`
+
+    age\_of\_moon\_instant( _EPOCH_ ).
+    Returns the moon age for the specified the epoch.
+    Maximum deviation of about 2 days.
+    alias: age\_of\_moon\_i().
+
+    Current moon age:
+
+        $ c 'age_of_moon_instant( NOW )'
+        14.28749279
+
+    Moon age at 12:00:
+
+        $ c 'age_of_moon_i( local2epoch( 2025, 12, 5, 12 ) )'
+        14.705978187
 
 - `local2epoch`
 

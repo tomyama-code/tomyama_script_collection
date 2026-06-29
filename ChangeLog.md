@@ -7,6 +7,19 @@
 ### Changed
 - xxx
 
+## [0.2.66] - 2026-06-30
+### Added
+- `c` [1.04.159]:
+  - Added a function.
+    - age_of_moon_instant( EPOCH ).
+      - Returns the moon age for the specified the epoch.
+
+### Changed
+- `c` [1.04.159]:
+  - Changed to return the moon age at 12:00 local time instead of 00:00 UTC.
+    - age_of_moon( Y, m, d ).
+      - Returns the moon age at "noon (12:00)" on the specified local date.
+
 ## [0.2.65] - 2026-06-29
 ### Added
 - `c` [1.04.156]:

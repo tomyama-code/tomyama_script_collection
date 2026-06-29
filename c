@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.156 $
+## - $Revision: 4.159 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.156 $};
+    my $rev = q{$Revision: 4.159 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -685,7 +685,8 @@ use constant {
     H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_AOMN => qq{age_of_moon( Y, m, d ). Simple calculation of the age of the moon. Maximum deviation of about 2 days.},
+    H_AOMN => qq{age_of_moon( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
+    H_AOMI => qq{age_of_moon_instant( EPOCH ). Returns the moon age for the specified the epoch. Maximum deviation of about 2 days. alias: age_of_moon_i().},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
@@ -796,52 +797,53 @@ use constant {
     'dist_between_points'        => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
     'midpt_between_points'       => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
     'angle_between_points'       => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'               => [ 1593, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                    => [ 1595, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                 => [ 1600, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'              => [ 1610, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'             => [ 1620, T_FUNCTION, '4-5', H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'            => [ 1630, T_FUNCTION, '4-5', H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                => [ 1640, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'     => [ 1650, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'    => [ 1660, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'          => [ 1670, T_FUNCTION,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'         => [ 1680, T_FUNCTION,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'             => [ 1690, T_FUNCTION,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'  => [ 1700, T_FUNCTION,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth' => [ 1710, T_FUNCTION,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                  => [ 1720, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                 => [ 1730, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'                    => [ 1740, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
-    'age'                        => [ 1745, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'age_of_moon'                => [ 1750, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'local2epoch'                => [ 1760, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'                  => [ 1770, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'                => [ 1780, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'                  => [ 1790, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                   => [ 1800, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                   => [ 1810, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                  => [ 1815, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'ri2meter'                   => [ 1820, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                   => [ 1830, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                 => [ 1840, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                 => [ 1850, T_FUNCTION,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'        => [ 1860, T_FUNCTION,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'        => [ 1870, T_FUNCTION,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'pound2gram'                 => [ 1880, T_FUNCTION,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                 => [ 1890, T_FUNCTION,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                 => [ 1900, T_FUNCTION,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                 => [ 1910, T_FUNCTION,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'laptimer'                   => [ 1920, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                      => [ 1930, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
-    'stopwatch'                  => [ 1940, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                        => [ 1950, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                      => [ 1960, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                      => [ 1970, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                 => [ 1980, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                  => [ 1990, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                => [ 2000, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'               => [ 2010, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    'vector_angle'               => [ 1600, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
+    'geo2xyz'                    => [ 1610, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
+    'geo_radius'                 => [ 1620, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'              => [ 1630, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'             => [ 1640, T_FUNCTION, '4-5', H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'            => [ 1650, T_FUNCTION, '4-5', H_GDKM, sub{ &geo_distance_km( @_ ) } ],
+    'geo_azimuth'                => [ 1660, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'     => [ 1670, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'    => [ 1680, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'          => [ 1690, T_FUNCTION,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'         => [ 1700, T_FUNCTION,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'             => [ 1710, T_FUNCTION,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'  => [ 1720, T_FUNCTION,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth' => [ 1730, T_FUNCTION,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                  => [ 1740, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                 => [ 1750, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'                    => [ 1760, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
+    'age'                        => [ 1770, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
+    'age_of_moon'                => [ 1780, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'age_of_moon_instant'        => [ 1790, T_FUNCTION,     1, H_AOMI, sub{ &age_of_moon_instant( $_[ 0 ] ) } ],
+    'local2epoch'                => [ 1800, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'                  => [ 1810, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'                => [ 1820, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'                  => [ 1830, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'                   => [ 1840, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
+    'dhms2sec'                   => [ 1850, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                  => [ 1860, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
+    'ri2meter'                   => [ 1870, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                   => [ 1880, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                 => [ 1890, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                 => [ 1900, T_FUNCTION,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'        => [ 1910, T_FUNCTION,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'        => [ 1920, T_FUNCTION,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'pound2gram'                 => [ 1930, T_FUNCTION,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                 => [ 1940, T_FUNCTION,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                 => [ 1950, T_FUNCTION,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                 => [ 1960, T_FUNCTION,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'laptimer'                   => [ 1970, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                      => [ 1980, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
+    'stopwatch'                  => [ 1990, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
+    'bpm'                        => [ 2000, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                      => [ 2010, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                      => [ 2020, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
+    'tachymeter'                 => [ 2030, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                  => [ 2040, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                => [ 2050, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'               => [ 2060, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -2168,6 +2170,26 @@ sub age_of_moon( $$$ )
     my $m = shift( @_ );
     my $d = shift( @_ );
 
+    # 指定されたローカル日時の「その日の正午（12時）」のエポック秒を作る
+#    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
+    my $epoch = Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
+
+    my $age = &age_of_moon_instant( $epoch );
+
+    # 小数第1位に丸めて出力
+    return sprintf( "%.1f", $age );
+}
+sub age_of_moon_instant( $ )
+{
+    my $epoch = shift( @_ );
+
+    my( $sec, $min, $hour, $mday, $mon, $year ) = gmtime( $epoch );
+    my $y = $year + 1900;
+    my $m = $mon + 1;
+
+    # 時・分・秒を日に換算
+    my $d = $mday + ( $hour / 24 ) + ( $min / 1440 ) + ( $sec / 86400 );
+
     # 1月、2月を前年の13月、14月として処理（ツェラーの公式等の定石）
     if( $m <= 2 ){
         $y--;
@@ -2189,16 +2211,16 @@ sub age_of_moon( $$$ )
     $age = ( $age - int( $age ) ) * $synodic_month;
 
     # マイナス値になった場合の補正
-    $age += $synodic_month if $age < 0;
+    $age += $synodic_month if( $age < 0 );
 
-    # 小数第1位に丸めて出力
-    return sprintf( "%.1f", $age );
+    # コア用途のため丸めずに返す
+    return $age;
 }
 
 sub local2epoch( $$$;$$$ )
 {
     my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
-#    $year -= 1900; # 4桁の西暦を解釈できる。4桁で渡すべき。
+#    $year -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
     $month -= 1;
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
@@ -2210,7 +2232,7 @@ sub local2epoch( $$$;$$$ )
 sub gmt2epoch( $$$;$$$ )
 {
     my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
-#    $year -= 1900; # 4桁の西暦を解釈できる。4桁で渡すべき。
+#    $year -= 1900; # timegm()は4桁の西暦を解釈できる。4桁で渡すべき。
     $month -= 1;
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
@@ -2772,6 +2794,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\bgd_rl_km_azm\(!geo_rl_dist_km_and_azimuth(!go;
     $expr =~ s!\blt\(!laptimer(!go;
     $expr =~ s!\bsw\(!stopwatch(!go;
+    $expr =~ s!\bage_of_moon_i\(!age_of_moon_instant(!go;
     $expr =~ s!\bl2e\(!local2epoch(!go;
     $expr =~ s!\bg2e\(!gmt2epoch(!go;
     $expr =~ s!\be2l\(!epoch2local(!go;
@@ -4246,10 +4269,11 @@ pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, ta
 atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle,
 geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
 geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
-geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age, age_of_moon, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile,
-nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound, ounce2gram, gram2ounce, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
+geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age, age_of_moon, age_of_moon_instant,
+local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound, ounce2gram,
+gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
+telemeter_km
 
 =head1 OPTIONS
 
@@ -5642,21 +5666,39 @@ If REF_DATE_EPOCH is omitted, NOW is used.
 =item C<age_of_moon>
 
 age_of_moon( I<Y>, I<m>, I<d> ).
-Simple calculation of the age of the moon.
+Returns the moon age at "noon (12:00)" on the specified local date.
+Returns the value rounded to the first decimal place.
 Maximum deviation of about 2 days.
 
   $ c 'age_of_moon( 2025, 12, 5 )'
-  14.6  # Moon's age is 15 days
+  14.7  # Moon's age is 15 days
 
 Today's Moon Age:
 
   $ c 'age_of_moon( slice( epoch2local( now ), 0, 3 ) )' -v
   epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
   slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
-  age_of_moon( 2025, 12, 5 ) = 15
-  Formula: 'age_of_moon( slice( epoch2local( 1766677137 ), 0, 3 ) ) ='
+  age_of_moon( 2025, 12, 5 ) = 14.7
+  Formula: 'age_of_moon( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
       RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
-   Result: 14.6
+   Result: 14.7
+
+=item C<age_of_moon_instant>
+
+age_of_moon_instant( I<EPOCH> ).
+Returns the moon age for the specified the epoch.
+Maximum deviation of about 2 days.
+alias: age_of_moon_i().
+
+Current moon age:
+
+  $ c 'age_of_moon_instant( NOW )'
+  14.28749279
+
+Moon age at 12:00:
+
+  $ c 'age_of_moon_i( local2epoch( 2025, 12, 5, 12 ) )'
+  14.705978187
 
 =item C<local2epoch>
 
