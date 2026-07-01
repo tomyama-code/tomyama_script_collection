@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.159 $
+## - $Revision: 4.168 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.159 $};
+    my $rev = q{$Revision: 4.168 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -502,10 +502,14 @@ use constant UCFACTOR_NAUTICAL_MILE => 1852; # 1,852 meters, 1海里は、緯度
     #         メリット：
     #         - 「真上（天頂）」と「緯度」が完全に一致すること。
     #         - 地図の「1海里（1マイル）」が世界中でほぼ均等になること。
+use constant UCFACTOR_INCH => 25.4; # 25.4 mm
 
 ## 重さ
 use constant UCFACTOR_POUND => 453.59237; # 453.59 grams
 use constant UCFACTOR_OUNCE => 28.349523125; # 28.35 grams
+
+## 国際標準の標準重力加速度
+use constant STD_GRAVITATIONAL_ACCELERATION => 9.80665;
 
 ### GRS80 楕円体パラメータ（日本国内の測量・学術用）
 ## 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257222101
@@ -518,9 +522,11 @@ use constant UCFACTOR_OUNCE => 28.349523125; # 28.35 grams
 ## WGS84 楕円体パラメータ（GPS・世界標準）
 # 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257223563
 # 注意: GRS80とは1/fの定義が極微細に異なるため、e^2も異なる。
-use constant WGS84_EQUATORIAL_RADIUS_M => 6378137;
-use constant WGS84_POLAR_RADIUS_M      => 6356752.314245179;    # b = a(1-f)
-use constant WGS84_POW_E               => 0.006694379990141316; # 離心率の二乗: e^2 = 2f - f^2
+use constant WGS84_EQUATORIAL_RADIUS_M   => 6378137;
+use constant WGS84_POLAR_RADIUS_M        => 6356752.314245179;      # b = a(1-f)
+use constant WGS84_RECIPROCAL_FLATTENING => 298.257223563;          # 逆扁平率
+use constant WGS84_FLATTENING => 1.0 / WGS84_RECIPROCAL_FLATTENING; # 扁平率
+use constant WGS84_POW_E                 => 0.006694379990141316;   # 離心率の二乗: e^2 = 2f - f^2
 
 # TableProvider コンストラクタ
 sub new {
@@ -596,7 +602,7 @@ use constant {
     H_MINU => qq{Subtraction. "3 - 2" -> 1.},
     H_MULT => qq{Multiplication. "1 * 2" -> 2.},
     H_DIVI => qq{Division. "1 / 2" -> 0.5.},
-    H_MODU => qq{Modulo arithmetic. "10.234 % 3" -> 1.234. [POSIX]},
+    H_MODU => qq{Modulo arithmetic. "10.234 % 3" -> 1.234. Same as fmod( 10.234, 3 ). [POSIX]},
     H_EXPO => qq{Exponentiation. "2 ** 3" -> 8. Similarly, "pow( 2, 3 )".},
     H_BWOR => qq{Bitwise OR. "0x2 | 0x4" -> "6 [ = 0x6 ]".},
     H_BWAN => qq{Bitwise AND. "0x6 & 0x4" -> "4 [ = 0x4 ]".},
@@ -608,6 +614,8 @@ use constant {
     H_COMA => qq{The separator that separates function arguments.},
     H_BEND => qq{A symbol that controls the priority of calculations.},
     H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
+    H_FMOD => qq{fmod( X, Y ). Modulo arithmetic. "fmod( 10, -1.2 )" -> "0.4". Same as "10 % -1.2". [POSIX]},
+    H_MMOD => qq{math_mod( X, Y ). Modulo arithmetic. "math_mod( 10, -1.2 )" -> "-0.8". alias: mmod().},
     H_ABS_ => qq{abs( N1 [,.. ] ). Returns the absolute value of its argument. [Perl Native]},
     H_INT_ => qq{int( N1 [,.. ] ). Returns the integer portion of N. [Perl Native]},
     H_FLOR => qq{floor( N1 [,.. ] ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
@@ -694,16 +702,20 @@ use constant {
     H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ). alias: d2s().},
     H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value. alias: d2d().},
-    H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. alias: 里→メートル(), 里２メートル().},
-    H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. alias: メートル→里(), メートル２里().},
-    H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. alias: マイル→メートル(), マイル２メートル().},
-    H_M2MI => qq{meter2mile( METER ) --Convert-to--> MILE. alias: メートル→マイル(), メートル２マイル().},
-    H_NM2M => qq{nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER. alias: 海里→メートル(), 海里２メートル().},
-    H_M2NM => qq{meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE. alias: メートル→海里(), メートル２海里().},
-    H_LB2G => qq{pound2gram( POUND ) --Convert-to--> GRAM. alias: ポンド→グラム(), ポンド２グラム().},
-    H_G2LB => qq{gram2pound( GRAM ) --Convert-to--> POUND. alias: グラム→ポンド(), グラム２ポンド().},
-    H_OZ2G => qq{ounce2gram( OUNCE ) -->Convert-to--> GRAM. alias: オンス→グラム(), オンス２グラム().},
-    H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. alias: グラム→オンス(), グラム２オンス().},
+    H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. Length and distance conversion. alias: 里→メートル(), 里２メートル().},
+    H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. Length and distance conversion. alias: メートル→里(), メートル２里().},
+    H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
+    H_M2MI => qq{meter2mile( METER ) --Convert-to--> MILE. Length and distance conversion. alias: メートル→マイル(), メートル２マイル().},
+    H_NM2M => qq{nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER. Length and distance conversion. alias: 海里→メートル(), 海里２メートル().},
+    H_M2NM => qq{meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE. Length and distance conversion. alias: メートル→海里(), メートル２海里().},
+    H_I2MM => qq{inch2mm( INCH ) --Convert-to--> MM. Length and distance conversion.},
+    H_MM2I => qq{mm2inch( MM ) --Convert-to--> INCH. Length and distance conversion.},
+    H_LB2G => qq{pound2gram( POUND ) --Convert-to--> GRAM. Weight conversion. alias: ポンド→グラム(), ポンド２グラム().},
+    H_G2LB => qq{gram2pound( GRAM ) --Convert-to--> POUND. Weight conversion. alias: グラム→ポンド(), グラム２ポンド().},
+    H_OZ2G => qq{ounce2gram( OUNCE ) -->Convert-to--> GRAM. Weight conversion. alias: オンス→グラム(), オンス２グラム().},
+    H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. Weight conversion. alias: グラム→オンス(), グラム２オンス().},
+    H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム重2ニュートン().},
+    H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン2キログラム重().},
     H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
     H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
@@ -738,112 +750,118 @@ use constant {
     'BEGIN'                      => [   18, T_OTHER,        0, undef  ],
     '#'                          => [   19, T_SENTINEL,    -1, undef  ],
     'testfunc'                   => [   20, T_OTHER,        1, undef  ],
-    'abs'                        => [ 1010, T_FUNCTION,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
-    'int'                        => [ 1020, T_FUNCTION,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
-    'floor'                      => [ 1030, T_FUNCTION,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
-    'ceil'                       => [ 1040, T_FUNCTION,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
-    'rounddown'                  => [ 1050, T_FUNCTION,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
-    'round'                      => [ 1060, T_FUNCTION,    VA, H_ROUD, sub{ &round( @_ ) } ],
-    'roundup'                    => [ 1070, T_FUNCTION,    VA, H_RODU, sub{ &roundup( @_ ) } ],
-    'percentage'                 => [ 1080, T_FUNCTION, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'              => [ 1090, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'                   => [ 1100, T_FUNCTION,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
-    'prime_factorize'            => [ 1110, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'                  => [ 1120, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'                        => [ 1130, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'                        => [ 1140, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
-    'ncr'                        => [ 1150, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
-    'min'                        => [ 1160, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'                        => [ 1170, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'                    => [ 1180, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'                      => [ 1190, T_FUNCTION,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
-    'slice'                      => [ 1200, T_FUNCTION,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
-    'uniq'                       => [ 1210, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                        => [ 1220, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                       => [ 1230, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                        => [ 1240, T_FUNCTION,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
-    'add_each'                   => [ 1250, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
-    'mul_each'                   => [ 1260, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
-    'linspace'                   => [ 1270, T_FUNCTION, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
-    'linstep'                    => [ 1280, T_FUNCTION,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'mul_growth'                 => [ 1290, T_FUNCTION,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'gen_fibo_seq'               => [ 1300, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'paper_size'                 => [ 1310, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
-    'rand'                       => [ 1320, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'exp'                        => [ 1330, T_FUNCTION,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
-    'exp2'                       => [ 1340, T_FUNCTION,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
-    'exp10'                      => [ 1350, T_FUNCTION,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
-    'log'                        => [ 1360, T_FUNCTION,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
-    'log2'                       => [ 1370, T_FUNCTION,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
-    'log10'                      => [ 1380, T_FUNCTION,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
-    'sqrt'                       => [ 1390, T_FUNCTION,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
-    'pow'                        => [ 1400, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'                    => [ 1410, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'                    => [ 1420, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
-    'deg2rad'                    => [ 1430, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
-    'dms2rad'                    => [ 1440, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'                    => [ 1450, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'                    => [ 1460, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'                    => [ 1470, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                        => [ 1480, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'                        => [ 1490, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'                        => [ 1500, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'                       => [ 1510, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'                       => [ 1520, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'                       => [ 1530, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'                      => [ 1540, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                      => [ 1550, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'                  => [ 1560, T_FUNCTION, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
-    'dist_between_points'        => [ 1570, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points'       => [ 1580, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points'       => [ 1590, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'               => [ 1600, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                    => [ 1610, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                 => [ 1620, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'              => [ 1630, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'             => [ 1640, T_FUNCTION, '4-5', H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'            => [ 1650, T_FUNCTION, '4-5', H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                => [ 1660, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'     => [ 1670, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'    => [ 1680, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'          => [ 1690, T_FUNCTION,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'         => [ 1700, T_FUNCTION,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'             => [ 1710, T_FUNCTION,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'  => [ 1720, T_FUNCTION,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth' => [ 1730, T_FUNCTION,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                  => [ 1740, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                 => [ 1750, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'                    => [ 1760, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
-    'age'                        => [ 1770, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'age_of_moon'                => [ 1780, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'age_of_moon_instant'        => [ 1790, T_FUNCTION,     1, H_AOMI, sub{ &age_of_moon_instant( $_[ 0 ] ) } ],
-    'local2epoch'                => [ 1800, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'                  => [ 1810, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'                => [ 1820, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'                  => [ 1830, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                   => [ 1840, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                   => [ 1850, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                  => [ 1860, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'ri2meter'                   => [ 1870, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                   => [ 1880, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                 => [ 1890, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                 => [ 1900, T_FUNCTION,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'        => [ 1910, T_FUNCTION,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'        => [ 1920, T_FUNCTION,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'pound2gram'                 => [ 1930, T_FUNCTION,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                 => [ 1940, T_FUNCTION,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                 => [ 1950, T_FUNCTION,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                 => [ 1960, T_FUNCTION,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'laptimer'                   => [ 1970, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                      => [ 1980, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
-    'stopwatch'                  => [ 1990, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                        => [ 2000, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                      => [ 2010, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                      => [ 2020, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                 => [ 2030, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                  => [ 2040, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                => [ 2050, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'               => [ 2060, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    'fmod'                       => [ 1010, T_FUNCTION,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    'math_mod'                   => [ 1020, T_FUNCTION,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
+    'abs'                        => [ 1030, T_FUNCTION,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
+    'int'                        => [ 1040, T_FUNCTION,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
+    'floor'                      => [ 1050, T_FUNCTION,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
+    'ceil'                       => [ 1060, T_FUNCTION,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
+    'rounddown'                  => [ 1070, T_FUNCTION,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
+    'round'                      => [ 1080, T_FUNCTION,    VA, H_ROUD, sub{ &round( @_ ) } ],
+    'roundup'                    => [ 1090, T_FUNCTION,    VA, H_RODU, sub{ &roundup( @_ ) } ],
+    'percentage'                 => [ 1100, T_FUNCTION, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'              => [ 1110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'                   => [ 1120, T_FUNCTION,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
+    'prime_factorize'            => [ 1130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'                  => [ 1140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
+    'gcd'                        => [ 1150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
+    'lcm'                        => [ 1160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'ncr'                        => [ 1170, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
+    'min'                        => [ 1180, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'                        => [ 1190, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'                    => [ 1200, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'                      => [ 1210, T_FUNCTION,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
+    'slice'                      => [ 1220, T_FUNCTION,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
+    'uniq'                       => [ 1230, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                        => [ 1240, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                       => [ 1250, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                        => [ 1260, T_FUNCTION,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
+    'add_each'                   => [ 1270, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
+    'mul_each'                   => [ 1280, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
+    'linspace'                   => [ 1290, T_FUNCTION, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
+    'linstep'                    => [ 1300, T_FUNCTION,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'mul_growth'                 => [ 1310, T_FUNCTION,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'               => [ 1320, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'paper_size'                 => [ 1330, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'rand'                       => [ 1340, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'exp'                        => [ 1350, T_FUNCTION,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
+    'exp2'                       => [ 1360, T_FUNCTION,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
+    'exp10'                      => [ 1370, T_FUNCTION,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
+    'log'                        => [ 1380, T_FUNCTION,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
+    'log2'                       => [ 1390, T_FUNCTION,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
+    'log10'                      => [ 1400, T_FUNCTION,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
+    'sqrt'                       => [ 1410, T_FUNCTION,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
+    'pow'                        => [ 1420, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'                    => [ 1430, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'                    => [ 1440, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
+    'deg2rad'                    => [ 1450, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'dms2rad'                    => [ 1460, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'                    => [ 1470, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'                    => [ 1480, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'                    => [ 1490, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                        => [ 1500, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
+    'cos'                        => [ 1510, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
+    'tan'                        => [ 1520, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
+    'asin'                       => [ 1530, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
+    'acos'                       => [ 1540, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
+    'atan'                       => [ 1550, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
+    'atan2'                      => [ 1560, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                      => [ 1570, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'                  => [ 1580, T_FUNCTION, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
+    'dist_between_points'        => [ 1590, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points'       => [ 1600, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points'       => [ 1610, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'vector_angle'               => [ 1620, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
+    'geo2xyz'                    => [ 1630, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
+    'geo_radius'                 => [ 1640, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'              => [ 1650, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'             => [ 1660, T_FUNCTION,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'            => [ 1670, T_FUNCTION,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
+    'geo_azimuth'                => [ 1680, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'     => [ 1690, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'    => [ 1700, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'          => [ 1710, T_FUNCTION,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'         => [ 1720, T_FUNCTION,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'             => [ 1730, T_FUNCTION,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'  => [ 1740, T_FUNCTION,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth' => [ 1750, T_FUNCTION,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                  => [ 1760, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                 => [ 1770, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'                    => [ 1780, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
+    'age'                        => [ 1790, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
+    'age_of_moon'                => [ 1800, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'age_of_moon_instant'        => [ 1810, T_FUNCTION,     1, H_AOMI, sub{ &age_of_moon_instant( $_[ 0 ] ) } ],
+    'local2epoch'                => [ 1820, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'                  => [ 1830, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'                => [ 1840, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'                  => [ 1850, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'                   => [ 1860, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
+    'dhms2sec'                   => [ 1870, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                  => [ 1880, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
+    'ri2meter'                   => [ 1890, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                   => [ 1900, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                 => [ 1910, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                 => [ 1920, T_FUNCTION,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'        => [ 1930, T_FUNCTION,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'        => [ 1940, T_FUNCTION,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                    => [ 1950, T_FUNCTION,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                    => [ 1960, T_FUNCTION,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                 => [ 1970, T_FUNCTION,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                 => [ 1980, T_FUNCTION,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                 => [ 1990, T_FUNCTION,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                 => [ 2000, T_FUNCTION,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                 => [ 2010, T_FUNCTION,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                 => [ 2020, T_FUNCTION,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'laptimer'                   => [ 2030, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                      => [ 2040, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
+    'stopwatch'                  => [ 2050, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
+    'bpm'                        => [ 2060, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                      => [ 2070, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                      => [ 2080, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
+    'tachymeter'                 => [ 2090, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                  => [ 2100, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                => [ 2110, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'               => [ 2120, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -978,15 +996,41 @@ sub _C_DIV( $$ )
     return $_[ 0 ] / $_[ 1 ];
 }
 
+# ゼロ方向切り捨てベースのmod()関数
+#   同等と思われる剰余算機能
+#     C / C++ % 演算子、fmod 関数, Java % 演算子, JavaScript / TypeScript % 演算子,
+#     PHP % 演算子、fmod 関数, C# % 演算子, Swift % 演算子
 sub _C_MOD( $$ )
 {
-    if( $_[1] == 0 ){
-        return $_[ 0 ];
-    }elsif( -1 < $_[ 1 ] && $_[ 1 ] < 1 ){
-        die( qq{"$_[0] \% $_[1]": Illegal modulus operand.\n} );
+    my( $dividend, $divisor ) = @_;
+
+    if( $divisor == 0 ){
+        die( qq{Division by zero: Illegal modulus operand.\n} );
     }
-    #return $_[ 0 ] % $_[ 1 ];
-    return POSIX::fmod( $_[ 0 ], $_[ 1 ] );
+
+    return &POSIX::fmod( $dividend, $divisor );
+}
+
+# 床関数ベースのmod()関数
+#   同等と思われる剰余算機能
+#     Python % 演算子, Ruby % 演算子, Go math.Mod 関数, R %% 演算子,
+#     MATLAB mod 関数, Common Lisp mod 関数
+sub math_mod( $$ ){
+    my( $dividend, $divisor ) = @_;
+    my $res = &_C_MOD( $dividend, $divisor );   # ゼロ方向切り捨てベースのmod()関数
+
+    #print( qq{\$res=$res\n} );
+    #my $a = ( $res < 0 ) ? 1 : 0;
+    #my $b = ( $divisor > 0 ) ? 1 : 0;
+    #my $c = ( $res > 0 ) ? 1 : 0;
+    #my $d = ( $divisor < 0 ) ? 1 : 0;
+    #print( qq{( A B C D ) = ( $a $b $c $d )\n} );
+
+    # 結果が負、かつ割る数が正なら持ち上げる（逆パターンもケア）
+    if( ( $res < 0 && 0 < $divisor ) || ( 0 < $res && $divisor < 0 ) ){
+        $res += $divisor;
+    }
+    return $res;
 }
 
 sub _C_ABS( @ )
@@ -1775,6 +1819,51 @@ sub geo2xyz( $$;$ )
     return ( $x, $y, $z );
 }
 
+sub normalize_coordinates( $$ )
+{
+    my( $lat_rad, $lon_rad ) = @_;
+
+    my $half_pi = pi / 2;
+    my $two_pi  = pi * 2;
+
+    # 範囲外なら警告を出して正規化
+    if( !( -$half_pi <= $lat_rad <= $half_pi ) ||
+        !(       -pi <= $lon_rad <= pi ) ){
+
+        # 経度の正規化 (-pi ～ pi)
+        my $lon_rad_new = &math_mod( ($lon_rad + pi), $two_pi ) - pi;
+
+        # 緯度の正規化（-pi/2 ～ pi/2）と、それに伴う経度の反転処理
+
+        my $lat_rad_new = &math_mod( $lat_rad, $two_pi );
+
+        # 2*pi の余りが pi (180度) を超えたら、-pi ～ pi の範囲に変換
+        if( $lat_rad_new > pi ){
+            $lat_rad_new -= $two_pi;
+        }
+
+        # 緯度の極点折り返しと、それに伴う経度の反転処理
+        if( $lat_rad_new > $half_pi ){
+            $lat_rad_new =  pi - $lat_rad_new;
+
+            # 経度を180度反転
+            $lon_rad_new = &math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
+        }elsif( $lat_rad_new < -$half_pi ){
+            $lat_rad_new = -pi - $lat_rad_new;
+
+            # 経度を180度反転
+            $lon_rad_new = &math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
+        }
+
+        warn( qq{Coordinates out of range: $lat_rad, $lon_rad: } .
+              qq{Automatically normalizing: $lat_rad_new, $lon_rad_new\n} );
+        $lat_rad = $lat_rad_new;
+        $lon_rad = $lon_rad_new;
+    }
+
+    return ( $lat_rad, $lon_rad );
+}
+
 # === 地球の中心から地表までの動径を計算する関数 ===
 # 引数: 緯度（ラジアン）
 # 戻り値: 動径 (メートル)
@@ -1818,6 +1907,33 @@ sub radius_of_latitude_circle( $ )
     return $r;
 }
 
+## 大圏航路（Great Circle）
+## 地球上の2地点間の距離をメートル単位で計算する
+## 引数はすべてラジアン単位で受け取る
+## 引数: Point A 緯度（ラジアン）
+## 引数: Point A 経度（ラジアン）
+## 引数: Point B 緯度（ラジアン）
+## 引数: Point B 経度（ラジアン）
+## 戻り値: 2地点間の距離 (メートル)
+sub geo_distance_m( $$$$ )
+{
+    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    return $dist_m;
+}
+
+sub geo_distance_km( $$$$ )
+{
+    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my $dist_km = $dist_m / 1000;
+    return $dist_km;
+}
+
+sub geo_azimuth( $$$$ )
+{
+    my( $dist, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    return $azimuth;
+}
+
 ## --- 距離計算に関するメモ ---
 ## 1. ハバーサイン (Haversine) 公式 :
 ##    地球を球体と仮定。計算が高速で一般的。
@@ -1838,169 +1954,261 @@ sub radius_of_latitude_circle( $ )
 ##    もさらに精度と速度が向上しており、現在ではより広く使われています。
 ## ----------------------------
 
-## 大圏航路（Great Circle）
-## 地球上の2地点間の距離をメートル単位で計算する
-## 引数はすべてラジアン単位で受け取る
-## 引数: Point A 緯度（ラジアン）
-## 引数: Point A 経度（ラジアン）
-## 引数: Point B 緯度（ラジアン）
-## 引数: Point B 経度（ラジアン）
-## 戻り値: 2地点間の距離 (メートル)
-sub geo_distance_m( $$$$;$ )
-{
-    my $argc = scalar( @_ );
-    my $algorithm = 0;
-    if( $argc == 5 ){
-        $algorithm = pop( @_ );
-    }
-    my $distance_m = 0;
+## See: geo_distance_m_r4.128.pdf
+#sub geo_distance_m_Haversine( $$$$ )
+#{
+#    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+#    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+#    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+#    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+#
+#    # 緯度と経度の差分
+#    my $dlon = $lonB_rad - $lonA_rad;
+#    my $dlat = $latB_rad - $latA_rad;
+#
+#    # ハバーサイン公式の計算
+#    my $a = ( sin( $dlat / 2 ) * sin( $dlat / 2 ) ) +
+#            ( cos( $latA_rad ) * cos( $latB_rad ) *
+#              sin( $dlon / 2 ) * sin( $dlon / 2 ) );
+#    my $distance = 2 * atan2( sqrt( $a ), sqrt( 1 - $a ) );
+#
+#    # 地球の半径 (メートル)
+#    my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
+##    my $earth_radius_m = WGS84_EQUATORIAL_RADIUS_M; # 赤道半径（長半径）
+##    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
+##    my $earth_radius_m = &geocentric_radius( $P );  # 緯度$Pの半径 (メートル)
+##    print( qq{\$earth_radius_m="$earth_radius_m", \$P="$P"\n} );
+#
+#    my $distance_m = $earth_radius_m * $distance;
+#
+#    return $distance_m;
+#}
 
-    if( $algorithm == 0 ){
-        # Auto Select ( See: geo_distance_m.pdf )
-        $distance_m = &geo_distance_m_Hubeny( @_ );
-        if( $distance_m > 1_350_000 ){
-            $distance_m = &geo_distance_m_Haversine( @_ );
+## See: geo_distance_m_r4.128.pdf
+#sub geo_distance_m_Hubeny( $$$$ )
+#{
+#    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+#    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+#    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+#    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+#
+#    my $Dy = $latB_rad - $latA_rad;             # 2点の緯度（ラジアン）の差
+#    my $Dx = $lonB_rad - $lonA_rad;             # 2点の経度（ラジアン）の差
+#    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
+#    my $Rx = WGS84_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
+#    my $Ry = WGS84_POLAR_RADIUS_M;              # 短半径（極半径）
+#    my $W  = sqrt( 1 - ( ( WGS84_POW_E ) * ( sin( $P ) ** 2 ) ) );
+#    my $M = ( $Rx * ( 1 - ( WGS84_POW_E ) ) ) / # 子午線曲率半径
+#            ( $W ** 3 );
+#    my $N = $Rx / $W;                           # 卯酉線曲線半径
+#
+#    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * cos( $P ) ) ** 2 ) );
+#
+#    my $distance_m = $D;
+#
+#    return $distance_m;
+#}
+
+## See: geo_distance_m_r4.162.pdf
+sub geo_great_circle_route_Vincenty( $$$$ )
+{
+    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
+    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    ( $latA_rad, $lonA_rad ) = &normalize_coordinates( $latA_rad, $lonA_rad );
+    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
+    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+    ( $latB_rad, $lonB_rad ) = &normalize_coordinates( $latB_rad, $lonB_rad );
+
+    # 同一地点の場合は距離 0、方位角 0 を返す
+    if( abs( $latA_rad - $latB_rad) < 1e-12 && abs( $lonA_rad - $lonB_rad ) < 1e-12 ){
+        return ( 0, 0 );
+    }
+
+    # WGS84 楕円体定数
+    my $a = WGS84_EQUATORIAL_RADIUS_M;  # 赤道半径 (メートル)
+    my $f = WGS84_FLATTENING;           # 扁平率
+    my $b = WGS84_POLAR_RADIUS_M;       # 極半径
+
+    # 経度差を -π 〜 +π の範囲に正規化
+    my $L = $lonB_rad - $lonA_rad;
+    if   ( $L >  pi ){ $L -= 2 * pi; }
+    elsif( $L < -pi ){ $L += 2 * pi; }
+
+    # 補助緯度 (Reduced Latitude) の計算
+    my $U1 = atan( ( 1 - $f ) * tan( $latA_rad ) );
+    my $U2 = atan( ( 1 - $f ) * tan( $latB_rad ) );
+    my $sinU1 = sin( $U1 ); my $cosU1 = cos( $U1 );
+    my $sinU2 = sin( $U2 ); my $cosU2 = cos( $U2 );
+
+    # Vincenty法の反復計算
+    my $lambda = $L;
+    my $lambda_prev;
+    my $sin_sigma; my $cos_sigma; my $sigma;
+    my $sin_alpha; my $cos2_alpha;
+    my $cos2_sigma_m = 0; # ループ外でも使うため事前に宣言
+
+    # 収束計算 (最大100回に設定（通常は数回で終わるはず）)
+    for( my $i = 0; $i < 100; $i++ ){
+        $lambda_prev = $lambda;
+
+        my $sin_lambda = sin( $lambda );
+        my $cos_lambda = cos( $lambda );
+
+        $sin_sigma = sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
+
+        # 対蹠点（真裏）などの特殊なケースでゼロ割を防ぐ
+        if( $sin_sigma == 0 ){ return ( 0, 0 ); }
+
+        $cos_sigma = $sinU1 * $sinU2 + $cosU1 * $cosU2 * $cos_lambda;
+        $sigma = atan2( $sin_sigma, $cos_sigma );
+
+        $sin_alpha = $cosU1 * $cosU2 * $sin_lambda / $sin_sigma;
+        $cos2_alpha = 1 - $sin_alpha ** 2;
+
+        # 赤道上のケースを考慮
+        $cos2_sigma_m = 0;
+        if( $cos2_alpha != 0 ){
+            $cos2_sigma_m = $cos_sigma - 2 * $sinU1 * $sinU2 / $cos2_alpha;
         }
-    }elsif( $algorithm == 1 ){
-        $distance_m = &geo_distance_m_Haversine( @_ );
-    }else{
-        $distance_m = &geo_distance_m_Hubeny( @_ );
+
+        my $C = $f / 16 * $cos2_alpha * ( 4 + $f * ( 4 - 3 * $cos2_alpha ) );
+        $lambda = $L + ( 1 - $C ) * $f * $sin_alpha * ( $sigma + $C * $sin_sigma * ( $cos2_sigma_m + $C * $cos_sigma * ( -1 + 2 * $cos2_sigma_m ** 2 ) ) );
+
+        # 変化量が極小（収束）したらループを抜ける
+        if( abs( $lambda - $lambda_prev ) < 1e-12 ){ last; }
     }
-    return $distance_m;
-}
 
-sub geo_distance_m_Haversine( $$$$ )
-{
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+    # ----------------------------------------
+    # 距離 (dist) の計算処理を追加
+    # ----------------------------------------
+    my $u2 = $cos2_alpha * ( $a ** 2 - $b ** 2 ) / ( $b ** 2 );
+    my $A = 1 + $u2 / 16384 * ( 4096 + $u2 * ( -768 + $u2 * (320 - 175 * $u2 ) ) );
+    my $B = $u2 / 1024 * ( 256 + $u2 * ( -128 + $u2 * ( 74 - 47 * $u2 ) ) );
+    my $delta_sigma = $B * $sin_sigma * ( $cos2_sigma_m + $B / 4 * ( $cos_sigma * ( -1 + 2 * $cos2_sigma_m ** 2 ) - $B / 6 * $cos2_sigma_m * ( -3 + 4 * $sin_sigma ** 2 ) * ( -3 + 4 * $cos2_sigma_m ** 2 ) ) );
 
-    # 緯度と経度の差分
-    my $dlon = $lonB_rad - $lonA_rad;
-    my $dlat = $latB_rad - $latA_rad;
+    # 楕円体上の大圏距離 (メートル)
+    my $dist = $b * $A * ( $sigma - $delta_sigma );
 
-    # ハバーサイン公式の計算
-    my $a = ( sin( $dlat / 2 ) * sin( $dlat / 2 ) ) +
-            ( cos( $latA_rad ) * cos( $latB_rad ) *
-              sin( $dlon / 2 ) * sin( $dlon / 2 ) );
-    my $distance = 2 * atan2( sqrt( $a ), sqrt( 1 - $a ) );
+    # ----------------------------------------
+    # 初期方位角 (azimuth) の計算
+    # ----------------------------------------
+    my $y = sin( $lambda ) * $cosU2;
+    my $x = $cosU1 * $sinU2 - $sinU1 * $cosU2 * cos( $lambda );
+    my $azimuth_rad = atan2( $y, $x );
 
-    # 地球の半径 (メートル)
-    my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
-#    my $earth_radius_m = WGS84_EQUATORIAL_RADIUS_M; # 赤道半径（長半径）
-#    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
-#    my $earth_radius_m = &geocentric_radius( $P );  # 緯度$Pの半径 (メートル)
-#    print( qq{\$earth_radius_m="$earth_radius_m", \$P="$P"\n} );
+    # ラジアンを「0度〜360度」の範囲に変換
+    my $azimuth = rad2deg( $azimuth_rad );
+    if( $azimuth < 0 ){ $azimuth += 360; }
 
-    my $distance_m = $earth_radius_m * $distance;
-
-    return $distance_m;
-}
-
-sub geo_distance_m_Hubeny( $$$$ )
-{
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
-    my $Dy = $latB_rad - $latA_rad;             # 2点の緯度（ラジアン）の差
-    my $Dx = $lonB_rad - $lonA_rad;             # 2点の経度（ラジアン）の差
-    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
-    my $Rx = WGS84_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
-    my $Ry = WGS84_POLAR_RADIUS_M;              # 短半径（極半径）
-    my $W  = sqrt( 1 - ( ( WGS84_POW_E ) * ( sin( $P ) ** 2 ) ) );
-    my $M = ( $Rx * ( 1 - ( WGS84_POW_E ) ) ) / # 子午線曲率半径
-            ( $W ** 3 );
-    my $N = $Rx / $W;                           # 卯酉線曲線半径
-
-    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * cos( $P ) ) ** 2 ) );
-
-    my $distance_m = $D;
-
-    return $distance_m;
-}
-
-sub geo_distance_km( $$$$;$ )
-{
-    return &geo_distance_m( @_ ) / 1000;
-}
-
-sub geo_azimuth( $$$$ )
-{
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
-    my $delta_x = $lonB_rad - $lonA_rad;
-    my $rad = atan2( cos( $latA_rad ) * tan( $latB_rad ) -
-        sin( $latA_rad ) * cos( $delta_x ),
-        sin( $delta_x ) );
-    my $deg = rad2deg( $rad );
-    #print( qq{\$rad="$rad", \$deg="$deg"\n} );
-    my $azimuth = 90 - $deg;
-    $azimuth += 360 if( $azimuth < 0 );
-
-    return $azimuth;
+    # 距離と方位角をペアで返す
+    return ( $dist, $azimuth );
 }
 
 sub geo_dist_m_and_azimuth( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+    my( $dist, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
 
-    my $dist = &geo_distance_m( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-    my $deg  = &geo_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-
-    return ( $dist, $deg );
+    return ( $dist, $azimuth );
 }
 
 sub geo_dist_km_and_azimuth( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my $dist_km = $dist_m / 1000;
 
-    my $dist = &geo_distance_km( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-    my $deg  = &geo_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-
-    return ( $dist, $deg );
+    return ( $dist_km, $azimuth );
 }
 
-## 等角航路（Rhumb Line）
-## 等角航路（航程）の近似計算（メートル単位）
-## 1度は約111,319mとして計算
 sub geo_rl_distance_m( $$$$ )
+{
+    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
+    return $dist;
+}
+
+## 等角航路（Rhumb Line）, 漸長緯度航法
+sub geo_rhumb_line( $$$$ )
 {
     my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
     my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
+    ( $latA_rad, $lonA_rad ) = &normalize_coordinates( $latA_rad, $lonA_rad );
     my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
     my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
+    ( $latB_rad, $lonB_rad ) = &normalize_coordinates( $latB_rad, $lonB_rad );
 
-#    my $latA_deg = rad2deg( $latA_rad );
-#    my $lonA_deg = rad2deg( $lonA_rad );
-#    my $latB_deg = rad2deg( $latB_rad );
-#    my $lonB_deg = rad2deg( $lonB_rad );
-#
-#    my $LENGTH_OF_1_MERIDIAN_DEGREE = 111319.49;    # 緯度1度の長さ[メートル]
-#    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
-#    my $LENGTH_OF_1_DEGREE_OF_LONGITUDE = $LENGTH_OF_1_MERIDIAN_DEGREE * cos( $P );
-#
-#    my $distance_m = sqrt(
-#        ( ( ( $latB_deg - $latA_deg ) * $LENGTH_OF_1_MERIDIAN_DEGREE ) ** 2 ) +
-#        ( ( ( $lonB_deg - $lonA_deg ) * $LENGTH_OF_1_DEGREE_OF_LONGITUDE ) ** 2 ) );
+    # 同一地点の場合は距離 0、方位角 0 を返す
+    if( abs( $latA_rad - $latB_rad ) < 1e-12 &&
+        abs( $lonA_rad - $lonB_rad ) < 1e-12 ){
+        return ( 0, 0 );
+    }
 
-    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
-    my $x = &geo_distance_m( $P, $lonA_rad, $P, $lonB_rad );
-    my $y = &geo_distance_m( $latA_rad, $lonA_rad, $latB_rad, $lonA_rad );
-    my $distance_m = sqrt( ( $x ** 2 ) + ( $y ** 2 ) );
+    # WGS84 楕円体定数
+    my $a = WGS84_EQUATORIAL_RADIUS_M;
+    my $f = WGS84_FLATTENING;           # 扁平率
+    my $e = sqrt( 2 * $f - $f * $f );   # 第一離心率 (約 0.081819191)
+    #printf( qq{\$f=$f, \$e=$e\n} );
 
-    return $distance_m;
+    my $dlat = $latB_rad - $latA_rad;
+    my $dlon = $lonB_rad - $lonA_rad;
+
+    # 経度差の計算 (最短経路を選択するため -PI から +PI の範囲に収める)
+    if   ( $dlon >  pi ){ $dlon -= 2 * pi; }
+    elsif( $dlon < -pi ){ $dlon += 2 * pi; }
+#    printf( qq{\$dlat=$dlat, \$dlon=$dlon\n} );
+
+    # ------------------------------------------------------------------
+    # 方位角 (azimuth) の計算（漸長緯度航法）
+    # ------------------------------------------------------------------
+
+    # 緯度をメルカトル図法上の「y座標」に変換する式
+    # 楕円体における漸長緯度 (Isometric Latitude) の差を計算
+    my $m_A = log( tan( pi / 4 + $latA_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * sin( $latA_rad ) ) / ( 1 - $e * sin( $latA_rad ) ) );
+    my $m_B = log( tan( pi / 4 + $latB_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * sin( $latB_rad ) ) / ( 1 - $e * sin( $latB_rad ) ) );
+    my $dm = $m_B - $m_A;
+#    printf( qq{\$dm=$dm\n} );
+
+    # 方位角を算出
+    # 真北を0とし、時計回りのラジアンを返す
+    my $azimuth_rad = atan2( $dlon, $dm );
+    # ラジアンを「0度〜360度」の範囲に変換
+    my $azimuth = rad2deg( $azimuth_rad );
+    if( $azimuth < 0 ){ $azimuth += 360; }
+
+    # ------------------------------------------------------------------
+    # 距離 (distance) の厳密な計算（子午線弧長からの展開）
+    # ------------------------------------------------------------------
+
+    my $distance_m;
+
+    if( abs( $dlat ) < 1e-11 ){
+        # 【ケースA】完全な真東・真西（同緯度）の移動
+        # この場合は南北移動がないため、平行圏曲率半径（卯酉線曲率半径×cos緯度）から直接算出
+        my $N = $a / sqrt( 1 - $e * $e * sin( $latA_rad ) * sin( $latA_rad ) );
+        $distance_m = $N * cos( $latA_rad ) * abs( $dlon );
+    }else{
+        # 【ケースB】南北の移動がある場合（日本から南極など、ほとんどのケース）
+        # クロップ（Klotz）の展開式を用いて、赤道からの正確な子午線弧長を算出（積分展開）
+        my $n = $f / ( 2.0 - $f );
+        my $n2 = $n * $n;
+        my $n3 = $n * $n * $n;
+
+        my $A_coeff = $a / ( 1.0 + $n ) * ( 1.0 + (1.0/4.0) * $n2 + ( 1.0 / 64.0 ) * $n3 );
+        my $B_coeff = $a / ( 1.0 + $n ) * ( (  3.0 /  2.0)  * $n  - ( 3.0 / 16.0 ) * $n3 );
+        my $C_coeff = $a / ( 1.0 + $n ) * ( ( 15.0 / 16.0)  * $n2 );
+        my $D_coeff = $a / ( 1.0 + $n ) * ( ( 35.0 / 48.0)  * $n3 );
+
+        my $s_A = $A_coeff * $latA_rad - $B_coeff * sin( 2 * $latA_rad ) + $C_coeff * sin( 4 * $latA_rad) - $D_coeff * sin( 6 * $latA_rad );
+        my $s_B = $A_coeff * $latB_rad - $B_coeff * sin( 2 * $latB_rad ) + $C_coeff * sin( 4 * $latB_rad) - $D_coeff * sin( 6 * $latB_rad );
+
+        # 厳密な南北の距離（子午線弧長）
+        my $S_M = abs( $s_B - $s_A );
+
+        # 等角航路の総距離 ＝ 南北距離 ÷ cos(方位角)
+        $distance_m = $S_M / abs( cos( $azimuth_rad ) );
+    }
+
+    return ( $distance_m, $azimuth );
 }
 
 sub geo_rl_distance_km( $$$$ )
@@ -2010,84 +2218,38 @@ sub geo_rl_distance_km( $$$$ )
 
 sub geo_rl_azimuth( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
-    # 1. 経度差の計算 (最短経路を選択するため -PI から +PI の範囲に収める)
-    my $dlon = $lonB_rad - $lonA_rad;
-    if   ( $dlon >  pi ){ $dlon -= 2 * pi; }
-    elsif( $dlon < -pi ){ $dlon += 2 * pi; }
-
-    # 2. 漸近緯度 (Mercator Latitude) の差を計算
-    # 緯度をメルカトル図法上の「y座標」に変換する式
-    my $m_A = log( tan( pi / 4 + $latA_rad / 2 ) );
-    my $m_B = log( tan( pi / 4 + $latB_rad / 2 ) );
-    my $dm  = $m_B - $m_A;
-
-    # 3. atan2(経度差, 漸近緯度の差) で方位角を算出
-    # 真北を0とし、時計回りのラジアンを返す
-    my $azimuth_rad = atan2( $dlon, $dm );
-
-    # 4. ラジアンを「0度〜360度」の範囲に変換
-    my $azimuth = rad2deg( $azimuth_rad );
-    if( $azimuth < 0 ){ $azimuth += 360; }
-
+    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
     return $azimuth;
 }
 
 sub geo_rl_dist_m_and_azimuth( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
-    my $dist = &geo_rl_distance_m( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-    my $deg  = &geo_rl_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-
-    return ( $dist, $deg );
+    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
+    return ( $dist, $azimuth );
 }
 
 sub geo_rl_dist_km_and_azimuth( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
-    my $dist = &geo_rl_distance_km( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-    my $deg  = &geo_rl_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
-
-    return ( $dist, $deg );
+    my( $dist_m, $azimuth ) = &geo_rhumb_line( @_ );
+    my $dist_km = $dist_m / 1000;
+    return ( $dist_km, $azimuth );
 }
 
 ## 大圏航路（Great Circle）と 等角航路（Rhumb Line）
 sub geo_all_m( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
     my @ret_vals = ();
-    push( @ret_vals, &geo_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
-    push( @ret_vals, &geo_rl_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, &geo_dist_m_and_azimuth( @_ ) );
+    push( @ret_vals, &geo_rl_dist_m_and_azimuth( @_ ) );
 
     return @ret_vals;
 }
 
 sub geo_all_km( $$$$ )
 {
-    my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
-    my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
-    my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-
     my @ret_vals = ();
-    push( @ret_vals, &geo_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
-    push( @ret_vals, &geo_rl_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, &geo_dist_km_and_azimuth( @_ ) );
+    push( @ret_vals, &geo_rl_dist_km_and_azimuth( @_ ) );
 
     return @ret_vals;
 }
@@ -2272,7 +2434,7 @@ sub sec2dhms( $;$ )
         #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
     }
 
-    my $sec = POSIX::fmod( $duration_abs, 60 );
+    my $sec = &_C_MOD( $duration_abs, 60 );
     ## support:
     ##   $ ./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'
     ##   ( 0, 0, 48, 45.7800000000002 ) -> 45.78
@@ -2283,9 +2445,9 @@ sub sec2dhms( $;$ )
         $sec = sprintf( "%.${decimal_places}f", $sec )
     }
     my $remain = int( $duration_abs / 60 );
-    my $minute = POSIX::fmod( $remain, 60 );
+    my $minute = &_C_MOD( $remain, 60 );
     $remain = int( $remain / 60 );
-    my $hour = POSIX::fmod( $remain, 24 );
+    my $hour = &_C_MOD( $remain, 24 );
     my $days = int( $remain / 24 );
 
     if( $bNeg ){
@@ -2368,6 +2530,22 @@ sub meter2nautical_mile( $ )
     return $nautical_mile;
 }
 
+## 長さ変換: インチ[inch]→ミリメートル[mm]
+sub inch2mm( $ )
+{
+    my $inch = shift( @_ );
+    my $mm = $inch * UCFACTOR_INCH;
+    return $mm;
+}
+
+## 長さ変換: ミリメートル[mm]→インチ[inch]
+sub mm2inch( $ )
+{
+    my $mm = shift( @_ );
+    my $inch = $mm / UCFACTOR_INCH;
+    return $inch;
+}
+
 ## 重さ変換: ポンド[lb]→グラム[g]
 sub pound2gram( $ )
 {
@@ -2400,12 +2578,28 @@ sub gram2ounce( $ )
     return $ounce;
 }
 
+## 力・重さ・トルクの変換: キログラム重[kgf]→ニュートン[N]
+sub kgf2newton( $ )
+{
+    my $kgf = shift( @_ );
+    my $newton = $kgf * STD_GRAVITATIONAL_ACCELERATION;
+    return $newton;
+}
+
+## 力・重さ・トルクの変換: ニュートン[N]→キログラム重[kgf]
+sub newton2kgf( $ )
+{
+    my $newton = shift( @_ );
+    my $kgf = $newton / STD_GRAVITATIONAL_ACCELERATION;
+    return $kgf;
+}
+
 sub msec2hms( $ )
 {
     my $duration = shift( @_ );
     #print( qq{\$duration="$duration"\n} );
 
-    my $sec = POSIX::fmod( $duration, 60 );
+    my $sec = &_C_MOD( $duration, 60 );
     #print( qq{\$sec="$sec"\n} );
     my $remain = int( $duration / 60 );
     my $minute = $remain % 60;
@@ -2742,9 +2936,11 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!マイル!mile!go;
     $expr =~ s!海里!nautical_mile!go;
     $expr =~ s!里!ri!go;
+    $expr =~ s!キログラム重!kgf!go;
     $expr =~ s!グラム!gram!go;
     $expr =~ s!ポンド!pound!go;
     $expr =~ s!オンス!ounce!go;
+    $expr =~ s!ニュートン!newton!go;
     $expr = &p2str( $expr );
     ##########
 
@@ -2772,6 +2968,7 @@ sub FormulaNormalizationOneLine( $ )
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
     $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
+    $expr =~ s!\bmmod\(!math_mod(!go;
     $expr =~ s!\bpct\(!percentage(!go;
     $expr =~ s!\brs\(!ratio_scaling(!go;
     $expr =~ s!\bpf\(!prime_factorize(!go;
@@ -2792,6 +2989,8 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\bgazm_rl\(!geo_rl_azimuth(!go;
     $expr =~ s!\bgd_rl_m_azm\(!geo_rl_dist_m_and_azimuth(!go;
     $expr =~ s!\bgd_rl_km_azm\(!geo_rl_dist_km_and_azimuth(!go;
+    $expr =~ s!\bkgf2n\(!kgf2newton(!go;
+    $expr =~ s!\bn2kgf\(!newton2kgf(!go;
     $expr =~ s!\blt\(!laptimer(!go;
     $expr =~ s!\bsw\(!stopwatch(!go;
     $expr =~ s!\bage_of_moon_i\(!age_of_moon_instant(!go;
@@ -4262,18 +4461,18 @@ CURRENT-TIME
 
 =head2 FUNCTIONS
 
-abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg, add_each, mul_each,
-linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log, log2, log10, sqrt,
-pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle,
-geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth,
-geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth,
-geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap, age, age_of_moon, age_of_moon_instant,
-local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri,
-mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, pound2gram, gram2pound, ounce2gram,
-gram2ounce, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
-telemeter_km
+fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime,
+prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
+add_each, mul_each, linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log,
+log2, log10, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan,
+asin, acos, atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_points,
+angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km,
+geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
+geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap,
+age, age_of_moon, age_of_moon_instant, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
+dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm,
+mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, laptimer, timer,
+stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
 
 =head1 OPTIONS
 
@@ -4612,7 +4811,7 @@ Calculate the distance between two points.
          deg2rad( -18.76694, 46.8691 ),
          deg2rad( -0.3831, -90.42333 )
        ) ='
-  14890.6974607     # 14891 km
+  14905.6045069     # 14906 km
 
 The straight-line distance between Madagascar and the Galapagos Islands was found to be 14,907 km.
 
@@ -4623,12 +4822,12 @@ Be sure to include the sign if the value is negative.
   $ c 'gd_km(
          dms2rad( -18, -46,  -0.984000000006233 ), dms2rad( 46, 52, 8.76000000001113 ),
          dms2rad(  -0, -22, -59.16 ), dms2rad( -90, -25, -23.9880000000255 ) ) ='
-  14890.6974607     # 14891 km
+  14905.6045069     # 14906 km
 
 The direction can also be calculated.
 
   $ c 'geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) )'
-  250.30843446      # About west-southwest ( WSW )
+  250.110014395     # About west-southwest ( WSW )
 
 It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-S-W) rather than 0 to 360 degrees.
 
@@ -4637,7 +4836,7 @@ It may be more intuitive to represent the direction as a value from 0 to 4 (N-E-
          geo_azimuth( deg2rad( -18.76694, 46.8691, -0.3831, -90.42333 ) ),
          4
        )'
-  2.78120482734     # Direction Index (2.78 is between South(2) and West(3), closer to West)
+  2.77900015995     # Direction Index (2.78 is between South(2) and West(3), closer to West)
                     # Approx: West-Southwest (WSW)
 
 If you record the calculation as shown below,
@@ -4654,7 +4853,7 @@ Calculates distance and direction simultaneously.
            $Madagascar_coord, $Galapagos_Islands_coord
          )
        )"
-  ( 14890.6974607, 250.30843446 )   # Dist: 14891 km, Brg: 250 degrees (WSW)
+  ( 14905.6045069, 250.110014395 )  # Dist: 14906 km, Brg: 250 degrees (WSW)
   $
 
 The B<c> script was created with the following in mind:
@@ -4691,6 +4890,7 @@ C<1 / 2> -> C<0.5>.
 
 Modulo arithmetic.
 C<10.234 % 3> -> C<1.234>.
+Same as fmod( 10.234, 3 ).
 [POSIX]
 
 =item C<**>
@@ -4753,6 +4953,21 @@ Similarly, C<1 + 2>.
 =head1 FUNCTIONS
 
 =over 8
+
+=item C<fmod>
+
+fmod( I<X>, I<Y> ).
+Modulo arithmetic.
+C<fmod( 10, -1.2 )> -> C<0.4>.
+Same as C<10 % -1.2>.
+[POSIX]
+
+=item C<math_mod>
+
+math_mod( I<X>, I<Y> ).
+Modulo arithmetic.
+C<math_mod( 10, -1.2 )> -> C<-0.8>.
+alias: mmod().
 
 =item C<abs>
 
@@ -5054,7 +5269,7 @@ Generate the Lucas sequence:
 
 =item C<paper_size>
 
-paper_size( SIZE [, TYPE ] ).
+paper_size( I<SIZE> [, I<TYPE> ] ).
 Returns the following information in this order:
 length of short side, length of long side (in mm).
 SIZE is a non-negative integer.
@@ -5487,7 +5702,7 @@ alias: gd_m().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403862.905334     # 403,862.91 m
+  403822.719846     # 403,822.72 m
 
 =item C<geo_distance_km>
 
@@ -5500,7 +5715,7 @@ alias: gd_km().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403.862905334     # 403.86 km
+  403.822719846     # 403.82 km
 
 =item C<geo_azimuth>
 
@@ -5513,7 +5728,7 @@ alias: gazm().
   $ TOKYO_ST='35.68129, 139.76706'
   $ OSAKA_ST='34.70248, 135.49595'
   $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  255.573489871
+  255.640247215
 
 =item C<geo_dist_m_and_azimuth>
 
@@ -5527,7 +5742,7 @@ alias: gd_m_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412609, 257.09017233 )   # 913,789.41 m ; 257 degrees
+  ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
 
 =item C<geo_dist_km_and_azimuth>
 
@@ -5541,7 +5756,7 @@ alias: gd_km_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412609, 257.09017233 )   # 913.79 km ; 257 degrees
+  ( 913.341859625, 257.157936196 )  # 913.34 km ; 257 degrees
 
 =item C<geo_rl_distance_m>
 
@@ -5554,7 +5769,7 @@ alias: gd_rl_m().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  913789.412609     # 913,789.41 m
+  913686.10938  # 913,686.11 m
 
 =item C<geo_rl_distance_km>
 
@@ -5567,7 +5782,7 @@ alias: gd_rl_km().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  913.789412609     # 913.79 km
+  913.68610938  # 913.69 km
 
 =item C<geo_rl_azimuth>
 
@@ -5581,7 +5796,7 @@ alias: gazm_rl().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  254.326381534     # 254 degrees
+  254.394179317     # 254 degrees
 
 =item C<geo_rl_dist_m_and_azimuth>
 
@@ -5595,7 +5810,7 @@ alias: gd_rl_m_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412609, 254.326381534 )  # 913,789.41 m, 254 degrees
+  ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
 
 =item C<geo_rl_dist_km_and_azimuth>
 
@@ -5609,7 +5824,7 @@ alias: gd_rl_km_azm().
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412609, 254.326381534 )  # 913.79 km, 254 degrees
+  ( 913.68610938, 254.394179317 )   # 913.69 km, 254 degrees
 
 =item C<geo_all_m>
 
@@ -5623,7 +5838,7 @@ Latitude and longitude must be specified in radians.
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913789.412609, 257.09017233, 913789.412609, 254.326381534 )
+  ( 913341.859625, 257.157936196, 913686.10938, 254.394179317 )
 
 =item C<geo_all_km>
 
@@ -5637,7 +5852,7 @@ Latitude and longitude must be specified in radians.
          deg2rad( 35.68129, 139.76706 ),
          dms2rad( 33, 27, 56, 130, 10, 32 )
        )'
-  ( 913.789412609, 257.09017233, 913.789412609, 254.326381534 )
+  ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
 =item C<is_leap>
 
@@ -5656,9 +5871,9 @@ Evaluate together:
 
 =item C<age>
 
-age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ).
+age( I<BIRTHDAY_EPOCH> [, I<REF_DATE_EPOCH> ] ).
 Returns a list of ( age, days ).
-If REF_DATE_EPOCH is omitted, NOW is used.
+If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
 
   $ c 'age( local2epoch( 2000, 1, 1 ) )'
   ( 26, 165 )
@@ -5757,7 +5972,7 @@ alias: d2s.
 
 =item C<dhms2dhms>
 
-dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ).
+dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) -->Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
 Returns the normalized value.
 alias: d2d().
 
@@ -5766,7 +5981,8 @@ alias: d2d().
 
 =item C<ri2meter>
 
-ri2meter( RI ) --Convert-to--> METER.
+ri2meter( I<RI> ) --Convert-to--> I<METER>.
+Length and distance conversion.
 alias: 里→メートル(), 里２メートル().
 
   $ c 'ri2meter( 1 )'
@@ -5774,7 +5990,8 @@ alias: 里→メートル(), 里２メートル().
 
 =item C<meter2ri>
 
-meter2ri( METER ) --Convert-to--> RI.
+meter2ri( I<METER> ) --Convert-to--> I<RI>.
+Length and distance conversion.
 alias: メートル→里(), メートル２里().
 
   $ c 'meter2ri( 4000 )'
@@ -5782,7 +5999,8 @@ alias: メートル→里(), メートル２里().
 
 =item C<mile2meter>
 
-mile2meter( MILE ) --Convert-to--> METER.
+mile2meter( I<MILE> ) --Convert-to--> I<METER>.
+Length and distance conversion.
 alias: マイル→メートル(), マイル２メートル().
 
   $ c 'mile2meter( 1 )'
@@ -5790,7 +6008,8 @@ alias: マイル→メートル(), マイル２メートル().
 
 =item C<meter2mile>
 
-meter2mile( METER ) --Convert-to--> MILE.
+meter2mile( I<METER> ) --Convert-to--> I<MILE>.
+Length and distance conversion.
 alias: メートル→マイル(), メートル２マイル().
 
   $ c 'meter2mile( 2000 )'
@@ -5798,7 +6017,8 @@ alias: メートル→マイル(), メートル２マイル().
 
 =item C<nautical_mile2meter>
 
-nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER.
+nautical_mile2meter( I<NAUTICAL_MILE> ) --Convert-to--> I<METER>.
+Length and distance conversion.
 alias: 海里→メートル(), 海里２メートル().
 
   $ c 'nautical_mile2meter( 1 )'
@@ -5806,15 +6026,33 @@ alias: 海里→メートル(), 海里２メートル().
 
 =item C<meter2nautical_mile>
 
-meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE.
+meter2nautical_mile( I<METER> ) --Convert-to--> I<NAUTICAL_MILE>.
+Length and distance conversion.
 alias: メートル→海里(), メートル２海里().
 
   $ c 'meter2nautical_mile( 2000 )'
   1.07991360691
 
+=item C<inch2mm>
+
+inch2mm( I<INCH> ) --Convert-to--> I<MM>.
+Length and distance conversion.
+
+  $ c 'inch2mm( 1 )'
+  25.4
+
+=item C<inch2mm>
+
+mm2inch( I<MM> ) --Convert-to--> I<INCH>.
+Length and distance conversion.
+
+  $ c 'mm2inch( 12.7 )'
+  0.5
+
 =item C<pound2gram>
 
-pound2gram( POUND ) --Convert-to--> GRAM.
+pound2gram( I<POUND> ) --Convert-to--> I<GRAM>.
+Weight conversion.
 alias: ポンド→グラム(), ポンド２グラム().
 
   $ c 'pound2gram( 1 )'
@@ -5822,7 +6060,8 @@ alias: ポンド→グラム(), ポンド２グラム().
 
 =item C<gram2pound>
 
-gram2pound( GRAM ) --Convert-to--> POUND.
+gram2pound( I<GRAM> ) --Convert-to--> I<POUND>.
+Weight conversion.
 alias: グラム→ポンド(), グラム２ポンド().
 
   $ c 'gram2pound( 500 )'
@@ -5830,7 +6069,8 @@ alias: グラム→ポンド(), グラム２ポンド().
 
 =item C<ounce2gram>
 
-ounce2gram( OUNCE ) -->Convert-to--> GRAM.
+ounce2gram( I<OUNCE> ) -->Convert-to--> I<GRAM>.
+Weight conversion.
 alias: オンス→グラム(), オンス２グラム().
 
   $ c 'ounce2gram( 1 )'
@@ -5838,11 +6078,30 @@ alias: オンス→グラム(), オンス２グラム().
 
 =item C<gram2ounce>
 
-gram2ounce( GRAM ) -->Convert-to--> OUNCE.
+gram2ounce( I<GRAM> ) -->Convert-to--> I<OUNCE>.
+Weight conversion.
 alias: グラム→オンス(), グラム２オンス().
 
   $ c 'gram2ounce( 30 )'
   1.05821885849
+
+=item C<newton2kgf>
+
+kgf2newton( I<KGF> ) -->Convert-to--> I<NEWTON>.
+Conversion of force, weight, and torque.
+alias: kgf2n(), キログラム重→ニュートン(), キログラム重２ニュートン().
+
+  $ c 'kgf2newton( 6.5 )'
+  63.743225
+
+=item C<kgf2newton>
+
+newton2kgf( I<NEWTON> ) -->Convert-to--> I<KGF>.
+Conversion of force, weight, and torque.
+alias: n2kgf(), ニュートン→キログラム重(), ニュートン２キログラム重().
+
+  $ c 'newton2kgf( 64 )'
+  6.52618376306
 
 =item C<laptimer>
 

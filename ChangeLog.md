@@ -7,6 +7,25 @@
 ### Changed
 - xxx
 
+## [0.2.66] - 2026-07-02
+### Added
+- `c` [1.04.168]:
+  - Added a function.
+    - Modulo arithmetic.
+      - fmod( X, Y ): fmod( 10, -1.2 ) -> "0.4". Same as "10 % -1.2".
+      - math_mod( X, Y ): math_mod( 10, -1.2 ) -> "-0.8". alias: mmod().
+    - Length and distance conversion.
+      - inch2mm( INCH ) --Convert-to--> MM.
+      - mm2inch( MM ) --Convert-to--> INCH.
+    - Conversion of force, weight, and torque.
+      - kgf2newton( KGF ) -->Convert-to--> NEWTON.
+      - newton2kgf( NEWTON ) -->Convert-to--> KGF.
+
+### Changed
+- `c` [1.04.168]:
+  - Changed the algorithms used for geospatial functions.
+  - Fixed a bug where the rhumb line distance could equal the great-circle distance.
+
 ## [0.2.66] - 2026-06-30
 ### Added
 - `c` [1.04.159]:
