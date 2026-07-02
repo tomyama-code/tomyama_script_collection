@@ -53,9 +53,12 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $cmd;
-
 subtest qq{"Usage" test} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$MARKCMD" );
     $cmd->exit_isnt_num( 0, "Returning an error" );
     $cmd->stdout_is_eq( qq{}, qq{stdout is silent} );
@@ -78,6 +81,11 @@ subtest qq{"Usage" test} => sub{
 };
 
 subtest qq{<FILE>} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$MARKCMD mark $apppath/../mark" );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
@@ -151,6 +159,11 @@ subtest qq{<FILE>} => sub{
 };
 
 subtest qq{'-d', '--debug' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -d '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
@@ -168,6 +181,11 @@ subtest qq{'-d', '--debug' option switch} => sub{
 };
 
 subtest qq{'-f' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_like( qr/\*\njklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi\n/, qq{Display from the correct point} );
@@ -309,6 +327,11 @@ subtest qq{'-f' option switch} => sub{
 };
 
 subtest qq{'-h', '--no-filename' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
@@ -349,6 +372,11 @@ subtest qq{'-h', '--no-filename' option switch} => sub{
 };
 
 subtest qq{'-H', '--with-filename' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
@@ -397,6 +425,10 @@ subtest qq{'-H', '--with-filename' option switch} => sub{
 
 subtest qq{'-v', '--version' option switch} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD --version} );
     $cmd->exit_is_num( 0, qq{./mark --version} );
     $cmd->stdout_like( qr/^Version: \d/ );
@@ -412,6 +444,11 @@ subtest qq{'-v', '--version' option switch} => sub{
 };
 
 subtest qq{'-i', '--ignore-case' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_is_eq( qq{}, qq{No lines match.} );
@@ -451,6 +488,11 @@ subtest qq{'-i', '--ignore-case' option switch} => sub{
 };
 
 subtest qq{'-n', '--line-number' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_unlike( qr/25/, qq{Line numbers are not displayed.} );
@@ -492,6 +534,11 @@ subtest qq{'-n', '--line-number' option switch} => sub{
 };
 
 subtest qq{'-c', '--force-color' option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$MARKCMD -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
     $cmd->exit_is_num( 0, "normal termination" );
     $cmd->stdout_unlike( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n/, qq{Not highlighted.} );

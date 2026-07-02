@@ -25,6 +25,102 @@ BEGIN {
   }
 }
 
+## FDが枯渇する問題への対応中
+##  - ulimit -n 4096 で逃げる方法もあるけど根本的な問題解決ではない
+
+# 【OSレイヤー救済：ゾンビFD強制クローズ関数】
+#use POSIX qw();
+
+sub cleanup_zombie_fds {
+#効果はあるけれどもトリッキー過ぎる。
+#問題は Test::Command.pm が オープンしたテンポラリファイルをclose()していないこと。
+#
+#    my $fd_dir = '/proc/self/fd';
+#    return unless -d $fd_dir;
+#
+#    if( opendir( my $dh, $fd_dir ) ){
+#        while( my $entry = readdir( $dh ) ){
+#            next if( $entry =~ /^\./ );
+#            # 標準入力(0), 標準出力(1), 標準エラー(2)はクローズ対象から除外
+#            next if( $entry =~ /^[012]$/ );
+#
+#            my $link_path = "$fd_dir/$entry";
+#            if( -l $link_path ){
+#                my $target = readlink( $link_path );
+#                #printf( qq{koko: %d: \$target="$target"\n}, __LINE__ );
+#                if( defined( $target ) &&
+#                    ( $target =~ m|/tmp/| ) &&
+#                    ( $target =~ /deleted/ ) ){
+#                    # 文字列のFD番号を整数に変換
+#                    my $fd_num = int( $entry );
+#                    printf( qq{koko: %d: POSIX::close( $fd_num )\n}, __LINE__ );
+#                    # POSIX のシステムコールを直接呼び出し、FDそのものを閉じる
+#                    POSIX::close( $fd_num );
+#                }
+#            }
+#        }
+#        closedir( $dh );
+#    }
+}
+
+#{
+#    no warnings 'redefine';
+#    *Test::Command::DESTROY = sub {
+#        my $self = shift;
+#        if (my $res = $self->{result}) {
+#            if( $res->{stdout_file} ){
+#                printf( qq{koko: %d: unlink( %s )\n}, __LINE__, $res->{stdout_file} );
+#                unlink( $res->{stdout_file} );
+#            }
+#            if( $res->{stderr_file} ){
+#                printf( qq{koko: %d: unlink( %s )\n}, __LINE__, $res->{stderr_file} );
+#                unlink( $res->{stderr_file} );
+#            }
+#        }
+#    };
+#}
+
+##参考 Test::Command.pm の問題点を修正したパッチ
+#$ diff Command.pm.org Command.pm -p
+#*** /home/tom/perl5/lib/perl5/Test/Command.pm.org	2025-09-22 19:00:49.000000000 +0900
+#--- /home/tom/perl5/lib/perl5/Test/Command.pm	2026-07-03 05:52:38.584651931 +0900
+#*************** sub new
+#*** 199,204 ****
+#--- 199,219 ----
+#
+#     }
+#
+#+ sub DESTROY
+#+ {
+#+     my $self = shift;
+#+     if (my $res = $self->{result}) {
+#+         if( $res->{stdout_file} ){
+#+             #printf( qq{koko: %d: unlink( %s )\n}, __LINE__, $res->{stdout_file} );
+#+             unlink( $res->{stdout_file} );
+#+         }
+#+         if( $res->{stderr_file} ){
+#+             #printf( qq{koko: %d: unlink( %s )\n}, __LINE__, $res->{stderr_file} );
+#+             unlink( $res->{stderr_file} );
+#+         }
+#+     }
+#+ }
+#+
+#  =head2 run
+#
+#     $test_cmd_obj->run;
+#*************** sub _run_cmd
+#*** 434,439 ****
+#--- 449,456 ----
+#     close STDERR or confess "failed to close STDERR: $!";
+#     open STDOUT, '>&' . fileno $saved_stdout or confess 'Cannot restore STDOUT';
+#     open STDERR, '>&' . fileno $saved_stderr or confess 'Cannot restore STDERR';
+#+ close( $temp_stdout_fh );
+#+ close( $temp_stderr_fh );
+#
+#     return { exit_status => $exit_status,
+#              term_signal => $term_signal,
+
+
 $ENV{ 'TEST_TARGET_CMD' } = 'c';
 
 #$ENV{WITH_PERL_COVERAGE} = 1;
@@ -59,11 +155,14 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $cmd;
-
 `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
 
 subtest qq{Normal} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{echo | $TARGCMD} );
     $cmd->exit_is_num( 0, qq{echo | ./c} );
     $cmd->stdout_is_eq( qq{\n} );
@@ -973,6 +1072,12 @@ subtest qq{Normal} => sub{
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_km( 100, 100, -100, -100 )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_all_km( 100, 100, -100, -100 )'} );
     $cmd->stdout_is_eq( qq{( 9315.0650115, 49.4032576339, 9323.62154307, 43.7610906052 )\n}, qq{引数（座標）の正規化} );
+    $cmd->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
+    undef( $cmd );
+
+    $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_all_km( 1, -4, 1, 4 )'} );
+    $cmd->exit_is_num( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
+    $cmd->stdout_is_eq( qq{( 5386.30789906, 45.7429575198, 5930.42524018, 90 )\n}, qq{( P  A B  dec ) = ( 1  0 1  0 )} );
     $cmd->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
     undef( $cmd );
 
@@ -2832,6 +2937,15 @@ subtest qq{Normal} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
+};
+
+subtest qq{Script Structure} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     $cmd->exit_is_num( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     ## OutputFunc
@@ -2872,9 +2986,14 @@ subtest qq{Normal} => sub{
     $cmd->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{aliases} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'mmod( 10, -1.2 )'} );
     $cmd->exit_is_num( 0, qq{./c 'mmod( 10, -1.2 )'} );
@@ -3125,9 +3244,14 @@ subtest qq{aliases} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-d, --debug} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{echo | $TARGCMD -d} );
     $cmd->exit_is_num( 0, qq{echo | ./c -d} );
@@ -3155,9 +3279,14 @@ subtest qq{-d, --debug} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-v, --verbose} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'sqrt(2**100)=' -v} );
     $cmd->exit_is_num( 0, qq{./c 'sqrt(2**100)=' -v} );
@@ -3215,9 +3344,14 @@ subtest qq{-v, --verbose} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-r, --rpn} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD '10*-3' '*-5+-4/2=' -r} );
     $cmd->exit_is_num( 0, qq{./c '10*-3' '*-5+-4/2=' -r} );
@@ -3239,9 +3373,14 @@ subtest qq{-r, --rpn} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{--version} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD --version} );
     $cmd->exit_is_num( 0, qq{./c --version} );
@@ -3250,9 +3389,14 @@ subtest qq{--version} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-h, --help} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -h} );
     $cmd->exit_is_num( 0, qq{./c -h} );
@@ -3300,9 +3444,14 @@ subtest qq{-h, --help} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-b, --banner} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
     $cmd->exit_is_num( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
@@ -3316,9 +3465,14 @@ subtest qq{-b, --banner} => sub{
     $cmd->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{user-rc ( Run Command )} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $cmd->exit_is_num( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
@@ -3358,9 +3512,14 @@ subtest qq{user-rc ( Run Command )} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{-u, --user-defined} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     `rm -f .c.rc`;
 
@@ -3380,9 +3539,14 @@ subtest qq{-u, --user-defined} => sub{
     $cmd->stderr_is_eq( qq{}, qq{STDERR is silent.} );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 subtest qq{STDIN} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{echo '１２３，４５６－５９ ＋ １２３．４５６＊２＝' | $TARGCMD} );
     $cmd->exit_is_num( 0, qq{echo '１２３，４５６－５９ ＋ １２３．４５６＊２＝' | ./c} );
@@ -3396,6 +3560,7 @@ subtest qq{STDIN} => sub{
     $cmd->stderr_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
     undef( $cmd );
 
+    &cleanup_zombie_fds();
 };
 
 

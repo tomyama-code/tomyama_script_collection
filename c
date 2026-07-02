@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.168 $
+## - $Revision: 4.169 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.168 $};
+    my $rev = q{$Revision: 4.169 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1826,9 +1826,15 @@ sub normalize_coordinates( $$ )
     my $half_pi = pi / 2;
     my $two_pi  = pi * 2;
 
+    #my $P = ( -$half_pi <= $lat_rad and $lat_rad <= $half_pi ) ? 1 : 0;
+    #my $A = ( -pi <= $lon_rad ) ? 1 : 0;
+    #my $B = ( $lon_rad <= pi ) ? 1 : 0;
+    #my $dec = ( $A && $B ) ? 1 : 0;
+    #print( qq{( P  A B  dec ) = ( $P  $A $B  $dec )\n} );
+
     # 範囲外なら警告を出して正規化
-    if( !( -$half_pi <= $lat_rad <= $half_pi ) ||
-        !(       -pi <= $lon_rad <= pi ) ){
+    if( !( -$half_pi <= $lat_rad && $lat_rad <= $half_pi ) ||
+        !(       -pi <= $lon_rad && $lon_rad <= pi ) ){
 
         # 経度の正規化 (-pi ～ pi)
         my $lon_rad_new = &math_mod( ($lon_rad + pi), $two_pi ) - pi;

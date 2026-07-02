@@ -54,11 +54,14 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $cmd;
 my $TFILE = "./tests/address.tab";              # shell: TFILE="./tests/address.tab"
 my $TF_FAKE_IP = "./tests/addr_fake_ip.txt";    # shell: TF_FAKE_IP="./tests/addr_fake_ip.txt"
 
 subtest qq{Error path} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD "NON-EXISTENT-FILES"} );
     $cmd->exit_isnt_num( 0, qq{./domsort "NON-EXISTENT-FILES"} );
@@ -93,6 +96,10 @@ subtest qq{Error path} => sub{
 };
 
 subtest qq{Normal} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     #$ ./domsort "./tests/address.tab"
     #1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
@@ -200,6 +207,10 @@ subtest qq{Normal} => sub{
 
 subtest qq{-f  Force case sensitivity.} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     #$ ./domsort -fk 3 "$TFILE"
     #7   12.34.55.90  FREEMAIL.ABC.COM  user7@FREEMAIL.ABC.COM  03-1234-8765
     #10  12.34.6.100  MAIL1.ABC.COM     USER10@MAIL1.ABC.COM    044-123-5678
@@ -255,6 +266,10 @@ subtest qq{-f  Force case sensitivity.} => sub{
 };
 
 subtest qq{-r  Reverse the result of comparisons.} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     #$ ./domsort -r "./tests/address.tab"
     #9   12.34.55.9   abc.com           user9@abc.com           044-1234-765
@@ -362,6 +377,10 @@ subtest qq{-r  Reverse the result of comparisons.} => sub{
 
 subtest qq{-t <SEP>} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     #$ ./domsort -t "\t" "./tests/address.tab"
     #1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
     #10  12.34.6.100  MAIL1.ABC.COM     USER10@MAIL1.ABC.COM    044-123-5678
@@ -382,6 +401,10 @@ subtest qq{-t <SEP>} => sub{
 };
 
 subtest qq{Input data from STDIN} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     #$ cat "$TFILE" | ./domsort -k 3
     #9   12.34.55.9   abc.com           user9@abc.com           044-1234-765
@@ -404,6 +427,10 @@ subtest qq{Input data from STDIN} => sub{
 
 subtest qq{-h, --help} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -h} );
     $cmd->exit_is_num( 0, qq{./domsort -h} );
     $cmd->stdout_like( qr/^Usage: domsort / );
@@ -419,6 +446,10 @@ subtest qq{-h, --help} => sub{
 };
 
 subtest qq{-v, --version} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -v} );
     $cmd->exit_is_num( 0, qq{./domsort -v} );

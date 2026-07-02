@@ -7,7 +7,21 @@
 ### Changed
 - xxx
 
-## [0.2.66] - 2026-07-02
+## [0.2.68] - 2026-07-03
+### Changed
+- `c` [1.04.169]:
+  - Changed the code to avoid using "Chained Comparisons".
+    - `c [1.04.168]` contained code that did not work correctly in environments with Perl versions earlier than 5.32.
+- Changed variable scope to prevent `Test::Command` from exhausting file descriptors.
+  - Interim measure. The issue lies with `Test::Command`, but since that tool is no longer being updated, we have no choice but to migrate to a different one.
+    - It has a severe bug that causes the test environment to exhaust system resources.
+  - `tests/c.test.pl`
+  - `tests/domsort.test.pl`
+  - `tests/fill.test.pl`
+  - `tests/holiday.test.pl`
+  - `tests/mark.test.pl`
+
+## [0.2.67] - 2026-07-02
 ### Added
 - `c` [1.04.168]:
   - Added a function.

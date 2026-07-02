@@ -53,9 +53,12 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $cmd;
-
 subtest qq{debug mode} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$FILLCMD -d -1 123" );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
@@ -90,6 +93,11 @@ subtest qq{debug mode} => sub{
 };
 
 subtest qq{"Usage" test} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$FILLCMD" );
     $cmd->exit_isnt_num( 0, "Treat it as an error." );
     $cmd->stdout_is_eq( "", "Does not output anything." );
@@ -118,6 +126,10 @@ subtest qq{"Usage" test} => sub{
 
 subtest qq{"-v", "--version" option} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$FILLCMD --version} );
     $cmd->exit_is_num( 0, qq{./fill --version} );
     $cmd->stdout_like( qr/^Version: \d/ );
@@ -134,6 +146,11 @@ subtest qq{"-v", "--version" option} => sub{
 
 subtest qq{Counter format} => sub{
     subtest qq{Counter format: counter} => sub{
+
+        ## Test::CommandはFDを解放しないので、枯渇を避けるため
+        ## 局所的なスコープに留めること。
+        my $cmd;
+
         $cmd = Test::Command->new( cmd => "$FILLCMD 1:1" );
         $cmd->exit_is_num( 0, "exit status is 0" );
         $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "basic test" );
@@ -160,6 +177,11 @@ subtest qq{Counter format} => sub{
     };
 
     subtest qq{Counter format: step} => sub{
+
+        ## Test::CommandはFDを解放しないので、枯渇を避けるため
+        ## 局所的なスコープに留めること。
+        my $cmd;
+
         $cmd = Test::Command->new( cmd => "$FILLCMD -3 001:1" );
         $cmd->exit_is_num( 0, "Always terminates normally." );
         $cmd->stdout_is_eq( "001\n002\n003\n", qq{Basic test for step value.} );
@@ -180,6 +202,11 @@ subtest qq{Counter format} => sub{
     };
 
     subtest qq{Counter format: General: "0" Boundary Test} => sub{
+
+        ## Test::CommandはFDを解放しないので、枯渇を避けるため
+        ## 局所的なスコープに留めること。
+        my $cmd;
+
         $cmd = Test::Command->new( cmd => "$FILLCMD -5 002:-1" );
         $cmd->exit_is_num( 0, "Always terminates normally." );
         $cmd->stdout_is_eq( "002\n001\n000\n-01\n-02\n", qq{Allows sign changes.} );
@@ -207,6 +234,11 @@ subtest qq{Counter format} => sub{
 };
 
 subtest qq{"-N" option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$FILLCMD -3 10:2" );
     $cmd->exit_is_num( 0, "Always terminates normally." );
     $cmd->stdout_is_eq( "10\n12\n14\n", qq{"-N" option switch} );
@@ -257,6 +289,11 @@ subtest qq{"-N" option switch} => sub{
 };
 
 subtest qq{"-w" option switch} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "$FILLCMD -2 -w 1 1:1" );
     $cmd->exit_is_num( 0, "Always terminates normally." );
     $cmd->stdout_is_eq( "1\n2\n", qq{"-w" <N>} );
@@ -331,6 +368,11 @@ subtest qq{"-w" option switch} => sub{
 };
 
 subtest qq{Replacing data from STDIN} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => "echo 123 | $FILLCMD -" );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
@@ -378,6 +420,11 @@ subtest qq{Replacing data from STDIN} => sub{
 };
 
 subtest qq{Control characters} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$FILLCMD } . q{-3 1:1 '\n' 11:1} );
     $cmd->exit_is_num( 0, qq{"\\n" is support (New Line)} );
     $cmd->stdout_is_eq( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
@@ -416,6 +463,11 @@ subtest qq{Control characters} => sub{
 };
 
 subtest qq{Escaping the "%" symbol} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$FILLCMD -3 'usage rate: %%0:1%%%.'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( "usage rate: 0%.\nusage rate: 1%.\nusage rate: 2%.\n", qq{Escaping the "%" symbol} );
@@ -436,6 +488,11 @@ subtest qq{Escaping the "%" symbol} => sub{
 };
 
 subtest qq{<<SUB<..%..>SUB>>} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<SUB<\.[^\.]+$>%<.%%01:1%%>SUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
@@ -492,6 +549,11 @@ subtest qq{<<SUB<..%..>SUB>>} => sub{
 };
 
 subtest qq{<<GSUB<..%..>GSUB>>} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $FILLCMD } . q{'mv "%%-%%" "<<GSUB<\.[^\.]+$>%<.%%01:1%%>GSUB>>"'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
@@ -548,6 +610,11 @@ subtest qq{<<GSUB<..%..>GSUB>>} => sub{
 };
 
 subtest qq{complicated} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$FILLCMD -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
     $cmd->exit_is_num( 0, "exit status is 0" );
     $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );

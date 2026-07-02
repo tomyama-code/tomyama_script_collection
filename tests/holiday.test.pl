@@ -56,9 +56,11 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     }
 }
 
-my $cmd;
-
 subtest qq{Normal} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD | cat -} );
     $cmd->exit_is_num( 0, qq{./holiday | cat -} );
@@ -88,6 +90,10 @@ subtest qq{Normal} => sub{
 
 subtest qq{-v, --version} => sub{
 
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
+
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -v} );
     $cmd->exit_is_num( 0, qq{./holiday -v} );
     $cmd->stdout_like( qr/^Version: \d/ );
@@ -105,6 +111,10 @@ subtest qq{-v, --version} => sub{
 };
 
 subtest qq{-h, --help} => sub{
+
+    ## Test::CommandはFDを解放しないので、枯渇を避けるため
+    ## 局所的なスコープに留めること。
+    my $cmd;
 
     $cmd = Test::Command->new( cmd => qq{$TARGCMD -h} );
     $cmd->exit_is_num( 0, qq{./holiday -h} );
