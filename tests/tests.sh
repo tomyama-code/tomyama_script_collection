@@ -33,8 +33,10 @@ sh_main()
     targets=''
     echo '' >"$test_summary"
     for fi in *; do
-        if ! is_it_executable_file "$fi"; then
-            continue
+        if ! is_it_module_file "$fi"; then
+            if ! is_it_executable_file "$fi"; then
+                continue
+            fi
         fi
         bname="`basename \"$fi\"`"
         tname="tests/$bname.test.pl"
@@ -96,6 +98,22 @@ is_it_executable_file()
         return 2
     fi
     if [ ! -x "$1" ]; then
+        return 1
+    fi
+    return 0
+}
+
+is_it_module_file()
+{
+    #echo "Check: $1"
+    if [ ! -f "$1" ]; then
+        return 3
+    fi
+    if [ ! -r "$1" ]; then
+        return 2
+    fi
+    echo "$1" | grep '\.pm$' >/dev/null
+    if [ $? -ne 0 ]; then
         return 1
     fi
     return 0

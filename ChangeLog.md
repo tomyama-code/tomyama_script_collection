@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.2.69] - 2026-07-07
+### Added
+- `FTCalc.pm`: Perl interface for The Flat-Text Calculator
+- `FTCalc_sample.pl`: A sample script using the FTCalc module.
+- `tcs_bin_path.pl`: A script that returns the installation path of the "tomyama_script_collection" scripts.
+
+### Changed
+- `c` [1.04.170]:
+  - Changes to the documentation only.
+
 ## [0.2.68] - 2026-07-03
 ### Changed
 - `c` [1.04.169]:

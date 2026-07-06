@@ -492,8 +492,20 @@ The **c** script was created with the following in mind:
 
     Modulo arithmetic.
     `10.234 % 3` -> `1.234`.
-    Same as fmod( 10.234, 3 ).
+    Same as `fmod( 10.234, 3 )`.
     \[POSIX\]
+
+    Differences between modulo operations ([`fmod`](#fmod) and [`math_mod`](#math_mod)):
+
+        ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
+        ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│  X ┃
+        ┠─────╂──┼──┼──┼──┼──┨
+        ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
+        ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
+        ┃ %, fmod()┃-0.7│-0.7│ 0.7│ 0.7│ err┃
+        ┠─────╂──┼──┼──┼──┼──┨
+        ┃math_mod()┃-0.7│ 1.5│-1.5│ 0.7│ err┃
+        ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
 
 - `**`
 
@@ -560,12 +572,16 @@ The **c** script was created with the following in mind:
     Same as `10 % -1.2`.
     \[POSIX\]
 
+    Please refer to the [% operator](#section) for the differences between the remainder operations ([`fmod`](#fmod) and [`math_mod`](#math_mod)).
+
 - `math_mod`
 
     math\_mod( _X_, _Y_ ).
     Modulo arithmetic.
     `math_mod( 10, -1.2 )` -> `-0.8`.
     alias: mmod().
+
+    Please refer to the [% operator](#section) for the differences between the remainder operations ([`fmod`](#fmod) and [`math_mod`](#math_mod)).
 
 - `abs`
 

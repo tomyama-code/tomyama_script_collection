@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.169 $
+## - $Revision: 4.170 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.169 $};
+    my $rev = q{$Revision: 4.170 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1000,6 +1000,11 @@ sub _C_DIV( $$ )
 #   同等と思われる剰余算機能
 #     C / C++ % 演算子、fmod 関数, Java % 演算子, JavaScript / TypeScript % 演算子,
 #     PHP % 演算子、fmod 関数, C# % 演算子, Swift % 演算子
+#   概念
+#     dividend=-5.1
+#     divisor=-2.2
+#     c "fmod( $dividend, $divisor )"
+#     c "$dividend - ( $divisor * rounddown( $dividend / $divisor, 0 ) )"
 sub _C_MOD( $$ )
 {
     my( $dividend, $divisor ) = @_;
@@ -1015,6 +1020,11 @@ sub _C_MOD( $$ )
 #   同等と思われる剰余算機能
 #     Python % 演算子, Ruby % 演算子, Go math.Mod 関数, R %% 演算子,
 #     MATLAB mod 関数, Common Lisp mod 関数
+#   概念
+#     dividend=-5.1
+#     divisor=-2.2
+#     c "math_mod( $dividend, $divisor )"
+#     c "$dividend - ( $divisor * floor( $dividend / $divisor ) )"
 sub math_mod( $$ ){
     my( $dividend, $divisor ) = @_;
     my $res = &_C_MOD( $dividend, $divisor );   # ゼロ方向切り捨てベースのmod()関数
@@ -4896,8 +4906,20 @@ C<1 / 2> -> C<0.5>.
 
 Modulo arithmetic.
 C<10.234 % 3> -> C<1.234>.
-Same as fmod( 10.234, 3 ).
+Same as C<fmod( 10.234, 3 )>.
 [POSIX]
+
+Differences between modulo operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_mod>):
+
+  ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
+  ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│  X ┃
+  ┠─────╂──┼──┼──┼──┼──┨
+  ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
+  ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
+  ┃ %, fmod()┃-0.7│-0.7│ 0.7│ 0.7│ err┃
+  ┠─────╂──┼──┼──┼──┼──┨
+  ┃math_mod()┃-0.7│ 1.5│-1.5│ 0.7│ err┃
+  ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
 
 =item C<**>
 
@@ -4968,12 +4990,16 @@ C<fmod( 10, -1.2 )> -> C<0.4>.
 Same as C<10 % -1.2>.
 [POSIX]
 
+Please refer to the L<% operator|/%> for the differences between the remainder operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_mod>).
+
 =item C<math_mod>
 
 math_mod( I<X>, I<Y> ).
 Modulo arithmetic.
 C<math_mod( 10, -1.2 )> -> C<-0.8>.
 alias: mmod().
+
+Please refer to the L<% operator|/%> for the differences between the remainder operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_mod>).
 
 =item C<abs>
 

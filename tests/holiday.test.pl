@@ -38,7 +38,6 @@ my $TARGCMD = "./tests/cmd_wrapper";
 
 my $test_beg = `./c 'now'`;
 
-my $develCoverStatus = -1;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
         $ENV{WITH_PERL_COVERAGE_OWNER} = $$;
@@ -51,7 +50,7 @@ if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
             delete( $ENV{WITH_PERL_COVERAGE} );
             delete( $ENV{WITH_PERL_COVERAGE_OWNER} );
         }else{
-            $develCoverStatus=`cover -delete`;
+            print( `cover -delete` );
         }
     }
 }
@@ -135,7 +134,7 @@ done_testing();
 
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){
-        $develCoverStatus=`cover`;
+        print( `cover` );
     }
 }
 
