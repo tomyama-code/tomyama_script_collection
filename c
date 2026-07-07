@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.170 $
+## - $Revision: 4.171 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.170 $};
+    my $rev = q{$Revision: 4.171 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -6295,33 +6295,33 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
-=item * base - first included in perl 5.00405
+=item * L<base> - first included in perl 5.00405
 
-=item * Class::Struct — first included in perl 5.004
+=item * L<Class::Struct> — first included in perl 5.004
 
-=item * constant — first included in perl 5.004
+=item * L<constant> — first included in perl 5.004
 
-=item * Encode — first included in perl v5.7.3
+=item * L<Encode> — first included in perl v5.7.3
 
-=item * File::Basename — first included in perl 5
+=item * L<File::Basename> — first included in perl 5
 
-=item * List::Util — first included in perl v5.7.3
+=item * L<List::Util> — first included in perl v5.7.3
 
-=item * Math::BigInt — first included in perl 5
+=item * L<Math::BigInt> — first included in perl 5
 
-=item * Math::Trig — first included in perl 5.004
+=item * L<Math::Trig> — first included in perl 5.004
 
-=item * POSIX — first included in perl 5
+=item * L<POSIX> — first included in perl 5
 
-=item * strict — first included in perl 5
+=item * L<strict> — first included in perl 5
 
-=item * Time::HiRes - first included in perl v5.7.3
+=item * L<Time::HiRes> - first included in perl v5.7.3
 
-=item * Time::Local - first included in perl 5
+=item * L<Time::Local> - first included in perl 5
 
-=item * utf8 — first included in perl v5.6.0
+=item * L<utf8> — first included in perl v5.6.0
 
-=item * warnings — first included in perl v5.6.0
+=item * L<warnings> — first included in perl v5.6.0
 
 =back
 
@@ -6356,19 +6356,9 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<perl>(1)
+=item L<C<FTCalc.pm -- Perl interface for The Flat-Text Calculator>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md>
 
-=item L<List::Util>
-
-=item L<Math::BigInt>
-
-=item L<Math::Trig>
-
-=item L<POSIX>
-
-=item L<Time::HiRes>
-
-=item L<Time::Local>
+=item L<C<perl(1)>>
 
 =back
 

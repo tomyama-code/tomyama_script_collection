@@ -27,10 +27,14 @@ subtest 'テスト前準備: モジュールのデフォルト値を変更して
     undef( %def_val );
     $def_val{def_b_verbose} = 1;
     &FTCalc::set_default_value( %def_val );
+    undef( %def_val );
+    $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
+    &FTCalc::set_default_value( %def_val );
     %def_val = &FTCalc::get_default_value();
     is( $def_val{def_autoflush}, 1, 'autoflush は 1' );
     is( $def_val{def_timeout},   3, 'timeout は 3.0' );
     is( $def_val{def_b_verbose}, 1, 'b_verbose は 1' );
+    is( $def_val{def_formula_os}, 0x31, 'def_formula_os は 0x31' );
 };
 
 # --------------------------------------------------------
@@ -114,7 +118,7 @@ subtest 'インスタンスの設定値を変えるAPIのテスト' => sub{
 };
 
 # --------------------------------------------------------
-# テスト1: 初期化と基本的な数式計算
+# 基本的な数式計算
 # --------------------------------------------------------
 my $c;
 subtest '基本的な数式計算' => sub{
@@ -125,6 +129,7 @@ subtest '基本的な数式計算' => sub{
     my( $ins2_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins2_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     note( qq{\$ins2_pid="$ins2_pid"} );
+    note( qq{\$stdout="$stdout"} );
 
     # 戻り値（配列）の検証
     my( $day, $h, $m, $s );
@@ -133,7 +138,7 @@ subtest '基本的な数式計算' => sub{
             dhms2dhms(
                 0, 24 / SAKUBOU, 0, 0
             )
-        }, 1 );
+        }, FTC_FSC_OUTPUT_BOTH );
     };
     is( $stdout, qq{Formula: "dhms2dhms( 0, 24 / SAKUBOU, 0, 0 )"\n} .
                  qq{ Result: ( 0, 0, 48, 45.7797882084 )\n}, '計算式が1行にまとめられていること' );
@@ -141,9 +146,9 @@ subtest '基本的な数式計算' => sub{
     $c->_setVerbos( 0 );
     ( $stdout, $stderr ) = capture{
         $h = $c->formula( qq{( ( $h + 3 ) * 3 ) - 1}, 0 );
-        $s = $c->formula( qq{round( $s, 3 )}, 1 );
+        $s = $c->formula( qq{round( $s, 3 )}, 0 );
     };
-    is( $stdout, "", 'verboseが0なので出力されないこと' );
+    is( $stdout, "", 'output_selが0なので出力されないこと' );
     $c->_setVerbos( 1 );
 
     note( "計算結果: $day 日 $h 時間 $m 分 $s 秒" );
@@ -169,7 +174,7 @@ subtest '基本的な数式計算' => sub{
     is( $stderr, "", 'STDERR is silent.' );
 
 # --------------------------------------------------------
-# テスト2: エラーになる式の検証
+# エラーになる式の検証
 # --------------------------------------------------------
     # モジュールが内部で die() して落ちるため、dies { ... } ブロックで囲んでトラップ
     my $exception;
@@ -194,7 +199,7 @@ subtest '基本的な数式計算' => sub{
 
 
 # --------------------------------------------------------
-# テスト3: 複雑な書式を返す式の検証
+# 複雑な書式を返す式の検証
 # --------------------------------------------------------
     my $res;
     ( $stdout, $stderr ) = capture{
@@ -305,6 +310,80 @@ subtest '基本的な数式計算' => sub{
     is( $stderr, "", 'STDERR is silent.' );
 
     note( "bye!" );
+};
+
+# --------------------------------------------------------
+# formatメソッドの出力選択機能のテスト
+# --------------------------------------------------------
+subtest 'formatメソッドの出力選択機能のテスト' => sub{
+    my $c;  # シャドウイングで$cを生成
+    my( $stdout, $stderr ) = capture{
+        $c = FTCalc->new();
+    };
+    isa_ok( $c, ['FTCalc'], 'インスタンスが生成できること' );
+    my( $ins6_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
+    ok( defined( $ins6_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
+    note( qq{\$ins6_pid="$ins6_pid"} );
+
+    my $res;
+
+    $c->_setVerbos( 0 );
+
+    $c->_setOutputSel( 0 );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+1' );
+    };
+    is( $stdout, "", '何も出力されない' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_OUTPUT_FORMULA );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+2' );
+    };
+    is( $stdout, qq{Formula: "0+2"\n}, '計算式だけが表示される' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+3' );
+    };
+    is( $stdout, qq{ Result: 3\n}, '計算結果だけが表示される' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_OUTPUT_BOTH );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+4' );
+    };
+    is( $stdout, qq{Formula: "0+4"\n Result: 4\n}, '計算式と計算結果が表示される' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_FOLLOW_VERBOSE );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+5' );
+    };
+    is( $stdout, "", '何も出力されない' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+6' );
+    };
+    is( $stdout, "", '何も出力されない' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( 0 );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '( 0, 7 )' );
+    };
+    is( $stdout, "", '何も出力されない' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    $c->_setOutputSel( FTC_FSC_OUTPUT_BOTH );
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( '0+8', 0 );
+    };
+    is( $stdout, "", '何も出力されない' );
+    is( $stderr, "", 'STDERR is silent.' );
 };
 
 done_testing;

@@ -7,6 +7,21 @@
 
 ### FTCalc.pm
 
+Perl interface for The Flat-Text Calculator
+
+- A module that provides an API for manipulating the calculation script "c".
+
+- Version: 1
+- $Revision: 1.2 $
+
+- Author: 2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2026, tomyama
+All rights reserved.
+
+![Image of using the FTCalc.pm module](img/FTCalc.pm.jpg)
 
 For details, please refer to [FTCalc.pm.md](FTCalc.pm.md).
 
@@ -27,7 +42,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 4.170 $
+- $Revision: 4.171 $
 
 - Script Structure
   - main
@@ -195,7 +210,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.63 $
+- $Revision: 2.64 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

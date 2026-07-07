@@ -3,35 +3,35 @@
 * * *
 # NAME
 
-create_CATALOG.sh - manual page for create_CATALOG.sh 1.8)
+     create_CATALOG.sh - manual page for create_CATALOG.sh 1.8)
 
 # SYNOPSIS
 
-create_CATALOG.sh <CATALOG.md> <script>...
+     create_CATALOG.sh <CATALOG.md> <script>...
 
 # DESCRIPTION
 
-Script to generate a catalog of scripts.
+     Script to generate a catalog of scripts.
 
-- Generates Markdown formatted files in the ’docs’ directory.
+     - Generates Markdown formatted files in the ’docs’ directory.
 
-       - Output documentation from ’--help’ option or POD
+     - Output documentation from ’--help’ option or POD
 
-- Generates image files using ’Graphviz’.
+     - Generates image files using ’Graphviz’.
 
-       - Outputs svg images from dot files in ’docs’.
+     - Outputs svg images from dot files in ’docs’.
 
-- Tools required for this script
+     - Tools required for this script
 
-       - Perl 5.10 or later - pod2markdown - help2man - glow - Graphviz (using the dot command)
+     - Perl 5.10 or later - pod2markdown - help2man - glow - Graphviz (using the dot command)
 
-# OPTIONS
+     OPTIONS
 
--h, --help
-       display this help and exit
+     -h, --help
+     display this help and exit
 
--v, --version
-       output version information and exit
+     -v, --version
+     output version information and exit
 
 
 * * *

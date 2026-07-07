@@ -69,6 +69,11 @@ sh_main()
 
         depend_dir="`dirname \"$dependent_file\"`"
         depend_base="`basename \"$dependent_file\"`"
+        is_perl_module=0
+        echo "$depend_base" | grep '\.pm$' >/dev/null
+        if [ $? -eq 0 ]; then
+            is_perl_module=1
+        fi
 
         if [ "$depend_dir" != "$scr_dir_last" ]; then
             if [ "$depend_dir" = "." ]; then
@@ -115,7 +120,11 @@ sh_main()
             ## Accepts "backslash sequences" by default.
             ## There is no concept of "-e".
             echo '' >>"$targfile.new"
-            echo '!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targfile.new"
+            img_label="Image of the $depend_base command execution"
+            if [ $is_perl_module -ne 0 ]; then
+                img_label="Image of using the $depend_base module"
+            fi
+            echo '!'"[$img_label](img/$depend_base.jpg)" >>"$targfile.new"
         fi
 
         ## [ On /bin/dash ]
@@ -155,7 +164,11 @@ sh_main()
                 ## Accepts "backslash sequences" by default.
                 ## There is no concept of "-e".
                 echo '' >>"$targdir/$depend_base.md"
-                echo '!'"[Image of the $depend_base command execution](img/$depend_base.jpg)" >>"$targdir/$depend_base.md"
+                img_label="Image of the $depend_base command execution"
+                if [ $is_perl_module -ne 0 ]; then
+                    img_label="Image of using the $depend_base module"
+                fi
+                echo '!'"[$img_label](img/$depend_base.jpg)" >>"$targdir/$depend_base.md"
             fi
 
             ## [ On /bin/dash ]

@@ -7,35 +7,106 @@
 
 FTCalc - Perl interface for The Flat-Text Calculator
 
+# SYNOPSIS
+
+    use lib qx/tcs_bin_path.pl/;
+    use FTCalc;
+
+    my $c = FTCalc->new();
+
+    my( $day, $h, $m, $s ) =
+        $c->formula( qq{
+            dhms2dhms(
+                0, 24 / SAKUBOU, 0, 0
+            )
+        } );
+    $s = $c->formula( qq{round( $s, 3 )} );
+    print( qq{Calculated result: $day days $h hours $m minutes $s seconds.\n} );
+    # Calculated result: 0 days 0 hours 48 minutes 45.78 seconds.
+
 # DESCRIPTION
 
 A module that provides an API for manipulating the calculation script "c".
 
-- new
+# METHODS
+
+- `**new**( [ @OPTIONS ] )`
 
     Creates an instance.
-    For the arguments, specify any arguments you wish to pass to the c script.
+    For @OPTIONS, specify any arguments you wish to pass to the c script.
 
         my $c = FTCalc->new( '--banner' );
 
-- formula
+- `**formula**( $FORMULA [, $SELECTION ] )`
 
-    When you specify and execute a calculation formula, the result is returned.
+    Executes the specified calculation formula and returns the result.
+
+    Depending on the context and $SELECTION, it can return either a list or a scalar value:
 
         my( $y, $d ) = $c->formula( qq{age( l2e( 2026-05-01 ) )} );
-        print( qq{$y years $d days old\n} );
+        print( qq{Age: $y years, $d days old\n} );
+        # Age: 0 years, 67 days old
 
-- get\_default\_value
+    The optional argument $SELECTION accepts a bitmask combined from the **Formula Selection Constants** below.
+
+    - **Formula Selection Constants**
+
+        The default is `FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT`.
+
+        Verbosity Flags:
+
+        - `FTC_FSC_FOLLOW_VERBOSE` (0x01)
+
+            Follows the global verbose setting.
+
+        Output Flags:
+
+        - `FTC_FSC_OUTPUT_FORMULA` (0x10)
+
+            Outputs the calculation formula only.
+
+        - `FTC_FSC_OUTPUT_RESULT` (0x20)
+
+            Outputs the calculation result only.
+
+        - `FTC_FSC_OUTPUT_BOTH` (0x30)
+
+            Outputs both the calculation formula and the result.
+
+    Examples:
+
+    Outputs both the formula and the result, regardless of the verbose output setting:
+
+        my $four = $c->formula( q{1+3}, FTC_FSC_OUTPUT_BOTH );
+        # Formula: "1+3"
+        #  Result: 4
+
+    Produces no output by passing 0 (clearing all flags), regardless of the verbose setting:
+
+        my $three = $c->formula( q{1+2}, 0 );
+
+    If a calculation that returns a list is evaluated in a scalar context, a reference to the list is returned.
+
+        my $ref_results = $c->formula( qq{dhms2dhms( 0, 3, 45, 12 + 666 )} );
+        print( q{resuts: }, join( ', ', @$ref_results ), "\n" );
+        # resuts: 0, 3, 56, 18
+
+    Please refer to [the c script documentation](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md) for information on the types of calculation formulas you can write.
+
+# FUNCTIONS
+
+- `**get_default_value**()`
 
     Get the default value of the module.
     Returns a hash keyed by the setting name.
 
-        %def_val = &FTCalc::get_default_value();
-        printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );   # def_autoflush is 1
-        printf( qq{def_timeout is %d\n}, $def_val{def_timeout} );       # def_timeout is 0
-        printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );   # def_b_verbose is 0
+        my %def_val = &FTCalc::get_default_value();
+        printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );         # def_autoflush is 1
+        printf( qq{def_timeout is %f\n}, $def_val{def_timeout} );             # def_timeout is 0.500000
+        printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
+        printf( qq{def_formula_os is 0x%02X\n}, $def_val{def_formula_os} );   # def_formula_os is 0x31
 
-- set\_default\_value
+- `**set_default_value**( %DEFAULT-VALUES )`
 
     Sets the default values ​​for the module.
     Specify a hash where the setting names serve as keys.
@@ -44,6 +115,7 @@ A module that provides an API for manipulating the calculation script "c".
         $def_val{def_autoflush} = 1;
         $def_val{def_timeout} = 3.0;
         $def_val{def_b_verbose} = 1;
+        $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
         &FTCalc::set_default_value( %def_val );
 
 # DEPENDENCIES
@@ -85,7 +157,8 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [perl](https://metacpan.org/pod/perl)(1)
+- [c -- The Flat-Text Calculator (Perl Script)](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md)
+- [perl(1)](http://man.he.net/man1/perl)
 
 # AUTHOR
 

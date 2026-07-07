@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.70] - 2026-07-08
+### Changed
+- `FTCalc.pm`: Added support for the `$SELECTION` argument in the `formula()` method.
+- `create_CATALOG.sh`: Added code to ensure that documentation can be correctly generated for Perl modules as well.
+- `c` [1.04.171]: Changes to the documentation only.
+
 ## [0.2.69] - 2026-07-07
 ### Added
 - `FTCalc.pm`: Perl interface for The Flat-Text Calculator
@@ -14,8 +20,7 @@
 - `tcs_bin_path.pl`: A script that returns the installation path of the "tomyama_script_collection" scripts.
 
 ### Changed
-- `c` [1.04.170]:
-  - Changes to the documentation only.
+- `c` [1.04.170]: Changes to the documentation only.
 
 ## [0.2.68] - 2026-07-03
 ### Changed

@@ -1,9 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-BEGIN{
-    use lib qx/tcs_bin_path.pl/;
-};
+
+use lib qx/tcs_bin_path.pl/;
 use FTCalc;
 
 my $bVerbosDisplay = 1;
@@ -24,10 +23,10 @@ my( $day, $h, $m, $s ) =
 $s = $c->formula( qq{round( $s, 3 )} );
 
 # 結果の利用
-print "計算結果: $day 日 $h 時間 $m 分 $s 秒\n";
+print( qq{Calculated result: $day days $h hours $m minutes $s seconds.\n} );
 
 my( $y, $d ) = $c->formula( qq{age( l2e( 2026-05-01 ) )} );
-print( qq{$y 年 $d 日齢\n} );
+print( qq{Age: $y years, $d days old\n} );
 
 ## エラーになる式を実行
 #$res = $c->formula( qq{round( pi )} );

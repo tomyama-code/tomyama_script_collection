@@ -10,12 +10,18 @@
 
 ここでは画面キャプチャのみ貼付します。
 
-### c -- 関数電卓スクリプト
+### c -- 関数電卓スクリプト ( The Flat-Text Calculator )
 
 ![Image of the c command execution](docs/img/c.jpg)
 
 - [POD](docs/c.md) \[ Plain Old Documentation \]
 - blog:『[計算スクリプト c](https://tomyama.hatenablog.jp/entry/2025/11/16/153643)』
+
+#### FTCalc.pm -- The Flat-Text Calculator 用 Perl インターフェース
+
+![Image of the c command execution](docs/img/FTCalc.pm.jpg)
+
+- [POD](docs/FTCalc.pm.md) \[ Plain Old Documentation \]
 
 ### cl -- 時計スクリプト
 

@@ -3,18 +3,18 @@
 * * *
 # NAME
 
-build_script.sh - manual page for build_script.sh 1.4)
+     build_script.sh - manual page for build_script.sh 1.4)
 
 # DESCRIPTION
 
-build_script.sh -- A script that describes the build steps
+     build_script.sh -- A script that describes the build steps
 
-A  script  describing the build steps in an environment that uses ’autotools’ and ’custom scripts that
-generate autotools input files.’
+     A  script  describing  the  build steps in an environment that uses ’autotools’ and ’custom scripts that
+     generate autotools input files.’
 
-See Also - docs/Developer_Manual.md
+     See Also - docs/Developer_Manual.md
 
-(Revision: 1.4)                                  October 2025                              BUILD_SCRIPT.SH(1)
+(Revision: 1.4)                                    7月 2026                                BUILD_SCRIPT.SH(1)
 
 * * *
 - See '[README.md](../README.md)' for installation instructions.

@@ -1873,20 +1873,20 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 ## Core Modules Used
 
-- base - first included in perl 5.00405
-- Class::Struct — first included in perl 5.004
-- constant — first included in perl 5.004
-- Encode — first included in perl v5.7.3
-- File::Basename — first included in perl 5
-- List::Util — first included in perl v5.7.3
-- Math::BigInt — first included in perl 5
-- Math::Trig — first included in perl 5.004
-- POSIX — first included in perl 5
-- strict — first included in perl 5
-- Time::HiRes - first included in perl v5.7.3
-- Time::Local - first included in perl 5
-- utf8 — first included in perl v5.6.0
-- warnings — first included in perl v5.6.0
+- [base](https://metacpan.org/pod/base) - first included in perl 5.00405
+- [Class::Struct](https://metacpan.org/pod/Class%3A%3AStruct) — first included in perl 5.004
+- [constant](https://metacpan.org/pod/constant) — first included in perl 5.004
+- [Encode](https://metacpan.org/pod/Encode) — first included in perl v5.7.3
+- [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
+- [List::Util](https://metacpan.org/pod/List%3A%3AUtil) — first included in perl v5.7.3
+- [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt) — first included in perl 5
+- [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig) — first included in perl 5.004
+- [POSIX](https://metacpan.org/pod/POSIX) — first included in perl 5
+- [strict](https://metacpan.org/pod/strict) — first included in perl 5
+- [Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes) - first included in perl v5.7.3
+- [Time::Local](https://metacpan.org/pod/Time%3A%3ALocal) - first included in perl 5
+- [utf8](https://metacpan.org/pod/utf8) — first included in perl v5.6.0
+- [warnings](https://metacpan.org/pod/warnings) — first included in perl v5.6.0
 
 ## Survey methodology
 
@@ -1913,13 +1913,8 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [perl](https://metacpan.org/pod/perl)(1)
-- [List::Util](https://metacpan.org/pod/List%3A%3AUtil)
-- [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt)
-- [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig)
-- [POSIX](https://metacpan.org/pod/POSIX)
-- [Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes)
-- [Time::Local](https://metacpan.org/pod/Time%3A%3ALocal)
+- [`FTCalc.pm -- Perl interface for The Flat-Text Calculator`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR
 

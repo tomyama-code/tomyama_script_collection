@@ -1,3 +1,18 @@
+################################################################################
+## FTCalc -- Perl interface for The Flat-Text Calculator
+##
+## - A module that provides an API for manipulating the calculation script "c".
+##
+## - Version: 1
+## - $Revision: 1.2 $
+##
+## - Author: 2026, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2026, tomyama
+## All rights reserved.
+################################################################################
 
 =pod
 
@@ -7,9 +22,28 @@
 
 FTCalc - Perl interface for The Flat-Text Calculator
 
+=head1 SYNOPSIS
+
+  use lib qx/tcs_bin_path.pl/;
+  use FTCalc;
+
+  my $c = FTCalc->new();
+
+  my( $day, $h, $m, $s ) =
+      $c->formula( qq{
+          dhms2dhms(
+              0, 24 / SAKUBOU, 0, 0
+          )
+      } );
+  $s = $c->formula( qq{round( $s, 3 )} );
+  print( qq{Calculated result: $day days $h hours $m minutes $s seconds.\n} );
+  # Calculated result: 0 days 0 hours 48 minutes 45.78 seconds.
+
 =head1 DESCRIPTION
 
 A module that provides an API for manipulating the calculation script "c".
+
+=head1 METHODS
 
 =cut
 
@@ -21,21 +55,33 @@ use Symbol;
 use File::Basename;
 use parent 'Exporter';
 
-our @EXPORT = qw(_FTC_FAIL_OPEN2);
+our @EXPORT = qw(
+    _FTC_FAIL_OPEN2
+    FTC_FSC_FOLLOW_VERBOSE
+    FTC_FSC_OUTPUT_FORMULA
+    FTC_FSC_OUTPUT_RESULT
+    FTC_FSC_OUTPUT_BOTH
+);
 
 use constant _FTC_FAIL_OPEN2 => 0x01;
+
+use constant FTC_FSC_FOLLOW_VERBOSE => 0x01;
+use constant FTC_FSC_OUTPUT_FORMULA => 0x10;
+use constant FTC_FSC_OUTPUT_RESULT  => 0x20;
+use constant FTC_FSC_OUTPUT_BOTH    => 0x30;
 
 $main::def_autoflush = 1;
 $main::def_timeout = 0.5;
 $main::def_b_verbose = 0;
+$main::def_formula_os = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT );
 $main::action_flag = 0x00;
 
 =over 4
 
-=item new
+=item C<B<new>( [ @OPTIONS ] )>
 
 Creates an instance.
-For the arguments, specify any arguments you wish to pass to the c script.
+For @OPTIONS, specify any arguments you wish to pass to the c script.
 
   my $c = FTCalc->new( '--banner' );
 
@@ -76,7 +122,8 @@ sub new
         c_out => $chld_out,
         r_c_out => $rin,
         timeout => $main::def_timeout,
-        b_verbos => $main::def_b_verbose,
+        b_verbose => $main::def_b_verbose,
+        formula_os => $main::def_formula_os,
     };
 
     bless( $self, $class );     # クラス名を関連付け
@@ -84,8 +131,8 @@ sub new
     my( $package, $filename, $line ) = caller( 0 );
     my $msg = sprintf( qq{%s: CONSTRACT: Connected the c script: pid=%d: at $filename line $line.\n},
                 __PACKAGE__, $self->{c_pid} );
-    $msg .= sprintf( qq{%s: CONSTRACT: timeout: %d, b_verbos: %d\n},
-                __PACKAGE__, $self->{timeout}, $self->{b_verbos} );
+    $msg .= sprintf( qq{%s: CONSTRACT: timeout: %d, b_verbose: %d, formula_os=0x%02X\n},
+                __PACKAGE__, $self->{timeout}, $self->{b_verbose}, $self->{formula_os} );
     $self->_vPrint( $msg );
 
     return $self;
@@ -120,12 +167,73 @@ sub DESTROY
 
 =over 4
 
-=item formula
+=item C<B<formula>( $FORMULA [, $SELECTION ] )>
 
-When you specify and execute a calculation formula, the result is returned.
+Executes the specified calculation formula and returns the result.
+
+Depending on the context and $SELECTION, it can return either a list or a scalar value:
 
   my( $y, $d ) = $c->formula( qq{age( l2e( 2026-05-01 ) )} );
-  print( qq{$y years $d days old\n} );
+  print( qq{Age: $y years, $d days old\n} );
+  # Age: 0 years, 67 days old
+
+The optional argument $SELECTION accepts a bitmask combined from the B<Formula Selection Constants> below.
+
+=over 4
+
+=item B<Formula Selection Constants>
+
+The default is C<FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT>.
+
+Verbosity Flags:
+
+=over 4
+
+=item C<FTC_FSC_FOLLOW_VERBOSE> (0x01)
+
+Follows the global verbose setting.
+
+=back
+
+Output Flags:
+
+=over 4
+
+=item C<FTC_FSC_OUTPUT_FORMULA> (0x10)
+
+Outputs the calculation formula only.
+
+=item C<FTC_FSC_OUTPUT_RESULT> (0x20)
+
+Outputs the calculation result only.
+
+=item C<FTC_FSC_OUTPUT_BOTH> (0x30)
+
+Outputs both the calculation formula and the result.
+
+=back
+
+=back
+
+Examples:
+
+Outputs both the formula and the result, regardless of the verbose output setting:
+
+  my $four = $c->formula( q{1+3}, FTC_FSC_OUTPUT_BOTH );
+  # Formula: "1+3"
+  #  Result: 4
+
+Produces no output by passing 0 (clearing all flags), regardless of the verbose setting:
+
+  my $three = $c->formula( q{1+2}, 0 );
+
+If a calculation that returns a list is evaluated in a scalar context, a reference to the list is returned.
+
+  my $ref_results = $c->formula( qq{dhms2dhms( 0, 3, 45, 12 + 666 )} );
+  print( q{resuts: }, join( ', ', @$ref_results ), "\n" );
+  # resuts: 0, 3, 56, 18
+
+Please refer to L<the c script documentation|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md> for information on the types of calculation formulas you can write.
 
 =back
 
@@ -133,18 +241,23 @@ When you specify and execute a calculation formula, the result is returned.
 
 sub formula( $$;$ )
 {
-    my( $self, $expr, $bShowFormula ) = @_;
-    if( !defined( $bShowFormula ) ){
-        $bShowFormula = 0;
+    my( $self, $expr, $output_sel ) = @_;
+    if( !defined( $output_sel ) ){
+        $output_sel = $self->_getOutputSel();
     }
+    #printf( qq{\$output_sel=0x%02X\n}, $output_sel );
 
     $expr =~ s!\n! !go;
     $expr =~ s!\s+! !go;
     $expr =~ s!^ !!o;
     $expr =~ s! $!!o;
 
-    if( $bShowFormula || $self->{b_verbos} ){
-        $self->_vPrintf( qq{Formula: "$expr"\n} );
+    if( $output_sel & FTC_FSC_OUTPUT_FORMULA ){
+        if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
+            $self->_vPrintf( qq{Formula: "$expr"\n} );
+        }else{
+            $self->_printf( qq{Formula: "$expr"\n} );
+        }
     }
 
     # c スクリプトの標準入力に式を書き込む
@@ -164,7 +277,14 @@ sub formula( $$;$ )
         # カッコを除去してカンマで分割
         if( $raw_result =~ m/^\s*\(\s*(.*?)\s*\)\s*$/o ){
             my @list = split( /, /, $1 );
-            $self->_vPrintf( qq{ Result: ( %s )\n}, join( ', ', @list ) );
+            my $res = sprintf( qq{ Result: ( %s )\n}, join( ', ', @list ) );
+            if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
+                if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
+                    $self->_vPrint( $res );
+                }else{
+                    $self->_print( $res );
+                }
+            }
             return wantarray ? @list : \@list;
         }
     }else{
@@ -177,7 +297,13 @@ sub formula( $$;$ )
     }
 
     # 単一の値（リストではない場合）の処理
-    $self->_vPrintf( qq{ Result: $raw_result\n} );
+    if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
+        if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
+            $self->_vPrint( qq{ Result: $raw_result\n} );
+        }else{
+            $self->_print( qq{ Result: $raw_result\n} );
+        }
+    }
     return $raw_result;
 }
 
@@ -193,17 +319,20 @@ sub _FtcOpen2( $$$@ )
     }
 }
 
+=head1 FUNCTIONS
+
 =over 4
 
-=item get_default_value
+=item C<B<get_default_value>()>
 
 Get the default value of the module.
 Returns a hash keyed by the setting name.
 
-  %def_val = &FTCalc::get_default_value();
-  printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );   # def_autoflush is 1
-  printf( qq{def_timeout is %d\n}, $def_val{def_timeout} );       # def_timeout is 0
-  printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );   # def_b_verbose is 0
+  my %def_val = &FTCalc::get_default_value();
+  printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );         # def_autoflush is 1
+  printf( qq{def_timeout is %f\n}, $def_val{def_timeout} );             # def_timeout is 0.500000
+  printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
+  printf( qq{def_formula_os is 0x%02X\n}, $def_val{def_formula_os} );   # def_formula_os is 0x31
 
 =back
 
@@ -215,21 +344,23 @@ sub get_default_value()
     $def_value{def_autoflush} = $main::def_autoflush;
     $def_value{def_timeout}   = $main::def_timeout;
     $def_value{def_b_verbose} = $main::def_b_verbose;
+    $def_value{def_formula_os} = $main::def_formula_os;
     return %def_value;
 }
 
 =over 4
 
-=item set_default_value
+=item C<B<set_default_value>( %DEFAULT-VALUES )>
 
 Sets the default values ​​for the module.
 Specify a hash where the setting names serve as keys.
 
-    my %def_val;
-    $def_val{def_autoflush} = 1;
-    $def_val{def_timeout} = 3.0;
-    $def_val{def_b_verbose} = 1;
-    &FTCalc::set_default_value( %def_val );
+  my %def_val;
+  $def_val{def_autoflush} = 1;
+  $def_val{def_timeout} = 3.0;
+  $def_val{def_b_verbose} = 1;
+  $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
+  &FTCalc::set_default_value( %def_val );
 
 =back
 
@@ -246,6 +377,9 @@ sub set_default_value( % )
     }
     if( defined( $def_value{def_b_verbose} ) ){
         $main::def_b_verbose = $def_value{def_b_verbose};
+    }
+    if( defined( $def_value{def_formula_os} ) ){
+        $main::def_formula_os = $def_value{def_formula_os};
     }
 }
 
@@ -278,14 +412,27 @@ sub _setTimeout( $$ )
 sub _getVerbos( $ )
 {
     my( $self ) = @_;
-    return $self->{b_verbos};
+    return $self->{b_verbose};
 }
 
 sub _setVerbos( $$ )
 {
     my( $self, $val ) = @_;
 
-    $self->{b_verbos} = $val;
+    $self->{b_verbose} = $val;
+}
+
+sub _getOutputSel( $ )
+{
+    my( $self ) = @_;
+    return $self->{formula_os};
+}
+
+sub _setOutputSel( $$ )
+{
+    my( $self, $val ) = @_;
+    #printf( qq{\$val: $val [ 0x%02X ]\n}, $val );
+    $self->{formula_os} = $val;
 }
 
 sub _get_action_flag( $ )
@@ -318,7 +465,7 @@ sub _print( $@ )
 sub _vPrint( $@ )
 {
     my( $self, @args ) = @_;
-    if( $self->{b_verbos} ){
+    if( $self->{b_verbose} ){
         $self->_print( @args );
     }
 }
@@ -335,7 +482,7 @@ sub _printf( $$;@ )
 sub _vPrintf( $$;@ )
 {
     my( $self, $format, @args ) = @_;
-    if( $self->{b_verbos} ){
+    if( $self->{b_verbose} ){
         $self->_printf( $format, @args );
     }
 }
@@ -425,7 +572,9 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<perl>(1)
+=item L<c -- The Flat-Text Calculator (Perl Script)|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md>
+
+=item L<perl(1)>
 
 =back
 
