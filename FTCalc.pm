@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -24,7 +24,7 @@ FTCalc - Perl interface for The Flat-Text Calculator
 
 =head1 SYNOPSIS
 
-  use lib qx/tcs_bin_path.pl/;
+  use lib qx/tsc_bin_path.pl/;
   use FTCalc;
 
   my $c = FTCalc->new();
@@ -73,12 +73,12 @@ use constant FTC_FSC_OUTPUT_BOTH    => 0x30;
 $main::def_autoflush = 1;
 $main::def_timeout = 0.5;
 $main::def_b_verbose = 0;
-$main::def_formula_os = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT );
+$main::def_formula_os = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
 $main::action_flag = 0x00;
 
 =over 4
 
-=item C<B<new>( [ @OPTIONS ] )>
+=item C<new( [ @OPTIONS ] )>
 
 Creates an instance.
 For @OPTIONS, specify any arguments you wish to pass to the c script.
@@ -167,7 +167,7 @@ sub DESTROY
 
 =over 4
 
-=item C<B<formula>( $FORMULA [, $SELECTION ] )>
+=item C<formula( $FORMULA [, $SELECTION ] )>
 
 Executes the specified calculation formula and returns the result.
 
@@ -183,7 +183,7 @@ The optional argument $SELECTION accepts a bitmask combined from the B<Formula S
 
 =item B<Formula Selection Constants>
 
-The default is C<FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT>.
+The default is C<FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH>.
 
 Verbosity Flags:
 
@@ -323,7 +323,7 @@ sub _FtcOpen2( $$$@ )
 
 =over 4
 
-=item C<B<get_default_value>()>
+=item C<get_default_value()>
 
 Get the default value of the module.
 Returns a hash keyed by the setting name.
@@ -350,7 +350,7 @@ sub get_default_value()
 
 =over 4
 
-=item C<B<set_default_value>( %DEFAULT-VALUES )>
+=item C<set_default_value( %DEFAULT-VALUES )>
 
 Sets the default values ​​for the module.
 Specify a hash where the setting names serve as keys.

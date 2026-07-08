@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use lib qx/tcs_bin_path.pl/;
+use lib qx/tsc_bin_path.pl/;
 use FTCalc;
 
 my $bVerbosDisplay = 1;

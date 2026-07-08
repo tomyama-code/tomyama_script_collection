@@ -2,10 +2,7 @@
 use strict;
 use warnings;
 
-BEGIN {
-    use lib '.';
-    use lib qx/.\/tcs_bin_path.pl/;
-};
+use lib '.';
 
 # モジュールの読み込み
 use FTCalc;

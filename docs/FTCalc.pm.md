@@ -9,7 +9,7 @@ FTCalc - Perl interface for The Flat-Text Calculator
 
 # SYNOPSIS
 
-    use lib qx/tcs_bin_path.pl/;
+    use lib qx/tsc_bin_path.pl/;
     use FTCalc;
 
     my $c = FTCalc->new();
@@ -30,14 +30,14 @@ A module that provides an API for manipulating the calculation script "c".
 
 # METHODS
 
-- `**new**( [ @OPTIONS ] )`
+- `new( [ @OPTIONS ] )`
 
     Creates an instance.
     For @OPTIONS, specify any arguments you wish to pass to the c script.
 
         my $c = FTCalc->new( '--banner' );
 
-- `**formula**( $FORMULA [, $SELECTION ] )`
+- `formula( $FORMULA [, $SELECTION ] )`
 
     Executes the specified calculation formula and returns the result.
 
@@ -51,7 +51,7 @@ A module that provides an API for manipulating the calculation script "c".
 
     - **Formula Selection Constants**
 
-        The default is `FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_RESULT`.
+        The default is `FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH`.
 
         Verbosity Flags:
 
@@ -95,7 +95,7 @@ A module that provides an API for manipulating the calculation script "c".
 
 # FUNCTIONS
 
-- `**get_default_value**()`
+- `get_default_value()`
 
     Get the default value of the module.
     Returns a hash keyed by the setting name.
@@ -106,7 +106,7 @@ A module that provides an API for manipulating the calculation script "c".
         printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
         printf( qq{def_formula_os is 0x%02X\n}, $def_val{def_formula_os} );   # def_formula_os is 0x31
 
-- `**set_default_value**( %DEFAULT-VALUES )`
+- `set_default_value( %DEFAULT-VALUES )`
 
     Sets the default values ​​for the module.
     Specify a hash where the setting names serve as keys.

@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.2 $
+- $Revision: 1.3 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -161,6 +161,22 @@ All rights reserved.
 
 For details, please refer to [mark.md](mark.md).
 
+### tsc_bin_path.pl
+
+Prints the installation path or project root directory.
+
+- Version: 1
+- $Revision: 1.3 $
+
+- Author: 2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2026, tomyama
+All rights reserved.
+
+For details, please refer to [tsc_bin_path.pl.md](tsc_bin_path.pl.md).
+
 * * *
 
 ## The script that manages this directory
@@ -193,7 +209,7 @@ Generate and manage autotools "ac" and "am" files from a single source.
 - If any files have been updated, it will exit with 0.
 - If no files have been updated, it will exit with a value other than 0.
 
-- $Revision: 1.9 $
+- $Revision: 1.10 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -210,7 +226,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.64 $
+- $Revision: 2.65 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -230,7 +246,7 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.8 $
+- $Revision: 1.10 $
 
 - Tools required for this script
   - Perl 5.10 or later
@@ -239,11 +255,11 @@ Script to generate a catalog of scripts.
   - glow
   - Graphviz (using the dot command)
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 For details, please refer to [create_CATALOG.sh.md](create_CATALOG.sh.md).

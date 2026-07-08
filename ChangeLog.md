@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.2.71] - 2026-07-09
+### Added
+- Created a test module that does not use `Test::Command`.
+  - `tests/Command.pm`: tests::Command module
+- Created tests for the tests::Command module specification.
+  - `tests/tsc_bin_path.pl.test.pl`
+
+### Changed
+- Rename file: `tcs_bin_path.pl` -> `tsc_bin_path.pl`
+
 ## [0.2.70] - 2026-07-08
 ### Changed
 - `FTCalc.pm`: Added support for the `$SELECTION` argument in the `formula()` method.

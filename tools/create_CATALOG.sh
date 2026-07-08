@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.8 $
+## - $Revision: 1.10 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
@@ -16,11 +16,11 @@
 ##   - glow
 ##   - Graphviz (using the dot command)
 ##
-## - Author: 2025, tomyama
+## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##
 ## BSD 2-Clause License:
-## Copyright (c) 2025, tomyama
+## Copyright (c) 2025-2026, tomyama
 ## All rights reserved.
 ################################################################################
 
