@@ -1,660 +1,568 @@
 #!/usr/bin/perl -w
 
 use strict;
-use warnings 'all';
-use File::Basename;
-use Cwd 'getcwd';
+use warnings;
 
-use constant MODULE_NOT_FOUND_STATUS => 0;
+## Test::More was first released with perl v5.6.2
+use Test::More;     # subtest()
 
-BEGIN {
-  ## https://perldoc.jp/docs/modules/Test-Simple-0.96/lib/Test/More.pod
-  eval{use Test::More};     # subtest(), done_testing()
-  if( $@ ){
-    print STDERR ( qq{$0: warn: "Test::More": module not found\n} );
-    exit( MODULE_NOT_FOUND_STATUS );
-  }
-}
+#use lib '.';
+use FindBin;
+use lib File::Spec->catdir( $FindBin::Bin, '..' );
+use tests::Command;
 
-BEGIN {
-  ## https://metacpan.org/pod/Test::Command
-  eval{use Test::Command};
-  if( $@ ){
-    print STDERR ( qq{$0: warn: "Test::Command": module not found\n} );
-    exit( MODULE_NOT_FOUND_STATUS );
-  }
-}
+use Cwd 'getcwd';   # getcwd()
 
-$ENV{ 'TEST_TARGET_CMD' } = 'fill';
+&tests::Command::TestPreProc( $0, @ARGV );
 
-#$ENV{WITH_PERL_COVERAGE} = 1;
-$ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @ARGV ) > 0 );
-
-my $apppath = dirname( $0 );
-chdir( "$apppath/../" );
-my $cur_dir = getcwd();
-$apppath = $cur_dir . '/tests';
-my $TARGCMD = "./tests/cmd_wrapper";
-
-my $test_beg = `./c 'now'`;
-
-if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
-        $ENV{WITH_PERL_COVERAGE_OWNER} = $$;
-
-        `which cover 2>/dev/null`;
-        my $bUnavailableCover = $?;
-        #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
-        if( $bUnavailableCover ){
-            print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
-            delete( $ENV{WITH_PERL_COVERAGE} );
-            delete( $ENV{WITH_PERL_COVERAGE_OWNER} );
-        }else{
-            print( `cover -delete` );
-        }
-    }
-}
+my $proj_root = getcwd();
+my $apppath = $proj_root . '/tests';
 
 subtest qq{debug mode} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( "./fill -d -1 123" );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -d -1 123" );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill --debug -1 123" );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD --debug -1 123" );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => "$TARGCMD -dh -1 123" );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $cmd->stdout_like( qr/usage: fill /, "usage output" );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -dh -1 123" );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+    $t->stdout_like( qr/usage: fill /, "usage output" );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
     ## テストは通せるがキャプチャできないのでSTDOUTの評価ができない。その為やる意味が無い。
-##    $cmd = Test::Command->new( cmd => "$TARGCMD -1 '123-%%01:1%%' >/proc/self/fd/1" );
-#    $cmd = Test::Command->new( cmd => "$TARGCMD -1 '123-%%01:1%%' >/dev/pty1" );
-#    $cmd->exit_is_num( 0, "exit status is 0" );
-#    $cmd->stdout_is_eq( qq{}, qq{Capture not possible} );
-#    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-#    undef( $cmd );
-    $cmd = Test::Command->new( cmd => "$TARGCMD --test-force-tty -2 a- 1:1 -b " );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+##    $t = tests::Command->new( "./fill -1 '123-%%01:1%%' >/proc/self/fd/1" );
+#    $t = tests::Command->new( "./fill -1 '123-%%01:1%%' >/dev/pty1" );
+#    $t->exit_is( 0, "exit status is 0" );
+#    $t->stdout_is( qq{}, qq{Capture not possible} );
+#    $t->stderr_is( qq{}, "stderr is silent" );
+#    undef( $t );
+    $t = tests::Command->new( "./fill --test-force-tty -2 a- 1:1 -b " );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{"Usage" test} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( "./fill" );
+    $t->exit_isnt( 0, "Treat it as an error." );
+    $t->stdout_is( "", "Does not output anything." );
+    $t->stderr_like( qr/fill: An argument must be specified./, "usage output" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD" );
-    $cmd->exit_isnt_num( 0, "Treat it as an error." );
-    $cmd->stdout_is_eq( "", "Does not output anything." );
-    $cmd->stderr_like( qr/fill: An argument must be specified./, "usage output" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -h" );
+    $t->exit_is( 0, "Do not treat it as an error." );
+    $t->stdout_like( qr/^usage: fill /, "usage output" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -h" );
-    $cmd->exit_is_num( 0, "Do not treat it as an error." );
-    $cmd->stdout_like( qr/^usage: fill /, "usage output" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill --help" );
+    $t->exit_is( 0, "Do not treat it as an error." );
+    $t->stdout_like( qr/^usage: fill /, "usage output" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD --help" );
-    $cmd->exit_is_num( 0, "Do not treat it as an error." );
-    $cmd->stdout_like( qr/^usage: fill /, "usage output" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => "$TARGCMD -h 123" );
-    $cmd->exit_is_num( 0, "Do not treat it as an error." );
-    $cmd->stdout_like( qr/^usage: fill /, qq{Only "help" is displayed.} );
-    $cmd->stdout_unlike( qr/123/, qq{Arguments are ignored when displaying "help".} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -h 123" );
+    $t->exit_is( 0, "Do not treat it as an error." );
+    $t->stdout_like( qr/^usage: fill /, qq{Only "help" is displayed.} );
+    $t->stdout_unlike( qr/123/, qq{Arguments are ignored when displaying "help".} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{"-v", "--version" option} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{./fill --version} );
+    $t->exit_is( 0, qq{./fill --version} );
+    $t->stdout_like( qr/^Version: \d/ );
+    $t->stderr_is( qq{}, qq{STDERR is silent} );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD --version} );
-    $cmd->exit_is_num( 0, qq{./fill --version} );
-    $cmd->stdout_like( qr/^Version: \d/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -v} );
-    $cmd->exit_is_num( 0, qq{./fill -v} );
-    $cmd->stdout_like( qr/^Version: \d/ );
-    $cmd->stderr_is_eq( qq{}, qq{STDERR is silent} );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill -v} );
+    $t->exit_is( 0, qq{./fill -v} );
+    $t->stdout_like( qr/^Version: \d/ );
+    $t->stderr_is( qq{}, qq{STDERR is silent} );
+    undef( $t );
 
 };
 
 subtest qq{Counter format} => sub{
     subtest qq{Counter format: counter} => sub{
+        my $t;
 
-        ## Test::CommandはFDを解放しないので、枯渇を避けるため
-        ## 局所的なスコープに留めること。
-        my $cmd;
+        $t = tests::Command->new( "./fill 1:1" );
+        $t->exit_is( 0, "exit status is 0" );
+        $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "basic test" );
+        $t->stderr_is( "", "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD 1:1" );
-        $cmd->exit_is_num( 0, "exit status is 0" );
-        $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "basic test" );
-        $cmd->stderr_is_eq( "", "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill 01:1" );
+        $t->exit_is( 0, "exit status is 0" );
+        $t->stdout_is( "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n", "basic test" );
+        $t->stderr_is( "", "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD 01:1" );
-        $cmd->exit_is_num( 0, "exit status is 0" );
-        $cmd->stdout_is_eq( "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n", "basic test" );
-        $cmd->stderr_is_eq( "", "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -1:-1" );
+        $t->exit_is( 0, "exit status is 0" );
+        $t->stdout_is( "-1\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n-10\n", "basic test" );
+        $t->stderr_is( "", "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -1:-1" );
-        $cmd->exit_is_num( 0, "exit status is 0" );
-        $cmd->stdout_is_eq( "-1\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n-10\n", "basic test" );
-        $cmd->stderr_is_eq( "", "stderr is silent" );
-        undef( $cmd );
-
-        $cmd = Test::Command->new( cmd => "$TARGCMD -01:-1" );
-        $cmd->exit_is_num( 0, "exit status is 0" );
-        $cmd->stdout_is_eq( "-01\n-02\n-03\n-04\n-05\n-06\n-07\n-08\n-09\n-10\n", "basic test" );
-        $cmd->stderr_is_eq( "", "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -01:-1" );
+        $t->exit_is( 0, "exit status is 0" );
+        $t->stdout_is( "-01\n-02\n-03\n-04\n-05\n-06\n-07\n-08\n-09\n-10\n", "basic test" );
+        $t->stderr_is( "", "stderr is silent" );
+        undef( $t );
     };
 
     subtest qq{Counter format: step} => sub{
+        my $t;
 
-        ## Test::CommandはFDを解放しないので、枯渇を避けるため
-        ## 局所的なスコープに留めること。
-        my $cmd;
+        $t = tests::Command->new( "./fill -3 001:1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "001\n002\n003\n", qq{Basic test for step value.} );
+        $t->stderr_is( qq{}, "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -3 001:1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "001\n002\n003\n", qq{Basic test for step value.} );
-        $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -3 001:0" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "001\n001\n001\n", qq{Allow step "0".} );
+        $t->stderr_is( qq{}, "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -3 001:0" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "001\n001\n001\n", qq{Allow step "0".} );
-        $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-        undef( $cmd );
-
-        $cmd = Test::Command->new( cmd => "$TARGCMD -3 010:-1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "010\n009\n008\n", qq{Negative step values ​​are allowed.} );
-        $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -3 010:-1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "010\n009\n008\n", qq{Negative step values ​​are allowed.} );
+        $t->stderr_is( qq{}, "stderr is silent" );
+        undef( $t );
     };
 
     subtest qq{Counter format: General: "0" Boundary Test} => sub{
+        my $t;
 
-        ## Test::CommandはFDを解放しないので、枯渇を避けるため
-        ## 局所的なスコープに留めること。
-        my $cmd;
+        $t = tests::Command->new( "./fill -5 002:-1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "002\n001\n000\n-01\n-02\n", qq{Allows sign changes.} );
+        $t->stderr_is( qq{fill: "0:-1": The sign changes across 0.\n}, "Show warning" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -5 002:-1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "002\n001\n000\n-01\n-02\n", qq{Allows sign changes.} );
-        $cmd->stderr_is_eq( qq{fill: "0:-1": The sign changes across 0.\n}, "Show warning" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -3 002:-1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "002\n001\n000\n", qq{Allows sign changes.} );
+        $t->stderr_is( qq{}, "stderr is silent" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -3 002:-1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "002\n001\n000\n", qq{Allows sign changes.} );
-        $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -5 -02:1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "-02\n-01\n000\n001\n002\n", qq{Allows sign changes.} );
+        $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
+        undef( $t );
 
-        $cmd = Test::Command->new( cmd => "$TARGCMD -5 -02:1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "-02\n-01\n000\n001\n002\n", qq{Allows sign changes.} );
-        $cmd->stderr_is_eq( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
-        undef( $cmd );
-
-        $cmd = Test::Command->new( cmd => "$TARGCMD -3 -02:1" );
-        $cmd->exit_is_num( 0, "Always terminates normally." );
-        $cmd->stdout_is_eq( "-02\n-01\n000\n", qq{Allows sign changes.} );
-        $cmd->stderr_is_eq( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
-        undef( $cmd );
+        $t = tests::Command->new( "./fill -3 -02:1" );
+        $t->exit_is( 0, "Always terminates normally." );
+        $t->stdout_is( "-02\n-01\n000\n", qq{Allows sign changes.} );
+        $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
+        undef( $t );
     };
 };
 
 subtest qq{"-N" option switch} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( "./fill -3 10:2" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "10\n12\n14\n", qq{"-N" option switch} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -3 10:2" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "10\n12\n14\n", qq{"-N" option switch} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -9 1:1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n", "Single digit counter" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -9 1:1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n", "Single digit counter" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -10 1:1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "double-digit counter" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -10 1:1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "double-digit counter" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -10d3 1:1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/1\n2\n3\n$/, "Use the last specified value." );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -10d3 1:1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/1\n2\n3\n$/, "Use the last specified value." );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -0 -" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "", qq{"-0" is also allowed} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -0 -" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "", qq{"-0" is also allowed} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "echo 123 | ./fill -2 -" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
+    $t->stderr_like( qr/^fill: STDIN=1, specified_cycle=2: /, "Show warning" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "echo 123 | $TARGCMD -2 -" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
-    $cmd->stderr_like( qr/^fill: STDIN=1, specified_cycle=2: /, "Show warning" );
-    undef( $cmd );
+    $t = tests::Command->new( "echo 123 | ./fill -1 -" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "echo 123 | $TARGCMD -1 -" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => "echo 123 | $TARGCMD -0 -" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "", "stdout is silent" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "echo 123 | ./fill -0 -" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "", "stdout is silent" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{"-w" option switch} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( "./fill -2 -w 1 1:1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "1\n2\n", qq{"-w" <N>} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -2 -w 1 1:1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "1\n2\n", qq{"-w" <N>} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -2 -w 1:1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "1\n2\n", qq{"-w"} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -2 -w 1:1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "1\n2\n", qq{"-w"} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -w10d 10:10" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+    $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -w10d 10:10" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
-    $cmd->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -dw10 10:10" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+    $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -dw10 10:10" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
-    $cmd->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -2 1:1 -w" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_is( "1\n2\n", qq{"-w" <none>} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -2 1:1 -w" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_is_eq( "1\n2\n", qq{"-w" <none>} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -dw -180 179:-1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+    $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -dw -180 179:-1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
-    $cmd->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -dw2 -90 178:-2" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::cycle = 90\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n004\n002\n000$/, qq{Counting down to 0} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -dw2 -90 178:-2" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::cycle = 90\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n004\n002\n000$/, qq{Counting down to 0} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -wd -180 179:-1" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+    $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -wd -180 179:-1" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
-    $cmd->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -w20d50 0980:-20" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::cycle = 50\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n\$main::wait_sec = 20\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n0040\n0020\n0000$/, qq{Counting down to 0} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -w20d50 0980:-20" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::cycle = 50\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 20\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n0040\n0020\n0000$/, qq{Counting down to 0} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => "$TARGCMD -d -5w2 2:2" );
-    $cmd->exit_is_num( 0, "Always terminates normally." );
-    $cmd->stdout_like( qr/\n\$main::cycle = 5\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
-    $cmd->stdout_like( qr/\n6\n8\n10$/, qq{Counting up to 10} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -d -5w2 2:2" );
+    $t->exit_is( 0, "Always terminates normally." );
+    $t->stdout_like( qr/\n\$main::cycle = 5\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+    $t->stdout_like( qr/\n6\n8\n10$/, qq{Counting up to 10} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{Replacing data from STDIN} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( "echo 123 | ./fill -" );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "echo 123 | $TARGCMD -" );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "123\n", "Outputs the number of lines in STDIN instead of the default 10 lines." );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( "./fill -" );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n", "10 lines of output" );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => "$TARGCMD -" );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n", "10 lines of output" );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt 'a.txt\nb.txt\nc.txt' | ./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "a.txt" "newname_01.txt"\nmv "b.txt" "newname_02.txt"\nmv "c.txt" "newname_03.txt"\n}, "Replace with data from STDIN." );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'a.txt\nb.txt\nc.txt' | $TARGCMD -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "a.txt" "newname_01.txt"\nmv "b.txt" "newname_02.txt"\nmv "c.txt" "newname_03.txt"\n}, "Replace with data from STDIN." );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "%%-%%" "newname_01.txt"\nmv "%%-%%" "newname_02.txt"\nmv "%%-%%" "newname_03.txt"\n}, qq{Output as "%%-%%".} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "%%-%%" "newname_01.txt"\nmv "%%-%%" "newname_02.txt"\nmv "%%-%%" "newname_03.txt"\n}, qq{Output as "%%-%%".} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{echo '1>i<N>p<U>t<9' | ./fill 8 - 2 -d} );
+    $t->exit_is( 0, "Internal Special Tokens" );
+    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n81>i<N>p<U>t<92\n/, qq{Correct output} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{echo '1>i<N>p<U>t<9' | $TARGCMD 8 - 2 -d} );
-    $cmd->exit_is_num( 0, "Internal Special Tokens" );
-    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
-    $cmd->stdout_like( qr/\n81>i<N>p<U>t<92\n/, qq{Correct output} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{echo '1>I<n>n<P>N<u>T<s>U<b>9' | ./fill 8 - 2 -d} );
+    $t->exit_is( 0, "Internal Special Tokens" );
+    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n81>I<n>n<P>N<u>T<s>U<b>92\n/, qq{Correct output} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{echo '1>I<n>n<P>N<u>T<s>U<b>9' | $TARGCMD 8 - 2 -d} );
-    $cmd->exit_is_num( 0, "Internal Special Tokens" );
-    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
-    $cmd->stdout_like( qr/\n81>I<n>n<P>N<u>T<s>U<b>92\n/, qq{Correct output} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo '1>I<n>n<P>N<u>T<g>S<u>B<9' | $TARGCMD 8 - 2 -d} );
-    $cmd->exit_is_num( 0, "Internal Special Tokens" );
-    $cmd->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
-    $cmd->stdout_like( qr/\n81>I<n>n<P>N<u>T<g>S<u>B<92\n/, qq{Correct output} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{echo '1>I<n>n<P>N<u>T<g>S<u>B<9' | ./fill 8 - 2 -d} );
+    $t->exit_is( 0, "Internal Special Tokens" );
+    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n81>I<n>n<P>N<u>T<g>S<u>B<92\n/, qq{Correct output} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{Control characters} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\n' 11:1} );
+    $t->exit_is( 0, qq{"\\n" is support (New Line)} );
+    $t->stdout_is( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\n' 11:1} );
-    $cmd->exit_is_num( 0, qq{"\\n" is support (New Line)} );
-    $cmd->stdout_is_eq( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\t' 21:1} );
+    $t->exit_is( 0, qq{"\\t" is support (Tab)} );
+    $t->stdout_is( "1\t21\n2\t22\n3\t23\n", qq{Supports "\\t"} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\t' 21:1} );
-    $cmd->exit_is_num( 0, qq{"\\t" is support (Tab)} );
-    $cmd->stdout_is_eq( "1\t21\n2\t22\n3\t23\n", qq{Supports "\\t"} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\r' 31:1} );
+    $t->exit_is( 0, qq{"\\r" is NOT support (Carriage Return)} );
+    $t->stdout_is( "1\\r31\n2\\r32\n3\\r33\n", qq{"\\r" is not support} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\r' 31:1} );
-    $cmd->exit_is_num( 0, qq{"\\r" is NOT support (Carriage Return)} );
-    $cmd->stdout_is_eq( "1\\r31\n2\\r32\n3\\r33\n", qq{"\\r" is not support} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\f' 41:1} );
+    $t->exit_is( 0, qq{"\\f" is NOT support (Form Feed)} );
+    $t->stdout_is( "1\\f41\n2\\f42\n3\\f43\n", qq{"\\f" is not support} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\f' 41:1} );
-    $cmd->exit_is_num( 0, qq{"\\f" is NOT support (Form Feed)} );
-    $cmd->stdout_is_eq( "1\\f41\n2\\f42\n3\\f43\n", qq{"\\f" is not support} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\a ' 51:1} );
+    $t->exit_is( 0, qq{"\\a" is support (Alarm)} );
+    $t->stdout_is( "1\a 51\n2\a 52\n3\a 53\n", qq{Supports "\\a"} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\a ' 51:1} );
-    $cmd->exit_is_num( 0, qq{"\\a" is support (Alarm)} );
-    $cmd->stdout_is_eq( "1\a 51\n2\a 52\n3\a 53\n", qq{Supports "\\a"} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD } . q{-3 1:1 '\e' 61:1} );
-    $cmd->exit_is_num( 0, qq{"\\e" is NOT support (Escape)} );
-    $cmd->stdout_is_eq( "1\\e61\n2\\e62\n3\\e63\n", qq{"\\e" is not support} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill } . q{-3 1:1 '\e' 61:1} );
+    $t->exit_is( 0, qq{"\\e" is NOT support (Escape)} );
+    $t->stdout_is( "1\\e61\n2\\e62\n3\\e63\n", qq{"\\e" is not support} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{Escaping the "%" symbol} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{./fill -3 'usage rate: %%0:1%%%.'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "usage rate: 0%.\nusage rate: 1%.\nusage rate: 2%.\n", qq{Escaping the "%" symbol} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -3 'usage rate: %%0:1%%%.'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "usage rate: 0%.\nusage rate: 1%.\nusage rate: 2%.\n", qq{Escaping the "%" symbol} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt "123\n456" | ./fill 01:1 '-%%-%%-%%-' 101:1} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "01-123-%%-101\n02-456-%%-102\n", "Replace the first match." );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt "123\n456" | $TARGCMD 01:1 '-%%-%%-%%-' 101:1} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "01-123-%%-101\n02-456-%%-102\n", "Replace the first match." );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt "123\n456" | $TARGCMD '%%01:1%%-%%-' - '-%%101:1%%'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "01-%%-123-101\n02-%%-456-102\n", "Replace the first match." );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt "123\n456" | ./fill '%%01:1%%-%%-' - '-%%101:1%%'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "01-%%-123-101\n02-%%-456-102\n", "Replace the first match." );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{<<SUB<..%..>SUB>>} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "%%-%%" "<<SUB<\.[^\.]+$>%<.%%01:1%%>SUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "%%-%%" "<<SUB<\.[^\.]+$>%<.%%01:1%%>SUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'<<SUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">SUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'<<SUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">SUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "' - '<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "' - '<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "' - '<<SUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "' - '<<SUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">SUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">SUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{"2017-09-30_141640_0774_01.MP4" "01_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0775_02.MP4" "02_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0776_03.MP4" "03_\$1-\$2-\$3_\$4.\$5"\n}, q{No global match} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'<<SUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">SUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{"2017-09-30_141640_0774_01.MP4" "01_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0775_02.MP4" "02_\$1-\$2-\$3_\$4.\$5"\n"2017-09-30_141640_0776_03.MP4" "03_\$1-\$2-\$3_\$4.\$5"\n}, q{No global match} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | ./fill } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $TARGCMD } . q{'mv "%%-%%" "<<SUB<\.([^\.]+)$>%<_%%01:1%%.$1>SUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | ./fill } . q{'<<SUB<(e)>%<E$1E>SUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{MakEeEfile\nREADME.md\nauth-cram-md5\nchEeEck_header_file_dependencies.sh\n}, qq{Only the first matched part is replaced.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $TARGCMD } . q{'<<SUB<(e)>%<E$1E>SUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{MakEeEfile\nREADME.md\nauth-cram-md5\nchEeEck_header_file_dependencies.sh\n}, qq{Only the first matched part is replaced.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo 'OPQRSTUOPQRSTU' | $TARGCMD '9<<SUB<P>%<u>SUB>>1'} );
-    $cmd->exit_is_num( 0, "Ability to recognize delimiters within macros" );
-    $cmd->stdout_is_eq( "9OuQRSTUOPQRSTU1\n", qq{The SUB() macro is successful.} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{echo 'OPQRSTUOPQRSTU' | ./fill '9<<SUB<P>%<u>SUB>>1'} );
+    $t->exit_is( 0, "Ability to recognize delimiters within macros" );
+    $t->stdout_is( "9OuQRSTUOPQRSTU1\n", qq{The SUB() macro is successful.} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{<<GSUB<..%..>GSUB>>} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "%%-%%" "<<GSUB<\.[^\.]+$>%<.%%01:1%%>GSUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "%%-%%" "<<GSUB<\.[^\.]+$>%<.%%01:1%%>GSUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774.01"\nmv "20170930141640_0775.MP4" "20170930141640_0775.02"\nmv "20170930141640_0776.MP4" "20170930141640_0776.03"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'<<GSUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">GSUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'<<GSUB<^((.+)\.([^\.]+))$>%<mv "$1" "$2_%%01:1%%.$3">GSUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "20170930141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "20170930141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "20170930141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "' - '<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "' - '<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "2017-09-30_141640_0774_01.MP4"\nmv "20170930141640_0775.MP4" "2017-09-30_141640_0775_02.MP4"\nmv "20170930141640_0776.MP4" "2017-09-30_141640_0776_03.MP4"\n}, qq{The counter can be inserted.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'mv "' - '<<GSUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'mv "' - '<<GSUB<^\d{4}\d{2}\d{2}.*\.[^\.]+$>%<" "$1-$2-$3_$4_%%01:1%%.$5">GSUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "20170930141640_0774.MP4" "\$1-\$2-\$3_\$4_01.\$5"\nmv "20170930141640_0775.MP4" "\$1-\$2-\$3_\$4_02.\$5"\nmv "20170930141640_0776.MP4" "\$1-\$2-\$3_\$4_03.\$5"\n}, q{"$N" definition forgotten. Cannot be expanded.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | ./fill } . q{'<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">GSUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{"2017-09-30_141640_0774_01.MP4" "01_2017-09-30_141640_0774.MP4"\n"2017-09-30_141640_0775_02.MP4" "02_2017-09-30_141640_0775.MP4"\n"2017-09-30_141640_0776_03.MP4" "03_2017-09-30_141640_0776.MP4"\n}, q{Global match} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt '20170930141640_0774.MP4\n20170930141640_0775.MP4\n20170930141640_0776.MP4' | $TARGCMD } . q{'<<GSUB<^(\d{4})(\d{2})(\d{2})(.*)\.([^\.]+)$>%<"$1-$2-$3_$4_%%01:1%%.$5" "%%01:1%%_$1-$2-$3_$4.$5">GSUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{"2017-09-30_141640_0774_01.MP4" "01_2017-09-30_141640_0774.MP4"\n"2017-09-30_141640_0775_02.MP4" "02_2017-09-30_141640_0775.MP4"\n"2017-09-30_141640_0776_03.MP4" "03_2017-09-30_141640_0776.MP4"\n}, q{Global match} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | ./fill } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $TARGCMD } . q{'mv "%%-%%" "<<GSUB<\.([^\.]+)$>%<_%%01:1%%.$1>GSUB>>"'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{mv "Makefile" "Makefile"\nmv "README.md" "README_02.md"\nmv "auth-cram-md5" "auth-cram-md5"\nmv "check_header_file_dependencies.sh" "check_header_file_dependencies_04.sh"\n}, qq{Counters are added only to files with extensions.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | ./fill } . q{'<<GSUB<(e)>%<E$1E>GSUB>>'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( qq{MakEeEfilEeE\nREADME.md\nauth-cram-md5\nchEeEck_hEeEadEeEr_filEeE_dEeEpEeEndEeEnciEeEs.sh\n}, qq{All matches are replaced.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt 'Makefile\nREADME.md\nauth-cram-md5\ncheck_header_file_dependencies.sh' | $TARGCMD } . q{'<<GSUB<(e)>%<E$1E>GSUB>>'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( qq{MakEeEfilEeE\nREADME.md\nauth-cram-md5\nchEeEck_hEeEadEeEr_filEeE_dEeEpEeEndEeEnciEeEs.sh\n}, qq{All matches are replaced.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{echo 'OPQRSTUOPQRSTU' | $TARGCMD '9<<GSUB<P>%<u>GSUB>>1'} );
-    $cmd->exit_is_num( 0, "Ability to recognize delimiters within macros" );
-    $cmd->stdout_is_eq( "9OuQRSTUOuQRSTU1\n", qq{The GSUB() macro is successful.} );
-    $cmd->stderr_is_eq( "", "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{echo 'OPQRSTUOPQRSTU' | ./fill '9<<GSUB<P>%<u>GSUB>>1'} );
+    $t->exit_is( 0, "Ability to recognize delimiters within macros" );
+    $t->stdout_is( "9OuQRSTUOuQRSTU1\n", qq{The GSUB() macro is successful.} );
+    $t->stderr_is( "", "stderr is silent" );
+    undef( $t );
 };
 
 subtest qq{complicated} => sub{
+    my $t;
 
-    ## Test::CommandはFDを解放しないので、枯渇を避けるため
-    ## 局所的なスコープに留めること。
-    my $cmd;
+    $t = tests::Command->new( qq{./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+    $t->stdout_like( qr/-1%%-%%---1001\n-2%%-%%---0902\n-3%%-%%---0803\n/, qq{Escaping the "%" symbol} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $cmd->stdout_like( qr/-1%%-%%---1001\n-2%%-%%---0902\n-3%%-%%---0803\n/, qq{Escaping the "%" symbol} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{$apppath/prt "123\n456" | ./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+    $t->stdout_like( qr/-1123-123-1001\n-2456-456-0902\n/, qq{Escaping the "%" symbol} );
+    $t->stderr_like( qr/^fill: STDIN=2, specified_cycle=3: /, "Show warning" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$apppath/prt "123\n456" | $TARGCMD -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $cmd->stdout_like( qr/-1123-123-1001\n-2456-456-0902\n/, qq{Escaping the "%" symbol} );
-    $cmd->stderr_like( qr/^fill: STDIN=2, specified_cycle=3: /, "Show warning" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{./fill -3 '%d%%1:3%%%d'} );
+    $t->exit_is( 0, "exit status is 0" );
+    $t->stdout_is( "%d1%d\n%d4%d\n%d7%d\n", qq{Don't be fooled by "%d"} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 
-    $cmd = Test::Command->new( cmd => qq{$TARGCMD -3 '%d%%1:3%%%d'} );
-    $cmd->exit_is_num( 0, "exit status is 0" );
-    $cmd->stdout_is_eq( "%d1%d\n%d4%d\n%d7%d\n", qq{Don't be fooled by "%d"} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
-
-    $cmd = Test::Command->new( cmd => qq{cat "$apppath/../fill" | $TARGCMD 0001:1 ' ' -} );
-    $cmd->exit_is_num( 0, "A file containing special tokens." );
-    $cmd->stdout_like( qr/ =cut$/, qq{It can be displayed to the end.} );
-    $cmd->stderr_is_eq( qq{}, "stderr is silent" );
-    undef( $cmd );
+    $t = tests::Command->new( qq{cat "$proj_root/fill" | ./fill 0001:1 ' ' -} );
+    $t->exit_is( 0, "A file containing special tokens." );
+    $t->stdout_like( qr/ =cut$/, qq{It can be displayed to the end.} );
+    $t->stderr_is( qq{}, "stderr is silent" );
+    undef( $t );
 };
 
-done_testing();
-
-if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){
-        print( `cover` );
-    }
-}
-
-my $test_end = `./c 'now'`;
-my $test_duration = $test_end - $test_beg;
-print( qq{$ENV{ 'TEST_TARGET_CMD' }: test: Begin: } . `./c 'epoch2local( $test_beg )'` );
-print( qq{$ENV{ 'TEST_TARGET_CMD' }: test:   End: } . `./c 'epoch2local( $test_end )'` );
-print( qq{$ENV{ 'TEST_TARGET_CMD' }: test: Elaps: } . `./c 'sec2dhms( $test_duration )'` );
-exit( 0 );
+&tests::Command::TestPostProc( $ENV{TEST_TARGET_CMD} );

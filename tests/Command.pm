@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use File::Basename; # dirname()
-use Cwd 'getcwd';   # getcwd()
+#use Cwd 'getcwd';   # getcwd()
 
 ## Test::More was first released with perl v5.6.2
 use Test::More;     # subtest(), done_testing()
@@ -27,7 +27,7 @@ sub new( $$ )
     }
 
     my $pseudo_cmd = $cmd;
-    $pseudo_cmd =~ s!\./$ENV{TEST_TARGET_CMD}!$ENV{PSEUDO_COMMAND}!go;
+    $pseudo_cmd =~ s!\./\b$ENV{TEST_TARGET_CMD}\b!$ENV{PSEUDO_COMMAND}!g;
     if( $cmd eq $pseudo_cmd ){
         die( qq{The command to be tested is not included.\n} );
     }
@@ -108,6 +108,13 @@ sub stdout_like( $$;$ )
     like($self->{stdout}, $pattern, $msg );
 }
 
+sub stdout_unlike( $$;$ )
+{
+    my( $self, $pattern, $msg ) = @_;
+    $msg = "STDOUT does not match pattern" if( !defined( $msg ) );
+    unlike($self->{stdout}, $pattern, $msg );
+}
+
 sub stderr_like( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
@@ -115,19 +122,31 @@ sub stderr_like( $$;$ )
     like($self->{stderr}, $pattern, $msg );
 }
 
+sub stderr_unlike( $$;$ )
+{
+    my( $self, $pattern, $msg ) = @_;
+    $msg = "STDERR does not match pattern" if( !defined( $msg ) );
+    unlike($self->{stderr}, $pattern, $msg );
+}
+
 sub _SetTargetCommand( $ )
 {
     my( $testfilename ) = @_;
     my $cmd = $testfilename;
     $cmd =~ s!^.*/(.+)\.test\.pl$!$1!o;
-    $ENV{TEST_TARGET_CMD} = $cmd;
-    $ENV{PSEUDO_COMMAND} = './tests/cmd_wrapper';
-    #print( qq{\$ENV{TEST_TARGET_CMD} = "$ENV{TEST_TARGET_CMD}"\n} );
+    if( $cmd =~ s!\.pm$!!o ){
+        $ENV{TEST_TARGET_MDL} = $cmd;
+        #print( qq{\$ENV{TEST_TARGET_MDL} = "$ENV{TEST_TARGET_MDL}"\n} );
+    }else{
+        $ENV{TEST_TARGET_CMD} = $cmd;
+        $ENV{PSEUDO_COMMAND} = './tests/cmd_wrapper';
+        #print( qq{\$ENV{TEST_TARGET_CMD} = "$ENV{TEST_TARGET_CMD}"\n} );
+    }
 
     # カレントディレクトリを project root に強制する
     my $apppath = dirname( $testfilename );
     chdir( "$apppath/../" );
-    my $cur_dir = getcwd();
+    #my $cur_dir = getcwd();
     #print( qq{CHDIR: "$cur_dir"\n} );
 }
 
@@ -162,12 +181,20 @@ sub TestPreProc( $@ )
 sub TestPostProc( $ )
 {
     my( $name ) = @_;
-    done_testing();
+    done_testing() if( defined( $ENV{TEST_TARGET_CMD} ) );
 
     if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
         if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){
             print( `cover` );
         }
+    }
+
+    if( defined( $ENV{TEST_TARGET_MDL} ) ){
+        delete( $ENV{TEST_TARGET_MDL} );
+    }
+    if( defined( $ENV{TEST_TARGET_CMD} ) ){
+        delete( $ENV{TEST_TARGET_CMD} );
+        delete( $ENV{PSEUDO_COMMAND} );
     }
 
     $test_end_epoch = time();

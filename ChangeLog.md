@@ -7,6 +7,17 @@
 ### Changed
 - xxx
 
+## [0.2.72] - 2026-07-10
+### Changed
+- `tests/Command.pm`: Supports testing of Perl modules.
+- Removed the use of `Test::Command` and updated the test code to align with the specifications of `tests/Command.pm`.
+  - `tests/FTCalc.pm.test.pl`
+  - `tests/c.test.pl`
+  - `tests/domsort.test.pl`
+  - `tests/fill.test.pl`
+  - `tests/holiday.test.pl`
+  - `tests/mark.test.pl`
+
 ## [0.2.71] - 2026-07-09
 ### Added
 - Created a test module that does not use `Test::Command`.

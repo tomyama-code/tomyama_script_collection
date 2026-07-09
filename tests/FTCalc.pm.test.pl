@@ -1,48 +1,27 @@
 #!/usr/bin/perl -w
 
 use strict;
-use warnings 'all';
-use File::Basename;
+use warnings;
 
+## Test::More was first released with perl v5.6.2
+use Test::More;     # subtest()
 
-$ENV{TEST_TARGET_MODULE} = 'FTCalc';
+#use lib '.';
+use FindBin;
+use lib File::Spec->catdir( $FindBin::Bin, '..' );
+use tests::Command;
 
-#$ENV{WITH_PERL_COVERAGE} = 1;
-$ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @ARGV ) > 0 );
-
-my $test_beg = `./c 'now'`;
-
+&tests::Command::TestPreProc( $0, @ARGV );
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
-    if( !defined( $ENV{WITH_PERL_COVERAGE_OWNER} ) ){
-        $ENV{WITH_PERL_COVERAGE_OWNER} = $$;
-
-        `which cover 2>/dev/null`;
-        my $bUnavailableCover = $?;
-        #printf( qq{\$bUnavailableCover=$bUnavailableCover\n} );
-        if( $bUnavailableCover ){
-            print STDERR ( qq{$0: warn: "cover" command not found: \$ENV{WITH_PERL_COVERAGE}: ignore\n} );
-            delete( $ENV{WITH_PERL_COVERAGE} );
-            delete( $ENV{WITH_PERL_COVERAGE_OWNER} );
-        }else{
-            print( `cover -delete` );
-        }
-    }
     $ENV{PERL5OPT} = '-MDevel::Cover=-ignore,/prove,-ignore,^c$,-ignore,\.t$';
+    #print( qq{\$ENV{PERL5OPT}="$ENV{PERL5OPT}"\n} );
 }
 
-system("prove -lv tests/$ENV{TEST_TARGET_MODULE}.pm.t");
+system("prove -lv tests/$ENV{TEST_TARGET_MDL}.pm.t");
 
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     delete( $ENV{PERL5OPT} );
-
-    if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){
-        print( `cover` );
-    }
 }
+&tests::Command::TestPostProc( $ENV{TEST_TARGET_MDL} );
 
-my $test_end = `./c 'now'`;
-my $test_duration = $test_end - $test_beg;
-print( qq{$ENV{TEST_TARGET_MODULE}: test: Begin: } . `./c 'epoch2local( $test_beg )'` );
-print( qq{$ENV{TEST_TARGET_MODULE}: test:   End: } . `./c 'epoch2local( $test_end )'` );
-print( qq{$ENV{TEST_TARGET_MODULE}: test: Elaps: } . `./c 'sec2dhms( $test_duration )'` );
 exit( 0 );
