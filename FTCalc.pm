@@ -103,8 +103,13 @@ sub new
     $chld_in  = gensym();
 
     # プロセス起動 (c スクリプトを実行)
-    my $pid = &_FtcOpen2( $chld_out, $chld_in, $path_to_c, @opts ) ||
+    my $pid;
+    eval{
+        $pid = &_FtcOpen2( $chld_out, $chld_in, $path_to_c, @opts );
+    };
+    if( $@ ){
         die( "FTCalc: _FtcOpen2(): Failed to start '$path_to_c': $!" );
+    }
 
     # 両方のハンドルをバッファリング無効（即時出力）にする
     $chld_in->autoflush( 1 );
@@ -310,10 +315,15 @@ sub formula( $$;$ )
 sub _FtcOpen2( $$$@ )
 {
     my( $chld_out, $chld_in, $path_to_c, @opts ) = @_;
+    #open2 は子プロセスのプロセスIDを返します。
+    #失敗した場合は値を返さず、単に /^open2:/ にマッチする例外を発生させます。
+    #ただし、子プロセスでの exec の失敗は検出されません。
+    #SIGPIPE は自分で捕捉（トラップ）する必要があります。
     if( &_get_action_flag( _FTC_FAIL_OPEN2 ) ){
         &_clr_action_flag( _FTC_FAIL_OPEN2 );
         print( qq{_FtcOpen2(): _FTC_FAIL_OPEN2\n} );
-        return 0;
+        my $msg = qq{_FtcOpen2(): open2: fail test\n};
+        die( $msg );
     }else{
         return &IPC::Open2::open2( $chld_out, $chld_in, $path_to_c, @opts );
     }

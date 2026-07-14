@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.171 $
+## - $Revision: 4.172 $
 ##
 ## - Script Structure
 ##   - main
@@ -168,7 +168,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.171 $};
+    my $rev = q{$Revision: 4.172 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -202,7 +202,7 @@ sub GetTermSize()
         # ビルド要件を増やさない為に使用しない。
 
         my $stty_out = `stty size 2>/dev/null`;
-        if( $stty_out =~ m/^\s*(\d+)\s+(\d+)/ ){
+        if( $stty_out =~ m/^\s*(\d+)\s+(\d+)/o ){
             $height = $1;
             $width  = $2;
             return ( $width, $height );
@@ -2691,17 +2691,58 @@ sub waitEnter( $;$ )
         # 0.05秒だけ入力を待ち、無ければ次に進む
         my $nfound = select( my $rout = $rin, undef, undef, 0.05 );
         if( $nfound > 0 ){
-            # 入力があった場合、内容を確認
-            $line = <STDIN>;
-            $line =~ s/\r?\n$//o;
-            #print( qq{Enterが押されました。終了します。"$line"\n} );
-            last;
+            # バッファリングしない sysread を使う
+            my $char;
+            my $bytes = &_C_SYSREAD( \*STDIN, $char, 1 );
+
+            if( defined( $bytes ) ){
+                if( $bytes > 0 ){
+                    if( $char eq "\n" ){
+                        # Enter（改行）を検知したら、末尾のキャリッジリターン(\r)を削ってループ終了
+                        $line =~ s/\r$//o;
+                        last;
+                    }
+
+                    # 改行以外の文字は、1文字ずつ $line に蓄積していく
+                    $line .= $char;
+                }else{
+                    # $bytes == 0 (EOF) などの場合は、パイプが閉じられただけなので
+                    # last せずにスルーして、タイマー処理を継続させる
+                    #warn( "c: warn: zero\n" );
+                    next;
+                }
+            }else{
+                my $msg = sprintf( "c: warn: %d: sysread(): %s", __LINE__, $! );
+                warn( $msg );
+            }
         }
     }
 
     # 標準出力のオートフラッシュ設定を元に戻しておく
     $| = $autoflash_backup;
     return $line;
+}
+
+use Errno qw(EINTR);
+my $_c_sysread_counter = 0;
+sub _C_SYSREAD( *\$$;$ )
+{
+    # プロトタイプで \$$ を指定しているため、
+    # $_[1] には参照ではなく、呼び出し元のスカラー変数そのものが直接入る
+    my( $_filehandle, undef, $_length ) = @_;
+
+    if( $TableProvider::CAppConfig->GetBTestTestTest() ){
+        $TableProvider::CAppConfig->SetBTestTestTest( 0 );
+        $_c_sysread_counter = 10;
+        $! = EINTR;
+        return undef;
+    }elsif( $_c_sysread_counter > 0 ){
+        $_c_sysread_counter--;
+        return 0;
+    }
+
+    # $_[1] を直接 sysread に渡すことで、呼び出し元の変数を書き換える
+    return sysread( $_filehandle, $_[1], $_length );
 }
 
 sub laptimer( $ )
@@ -4218,6 +4259,7 @@ sub new {
     $self->{APPNAME} = shift( @_ );
     $self->{DEBUG} = shift( @_ );
     $self->{B_TEST} = shift( @_ );
+    $self->{B_TEST_TEST_TEST} = shift( @_ );
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
     $self->{B_BANNER} = shift( @_ );
     $self->{B_RPN} = shift( @_ );
@@ -4246,6 +4288,17 @@ sub GetBTest( $ )
 {
     my $self = shift( @_ );
     return $self->{B_TEST};
+}
+sub SetBTestTestTest( $ )
+{
+    my $self = shift( @_ );
+    $self->{B_TEST_TEST_TEST} = shift( @_ );
+}
+sub GetBTestTestTest( $ )
+{
+    my $self = shift( @_ );
+    my $retval = $self->{B_TEST_TEST_TEST};
+    return $retval;
 }
 
 sub SetBVerboseOutput( $ )
@@ -4341,6 +4394,7 @@ sub init_script()
     my $appname = basename( $0 );
     my $debug = 0;
     my $bTest = 0;
+    my $bTestTestTest = 0;
     my $bVerboseOutput = 0;
     my $bBanner = 0;
     my $bRpn = 0;
@@ -4348,7 +4402,7 @@ sub init_script()
     my $bPrintUserDefined = 0;
 
     my $config = CAppConfig->new( $apppath, $appname, $debug,
-        $bTest, $bVerboseOutput, $bBanner, $bRpn, $bIsStdoutTty, $bPrintUserDefined );
+        $bTest, $bTestTestTest, $bVerboseOutput, $bBanner, $bRpn, $bIsStdoutTty, $bPrintUserDefined );
 
     $opf = OutputFunc->new( $config, 'dbg' );
 
@@ -4393,6 +4447,8 @@ sub parse_arg()
         }elsif( $myparam eq '--test-test' ){
             $conf->SetBTest( 1 );
             $conf->SetBIsStdoutTty( 1 );
+        }elsif( $myparam eq '--test-test-test' ){
+            $conf->SetBTestTestTest( 1 );
         }else{
             push( @main::expressions_raw, $myparam );
         }

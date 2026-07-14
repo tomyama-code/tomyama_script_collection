@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.66 $
+## - $Revision: 2.67 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.66 $)
+AC_REVISION($Revision: 2.67 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.2.72], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.2.73], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -96,12 +96,12 @@ EXTRA_DIST = LICENSE \
   $MY_TOOLS$ \
   .c.rc \
   FTCalc_sample.pl \
+  $MY_TEST_CASES$ \
   tests/addr_fake_ip.txt \
   tests/address.tab \
   tests/c.rc.tar.gz \
-  tests/cmd_wrapper \
-  tests/Command.pm \
-  tests/FTCalc.pm.t \
+  tests/Runner.pm \
+  tests/Tester.pm \
   tests/prt \
   tests/stty \
   tests/testdata_uniq_line.txt \
@@ -133,7 +133,7 @@ dist-hook: catalog ;
 $ACAM_TMPL{ 'tests/Makefile.am' } = q{##
 
 # テスト用のスクリプト（make checkで使われる）
-TESTS = $MY_TESTS_BNAME$
+TESTS = $MY_TEST_RUNNERS$
 
 dist_check_SCRIPTS = $(TESTS)
 };
@@ -150,9 +150,8 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.66 $';
-    $ACAM_KYVL{ '$MY_TESTS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' } );
-    $ACAM_KYVL{ '$MY_TESTS_BNAME$' } = &getBaseNames( $ACAM_KYVL{ '$MY_TESTS$' } );
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.67 $';
+    $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
     $ACAM_KYVL{ '$MY_TL_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
@@ -176,17 +175,23 @@ sub setupValue()
 }
 
 ## "fill hello.pl hello.sh"
-## -> "tests/fill.test.pl tests/hello.pl.test.pl tests/hello.sh.test.pl"
-sub getTestNames( $ )
+## ->       "fill.test.pl       hello.pl.test.pl       hello.sh.test.pl"
+## -> "tests/fill.t       tests/hello.pl.t       tests/hello.sh.t"
+sub getTestNames( $\$ )
 {
-    my @arr = split( / +/, $_[ 0 ] );
-    my $idx_max = scalar( @arr );
+    my( $test_target_files, $ref_testcases ) = @_;
+    my @test_target = split( / +/, $test_target_files );
+    my $idx_max = scalar( @test_target );
+    my @testcase_path;
+    my @testrunners = ();
     for( my $idx=0; $idx<$idx_max; $idx++ ){
-        #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );
-        my $bname = basename( $arr[ $idx ] );
-        $arr[ $idx ] = 'tests/' . $bname . '.test.pl';
+        #printf( qq{\$test_target[ $idx ] = "$test_target[ $idx ]"\n} );
+        my $bname = basename( $test_target[ $idx ] );
+        $testrunners[ $idx ]   =            $bname . '.test.pl';
+        $testcase_path[ $idx ] = 'tests/' . $bname . '.t';
     }
-    return join( ' ', @arr );
+    ${ $ref_testcases } = join( ' ', @testcase_path );
+    return join( ' ', @testrunners );
 }
 
 sub getScrNames( $ )
@@ -205,20 +210,6 @@ sub getDocNames( $ )
         #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );
         my $bname = basename( $arr[ $idx ] );
         $arr[ $idx ] = 'docs/' . $bname . '.md';
-    }
-    return join( ' ', @arr );
-}
-
-## "tests/fill.test.pl tests/hello.pl.test.pl tests/hello.sh.test.pl"
-## -> "fill.test.pl hello.pl.test.pl hello.sh.test.pl"
-sub getBaseNames( $ )
-{
-    my @arr = split( / +/, $_[ 0 ] );
-    my $idx_max = scalar( @arr );
-    for( my $idx=0; $idx<$idx_max; $idx++ ){
-        #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );
-        my $bname = basename( $arr[ $idx ] );
-        $arr[ $idx ] = $bname;
     }
     return join( ' ', @arr );
 }

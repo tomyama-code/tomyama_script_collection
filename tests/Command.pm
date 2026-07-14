@@ -181,7 +181,6 @@ sub TestPreProc( $@ )
 sub TestPostProc( $ )
 {
     my( $name ) = @_;
-    done_testing() if( defined( $ENV{TEST_TARGET_CMD} ) );
 
     if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
         if( $ENV{WITH_PERL_COVERAGE_OWNER} eq $$ ){

@@ -7,6 +7,22 @@
 ### Changed
 - xxx
 
+## [0.2.73] - 2026-07-14
+### Changed
+- `c` [1.04.172]:
+  - waitEnter(): Changed to use low-level sysread() for reading standard input.
+- Refactoring the test environment.
+  - Split `tests/Command.pm` into two files.
+    - `tests/Runner.pm`
+    - `tests/Tester.pm`
+  - Separated test cases into a separate file.
+    - `tests/FTCalc.pm.test.pl` -> `tests/FTCalc.pm.t`
+    - `tests/c.test.pl`         -> `tests/c.t`
+    - `tests/domsort.test.pl`   -> `tests/domsort.t`
+    - `tests/fill.test.pl`      -> `tests/fill.t`
+    - `tests/holiday.test.pl`   -> `tests/holiday.t`
+    - `tests/mark.test.pl`      -> `tests/mark.t`
+
 ## [0.2.72] - 2026-07-10
 ### Changed
 - `tests/Command.pm`: Supports testing of Perl modules.
@@ -48,9 +64,11 @@
 - `c` [1.04.169]:
   - Changed the code to avoid using "Chained Comparisons".
     - `c [1.04.168]` contained code that did not work correctly in environments with Perl versions earlier than 5.32.
-- Changed variable scope to prevent `Test::Command` from exhausting file descriptors.
-  - Interim measure. The issue lies with `Test::Command`, but since that tool is no longer being updated, we have no choice but to migrate to a different one.
-    - It has a severe bug that causes the test environment to exhaust system resources.
+- Changed the variable scope to prevent file descriptor exhaustion caused by `Test::Command`.
+- I directly patched the `Test::Command` module in my environment to ensure the tests complete successfully; details are documented in `tests/c.test.pl`.
+  - This is a temporary measure. The root cause lies within `Test::Command` itself, but since the tool is no longer being updated, there is no possibility of getting this patch accepted.
+    - Therefore, migrating to a different tool is the only option.
+    - Despite being a testing tool, `Test::Command` contains a critical bug that risks exhausting system resources.
   - `tests/c.test.pl`
   - `tests/domsort.test.pl`
   - `tests/fill.test.pl`

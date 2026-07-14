@@ -7,8 +7,15 @@ use lib '.';
 # モジュールの読み込み
 use FTCalc;
 
+### Test::More was first released with perl v5.6.2
+#use Test::More;     # subtest()
 use Test2::V0 -no_utf8 => 1;    # テストフレームワークとUTF-8プラグインの読み込み
-use Capture::Tiny qw(capture);  # 出力をキャプチャするための関数をインポート
+#use Capture::Tiny qw(capture);  # 出力をキャプチャするための関数をインポート
+
+#use lib '.';
+use FindBin;
+use lib File::Spec->catdir( $FindBin::Bin, '..' );
+use tests::Tester;
 
 
 # --------------------------------------------------------
@@ -383,5 +390,4 @@ subtest 'formatメソッドの出力選択機能のテスト' => sub{
     is( $stderr, "", 'STDERR is silent.' );
 };
 
-done_testing;
-exit( 0 );
+done_testing();
