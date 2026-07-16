@@ -2,20 +2,13 @@
 use strict;
 use warnings;
 
-use lib '.';
+#use lib '.';
+use FindBin;            # first released with perl 5.00307
+use lib File::Spec->catdir( $FindBin::Bin, '..' );
+use tests::Tester;
 
 # モジュールの読み込み
 use FTCalc;
-
-### Test::More was first released with perl v5.6.2
-#use Test::More;     # subtest()
-use Test2::V0 -no_utf8 => 1;    # テストフレームワークとUTF-8プラグインの読み込み
-#use Capture::Tiny qw(capture);  # 出力をキャプチャするための関数をインポート
-
-#use lib '.';
-use FindBin;
-use lib File::Spec->catdir( $FindBin::Bin, '..' );
-use tests::Tester;
 
 
 # --------------------------------------------------------
@@ -46,22 +39,18 @@ subtest 'テスト前準備: モジュールのデフォルト値を変更して
 # --------------------------------------------------------
 subtest 'コンストラクタ: 異常系のテスト' => sub{
     &FTCalc::_set_action_flag( _FTC_FAIL_OPEN2 );
-    my( $stdout, $stderr, $exception ) = capture{
-        return dies{
-            my $c = FTCalc->new();
-        };
-    };
-    ok( defined( $exception ), 'open2で正しく例外（die）が発生すること' );
-    #print( qq{\$exception="$exception"\n} );
-    like(
-        $exception,
+    my $t;
+
+    $t = tests::Tester->run_blk( sub{
+        my $c = FTCalc->new();
+    } );
+    ok( defined( $t->exception ), 'open2で正しく例外（die）が発生すること' );
+    $t->exception_like(
         qr/FTCalc: _FtcOpen2\(\): Failed to start /,
         '例外メッセージにエラーキーワードが含まれていること'
     );
-    #print( qq{\$stdout="$stdout"\n} );
-    is( $stdout, "_FtcOpen2(): _FTC_FAIL_OPEN2\n", 'テストの前提条件を満たしていること' );
-    #print( qq{\$stderr="$stderr"\n} );
-    is( $stderr, "", 'STDERR is silent.' );
+    $t->stdout_is( "_FtcOpen2(): _FTC_FAIL_OPEN2\n", 'テストの前提条件を満たしていること' );
+    $t->stderr_is( "", 'STDERR is silent.' );
 };
 
 # --------------------------------------------------------
@@ -72,7 +61,7 @@ subtest 'インスタンスの設定値を変えるAPIのテスト' => sub{
     my( $stdout, $stderr ) = capture{
         $c = FTCalc->new();
     };
-    isa_ok( $c, ['FTCalc'], 'インスタンスが正しく生成できること' );
+    isa_ok( $c, 'FTCalc', 'インスタンスが正しく生成できること' );
     my( $ins1_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins1_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     note( qq{\$ins1_pid="$ins1_pid"} );
@@ -129,7 +118,7 @@ subtest '基本的な数式計算' => sub{
     my( $stdout, $stderr ) = capture{
         $c = FTCalc->new();
     };
-    isa_ok( $c, ['FTCalc'], 'インスタンスが正しく生成できること' );
+    isa_ok( $c, 'FTCalc', 'インスタンスが正しく生成できること' );
     my( $ins2_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins2_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     note( qq{\$ins2_pid="$ins2_pid"} );
@@ -184,7 +173,7 @@ subtest '基本的な数式計算' => sub{
     my $exception;
     ( $stdout, $stderr, $exception ) = capture{
         return dies{
-            $c->formula( q{round( pi )} );
+            my $ret = $c->formula( q{round( pi )} );
         };
     };
 
@@ -200,7 +189,6 @@ subtest '基本的な数式計算' => sub{
     );
     is( $stdout, qq{Formula: "round( pi )"\n}, '計算式だけ出力されていること' );
     is( $stderr, "", 'STDERR is silent.' );
-
 
 # --------------------------------------------------------
 # 複雑な書式を返す式の検証
@@ -241,7 +229,7 @@ subtest '基本的な数式計算' => sub{
     ( $stdout, $stderr ) = capture{
         $c = FTCalc->new( '--banner' );
     };
-    isa_ok( $c, ['FTCalc'], 're-generate-c-1: バナー付きで生成できること' );
+    isa_ok( $c, 'FTCalc', 're-generate-c-1: バナー付きで生成できること' );
     my( $ins3_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins3_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     is( $stderr, "", 'STDERR is silent.' );
@@ -250,7 +238,7 @@ subtest '基本的な数式計算' => sub{
     ( $stdout, $stderr ) = capture{
         $c = FTCalc->new();     # re-generate-c-1 はここで消える
     };
-    isa_ok( $c, ['FTCalc'], 're-generate-c-2: 上書きで生成できること' );
+    isa_ok( $c, 'FTCalc', 're-generate-c-2: 上書きで生成できること' );
     my( $ins4_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins4_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     is( $stderr, "", 'STDERR is silent.' );
@@ -278,7 +266,7 @@ subtest '基本的な数式計算' => sub{
         ( $stdout, $stderr ) = capture{
             $c = FTCalc->new();
         };
-        isa_ok( $c, ['FTCalc'], 're-generate-c-3: スコープ内で新たな $c が生成できること' );
+        isa_ok( $c, 'FTCalc', 're-generate-c-3: スコープ内で新たな $c が生成できること' );
         my( $ins5_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
         ok( defined( $ins5_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
         note( qq{\$ins5_pid="$ins5_pid"} );
@@ -324,7 +312,7 @@ subtest 'formatメソッドの出力選択機能のテスト' => sub{
     my( $stdout, $stderr ) = capture{
         $c = FTCalc->new();
     };
-    isa_ok( $c, ['FTCalc'], 'インスタンスが生成できること' );
+    isa_ok( $c, 'FTCalc', 'インスタンスが生成できること' );
     my( $ins6_pid ) = ( $stdout =~ /^FTCalc: CONSTRACT: Connected the c script: pid=(\d+): / );
     ok( defined( $ins6_pid ), 'コンストラクタの情報が出力され、PIDが取得できること' );
     note( qq{\$ins6_pid="$ins6_pid"} );

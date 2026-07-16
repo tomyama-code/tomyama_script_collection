@@ -498,13 +498,13 @@ The **c** script was created with the following in mind:
     Differences between modulo operations ([`fmod`](#fmod) and [`math_mod`](#math_mod)):
 
         ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
-        ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│  X ┃
+        ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│ any┃
         ┠─────╂──┼──┼──┼──┼──┨
         ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
         ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
-        ┃ %, fmod()┃-0.7│-0.7│ 0.7│ 0.7│ err┃
+        ┃ %, fmod()┃-0.7│-0.7│+0.7│+0.7│ err┃
         ┠─────╂──┼──┼──┼──┼──┨
-        ┃math_mod()┃-0.7│ 1.5│-1.5│ 0.7│ err┃
+        ┃math_mod()┃-0.7│+1.5│-1.5│+0.7│ err┃
         ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
 
 - `**`
@@ -705,7 +705,6 @@ The **c** script was created with the following in mind:
     gcd( _NUMBER1_,.. ).
     Returns the greatest common divisor (GCD),
     which is the largest positive integer that divides each of the operands.
-    \[Math::BigInt::bgcd()\]
 
         $ c 'gcd( 402, 670, 804 )'
         134
@@ -714,7 +713,6 @@ The **c** script was created with the following in mind:
 
     lcm( _NUMBER1_,.. ).
     Returns the least common multiple (LCM).
-    \[Math::BigInt::blcm()\]
 
         $ c 'lcm( 402, 670, 804 )'
         4020
@@ -1077,7 +1075,6 @@ The **c** script was created with the following in mind:
 - `rad2deg`
 
     rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
-    \[Math::Trig\]
 
         $ c 'rad2deg( 2.50620553940126 )'
         143.595
@@ -1085,7 +1082,6 @@ The **c** script was created with the following in mind:
 - `deg2rad`
 
     deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
-    \[Math::Trig\]
 
         $ c 'deg2rad( 143.595 )'
         2.5062055394
@@ -1134,13 +1130,11 @@ The **c** script was created with the following in mind:
 
     tan( _RADIANS_ ).
     Returns the tangent of _RADIANS_.
-    \[Math::Trig\]
 
 - `asin`
 
     asin( _RATIO_ ).
     The arcus (also known as the inverse) functions of the sine.
-    \[Math::Trig\]
 
         $ c 'rad2deg( asin( 1 / 2 ) )'
         30
@@ -1149,7 +1143,6 @@ The **c** script was created with the following in mind:
 
     acos( _RATIO_ ).
     The arcus (also known as the inverse) functions of the cosine.
-    \[Math::Trig\]
 
         $ c 'rad2deg( acos( 1 / 2 ) )'
         60
@@ -1158,7 +1151,6 @@ The **c** script was created with the following in mind:
 
     atan( _RATIO_ ).
     The arcus (also known as the inverse) functions of the tangent.
-    \[Math::Trig\]
 
         $ c 'rad2deg( atan( 1 / 1 ) )'
         45
@@ -1167,7 +1159,7 @@ The **c** script was created with the following in mind:
 
     atan2( _Y_, _X_ ).
     The principal value of the arc tangent of _Y_ / _X_.
-    \[Math::Trig\]
+    \[Perl Native\]
 
         $ c 'rad2deg( atan2( 1, 1 ) )'
         45
@@ -1874,13 +1866,10 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 ## Core Modules Used
 
 - [base](https://metacpan.org/pod/base) - first included in perl 5.00405
-- [Class::Struct](https://metacpan.org/pod/Class%3A%3AStruct) — first included in perl 5.004
 - [constant](https://metacpan.org/pod/constant) — first included in perl 5.004
 - [Encode](https://metacpan.org/pod/Encode) — first included in perl v5.7.3
 - [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
 - [List::Util](https://metacpan.org/pod/List%3A%3AUtil) — first included in perl v5.7.3
-- [Math::BigInt](https://metacpan.org/pod/Math%3A%3ABigInt) — first included in perl 5
-- [Math::Trig](https://metacpan.org/pod/Math%3A%3ATrig) — first included in perl 5.004
 - [POSIX](https://metacpan.org/pod/POSIX) — first included in perl 5
 - [strict](https://metacpan.org/pod/strict) — first included in perl 5
 - [Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes) - first included in perl v5.7.3

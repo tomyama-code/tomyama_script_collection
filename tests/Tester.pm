@@ -2,16 +2,25 @@ package tests::Tester;
 use strict;
 use warnings;
 
-use Exporter 'import';
-our @EXPORT = qw(capture);
+use Exporter 'import';          # first released with perl 5
+our @EXPORT = qw(capture dies
+    done_testing
+    subtest
+    note
+    ok
+    isa_ok
+    is
+    like
+    unlike
+);
 
-use Test::More;     # first released with perl v5.6.2
-                    # subtest(), done_testing()
+use Test::More;                 # first released with perl v5.6.2
+                                # done_testing(), subtest(), ...
 
-use File::Temp;     # first released with perl v5.6.1
+use File::Temp qw(tempfile);    # first released with perl v5.6.1
 
-use FindBin;
-use Cwd 'getcwd';   # getcwd()
+use FindBin;                    # first released with perl 5.00307
+use Cwd 'getcwd';               # first released with perl 5
 
 my %phrase;
 $phrase{apppath} = $FindBin::Bin;
@@ -27,8 +36,8 @@ sub capture( & )
     my $code = shift;
 
     # キャプチャ用の一時ファイルを作成
-    my( $tmp_out_fh, $tmp_out_file ) = File::Temp::tempfile();
-    my( $tmp_err_fh, $tmp_err_file ) = File::Temp::tempfile();
+    my( $tmp_out_fh, $tmp_out_file ) = &File::Temp::tempfile();
+    my( $tmp_err_fh, $tmp_err_file ) = &File::Temp::tempfile();
 
     # 現在の STDOUT と STDERR を複製して退避
     open( my $old_out, ">&", \*STDOUT ) || die( $! );
@@ -39,20 +48,17 @@ sub capture( & )
     open( STDERR, ">&", $tmp_err_fh ) || die( $! );
 
     # ブロックを実行（この中の出力はすべて一時ファイルへ）
-    my $code_ret = eval{
+    my $code_ret;
+    my $ok = eval{
         # 念のためバッファリングを無効化（オートフラッシュ）
         my $old_fh = select( STDOUT ); $| = 1;
         select( STDERR ); $| = 1;
         select( $old_fh );
-        $code->();
+        $code_ret = $code->();
+        1
     };
-    my $e = undef;
-    my $exception = undef;
-    if( $@ ){
-        $e = $@; # エラーが起きた場合は捕捉しておく
-    }elsif( defined( $code_ret ) && $code_ret =~ m/(?:fail|error)/i ){
-        $exception = $code_ret;
-    }
+     my $e = $@; # エラーが起きた場合は捕捉しておく
+     $e = undef if( $ok );
     #print( qq{\$code_ret="$code_ret"\n} );
 
     # 出力先を元に戻す
@@ -73,14 +79,39 @@ sub capture( & )
     unlink( $tmp_err_file );
 
     if( $e ){
-        die( $e )
+#        print( qq{\$ok="$ok", \$e="$e"\n} );
+#        print( qq{\$e="$e"\n} );
+#        print( qq{\$captured_out="$captured_out"\n} );
+#        print( qq{\$captured_err="$captured_err"\n} );
+#        print( qq{\$code_ret="$code_ret"\n} );
+        croak( $e )
     }  # ブロック内で死んだ場合は再スロー
 
     # キャプチャした文字列を返す
-    return ( $captured_out, $captured_err, $exception );
+    return ( $captured_out, $captured_err, $code_ret );
 }
 
-sub run_cmd( $$ )
+use Carp qw(carp croak);    # first released with perl 5
+
+sub dies( & )
+{
+    my $code = shift( @_ );
+    defined( wantarray ) ||
+        carp( "Useless use of dies() in void context" );
+    local( $@, $!, $? );
+    my $ok = eval{
+        $code->();
+        1
+    };
+    my $err = $@;
+    if( $ok ){
+        return undef;
+    }
+    # (省略: 例外が偽値の場合の特殊処理)
+    return $err;
+}
+
+sub run_cmd( $@ )
 {
     my $class = shift( @_ );
     my @cmds = @_;
@@ -116,6 +147,36 @@ sub run_cmd( $$ )
     return $self;
 }
 
+sub run_blk( $& )
+{
+    my $class = shift( @_ );
+    my $code = shift( @_ );
+
+    my( $package, $filename, $line ) = caller( 0 );
+    note( qq{$filename: $line} );
+
+    my $exit_code = 0;
+    my( $stdout, $stderr, $exception ) = capture{
+        return dies{
+            $code->();  # ブロックの実行
+            $exit_code = $?;
+        };
+    };
+
+    my $self = {
+        cmd    => '_unused_',
+        stdout => $stdout,
+        stderr => $stderr,
+        exit_code => $exit_code,
+        exception => $exception,
+    };
+    bless( $self, $class );     # クラス名を関連付け
+
+    #$self->dump();
+
+    return $self;
+}
+
 sub dump( $ )
 {
     my( $self ) = @_;
@@ -123,8 +184,17 @@ sub dump( $ )
     printf( qq{STDOUT="%s"\n}, $self->{stdout} );
     printf( qq{STDERR="%s"\n}, $self->{stderr} );
     printf( qq{exit_code="%d"\n}, $self->{exit_code} );
-    printf( qq{exception="%s"\n}, $self->{exception} );
+    printf( qq{exception="%s"\n},
+        ( defined( $self->{exception} ) ? $self->{exception} : 'undef' )
+    );
 }
+
+#sub ok( $;$ )
+#{
+#    my( $expr, $msg ) = @_;
+#    $msg = "expression is $expr" if( !defined( $msg ) );
+#    ok( $expr, $msg );
+#}
 
 sub exit_is( $$;$ )
 {
@@ -164,6 +234,19 @@ sub stderr_is( $$;$ )
     is( $self->{stderr}, $expected, $msg );
 }
 
+sub exception_is( $$;$ )
+{
+    my( $self, $expected, $msg ) = @_;
+    if( !defined( $msg ) ){
+        $msg = "exception matches";
+        if( $expected eq '' ){
+            $msg = "exception is silent";
+        }
+    }
+    return 0 if( !defined( $self->{exception} ) );
+    is( $self->{exception}, $expected, $msg );
+}
+
 sub stdout_like( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
@@ -190,6 +273,34 @@ sub stderr_unlike( $$;$ )
     my( $self, $pattern, $msg ) = @_;
     $msg = "STDERR does not match pattern" if( !defined( $msg ) );
     unlike($self->{stderr}, $pattern, $msg );
+}
+
+sub exception( $ )
+{
+    my( $self ) = @_;
+    return $self->{exception};
+}
+
+sub exception_like( $$;$ )
+{
+    my( $self, $pattern, $msg ) = @_;
+    $msg = "exception matches pattern" if( !defined( $msg ) );
+    if( !defined( $self->{exception} ) ){
+        ok( defined( $self->{exception} ), $msg );
+        return;
+    }
+    like( $self->{exception}, $pattern, $msg );
+}
+
+sub exception_unlike( $$;$ )
+{
+    my( $self, $pattern, $msg ) = @_;
+    $msg = "exception does not matches pattern" if( !defined( $msg ) );
+    if( !defined( $self->{exception} ) ){
+        ok( defined( $self->{exception} ), $msg );
+        return;
+    }
+    unlike( $self->{exception}, $pattern, $msg );
 }
 
 1;

@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.32 $
+## - $Revision: 2.33 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -17,8 +17,8 @@
 ################################################################################
 
 use strict;
-use warnings 'all';
-use File::Basename;
+use warnings;
+use File::Basename qw(dirname basename);
 use Time::Local qw{timelocal};
 use POSIX       qw{uname getcwd};
 use Time::HiRes;
@@ -95,8 +95,8 @@ sub pl_main( @ )
 sub init_script()
 {
     ### GLOBAL ###
-    $main::apppath = dirname( $0 );
-    $main::appname = basename( $0 );
+    $main::apppath = &File::Basename::dirname( $0 );
+    $main::appname = &File::Basename::basename( $0 );
     $main::interval = 1;
     $main::use_large_font = 0;
 
@@ -186,7 +186,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.32 $};
+    my $rev = q{$Revision: 2.33 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

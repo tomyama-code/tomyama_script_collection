@@ -2,7 +2,7 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.7 $
+## - $Revision: 1.8 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -13,8 +13,8 @@
 ################################################################################
 
 use strict ;
-use warnings 'all';
-use File::Basename ;
+use warnings;
+use File::Basename qw(dirname basename);
 
 
 exit( &pl_main( @ARGV ) );
@@ -174,8 +174,8 @@ sub pl_main()
 sub init_script()
 {
     ### GLOBAL ###
-    $main::apppath = dirname( $0 );
-    $main::appname = basename( $0 );
+    $main::apppath = &File::Basename::dirname( $0 );
+    $main::appname = &File::Basename::basename( $0 );
     $main::debug = 0;
     $main::bContinue = -1;
     $main::exit_code = -1;
@@ -471,7 +471,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.7 $};
+    my $rev = q{$Revision: 1.8 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

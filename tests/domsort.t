@@ -2,11 +2,8 @@
 use strict;
 use warnings;
 
-## Test::More was first released with perl v5.6.2
-use Test::More;     # subtest()
-
 #use lib '.';
-use FindBin;
+use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 

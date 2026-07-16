@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.172 $
+## - $Revision: 4.178 $
 ##
 ## - Script Structure
 ##   - main
@@ -38,10 +38,11 @@
 ## Revision: 1.1
 package OutputFunc;
 use strict;
-use warnings 'all';
+use warnings;
 
 # OutputFunc コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -168,7 +169,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.172 $};
+    my $rev = q{$Revision: 4.178 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -354,8 +355,7 @@ sub GenMsg()
 
 package FormulaToken;
 use strict;
-use warnings 'all';
-use Class::Struct;
+use warnings;
 
 use constant {
     BIT_OPERAND  => 0x01,
@@ -365,11 +365,72 @@ use constant {
     BIT_HEX      => 0x10,
 };
 
-struct FormulaToken =>{
-    id    => '$',
-    flags => '$',
-    data  => '$',
-};
+sub new
+{
+    my( $class, %args ) = @_;
+
+    # デフォルト値は設けないので必ず全てのキーを指定しなければならない
+    my $self = {
+        id    => $args{id},
+        flags => $args{flags},
+        data  => $args{data},
+    };
+
+    return bless( $self, $class );
+}
+
+sub NewOperand( $;$ )
+{
+    my $value = shift( @_ );
+    my $bHex = 0;
+    $bHex = shift( @_ ) if( defined( $_[ 0 ] ) );
+
+    my $flags = BIT_OPERAND;
+    $flags |= BIT_HEX if( $bHex );
+
+    return FormulaToken->new( id=>-1, flags=>$flags, data=>$value );
+}
+
+sub NewOperator( $;$ )
+{
+    my $operator = shift( @_ );
+    my $bFunction = 0;
+    $bFunction = shift( @_ ) if( defined( $_[ 0 ] ) );
+
+    my $flags = BIT_OPERATOR;
+    $flags |= BIT_FUNCTION if( $bFunction );
+
+    return FormulaToken->new( id=>-1, flags=>$flags, data=>$operator );
+}
+
+sub Copy( $ )
+{
+    my $self = shift( @_ );
+    my $value = shift( @_ );
+    my $copy_token = FormulaToken->new( id=>$self->id, flags=>$self->flags, data=>$value );
+    return $copy_token;
+}
+
+# --- アクセサ（ゲッター / セッター）の定義 ---
+
+sub id( $;$ )
+{
+    my $self = shift( @_ );
+    $self->{id} = shift( @_ ) if( @_ ); # 引数があれば値を更新
+    return $self->{id};                 # 値を返す
+}
+
+sub flags( $ )
+{
+    my $self = shift( @_ );
+    return $self->{flags};
+}
+
+sub data( $ )
+{
+    my $self = shift( @_ );
+    return $self->{data};
+}
 
 sub IsOperator()
 {
@@ -405,48 +466,14 @@ sub GetTokenSymbol( $ )
     return $token_data;
 }
 
-sub Copy( $ )
-{
-    my $self = shift( @_ );
-    my $value = shift( @_ );
-    my $copy_token = FormulaToken->new( id=>$self->id, flags=>$self->flags, data=>$value );
-    return $copy_token;
-}
-
-sub NewOperand( $;$ )
-{
-    my $value = shift( @_ );
-    my $bHex = 0;
-    $bHex = shift( @_ ) if( defined( $_[ 0 ] ) );
-
-    my $flags = BIT_OPERAND;
-    $flags |= BIT_HEX if( $bHex );
-
-    return FormulaToken->new( id=>-1, flags=>$flags, data=>$value );
-}
-
-sub NewOperator( $;$ )
-{
-    my $operator = shift( @_ );
-    my $bFunction = 0;
-    $bFunction = shift( @_ ) if( defined( $_[ 0 ] ) );
-
-    my $flags = BIT_OPERATOR;
-    $flags |= BIT_FUNCTION if( $bFunction );
-
-    return FormulaToken->new( id=>-1, flags=>$flags, data=>$operator );
-}
-
 
 package TableProvider;
 use strict;
-use warnings 'all';
-use POSIX qw/hypot floor ceil/;
-use Math::BigInt;
-use Math::Trig; ## pi, rad2deg(), deg2rad()
-use List::Util; ## min(), max(), shuffle(), uniq, sum()
-use Time::Local;    # timelocal(), timegm()
-use Time::HiRes;
+use warnings;
+use POSIX qw/fmod hypot floor ceil/;
+use List::Util qw(min max shuffle uniq sum);
+use Time::Local qw(timelocal timegm);
+use Time::HiRes qw(time);
 
 use constant {
     O_INDX => 0,
@@ -479,6 +506,9 @@ use constant{
 use constant E_ACT => qw(
     E_RIGH E_LEFT E_REMV E_FUNC E_IGNR E_UNKN
 );
+
+## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
+use constant pi => 4 * atan2( 1, 1 );
 
 ## 単位換算係数 Unit Conversion Factor
 ## 長さ
@@ -529,7 +559,8 @@ use constant WGS84_FLATTENING => 1.0 / WGS84_RECIPROCAL_FLATTENING; # 扁平率
 use constant WGS84_POW_E                 => 0.006694379990141316;   # 離心率の二乗: e^2 = 2f - f^2
 
 # TableProvider コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -628,8 +659,8 @@ use constant {
     H_PRIM => qq{is_prime( NUM1 [,.. ] ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
-    H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands. [Math::BigInt::bgcd()]},
-    H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM). [Math::BigInt::blcm()]},
+    H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
+    H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM).},
     H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
     H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
@@ -657,19 +688,19 @@ use constant {
     H_SQRT => qq{sqrt( N1 [,.. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
-    H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ). [Math::Trig]},
-    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ). [Math::Trig]},
+    H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
+    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
     H_D2DM => qq{deg2dms( <DEGREES> [, <DEGREES>..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
     H_DMDM => qq{dms2dms( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
     H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
     H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
-    H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>. [Math::Trig]},
-    H_ASIN => qq{asin( N ). The arcus (also known as the inverse) functions of the sine. [Math::Trig]},
-    H_ACOS => qq{acos( N ). The arcus (also known as the inverse) functions of the cosine. [Math::Trig]},
-    H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent. [Math::Trig]},
-    H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X. [Math::Trig]},
+    H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>.},
+    H_ASIN => qq{asin( N ). The arcus (also known as the inverse) functions of the sine.},
+    H_ACOS => qq{acos( N ). The arcus (also known as the inverse) functions of the cosine.},
+    H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent.},
+    H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X.},
     H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
     H_SLPD => qq{angle_deg( X, Y [, IS_AZIMUTH ] ). Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degrees = east, counterclockwise). If IS_AZIMUTH is set to true, returns the angle (0 degrees = north, clockwise).},
     H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
@@ -764,8 +795,8 @@ use constant {
     'is_prime'                   => [ 1120, T_FUNCTION,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
     'prime_factorize'            => [ 1130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
     'get_prime'                  => [ 1140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'                        => [ 1150, T_FUNCTION,    VA, H_GCD_, sub{ &Math::BigInt::bgcd( @_ ) } ],
-    'lcm'                        => [ 1160, T_FUNCTION,    VA, H_LCM_, sub{ &Math::BigInt::blcm( @_ ) } ],
+    'gcd'                        => [ 1150, T_FUNCTION,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
+    'lcm'                        => [ 1160, T_FUNCTION,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
     'ncr'                        => [ 1170, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
     'min'                        => [ 1180, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
     'max'                        => [ 1190, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
@@ -793,19 +824,19 @@ use constant {
     'sqrt'                       => [ 1410, T_FUNCTION,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
     'pow'                        => [ 1420, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
     'pow_inv'                    => [ 1430, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'                    => [ 1440, T_FUNCTION,    VA, H_R2DG, sub{ &RAD2DEG( @_ ) } ],
-    'deg2rad'                    => [ 1450, T_FUNCTION,    VA, H_D2RD, sub{ &DEG2RAD( @_ ) } ],
+    'rad2deg'                    => [ 1440, T_FUNCTION,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
+    'deg2rad'                    => [ 1450, T_FUNCTION,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
     'dms2rad'                    => [ 1460, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
     'dms2deg'                    => [ 1470, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
     'deg2dms'                    => [ 1480, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
     'dms2dms'                    => [ 1490, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                        => [ 1500, T_FUNCTION,     1, H_SINE, sub{ sin( $_[ 0 ] ) } ],
-    'cos'                        => [ 1510, T_FUNCTION,     1, H_COSI, sub{ cos( $_[ 0 ] ) } ],
-    'tan'                        => [ 1520, T_FUNCTION,     1, H_TANG, sub{ &Math::Trig::tan( $_[ 0 ] ) } ],
-    'asin'                       => [ 1530, T_FUNCTION,     1, H_ASIN, sub{ &Math::Trig::asin( $_[ 0 ] ) } ],
-    'acos'                       => [ 1540, T_FUNCTION,     1, H_ACOS, sub{ &Math::Trig::acos( $_[ 0 ] ) } ],
-    'atan'                       => [ 1550, T_FUNCTION,     1, H_ATAN, sub{ &Math::Trig::atan( $_[ 0 ] ) } ],
-    'atan2'                      => [ 1560, T_FUNCTION,     2, H_ATN2, sub{ &Math::Trig::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'sin'                        => [ 1500, T_FUNCTION,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
+    'cos'                        => [ 1510, T_FUNCTION,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
+    'tan'                        => [ 1520, T_FUNCTION,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
+    'asin'                       => [ 1530, T_FUNCTION,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
+    'acos'                       => [ 1540, T_FUNCTION,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
+    'atan'                       => [ 1550, T_FUNCTION,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
+    'atan2'                      => [ 1560, T_FUNCTION,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
     'hypot'                      => [ 1570, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
     'angle_deg'                  => [ 1580, T_FUNCTION, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
     'dist_between_points'        => [ 1590, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
@@ -999,7 +1030,7 @@ sub _C_DIV( $$ )
 # ゼロ方向切り捨てベースのmod()関数
 #   同等と思われる剰余算機能
 #     C / C++ % 演算子、fmod 関数, Java % 演算子, JavaScript / TypeScript % 演算子,
-#     PHP % 演算子、fmod 関数, C# % 演算子, Swift % 演算子
+#     PHP % 演算子、fmod 関数, C# % 演算子, Swift % 演算子, Go math.Mod 関数
 #   概念
 #     dividend=-5.1
 #     divisor=-2.2
@@ -1018,8 +1049,8 @@ sub _C_MOD( $$ )
 
 # 床関数ベースのmod()関数
 #   同等と思われる剰余算機能
-#     Python % 演算子, Ruby % 演算子, Go math.Mod 関数, R %% 演算子,
-#     MATLAB mod 関数, Common Lisp mod 関数
+#     Python % 演算子, Ruby % 演算子, R %% 演算子, MATLAB mod 関数,
+#     Common Lisp mod 関数
 #   概念
 #     dividend=-5.1
 #     divisor=-2.2
@@ -1247,6 +1278,39 @@ sub get_prime_num( $ )
     }
 }
 
+# 2つの数の最大公約数を求める（ユークリッドの互除法・ループ版）
+sub _gcd2( $$ )
+{
+    my( $a, $b ) = @_;
+    while( $b ){
+        ( $a, $b ) = ( $b, $a % $b );
+    }
+    return $a;
+}
+
+sub gcd( $@ )
+{
+    my $gcd = shift( @_ );
+    for( @_ ){
+        $gcd = _gcd2( $gcd, $_ );
+    }
+    return $gcd;
+}
+
+sub lcm( $@ )
+{
+    my $lcm = shift( @_ );
+    for( @_ ){
+        my $g = _gcd2( $lcm, $_ );
+        if( $g == 0 ){
+            $lcm = 0;
+        }else{
+            $lcm = ( $lcm * $_ ) / $g;
+        }
+    }
+    return $lcm;
+}
+
 sub nCr( $$ )
 {
     my( $n, $r ) = @_;
@@ -1318,7 +1382,7 @@ sub prod( @ )
 
 sub _C_AVG( @ )
 {
-    my $total = List::Util::sum( @_ );
+    my $total = &List::Util::sum( @_ );
     my $len = scalar( @_ );
     return $total / $len;
 }
@@ -1592,24 +1656,34 @@ sub pow_inv( $$ )
     return ( $x ** $rounded == $n ) ? $rounded : $y;
 }
 
-sub RAD2DEG( @ )
+sub RAD2DEG( $ )
+{
+    return $_[0] * 180 / pi;
+}
+
+sub _C_RAD2DEG_LIST( @ )
 {
     my @deg_array = ();
     for my $rad( @_ ){
         #print( qq{\$rad="$rad"\n} );
-        my $deg = &Math::Trig::rad2deg( $rad );
+        my $deg = &RAD2DEG( $rad );
         push( @deg_array, $deg );
     }
     return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
     return @deg_array;
 }
 
-sub DEG2RAD( @ )
+sub DEG2RAD( $ )
+{
+    return $_[0] * pi / 180;
+}
+
+sub _C_DEG2RAD_LIST( @ )
 {
     my @rad_array = ();
     for my $deg( @_ ){
         #print( qq{\$deg="$deg"\n} );
-        my $rad = &Math::Trig::deg2rad( $deg );
+        my $rad = &DEG2RAD( $deg );
         push( @rad_array, $rad );
     }
     return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
@@ -1623,7 +1697,7 @@ sub DMS2RAD( $$$ )
         my $degrees = shift( @_ );
         my $min = shift( @_ );
         my $sec = shift( @_ );
-        my $rad = &Math::Trig::deg2rad( &DMS2DEG( $degrees, $min, $sec ) );
+        my $rad = &DEG2RAD( &DMS2DEG( $degrees, $min, $sec ) );
         push( @rad_array, $rad );
     }
     return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
@@ -1669,6 +1743,26 @@ sub DMS2DMS( $$$ )
         push( @dms_array, &DEG2DMS( DMS2DEG( $deg, $min, $sec ) ) );
     }
     return @dms_array;
+}
+
+sub _C_TAN( $ )
+{
+    return sin( $_[0] ) / cos( $_[0] );
+}
+
+sub _C_ASIN( $ )
+{
+    return atan2( $_[0], sqrt( 1 - ( $_[0] ** 2 ) ) );
+}
+
+sub _C_ACOS( $ )
+{
+    return atan2( sqrt( 1 - ( $_[0] ** 2 ) ), $_[0] );
+}
+
+sub _C_ATAN( $ )
+{
+    return atan2( $_[0], 1 );
 }
 
 sub angle_deg( $$;$ )
@@ -1751,13 +1845,13 @@ sub angle_between_points( $$$$;$$$ )
     if( $b3d ){
         ( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_azimuth ) = @_;
         my $hypotenuse_x_y = &dist_between_points( $p1x, $p1y, $p2x, $p2y );
-        $elevation = rad2deg( atan2( $p2z - $p1z, $hypotenuse_x_y ) );
+        $elevation = &RAD2DEG( &CORE::atan2( $p2z - $p1z, $hypotenuse_x_y ) );
         unshift( @ret_val, $elevation );
     }else{
         ( $p1x, $p1y, $p2x, $p2y, $is_azimuth ) = @_;
     }
 
-    my $bearing = rad2deg( atan2( $p2y - $p1y, $p2x - $p1x ) );
+    my $bearing = &RAD2DEG( &CORE::atan2( $p2y - $p1y, $p2x - $p1x ) );
     if( defined( $is_azimuth ) ){
         if( $is_azimuth ){
             $bearing = 90 - $bearing;
@@ -1793,14 +1887,14 @@ sub vector_angle( $$$$;$$$ )
         $p2z = 0;
     }
 
-    my $radian = &Math::Trig::acos(
+    my $radian = &_C_ACOS(
                    ( $p1x * $p2x + $p1y * $p2y + $p1z * $p2z ) /
                    sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
                          ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
                  );
 
     return $radian if( $is_radian );
-    return &Math::Trig::rad2deg( $radian );
+    return &RAD2DEG( $radian );
 }
 
 sub geo2xyz( $$;$ )
@@ -1813,13 +1907,13 @@ sub geo2xyz( $$;$ )
     my $e2  = WGS84_POW_E;
 
     # 緯度からその場所の「卯酉線曲率半径 (N)」を計算
-    my $sin_lat = sin( $lat );
+    my $sin_lat = &CORE::sin( $lat );
     my $n = $a / sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
 
     # 三角関数の計算値をキャッシュしておく
-    my $cos_lat = cos( $lat );
-    my $cos_lon = cos( $lon );
-    my $sin_lon = sin( $lon );
+    my $cos_lat = &CORE::cos( $lat );
+    my $cos_lon = &CORE::cos( $lon );
+    my $sin_lon = &CORE::sin( $lon );
 
     # 厳密な楕円体公式によるXYZの算出
     my $x = ( $n + $h ) * $cos_lat * $cos_lon;
@@ -1887,8 +1981,8 @@ sub geocentric_radius( $ )
 {
     my $latitude_rad = shift( @_ );
 
-    my $sin_lat = sin( $latitude_rad );
-    my $cos_lat = cos( $latitude_rad );
+    my $sin_lat = &CORE::sin( $latitude_rad );
+    my $cos_lat = &CORE::cos( $latitude_rad );
 
     # 正確な動径Rを求める公式
     my $numerator = ( WGS84_EQUATORIAL_RADIUS_M ** 2 * $cos_lat ) ** 2 + ( WGS84_POLAR_RADIUS_M ** 2 * $sin_lat ) ** 2;
@@ -1905,8 +1999,8 @@ sub radius_of_latitude_circle( $ )
 {
     my $latitude_rad = shift( @_ );
 
-    my $sin_lat = sin( $latitude_rad );
-    my $cos_lat = cos( $latitude_rad );
+    my $sin_lat = &CORE::sin( $latitude_rad );
+    my $cos_lat = &CORE::cos( $latitude_rad );
 
     # これは、動径 R とは異なり、極軸からの距離 r = x座標 に相当します。
     # GRS80楕円体における緯円の半径を求めるには、媒介変数表示から導出される式が必要です。
@@ -1983,10 +2077,10 @@ sub geo_azimuth( $$$$ )
 #    my $dlat = $latB_rad - $latA_rad;
 #
 #    # ハバーサイン公式の計算
-#    my $a = ( sin( $dlat / 2 ) * sin( $dlat / 2 ) ) +
-#            ( cos( $latA_rad ) * cos( $latB_rad ) *
-#              sin( $dlon / 2 ) * sin( $dlon / 2 ) );
-#    my $distance = 2 * atan2( sqrt( $a ), sqrt( 1 - $a ) );
+#    my $a = ( &CORE::sin( $dlat / 2 ) * &CORE::sin( $dlat / 2 ) ) +
+#            ( &CORE::cos( $latA_rad ) * &CORE::cos( $latB_rad ) *
+#              &CORE::sin( $dlon / 2 ) * &CORE::sin( $dlon / 2 ) );
+#    my $distance = 2 * &CORE::atan2( sqrt( $a ), sqrt( 1 - $a ) );
 #
 #    # 地球の半径 (メートル)
 #    my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
@@ -2013,12 +2107,12 @@ sub geo_azimuth( $$$$ )
 #    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
 #    my $Rx = WGS84_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
 #    my $Ry = WGS84_POLAR_RADIUS_M;              # 短半径（極半径）
-#    my $W  = sqrt( 1 - ( ( WGS84_POW_E ) * ( sin( $P ) ** 2 ) ) );
+#    my $W  = sqrt( 1 - ( ( WGS84_POW_E ) * ( &CORE::sin( $P ) ** 2 ) ) );
 #    my $M = ( $Rx * ( 1 - ( WGS84_POW_E ) ) ) / # 子午線曲率半径
 #            ( $W ** 3 );
 #    my $N = $Rx / $W;                           # 卯酉線曲線半径
 #
-#    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * cos( $P ) ) ** 2 ) );
+#    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * &CORE::cos( $P ) ) ** 2 ) );
 #
 #    my $distance_m = $D;
 #
@@ -2051,10 +2145,10 @@ sub geo_great_circle_route_Vincenty( $$$$ )
     elsif( $L < -pi ){ $L += 2 * pi; }
 
     # 補助緯度 (Reduced Latitude) の計算
-    my $U1 = atan( ( 1 - $f ) * tan( $latA_rad ) );
-    my $U2 = atan( ( 1 - $f ) * tan( $latB_rad ) );
-    my $sinU1 = sin( $U1 ); my $cosU1 = cos( $U1 );
-    my $sinU2 = sin( $U2 ); my $cosU2 = cos( $U2 );
+    my $U1 = &_C_ATAN( ( 1 - $f ) * &_C_TAN( $latA_rad ) );
+    my $U2 = &_C_ATAN( ( 1 - $f ) * &_C_TAN( $latB_rad ) );
+    my $sinU1 = &CORE::sin( $U1 ); my $cosU1 = &CORE::cos( $U1 );
+    my $sinU2 = &CORE::sin( $U2 ); my $cosU2 = &CORE::cos( $U2 );
 
     # Vincenty法の反復計算
     my $lambda = $L;
@@ -2067,8 +2161,8 @@ sub geo_great_circle_route_Vincenty( $$$$ )
     for( my $i = 0; $i < 100; $i++ ){
         $lambda_prev = $lambda;
 
-        my $sin_lambda = sin( $lambda );
-        my $cos_lambda = cos( $lambda );
+        my $sin_lambda = &CORE::sin( $lambda );
+        my $cos_lambda = &CORE::cos( $lambda );
 
         $sin_sigma = sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
 
@@ -2076,7 +2170,7 @@ sub geo_great_circle_route_Vincenty( $$$$ )
         if( $sin_sigma == 0 ){ return ( 0, 0 ); }
 
         $cos_sigma = $sinU1 * $sinU2 + $cosU1 * $cosU2 * $cos_lambda;
-        $sigma = atan2( $sin_sigma, $cos_sigma );
+        $sigma = &CORE::atan2( $sin_sigma, $cos_sigma );
 
         $sin_alpha = $cosU1 * $cosU2 * $sin_lambda / $sin_sigma;
         $cos2_alpha = 1 - $sin_alpha ** 2;
@@ -2108,12 +2202,12 @@ sub geo_great_circle_route_Vincenty( $$$$ )
     # ----------------------------------------
     # 初期方位角 (azimuth) の計算
     # ----------------------------------------
-    my $y = sin( $lambda ) * $cosU2;
-    my $x = $cosU1 * $sinU2 - $sinU1 * $cosU2 * cos( $lambda );
-    my $azimuth_rad = atan2( $y, $x );
+    my $y = &CORE::sin( $lambda ) * $cosU2;
+    my $x = $cosU1 * $sinU2 - $sinU1 * $cosU2 * &CORE::cos( $lambda );
+    my $azimuth_rad = &CORE::atan2( $y, $x );
 
     # ラジアンを「0度〜360度」の範囲に変換
-    my $azimuth = rad2deg( $azimuth_rad );
+    my $azimuth = &RAD2DEG( $azimuth_rad );
     if( $azimuth < 0 ){ $azimuth += 360; }
 
     # 距離と方位角をペアで返す
@@ -2177,18 +2271,18 @@ sub geo_rhumb_line( $$$$ )
 
     # 緯度をメルカトル図法上の「y座標」に変換する式
     # 楕円体における漸長緯度 (Isometric Latitude) の差を計算
-    my $m_A = log( tan( pi / 4 + $latA_rad / 2 ) ) -
-              ( $e / 2 ) * log( ( 1 + $e * sin( $latA_rad ) ) / ( 1 - $e * sin( $latA_rad ) ) );
-    my $m_B = log( tan( pi / 4 + $latB_rad / 2 ) ) -
-              ( $e / 2 ) * log( ( 1 + $e * sin( $latB_rad ) ) / ( 1 - $e * sin( $latB_rad ) ) );
+    my $m_A = log( &_C_TAN( pi / 4 + $latA_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * &CORE::sin( $latA_rad ) ) / ( 1 - $e * &CORE::sin( $latA_rad ) ) );
+    my $m_B = log( &_C_TAN( pi / 4 + $latB_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * &CORE::sin( $latB_rad ) ) / ( 1 - $e * &CORE::sin( $latB_rad ) ) );
     my $dm = $m_B - $m_A;
 #    printf( qq{\$dm=$dm\n} );
 
     # 方位角を算出
     # 真北を0とし、時計回りのラジアンを返す
-    my $azimuth_rad = atan2( $dlon, $dm );
+    my $azimuth_rad = &CORE::atan2( $dlon, $dm );
     # ラジアンを「0度〜360度」の範囲に変換
-    my $azimuth = rad2deg( $azimuth_rad );
+    my $azimuth = &RAD2DEG( $azimuth_rad );
     if( $azimuth < 0 ){ $azimuth += 360; }
 
     # ------------------------------------------------------------------
@@ -2200,8 +2294,8 @@ sub geo_rhumb_line( $$$$ )
     if( abs( $dlat ) < 1e-11 ){
         # 【ケースA】完全な真東・真西（同緯度）の移動
         # この場合は南北移動がないため、平行圏曲率半径（卯酉線曲率半径×cos緯度）から直接算出
-        my $N = $a / sqrt( 1 - $e * $e * sin( $latA_rad ) * sin( $latA_rad ) );
-        $distance_m = $N * cos( $latA_rad ) * abs( $dlon );
+        my $N = $a / sqrt( 1 - $e * $e * &CORE::sin( $latA_rad ) * &CORE::sin( $latA_rad ) );
+        $distance_m = $N * &CORE::cos( $latA_rad ) * abs( $dlon );
     }else{
         # 【ケースB】南北の移動がある場合（日本から南極など、ほとんどのケース）
         # クロップ（Klotz）の展開式を用いて、赤道からの正確な子午線弧長を算出（積分展開）
@@ -2214,14 +2308,14 @@ sub geo_rhumb_line( $$$$ )
         my $C_coeff = $a / ( 1.0 + $n ) * ( ( 15.0 / 16.0)  * $n2 );
         my $D_coeff = $a / ( 1.0 + $n ) * ( ( 35.0 / 48.0)  * $n3 );
 
-        my $s_A = $A_coeff * $latA_rad - $B_coeff * sin( 2 * $latA_rad ) + $C_coeff * sin( 4 * $latA_rad) - $D_coeff * sin( 6 * $latA_rad );
-        my $s_B = $A_coeff * $latB_rad - $B_coeff * sin( 2 * $latB_rad ) + $C_coeff * sin( 4 * $latB_rad) - $D_coeff * sin( 6 * $latB_rad );
+        my $s_A = $A_coeff * $latA_rad - $B_coeff * &CORE::sin( 2 * $latA_rad ) + $C_coeff * &CORE::sin( 4 * $latA_rad) - $D_coeff * &CORE::sin( 6 * $latA_rad );
+        my $s_B = $A_coeff * $latB_rad - $B_coeff * &CORE::sin( 2 * $latB_rad ) + $C_coeff * &CORE::sin( 4 * $latB_rad) - $D_coeff * &CORE::sin( 6 * $latB_rad );
 
         # 厳密な南北の距離（子午線弧長）
         my $S_M = abs( $s_B - $s_A );
 
         # 等角航路の総距離 ＝ 南北距離 ÷ cos(方位角)
-        $distance_m = $S_M / abs( cos( $azimuth_rad ) );
+        $distance_m = $S_M / abs( &CORE::cos( $azimuth_rad ) );
     }
 
     return ( $distance_m, $azimuth );
@@ -2350,7 +2444,7 @@ sub age_of_moon( $$$ )
 
     # 指定されたローカル日時の「その日の正午（12時）」のエポック秒を作る
 #    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
-    my $epoch = Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
+    my $epoch = &Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
 
     my $age = &age_of_moon_instant( $epoch );
 
@@ -2403,7 +2497,7 @@ sub local2epoch( $$$;$$$ )
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
     $sec = 0 if( !defined( $sec ) );
-    my $epoch = Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
+    my $epoch = &Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
     return $epoch;
 }
 
@@ -2415,7 +2509,7 @@ sub gmt2epoch( $$$;$$$ )
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
     $sec = 0 if( !defined( $sec ) );
-    my $epoch = Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
+    my $epoch = &Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
     return $epoch;
 }
 
@@ -2904,13 +2998,14 @@ sub telemeter_km( $;$ )
 
 package FormulaParser;
 use strict;
-use warnings 'all';
+use warnings;
 use base qq{OutputFunc};
 use utf8;
-use Encode;
+use Encode qw(decode encode);
 
 # FormulaParser コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -2970,8 +3065,8 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．：＋＊・･／＾（）＝　”゛“’′!a-za-z0-9,,.:+***/^()= """''!;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
-    $expr =~ s!√!sqrt!go;
-    $expr =~ s!π!pi!go;
+    $expr =~ s!√\(! sqrt(!go;
+    $expr =~ s!π! pi !go;
     $expr =~ s!((?:20|19)\d{2})年(\d{1,2})月(\d{1,2})日!$1, $2, $3!go;
     $expr =~ s!(\d{1,2})時(\d{1,2})分(\d{1,2})秒!$1, $2, $3!go;
     $expr =~ s!(\d{1,2})時(\d{1,2})分!$1, $2, 0!go;
@@ -3018,46 +3113,46 @@ sub FormulaNormalizationOneLine( $ )
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
     $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
-    $expr =~ s!sakubou!29.530588853!go; # 朔望: 平均朔望月
-    $expr =~ s!chijiku!23.436!go;       # 地球の地軸の傾き
-    $expr =~ s!power!pow!go;
+    $expr =~ s!\bsakubou\b! 29.530588853 !go;   # 朔望: 平均朔望月
+    $expr =~ s!\bchijiku\b! 23.436 !go;         # 地球の地軸の傾き
     ## alias
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
     $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
-    $expr =~ s!\bmmod\(!math_mod(!go;
-    $expr =~ s!\bpct\(!percentage(!go;
-    $expr =~ s!\brs\(!ratio_scaling(!go;
-    $expr =~ s!\bpf\(!prime_factorize(!go;
-    $expr =~ s!\bdist\(!dist_between_points(!go;
-    $expr =~ s!\bmidpt\(!midpt_between_points(!go;
-    $expr =~ s!\bangle\(!angle_between_points(!go;
-    $expr =~ s!\bva\(!vector_angle(!go;
-    $expr =~ s!\bangular_distance\(!vector_angle(!go;
-    $expr =~ s!\bang_dist\(!vector_angle(!go;
-    $expr =~ s!\bg2xyz\(!geo2xyz(!go;
-    $expr =~ s!\bgd_m\(!geo_distance_m(!go;
-    $expr =~ s!\bgd_km\(!geo_distance_km(!go;
-    $expr =~ s!\bgazm\(!geo_azimuth(!go;
-    $expr =~ s!\bgd_m_azm\(!geo_dist_m_and_azimuth(!go;
-    $expr =~ s!\bgd_km_azm\(!geo_dist_km_and_azimuth(!go;
-    $expr =~ s!\bgd_rl_m\(!geo_rl_distance_m(!go;
-    $expr =~ s!\bgd_rl_km\(!geo_rl_distance_km(!go;
-    $expr =~ s!\bgazm_rl\(!geo_rl_azimuth(!go;
-    $expr =~ s!\bgd_rl_m_azm\(!geo_rl_dist_m_and_azimuth(!go;
-    $expr =~ s!\bgd_rl_km_azm\(!geo_rl_dist_km_and_azimuth(!go;
-    $expr =~ s!\bkgf2n\(!kgf2newton(!go;
-    $expr =~ s!\bn2kgf\(!newton2kgf(!go;
-    $expr =~ s!\blt\(!laptimer(!go;
-    $expr =~ s!\bsw\(!stopwatch(!go;
-    $expr =~ s!\bage_of_moon_i\(!age_of_moon_instant(!go;
-    $expr =~ s!\bl2e\(!local2epoch(!go;
-    $expr =~ s!\bg2e\(!gmt2epoch(!go;
-    $expr =~ s!\be2l\(!epoch2local(!go;
-    $expr =~ s!\be2g\(!epoch2gmt(!go;
-    $expr =~ s!\bd2s\(!dhms2sec(!go;
-    $expr =~ s!\bs2d\(!sec2dhms(!go;
-    $expr =~ s!\bd2d\(!dhms2dhms(!go;
+    $expr =~ s!\bage_of_moon_i\(! age_of_moon_instant(!go;
+    $expr =~ s!\bang_dist\(! vector_angle(!go;
+    $expr =~ s!\bangle\(! angle_between_points(!go;
+    $expr =~ s!\bangular_distance\(! vector_angle(!go;
+    $expr =~ s!\bd2d\(! dhms2dhms(!go;
+    $expr =~ s!\bd2s\(! dhms2sec(!go;
+    $expr =~ s!\bdist\(! dist_between_points(!go;
+    $expr =~ s!\be2g\(! epoch2gmt(!go;
+    $expr =~ s!\be2l\(! epoch2local(!go;
+    $expr =~ s!\bg2e\(! gmt2epoch(!go;
+    $expr =~ s!\bg2xyz\(! geo2xyz(!go;
+    $expr =~ s!\bgazm_rl\(! geo_rl_azimuth(!go;
+    $expr =~ s!\bgazm\(! geo_azimuth(!go;
+    $expr =~ s!\bgd_km_azm\(! geo_dist_km_and_azimuth(!go;
+    $expr =~ s!\bgd_km\(! geo_distance_km(!go;
+    $expr =~ s!\bgd_m_azm\(! geo_dist_m_and_azimuth(!go;
+    $expr =~ s!\bgd_m\(! geo_distance_m(!go;
+    $expr =~ s!\bgd_rl_km_azm\(! geo_rl_dist_km_and_azimuth(!go;
+    $expr =~ s!\bgd_rl_km\(! geo_rl_distance_km(!go;
+    $expr =~ s!\bgd_rl_m_azm\(! geo_rl_dist_m_and_azimuth(!go;
+    $expr =~ s!\bgd_rl_m\(! geo_rl_distance_m(!go;
+    $expr =~ s!\bkgf2n\(! kgf2newton(!go;
+    $expr =~ s!\bl2e\(! local2epoch(!go;
+    $expr =~ s!\blt\(! laptimer(!go;
+    $expr =~ s!\bmidpt\(! midpt_between_points(!go;
+    $expr =~ s!\bmmod\(! math_mod(!go;
+    $expr =~ s!\bn2kgf\(! newton2kgf(!go;
+    $expr =~ s!\bpct\(! percentage(!go;
+    $expr =~ s!\bpf\(! prime_factorize(!go;
+    $expr =~ s!\bpower\(! pow(!go;
+    $expr =~ s!\brs\(! ratio_scaling(!go;
+    $expr =~ s!\bs2d\(! sec2dhms(!go;
+    $expr =~ s!\bsw\(! stopwatch(!go;
+    $expr =~ s!\bva\(! vector_angle(!go;
 
     $self->dPrint( qq{FormulaNormalizationOneLine(): "$expr_org" -> "$expr"\n} );
     return $expr;
@@ -3174,11 +3269,11 @@ sub str2p
 {
     my $argc = scalar( @_ );
 #    if( $argc == 1 ){
-        return decode( STR_CHAR_CODE, $_[ 0 ] );
+        return &Encode::decode( STR_CHAR_CODE, $_[ 0 ] );
 #    }else{
 #        my @a = ();
 #        for my $arg( @_ ){
-#            push( @a, decode( STR_CHAR_CODE, $arg ) );
+#            push( @a, &Encode::decode( STR_CHAR_CODE, $arg ) );
 #        }
 #        return @a;
 #    }
@@ -3189,11 +3284,11 @@ sub p2str
 {
     my $argc = scalar( @_ );
 #    if( $argc == 1 ){
-        return encode( STR_CHAR_CODE, $_[ 0 ] );
+        return &Encode::encode( STR_CHAR_CODE, $_[ 0 ] );
 #    }else{
 #        my @a = ();
 #        for my $arg( @_ ){
-#            push( @a, encode( STR_CHAR_CODE, $arg ) );
+#            push( @a, &Encode::encode( STR_CHAR_CODE, $arg ) );
 #        }
 #        return @a;
 #    }
@@ -3202,14 +3297,17 @@ sub p2str
 
 package FormulaLexer;
 use strict;
-use warnings 'all';
+use warnings;
 use base qq{OutputFunc};
-use Math::Trig qw/pi/;
+
+## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
+use constant pi => 4 * atan2( 1, 1 );
 
 #use constant SHIFT_REG_LEN => 2;
 
 # FormulaLexer コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -3552,11 +3650,12 @@ sub GetHere()
 
 package FormulaStack;
 use strict;
-use warnings 'all';
+use warnings;
 use base qq{OutputFunc};
 
 # FormulaStack コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -3644,7 +3743,7 @@ sub GetNewer()
 
 package FormulaEvaluator;
 use strict;
-use warnings 'all';
+use warnings;
 use base qq{OutputFunc};
 
 use constant {
@@ -3652,7 +3751,8 @@ use constant {
 };
 
 # FormulaEvaluator コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -4073,9 +4173,10 @@ sub NumberToHex( $ )
 
 package FormulaHelper;
 use strict;
-use warnings 'all';
+use warnings;
 
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -4100,11 +4201,12 @@ sub GetHere()
 
 package FormulaEngine;
 use strict;
-use warnings 'all';
+use warnings;
 use base qq{OutputFunc};
 
 # FormulaEngine コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -4247,10 +4349,11 @@ sub Calculate( $ )
 
 package CAppConfig;
 use strict;
-use warnings 'all';
+use warnings;
 
 # CAppConfig コンストラクタ
-sub new {
+sub new
+{
     my( $class, $name ) = shift( @_ );
     my $self = {};              # 無名ハッシュ参照
     bless( $self, $class );     # クラス名を関連付け
@@ -4359,8 +4462,8 @@ sub GetBPrintUserDefined( $ )
 package main;
 
 use strict;
-use warnings 'all';
-use File::Basename;
+use warnings;
+use File::Basename qw(dirname basename);
 
 my $opf = undef;
 
@@ -4390,8 +4493,8 @@ sub init_script()
     @main::expressions_raw = ();
     ##############
 
-    my $apppath = dirname( $0 );
-    my $appname = basename( $0 );
+    my $apppath = &File::Basename::dirname( $0 );
+    my $appname = &File::Basename::basename( $0 );
     my $debug = 0;
     my $bTest = 0;
     my $bTestTestTest = 0;
@@ -4968,13 +5071,13 @@ Same as C<fmod( 10.234, 3 )>.
 Differences between modulo operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_mod>):
 
   ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
-  ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│  X ┃
+  ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│ any┃
   ┠─────╂──┼──┼──┼──┼──┨
   ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
   ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
-  ┃ %, fmod()┃-0.7│-0.7│ 0.7│ 0.7│ err┃
+  ┃ %, fmod()┃-0.7│-0.7│+0.7│+0.7│ err┃
   ┠─────╂──┼──┼──┼──┼──┨
-  ┃math_mod()┃-0.7│ 1.5│-1.5│ 0.7│ err┃
+  ┃math_mod()┃-0.7│+1.5│-1.5│+0.7│ err┃
   ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
 
 =item C<**>
@@ -5179,7 +5282,6 @@ where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
 gcd( I<NUMBER1>,.. ).
 Returns the greatest common divisor (GCD),
 which is the largest positive integer that divides each of the operands.
-[Math::BigInt::bgcd()]
 
   $ c 'gcd( 402, 670, 804 )'
   134
@@ -5188,7 +5290,6 @@ which is the largest positive integer that divides each of the operands.
 
 lcm( I<NUMBER1>,.. ).
 Returns the least common multiple (LCM).
-[Math::BigInt::blcm()]
 
   $ c 'lcm( 402, 670, 804 )'
   4020
@@ -5551,7 +5652,6 @@ Returns the power of I<A> to which I<B> is raised.
 =item C<rad2deg>
 
 rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
-[Math::Trig]
 
   $ c 'rad2deg( 2.50620553940126 )'
   143.595
@@ -5559,7 +5659,6 @@ rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
 =item C<deg2rad>
 
 deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
-[Math::Trig]
 
   $ c 'deg2rad( 143.595 )'
   2.5062055394
@@ -5608,13 +5707,11 @@ Returns the cosine of I<RADIANS>.
 
 tan( I<RADIANS> ).
 Returns the tangent of I<RADIANS>.
-[Math::Trig]
 
 =item C<asin>
 
 asin( I<RATIO> ).
 The arcus (also known as the inverse) functions of the sine.
-[Math::Trig]
 
   $ c 'rad2deg( asin( 1 / 2 ) )'
   30
@@ -5623,7 +5720,6 @@ The arcus (also known as the inverse) functions of the sine.
 
 acos( I<RATIO> ).
 The arcus (also known as the inverse) functions of the cosine.
-[Math::Trig]
 
   $ c 'rad2deg( acos( 1 / 2 ) )'
   60
@@ -5632,7 +5728,6 @@ The arcus (also known as the inverse) functions of the cosine.
 
 atan( I<RATIO> ).
 The arcus (also known as the inverse) functions of the tangent.
-[Math::Trig]
 
   $ c 'rad2deg( atan( 1 / 1 ) )'
   45
@@ -5641,7 +5736,7 @@ The arcus (also known as the inverse) functions of the tangent.
 
 atan2( I<Y>, I<X> ).
 The principal value of the arc tangent of I<Y> / I<X>.
-[Math::Trig]
+[Perl Native]
 
   $ c 'rad2deg( atan2( 1, 1 ) )'
   45
@@ -6353,8 +6448,6 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =item * L<base> - first included in perl 5.00405
 
-=item * L<Class::Struct> — first included in perl 5.004
-
 =item * L<constant> — first included in perl 5.004
 
 =item * L<Encode> — first included in perl v5.7.3
@@ -6362,10 +6455,6 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 =item * L<File::Basename> — first included in perl 5
 
 =item * L<List::Util> — first included in perl v5.7.3
-
-=item * L<Math::BigInt> — first included in perl 5
-
-=item * L<Math::Trig> — first included in perl 5.004
 
 =item * L<POSIX> — first included in perl 5
 

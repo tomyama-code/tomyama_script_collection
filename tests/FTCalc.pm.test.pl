@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use FindBin;
+use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Runner;
 

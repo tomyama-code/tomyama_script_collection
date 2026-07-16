@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -52,7 +52,7 @@ use strict;
 use warnings;
 use IPC::Open2;
 use Symbol;
-use File::Basename;
+use File::Basename qw(dirname);
 use parent 'Exporter';
 
 our @EXPORT = qw(

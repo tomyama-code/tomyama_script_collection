@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.3 $
+- $Revision: 1.4 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -42,7 +42,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 4.172 $
+- $Revision: 4.177 $
 
 - Script Structure
   - main
@@ -73,7 +73,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.32 $
+- $Revision: 2.33 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -91,7 +91,7 @@ For details, please refer to [cl.md](cl.md).
 Sort by domain or IP address hierarchy.
 
 - Version: 1
-- $Revision: 1.6 $
+- $Revision: 1.7 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -108,7 +108,7 @@ For details, please refer to [domsort.md](domsort.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.7 $
+- $Revision: 1.8 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -128,7 +128,7 @@ Displaying holiday data in the pager
 - Displays the holiday data "cl.holiday" in the pager.
 
 - Version: 1
-- $Revision: 1.6 $
+- $Revision: 1.7 $
 
 - Author: 2022-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -148,7 +148,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.6 $
+- $Revision: 2.7 $
 
 - Author: 2006-2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -226,7 +226,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.67 $
+- $Revision: 2.68 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

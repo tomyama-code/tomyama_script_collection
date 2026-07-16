@@ -2,11 +2,8 @@
 use strict;
 use warnings;
 
-## Test::More was first released with perl v5.6.2
-use Test::More;     # subtest()
-
 #use lib '.';
-use FindBin;
+use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
@@ -2167,6 +2164,12 @@ subtest qq{Normal} => sub{
     $t = tests::Tester->run_cmd( qq{./c 'lcm( 1920, 1080 ) ='} );
     $t->exit_is( 0, qq{./c 'lcm( 1920, 1080 ) ='} );
     $t->stdout_is( qq{17280\n} );
+    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    undef( $t );
+
+    $t = tests::Tester->run_cmd( qq{./c 'lcm( 100, 0, 0 ) ='} );
+    $t->exit_is( 0, qq{./c 'lcm( 100, 0, 0 ) ='} );
+    $t->stdout_is( qq{0\n} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 

@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.6 $
+## - $Revision: 2.7 $
 ##
 ## - Author: 2006-2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -16,8 +16,8 @@
 ################################################################################
 
 use strict;
-use warnings 'all';
-use File::Basename;
+use warnings;
+use File::Basename qw(dirname basename);
 #use IO::Handle;
 
 exit( &pl_main( @ARGV ) );
@@ -165,8 +165,8 @@ sub pl_main()
 sub init_script()
 {
     ### GLOBAL ###
-    $main::apppath = dirname( $0 );
-    $main::appname = basename( $0 );
+    $main::apppath = &File::Basename::dirname( $0 );
+    $main::appname = &File::Basename::basename( $0 );
     $main::debug = 0;
     $main::numbering = 0;
     $main::prt_fname = 0;
@@ -352,7 +352,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.6 $};
+    my $rev = q{$Revision: 2.7 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

@@ -3,12 +3,11 @@
 use strict;
 use warnings;
 
-use FindBin;
+use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Runner;
 
 &tests::Runner::TestPreProc( $0, @ARGV );
-$ENV{TEST_TARGET_CMD} = 'c';
 
 system( "prove -lv tests/$ENV{TEST_TARGET_CMD}.t" );
 

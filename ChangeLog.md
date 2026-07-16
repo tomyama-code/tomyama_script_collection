@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.2.74] - 2026-07-16
+### Changed
+- `c` [1.04.178]:
+  - Modified to avoid using `Class::Struct`, `Math::BigInt`, and `Math::Trig`.
+
 ## [0.2.73] - 2026-07-14
 ### Changed
 - `c` [1.04.172]:

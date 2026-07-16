@@ -2,8 +2,7 @@ package tests::Runner;
 use strict;
 use warnings;
 
-use File::Basename; # dirname()
-#use Cwd 'getcwd';   # getcwd()
+use File::Basename qw(dirname); # first released with perl 5
 
 my $test_beg_epoch = 0;
 my $test_end_epoch = 0;
@@ -23,10 +22,8 @@ sub _SetTargetCommand( $ )
     #print( qq{\$ENV{TEST_TARGET_NAME} = "$ENV{TEST_TARGET_NAME}"\n} );
 
     # カレントディレクトリを project root に強制する
-    my $apppath = dirname( $testfilename );
+    my $apppath = &File::Basename::dirname( $testfilename );
     chdir( "$apppath/../" );
-    #my $cur_dir = getcwd();
-    #print( qq{CHDIR: "$cur_dir"\n} );
 }
 
 sub TestPreProc( $@ )
