@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.75] - 2026-07-18
+### Changed
+- `cl` [1.02.035]:
+  - Changed the moon age display to update continuously (displayed to three decimal places).
+- `tests/c.t`
+  - Implemented a mechanism to execute tests in-process.
+
 ## [0.2.74] - 2026-07-16
 ### Changed
 - `c` [1.04.178]:

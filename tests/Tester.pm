@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Exporter 'import';          # first released with perl 5
-our @EXPORT = qw(capture dies
+our @EXPORT = qw(capture dies equal
     done_testing
     subtest
     note
@@ -155,7 +155,7 @@ sub run_blk( $& )
     my( $package, $filename, $line ) = caller( 0 );
     note( qq{$filename: $line} );
 
-    my $exit_code = 0;
+    my $exit_code = 255;
     my( $stdout, $stderr, $exception ) = capture{
         return dies{
             $code->();  # ブロックの実行
@@ -195,6 +195,13 @@ sub dump( $ )
 #    $msg = "expression is $expr" if( !defined( $msg ) );
 #    ok( $expr, $msg );
 #}
+
+sub equal( $$;$ )
+{
+    my( $target, $expect, $msg ) = @_;
+    $msg = qq{$target == $expect} if( !defined( $msg ) );
+    &Test::More::is( $target, $expect, $msg );
+}
 
 sub exit_is( $$;$ )
 {

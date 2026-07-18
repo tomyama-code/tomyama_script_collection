@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.33 $
+## - $Revision: 2.35 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -25,6 +25,14 @@ use Time::HiRes;
 
 use constant FONT_W_LEN =>  6;
 use constant FONT_H_LEN => 10;
+
+# ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $epoch )
+use constant C_SEC  => 0;
+use constant C_MIN  => 1;
+use constant C_HOR  => 2;
+use constant C_DAY  => 3;
+use constant C_MON  => 4;
+use constant C_YEAR => 5;
 
 ## ANSI escape sequences: Color Definition
 my %ANSI_es = (
@@ -78,7 +86,7 @@ sub pl_main( @ )
 
     $main::loopsw = 1;
     while( $main::loopsw ){
-        &print_clock();
+        &print_clock( time() );
         &sleep_until_boundary( $main::interval );
     }
 
@@ -186,9 +194,17 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.33 $};
+    my $rev = q{$Revision: 2.35 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
+}
+
+sub update_moon_age_timing( $ )
+{
+    if( defined( $_[ 0 ] ) ){
+        $main::epoch_update_timing_moon_age = $_[ 0 ];
+    }
+    return $main::epoch_update_timing_moon_age;
 }
 
 sub is_interval_sec( $ )
@@ -221,6 +237,8 @@ sub setup_clock()
                      'December'
     );
 
+    &update_moon_age_timing( -1 );
+
     if( $main::use_large_font == 0 ){
         &setup_clock_normal();
     }else{
@@ -228,7 +246,7 @@ sub setup_clock()
     }
 
     &read_holiday();
-    @main::tm_old = ( -1, -1, -1, -1, -1, -1, -1 );
+    @main::tm_last = ( -1, -1, -1, -1, -1, -1, -1 );
 
     &pos_printf( 3, 2, qq{CLOCK  (Update: ${main::interval}s or Enter. } .
                                qq{Ctrl+C: exit. } .
@@ -655,6 +673,7 @@ sub sleep_until_boundary( $ )
         }elsif( &is_interval_sec( $op ) ){
             $main::interval = $op;
         }
+        &update_moon_age_timing( -1 );
         &setup_clock();
     }
 }
@@ -792,31 +811,33 @@ sub p_cal( $$$$ )
     print( "\n" );
 }
 
-sub print_clock()
+sub print_clock( $ )
 {
+    my( $now_epoch ) = @_;
+
     my $bCursorPosSave = 0;
-    if( !( $main::tm_old[0] < 0 ) ){
+    if( $main::tm_last[ C_SEC ] >= 0 ){
         $bCursorPosSave = 1;
         print( "\e[s" );    # 現在のカーソル座標（行・列）を記録する
     }
 
-    my @tm_now = localtime();
+    my @tm_now = localtime( $now_epoch );
 
     if( $main::use_large_font == 0 ){
-        my $diff_M = $tm_now[1] - $main::tm_old[1];
-        if( $diff_M >= 0 && $main::tm_old[ 1 ] >= 0 ){
-            &bar_print( $main::bar_pos_x + $main::tm_old[1], 13, $diff_M );
+        my $diff_M = $tm_now[ C_MIN ] - $main::tm_last[ C_MIN ];
+        if( $diff_M >= 0 && $main::tm_last[ C_MIN ] >= 0 ){
+            &bar_print( $main::bar_pos_x + $main::tm_last[ C_MIN ], 13, $diff_M );
         }else{
-            &bar_rewrite( $main::bar_pos_x, 13, $tm_now[1] );
+            &bar_rewrite( $main::bar_pos_x, 13, $tm_now[ C_MIN ] );
         }
     }
 
-    my $diff_S = $tm_now[0] - $main::tm_old[0];
-    if( $diff_S > 0 && $main::tm_old[ 0 ] >= 0 ){
-        my $sec = sprintf( "%02d", $tm_now[0] );
+    my $diff_S = $tm_now[ C_SEC ] - $main::tm_last[ C_SEC ];
+    if( $diff_S > 0 && $main::tm_last[ C_SEC ] >= 0 ){
+        my $sec = sprintf( "%02d", $tm_now[ C_SEC ] );
         if( $main::use_large_font == 0 ){
             &pos_printf( 24, 14, $sec );
-            &bar_print( $main::bar_pos_x + $main::tm_old[0], 15, $diff_S );
+            &bar_print( $main::bar_pos_x + $main::tm_last[ C_SEC ], 15, $diff_S );
         }else{
             &pos_print_in_large_font( ( FONT_W_LEN * 7 ) + 1, 3 + FONT_H_LEN, $sec );
         }
@@ -824,23 +845,34 @@ sub print_clock()
         my $tm_str = &get_tm_str( @tm_now );
         if( $main::use_large_font == 0 ){
             ## 必要であれば、カレンダーを書き換える
-            &print_cal( time(), 4 ) if( $main::tm_old[3] != $tm_now[3] );
+            &print_cal( $now_epoch, 4 ) if( $main::tm_last[ C_DAY ] != $tm_now[ C_DAY ] );
 
             ## 日付時刻文字列を書き換える
             print( "\n" );      ## 端末ログを見易くする為改行しておく
             &pos_printf( 2, 14, $tm_str );
 
-            &bar_rewrite( $main::bar_pos_x, 15, $tm_now[0] );
+            &bar_rewrite( $main::bar_pos_x, 15, $tm_now[ C_SEC ] );
         }else{
-            my @tm_array = split( /\n/, $tm_str );
-            &pos_print_in_large_font( 1, 3, $tm_array[ 0 ] );
+            my( $Ymd, $HMS ) = split( /\n/, $tm_str );
+            &pos_print_in_large_font( 1, 3, $Ymd );
             my $pos_line2 = 3 + FONT_H_LEN;
-            &pos_print_in_large_font( 1, $pos_line2, $tm_array[ 1 ] );
-            my $Y = $tm_now[ 5 ];
-            my $m = $tm_now[ 4 ];
-            &pos_printf( 58, $pos_line2, qq{Moon's age: $tm_array[ 2 ]} );
+            &pos_print_in_large_font( 1, $pos_line2, $HMS );
+            my $Y = $tm_now[ C_YEAR ];
+            my $m = $tm_now[ C_MON ];
             ## 必要であれば、カレンダーを書き換える
-            &p_cal( $m, $Y, 58, $pos_line2 + 2 ) if( $main::tm_old[3] != $tm_now[3] );
+            &p_cal( $m, $Y, 58, $pos_line2 + 2 ) if( $main::tm_last[ C_DAY ] != $tm_now[ C_DAY ] );
+        }
+    }
+
+    my $next_moon_age_epoch = &update_moon_age_timing();
+    if( $now_epoch >= $next_moon_age_epoch ){
+        my $age = &age_of_moon( $now_epoch );
+
+        if( $main::use_large_font == 0 ){
+            &pos_printf( 28, 14, qq{[ Moon age: $age ]} );
+        }else{
+            my $pos_line2 = 3 + FONT_H_LEN;
+            &pos_printf( 58, $pos_line2, qq{Moon age: $age} );
         }
     }
 
@@ -849,7 +881,7 @@ sub print_clock()
         print( "\e[u" );    # 最後に保存した座標にカーソルを戻す
     }
 
-    @main::tm_old = @tm_now;
+    @main::tm_last = @tm_now;
 
     return;
 }
@@ -949,15 +981,13 @@ sub get_tm_str( @ )
     $year += 1900;
     $month += 1;
 
-    my $age_of_moon = &age_of_moon( $year, $month, $mday );
-
     my $ret_str = '';
     if( $main::use_large_font == 0 ){
-        $ret_str = sprintf( "%04d/%02d/%02d(%s) %02d:%02d:%02d  [ Moon's age is %d days ]",
-            $year, $month, $mday, $main::wday[ $wday ], $H, $M, $S, $age_of_moon );
+        $ret_str = sprintf( "%04d/%02d/%02d(%s) %02d:%02d:%02d",
+            $year, $month, $mday, $main::wday[ $wday ], $H, $M, $S );
     }else{
-        $ret_str = sprintf( qq{'%02d-%02d-%02d %s\n %02d:%02d:%02d\n%d},
-            $year-2000, $month, $mday, $main::wday[ $wday ], $H, $M, $S, $age_of_moon );
+        $ret_str = sprintf( qq{'%02d-%02d-%02d %s\n %02d:%02d:%02d},
+            $year-2000, $month, $mday, $main::wday[ $wday ], $H, $M, $S );
     }
 
     return $ret_str;
@@ -1010,18 +1040,75 @@ sub is_leap_year( $ )
     return $retBool;
 }
 
-## Revision: 1.1
-sub age_of_moon( $$$ )
+sub age_of_moon_instant( $ )
 {
-    my $Y = shift( @_ );
-    my $m = shift( @_ );
-    my $d = shift( @_ );
-    my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
-    #printf ("DATE: %04d/%02d/%02d\n", $Y, $m, $d) ;
+    my $epoch = shift( @_ );
 
-    my $age = ( ( ( $Y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
+    my( $sec, $min, $hour, $mday, $mon, $year ) = gmtime( $epoch );
+    my $y = $year + 1900;
+    my $m = $mon + 1;
 
-    return $age ;
+    # 時・分・秒を日に換算
+    my $d = $mday + ( $hour / 24 ) + ( $min / 1440 ) + ( $sec / 86400 );
+
+    # 1月、2月を前年の13月、14月として処理（ツェラーの公式等の定石）
+    if( $m <= 2 ){
+        $y--;
+        $m += 12;
+    }
+
+    # 完全整数処理による「修正ユリウス日 (MJD)」の算出
+    my $mjd = int( 365.25 * $y ) + int( $y / 400 ) - int( $y / 100 )
+            + int( ( 153 * $m - 162 ) / 5 ) + $d - 678912;
+
+    # 上記の整数日数変換に100%適合させた「新月基準点 (Epoch)」
+    my $diff_days = $mjd - 51549.1;
+
+    # 天文学における平均朔望月（月の満ち欠けの平均周期）
+    my $synodic_month = 29.530588853;
+
+    # 経過日数から現在の月齢を算出
+    my $age = $diff_days / $synodic_month;
+    $age = ( $age - int( $age ) ) * $synodic_month;
+
+    # マイナス値になった場合の補正
+    $age += $synodic_month if( $age < 0 );
+
+    # コア用途のため丸めずに返す
+    return $age;
+}
+
+use POSIX qw(ceil);
+
+use constant SAKUBOU => 29.530588853;
+
+sub age_of_moon( $ )
+{
+    my( $epoch ) = @_;
+
+    my $age_raw = &age_of_moon_instant( $epoch );
+    #print( qq{\$age_raw=$age_raw\n} );
+
+    # 確実に四捨五入して小数第一位にする
+    my $age_rounded = sprintf( '%6.3f', int( $age_raw * 1000 + 0.5 ) / 1000 );
+    #print( qq{\$age_rounded=$age_rounded\n} );
+
+    my $next_threshold = $age_rounded + 0.0005;
+    if( $next_threshold >= SAKUBOU ){
+        $next_threshold = 0.0005;
+    }
+    #print( qq{\$next_threshold=$next_threshold\n} );
+
+    my $age_diff = $next_threshold - $age_raw;
+    # もし誤差でマイナスになったら、すでに次の区間に入っているので即時更新（最低1秒）
+    $age_diff = 0.00001 if( $age_diff <= 0 );
+    #print( qq{\$age_diff=$age_diff\n} );
+
+    # 月齢の 1日（＝86400秒） を 秒数 に変換
+    my $seconds_to_wait = &POSIX::ceil( $age_diff * 86400 );
+    &update_moon_age_timing( $seconds_to_wait + $epoch );
+
+    return $age_rounded;
 }
 __END__
 
