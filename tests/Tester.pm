@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Exporter 'import';          # first released with perl 5
-our @EXPORT = qw(capture dies equal
+our @EXPORT = qw(capture dies equal t_like
     done_testing
     subtest
     note
@@ -198,9 +198,24 @@ sub dump( $ )
 
 sub equal( $$;$ )
 {
-    my( $target, $expect, $msg ) = @_;
-    $msg = qq{$target == $expect} if( !defined( $msg ) );
-    &Test::More::is( $target, $expect, $msg );
+    my( $got, $expected, $name ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $name = qq{$got == $expected} if( !defined( $name ) );
+    &Test::More::is( $got, $expected, $name );
+}
+
+sub t_like( $$;$ )
+{
+    my( $got, $expected, $name ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $name = qq{like( qq{$got}, qr/$expected/ )} if( !defined( $name ) );
+    &Test::More::like( $got, $expected, $name );
 }
 
 sub exit_is( $$;$ )

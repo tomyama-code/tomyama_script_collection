@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.2.76] - 2026-07-20
+### Changed
+- `tests/c.t`
+  - Transition to in-process testing to the extent possible within the current system.
+
 ## [0.2.75] - 2026-07-18
 ### Changed
 - `cl` [1.02.035]:
