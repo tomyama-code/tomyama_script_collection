@@ -38,18 +38,18 @@ subtest 'テスト前準備: モジュールのデフォルト値を変更して
 # コンストラクタ: 異常系のテスト
 # --------------------------------------------------------
 subtest 'コンストラクタ: 異常系のテスト' => sub{
-    &FTCalc::_set_action_flag( _FTC_FAIL_OPEN2 );
+    &FTCalc::_set_action_flag( _FTC_FAIL_OPEN3 );
     my $t;
 
     $t = tests::Tester->run_blk( sub{
         my $c = FTCalc->new();
     } );
-    ok( defined( $t->exception ), 'open2で正しく例外（die）が発生すること' );
+    ok( defined( $t->exception ), 'open3で正しく例外（die）が発生すること' );
     $t->exception_like(
-        qr/FTCalc: _FtcOpen2\(\): Failed to start /,
+        qr/FTCalc: _FtcOpen3\(\): Failed to start /,
         '例外メッセージにエラーキーワードが含まれていること'
     );
-    $t->stdout_is( "_FtcOpen2(): _FTC_FAIL_OPEN2\n", 'テストの前提条件を満たしていること' );
+    $t->stdout_is( "_FtcOpen3(): _FTC_FAIL_OPEN3\n", 'テストの前提条件を満たしていること' );
     $t->stderr_is( "", 'STDERR is silent.' );
 };
 
@@ -188,7 +188,7 @@ subtest '基本的な数式計算' => sub{
         '例外メッセージが正しく出力されていること'
     );
     is( $stdout, qq{Formula: "round( pi )"\n}, '計算式だけ出力されていること' );
-    is( $stderr, "", 'STDERR is silent.' );
+    like( $stderr, qr/^c: evaluator: error: round\(\): / );
 
 # --------------------------------------------------------
 # 複雑な書式を返す式の検証
@@ -197,10 +197,30 @@ subtest '基本的な数式計算' => sub{
     ( $stdout, $stderr ) = capture{
         $res = $c->formula( q{linspace( 0|0, 255, 3, 0 )} );
     };
-    is( $res, '( 0, 128, 255 ) [ = ( 0x0, 0x80, 0xFF ) ]', 'linspace が出力する文字列が一致' );
+    is( scalar( @{ $res } ), 3, 'linspace が出力する数値の数が一致' );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 128 );
+    is( ${ $res }[ 2 ], 255 );
     is( $stdout, qq{Formula: "linspace( 0|0, 255, 3, 0 )"\n} .
                  qq{ Result: ( 0, 128, 255 ) [ = ( 0x0, 0x80, 0xFF ) ]\n},
                  '計算式と結果が正しく出力されていること' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( q{( 5|0 )} );
+    };
+    is( $res, 5, '出力する数値が一致' );
+    is( $stdout, qq{Formula: "( 5|0 )"\n} .
+                 qq{ Result: 5 [ = 0x5 ]\n},
+                 '計算式と結果が正しく出力されていること' );
+    is( $stderr, "", 'STDERR is silent.' );
+
+    ( $stdout, $stderr ) = capture{
+        $res = $c->formula( q{timer( 0.5 )} );
+    };
+    like( $res, qr/^0\./, 'ゼロを少し超えた値' );
+    like( $stdout, qr/^Formula: "timer\( 0\.5 \)"\n/,
+                 '計算式が正しく出力されていること' );
     is( $stderr, "", 'STDERR is silent.' );
 
 # --------------------------------------------------------
@@ -305,9 +325,9 @@ subtest '基本的な数式計算' => sub{
 };
 
 # --------------------------------------------------------
-# formatメソッドの出力選択機能のテスト
+# formulaメソッドの出力選択機能のテスト
 # --------------------------------------------------------
-subtest 'formatメソッドの出力選択機能のテスト' => sub{
+subtest 'formulaメソッドの出力選択機能のテスト' => sub{
     my $c;  # シャドウイングで$cを生成
     my( $stdout, $stderr ) = capture{
         $c = FTCalc->new();
@@ -376,6 +396,91 @@ subtest 'formatメソッドの出力選択機能のテスト' => sub{
     };
     is( $stdout, "", '何も出力されない' );
     is( $stderr, "", 'STDERR is silent.' );
+};
+
+# --------------------------------------------------------
+# formulaメソッド: 異常系のテスト
+# --------------------------------------------------------
+subtest 'formulaメソッド: 異常系のテスト' => sub{
+    subtest 'タイムアウト' => sub{
+        my $t;
+        my $res;
+        my $c;
+
+        $t = tests::Tester->run_blk( sub{
+            $c = FTCalc->new();
+            &FTCalc::_set_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
+        } );
+
+        $t = tests::Tester->run_blk( sub{
+            $res = $c->formula( '1+1' );
+        } );
+        ok( !defined( $t->exception ), '例外（die）が発生していないこと' );
+        $t->stdout_like( qr/_getTimeout\(\): _FTC_FAIL_ONETIME_TIMEOUT\n/, 'テストの前提条件を満たしていること' );
+        $t->stderr_like( qr/^warn: Timeout: No response from the c script\./, 'タイムアウトのパスを通ること' );
+        equal( $res, '', '計算結果が得られていないこと' );
+
+        # タイムアウトしたインスタンスに対するリトライ処理
+        $t = tests::Tester->run_blk( sub{
+            $res = $c->formula( '1+1' );
+        } );
+        ok( !defined( $t->exception ), '例外（die）が発生していないこと' );
+        $t->stdout_unlike( qr/_getTimeout\(\): _FTC_FAIL_ONETIME_TIMEOUT\n/, 'テストの前提条件を満たしていること' );
+        $t->stderr_is( "", 'STDERR is silent.' );
+        equal( $res, 2, 'リトライで正しい計算結果が得られること' );
+
+        $c->_setVerbos( 0 );    # DESTROY 出力を抑止
+    };
+
+    subtest 'Read Error' => sub{
+        my $t;
+        my $res;
+        my $c;
+
+        $t = tests::Tester->run_blk( sub{
+            $c = FTCalc->new();
+            &FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
+        } );
+
+        $t = tests::Tester->run_blk( sub{
+            $res = $c->formula( '1+1' );
+        } );
+        ok( defined( $t->exception ), '例外（die）が発生していること' );
+        $t->exception_like( qr/^error: \$fn=\d+: Read error: /, '例外メッセージが正しく出力されていること' );
+        $t->stdout_like( qr/_FtcSysread\(\): _FTC_FAIL_SYSREAD_READ_ERR\n/, 'テストの前提条件を満たしていること' );
+        $t->stderr_is( "", 'STDERR is silent.' );
+        isnt( $res, 2, '計算結果が得られていないこと' );
+
+        $c->_setVerbos( 0 );    # DESTROY 出力を抑止
+
+        # リカバリ処理を入れていないので、
+        # おかしくなったインスタンスは再利用しないで作り直すこと。
+    };
+
+    subtest 'Closed Stream' => sub{
+        my $t;
+        my $res;
+        my $c;
+
+        $t = tests::Tester->run_blk( sub{
+            $c = FTCalc->new();
+            &FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
+        } );
+
+        $t = tests::Tester->run_blk( sub{
+            $res = $c->formula( '1+1' );
+        } );
+        ok( defined( $t->exception ), '例外（die）が発生していること' );
+        $t->stdout_like( qr/_FtcSysread\(\): _FTC_FAIL_SYSREAD_CLOSED_STREAM\n/, 'テストの前提条件を満たしていること' );
+        $t->exception_like( qr/^error: \$fn=\d+: The c script closed the stream\./, '意図したパスを通ること' );
+        $t->stderr_is( "", 'STDERR is silent.' );
+        isnt( $res, 2, '計算結果が得られていないこと' );
+
+        $c->_setVerbos( 0 );    # DESTROY 出力を抑止
+
+        # リカバリ処理を入れていないので、
+        # おかしくなったインスタンスは再利用しないで作り直すこと。
+    };
 };
 
 done_testing();

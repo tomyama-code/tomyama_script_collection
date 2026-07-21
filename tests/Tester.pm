@@ -1,4 +1,8 @@
 package tests::Tester;
+################################################################################
+## - $Revision: 1.5 $
+################################################################################
+
 use strict;
 use warnings;
 
@@ -10,10 +14,12 @@ our @EXPORT = qw(capture dies equal t_like
     ok
     isa_ok
     is
+    isnt
     like
     unlike
 );
 
+use Carp qw(carp croak);        # first released with perl 5
 use Test::More;                 # first released with perl v5.6.2
                                 # done_testing(), subtest(), ...
 
@@ -90,8 +96,6 @@ sub capture( & )
     # キャプチャした文字列を返す
     return ( $captured_out, $captured_err, $code_ret );
 }
-
-use Carp qw(carp croak);    # first released with perl 5
 
 sub dies( & )
 {
@@ -222,6 +226,10 @@ sub exit_is( $$;$ )
 {
     my( $self, $expected, $msg ) = @_;
     $msg = "exit code is $expected" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     is( $self->{exit_code}, $expected, $msg );
 }
 
@@ -229,6 +237,10 @@ sub exit_isnt( $$;$ )
 {
     my( $self, $expected, $msg ) = @_;
     $msg = "exit code is not $expected" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     isnt( $self->{exit_code}, $expected, $msg );
 }
 
@@ -241,6 +253,10 @@ sub stdout_is( $$;$ )
             $msg = "STDOUT is silent";
         }
     }
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     is( $self->{stdout}, $expected, $msg );
 }
 
@@ -253,6 +269,10 @@ sub stderr_is( $$;$ )
             $msg = "STDERR is silent";
         }
     }
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     is( $self->{stderr}, $expected, $msg );
 }
 
@@ -266,6 +286,10 @@ sub exception_is( $$;$ )
         }
     }
     return 0 if( !defined( $self->{exception} ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     is( $self->{exception}, $expected, $msg );
 }
 
@@ -280,6 +304,10 @@ sub stdout_unlike( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "STDOUT does not match pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     unlike($self->{stdout}, $pattern, $msg );
 }
 
@@ -287,6 +315,10 @@ sub stderr_like( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "STDERR matches pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     like($self->{stderr}, $pattern, $msg );
 }
 
@@ -294,12 +326,20 @@ sub stderr_unlike( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "STDERR does not match pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     unlike($self->{stderr}, $pattern, $msg );
 }
 
 sub exception( $ )
 {
     my( $self ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     return $self->{exception};
 }
 
@@ -307,6 +347,10 @@ sub exception_like( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "exception matches pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     if( !defined( $self->{exception} ) ){
         ok( defined( $self->{exception} ), $msg );
         return;
@@ -318,6 +362,10 @@ sub exception_unlike( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "exception does not matches pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     if( !defined( $self->{exception} ) ){
         ok( defined( $self->{exception} ), $msg );
         return;

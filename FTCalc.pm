@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.4 $
+## - $Revision: 1.8 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -50,20 +50,30 @@ A module that provides an API for manipulating the calculation script "c".
 package FTCalc;
 use strict;
 use warnings;
-use IPC::Open2;
-use Symbol;
+use Carp qw(carp croak);        # first released with perl 5
+use IPC::Open3 qw(open3);       # first released with perl 5
+use Symbol 'gensym';            # first released with perl 5.002
+                                # vivify a separate handle for STDERR
+use IO::Select;                 # first released with perl 5.00307
+use Scalar::Util qw(looks_like_number); # first released with perl v5.7.3
 use File::Basename qw(dirname);
 use parent 'Exporter';
 
 our @EXPORT = qw(
-    _FTC_FAIL_OPEN2
+    _FTC_FAIL_OPEN3
+    _FTC_FAIL_SYSREAD_READ_ERR
+    _FTC_FAIL_SYSREAD_CLOSED_STREAM
+    _FTC_FAIL_ONETIME_TIMEOUT
     FTC_FSC_FOLLOW_VERBOSE
     FTC_FSC_OUTPUT_FORMULA
     FTC_FSC_OUTPUT_RESULT
     FTC_FSC_OUTPUT_BOTH
 );
 
-use constant _FTC_FAIL_OPEN2 => 0x01;
+use constant _FTC_FAIL_OPEN3 => 0x01;
+use constant _FTC_FAIL_SYSREAD_READ_ERR      => 0x02;
+use constant _FTC_FAIL_SYSREAD_CLOSED_STREAM => 0x04;
+use constant _FTC_FAIL_ONETIME_TIMEOUT => 0x08;
 
 use constant FTC_FSC_FOLLOW_VERBOSE => 0x01;
 use constant FTC_FSC_OUTPUT_FORMULA => 0x10;
@@ -98,26 +108,29 @@ sub new
     #print( qq{\$path_to_c="$path_to_c"\n} );
 
     # c スクリプトを標準入力待ちモードで起動
-    my( $chld_out, $chld_in );
+    my( $chld_in, $chld_out, $chld_err );
     $chld_out = gensym();   # ファイルハンドル用のシンボル生成
+    $chld_err = gensym();
     $chld_in  = gensym();
 
     # プロセス起動 (c スクリプトを実行)
     my $pid;
     eval{
-        $pid = &_FtcOpen2( $chld_out, $chld_in, $path_to_c, @opts );
+        $pid = &_FtcOpen3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     };
     if( $@ ){
-        die( "FTCalc: _FtcOpen2(): Failed to start '$path_to_c': $!" );
+        &Carp::croak( "FTCalc: _FtcOpen3(): Failed to start '$path_to_c': $!" );
     }
 
     # 両方のハンドルをバッファリング無効（即時出力）にする
     $chld_in->autoflush( 1 );
     $chld_out->autoflush( 1 );
+    $chld_err->autoflush( 1 );
 
-    # 監視するファイル記述子のビットマスクを作成
-    my $rin = '';
-    vec( $rin, fileno( $chld_out ), 1 ) = 1;
+    # 出力を効率よく読み込むためのSelectオブジェクト
+    my $selector = IO::Select->new();
+    $selector->add( $chld_out );
+    $selector->add( $chld_err );
 
     my $self = {
         autoflush => $main::def_autoflush,  # インスタンスの出力だけを対象にする
@@ -125,7 +138,8 @@ sub new
         c_pid => $pid,
         c_in  => $chld_in,
         c_out => $chld_out,
-        r_c_out => $rin,
+        c_err => $chld_err,
+        selector => $selector,
         timeout => $main::def_timeout,
         b_verbose => $main::def_b_verbose,
         formula_os => $main::def_formula_os,
@@ -137,7 +151,7 @@ sub new
     my $msg = sprintf( qq{%s: CONSTRACT: Connected the c script: pid=%d: at $filename line $line.\n},
                 __PACKAGE__, $self->{c_pid} );
     $msg .= sprintf( qq{%s: CONSTRACT: timeout: %d, b_verbose: %d, formula_os=0x%02X\n},
-                __PACKAGE__, $self->{timeout}, $self->{b_verbose}, $self->{formula_os} );
+                __PACKAGE__, $self->_getTimeout(), $self->{b_verbose}, $self->{formula_os} );
     $self->_vPrint( $msg );
 
     return $self;
@@ -162,6 +176,10 @@ sub DESTROY
     if( $self->{c_out} ){
         close( $self->{c_out} );
         undef( $self->{c_out} );
+    }
+    if( $self->{c_err} ){
+        close( $self->{c_err} );
+        undef( $self->{c_err} );
     }
     if( $self->{c_pid} ){
         # ゾンビプロセスの防止
@@ -252,6 +270,7 @@ sub formula( $$;$ )
     }
     #printf( qq{\$output_sel=0x%02X\n}, $output_sel );
 
+    # 計算式を1行にする
     $expr =~ s!\n! !go;
     $expr =~ s!\s+! !go;
     $expr =~ s!^ !!o;
@@ -265,40 +284,97 @@ sub formula( $$;$ )
         }
     }
 
-    # c スクリプトの標準入力に式を書き込む
+    # c スクリプトの標準入力に計算式を書き込む
     my $fh_in = $self->{c_in};
     print $fh_in ( "$expr\n" );
 
-    # c スクリプトからの結果（1行）を読み込む
-    my $raw_result = undef;
-    my $nfound = $self->_wait_c_reaction();
-    if( $nfound > 0 ){
-        my $fh_out = $self->{c_out};
-        $raw_result = <$fh_out>;
-        chomp( $raw_result );
-        #print( qq{\$raw_result = "$raw_result"\n} );
+    # c スクリプトからの結果を読み込む（計算結果は最後の1行）
 
-        # c の出力「( 0, 0, 48, 45.779788... )」という文字列をパース
-        # カッコを除去してカンマで分割
-        if( $raw_result =~ m/^\s*\(\s*(.*?)\s*\)\s*$/o ){
-            my @list = split( /, /, $1 );
-            my $res = sprintf( qq{ Result: ( %s )\n}, join( ', ', @list ) );
-            if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
-                if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
-                    $self->_vPrint( $res );
+    my %buffers = (     # 各ハンドルの読み込みバッファを保持するハッシュ
+        fileno( $self->{c_out} ) => '',
+        fileno( $self->{c_err} ) => '',
+    );
+    my $calc_result = '';
+    my $raw_result = '';
+    my $turn_completed = 0;
+    my $error_occurred = 0;
+    while( !$turn_completed ){
+        my @ready = $self->{selector}->can_read( $self->_getTimeout() );
+
+        if( !@ready ){
+            &Carp::carp( "warn: Timeout: No response from the c script.\n" );
+            last;
+        }
+
+        foreach my $fh( @ready ){
+            my $fn = fileno( $fh );
+            my $data;
+            my $bytes = &_FtcSysread( $fh, $data, 4096 );
+
+            if( !defined( $bytes ) ){
+                $self->{selector}->remove( $fh );
+                $fh->close();
+                &Carp::croak( "error: \$fn=$fn: Read error: $!" );
+            }
+            elsif( $bytes == 0 ){
+                # EOF: 子プロセスが終了した
+                $self->{selector}->remove( $fh );
+                &Carp::croak( "error: \$fn=$fn: The c script closed the stream.\n" );
+            }
+
+            # バッファにデータを追加
+            $buffers{$fn} .= $data;
+
+            # 改行が含まれているかチェック（1行単位で処理する場合）
+            while( $buffers{$fn} =~ s/^(.*\n)// ){
+                my $line = $1;
+                $line =~ s!\r?\n$!!o;
+
+                # 読み込んだデータをそれぞれの変数に格納
+                if( $fh == $self->{c_err} ){
+                    print STDERR ( $line . "\n" );
+                    if( $line =~ m/error: /o ){
+                        $turn_completed = 1;
+                        $error_occurred = 1;
+                    }
                 }else{
-                    $self->_print( $res );
+                    # 最後の行だけを残す
+                    $raw_result = $line;
+
+                    $calc_result = $raw_result;
+
+                    # 別表記を除去
+                    while( $calc_result =~ s! \[ = .+ \]$!!o ){};
+
+                    # 「( 0, 0, 48, 45.779788... )」という文字列をパース
+                    # カッコを除去してカンマで分割
+                    if( $calc_result =~ m/^\(\s*(.*?)\s*\)$/o ){
+                        my @list = split( /, /, $1 );
+                        if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
+                            if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
+                                $self->_vPrint( qq{ Result: $raw_result\n} );
+                            }else{
+                                $self->_print( qq{ Result: $raw_result\n} );
+                            }
+                        }
+                        return wantarray ? @list : \@list;
+                    }
+
+                    if( &Scalar::Util::looks_like_number( $calc_result ) ){
+                        $turn_completed = 1;
+                        $calc_result += 0;
+                    }
                 }
             }
-            return wantarray ? @list : \@list;
         }
-    }else{
+    }
+
+    if( $error_occurred ){
         my $msg = "FTCalc: warn: There is no data in the standard input (likely due to a calculation error).\n";
         $msg .= qq{FTCalc: warn: Formula: "$expr"\n};
         my( $package, $filename, $line ) = caller( 0 );
         $msg .= "FTCalc: error: [FATAL] Calculation failed at $filename line $line.\n";
-#        warn( $msg );
-        die( $msg );
+        &Carp::croak( $msg );
     }
 
     # 単一の値（リストではない場合）の処理
@@ -309,24 +385,41 @@ sub formula( $$;$ )
             $self->_print( qq{ Result: $raw_result\n} );
         }
     }
-    return $raw_result;
+    return $calc_result;
 }
 
-sub _FtcOpen2( $$$@ )
+sub _FtcOpen3( $$$@ )
 {
-    my( $chld_out, $chld_in, $path_to_c, @opts ) = @_;
-    #open2 は子プロセスのプロセスIDを返します。
-    #失敗した場合は値を返さず、単に /^open2:/ にマッチする例外を発生させます。
+    my( $chld_in, $chld_out, $chld_err, $path_to_c, @opts ) = @_;
+    #open3 は子プロセスのプロセスIDを返します。
+    #失敗した場合は値を返さず、単に /^open3:/ にマッチする例外を発生させます。
     #ただし、子プロセスでの exec の失敗は検出されません。
     #SIGPIPE は自分で捕捉（トラップ）する必要があります。
-    if( &_get_action_flag( _FTC_FAIL_OPEN2 ) ){
-        &_clr_action_flag( _FTC_FAIL_OPEN2 );
-        print( qq{_FtcOpen2(): _FTC_FAIL_OPEN2\n} );
-        my $msg = qq{_FtcOpen2(): open2: fail test\n};
-        die( $msg );
+    if( &_get_action_flag( _FTC_FAIL_OPEN3 ) ){
+        &_clr_action_flag( _FTC_FAIL_OPEN3 );
+        print( qq{_FtcOpen3(): _FTC_FAIL_OPEN3\n} );
+        my $msg = qq{_FtcOpen3(): open3: fail test\n};
+        &Carp::croak( $msg );
     }else{
-        return &IPC::Open2::open2( $chld_out, $chld_in, $path_to_c, @opts );
+        return &IPC::Open3::open3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     }
+}
+
+sub _FtcSysread( $$$ )
+{
+    my( $fh, $data, $size ) = @_;
+    if( &_get_action_flag( _FTC_FAIL_SYSREAD_READ_ERR ) ){
+        &_clr_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
+        print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_READ_ERR\n} );
+        return undef;
+    }elsif( &_get_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM ) ){
+        &_clr_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
+        print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_CLOSED_STREAM\n} );
+        $fh->close();
+        return 0;
+    }
+
+    return sysread( $fh, $_[ 1 ], $size );
 }
 
 =head1 FUNCTIONS
@@ -408,7 +501,11 @@ sub _setAutoflush( $$ )
 sub _getTimeout( $ )
 {
     my( $self ) = @_;
-
+    if( &_get_action_flag( _FTC_FAIL_ONETIME_TIMEOUT ) ){
+        &_clr_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
+        print( qq{_getTimeout(): _FTC_FAIL_ONETIME_TIMEOUT\n} );
+        return 0.01;
+    }
     return $self->{timeout};
 }
 
@@ -497,17 +594,6 @@ sub _vPrintf( $$;@ )
     }
 }
 
-sub _wait_c_reaction( $ )
-{
-    my( $self ) = @_;
-    # タイムアウト時間を設定（秒数）
-    my $timeout = $self->{timeout};
-    my( $nfound, $timeleft ) =
-        select( my $rout = $self->{r_c_out}, undef, undef, $timeout );
-
-    return $nfound;
-}
-
 sub _get_my_path()
 {
     # 自身のパッケージ名（My::Module）をファイルパスの形式（My/Module.pm）に変換
@@ -539,7 +625,7 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =item * L<File::Basename> — first included in perl 5
 
-=item * L<IPC::Open2> — first included in perl 5
+=item * L<IPC::Open3> — first included in perl 5
 
 =item * L<parent> — first included in perl v5.10.1
 

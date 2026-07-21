@@ -7,6 +7,15 @@
 ### Changed
 - xxx
 
+## [0.2.77] - 2026-07-21
+### Changed
+- `FTCalc.pm`
+  - Changes to the `formula` method:
+    - Modified to return a numeric value even for complex formatting (e.g., `3 [ = 0x3 ]` -> `3`).
+    - Added support for capturing STDERR.
+- `tests/c.t`
+  - Adjustments made in response to changes in `FTCalc.pm`.
+
 ## [0.2.76] - 2026-07-20
 ### Changed
 - `tests/c.t`

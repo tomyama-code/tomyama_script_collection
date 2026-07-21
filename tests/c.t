@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.12 $
+## - $Revision: 1.13 $
 ################################################################################
 
 use strict;
@@ -188,13 +188,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    my $os_org = $c->_getOutputSel();
+    $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
+
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{3+0xf*2=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{33 \[ = 0x21 \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 33, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 33 \[ = 0x21 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -202,8 +205,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{7211 \[ = 0x1C2B \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 7211, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 7211 \[ = 0x1C2B \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -211,8 +214,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{4 \[ = 0x4 \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 4, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 4 \[ = 0x4 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -220,8 +223,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{8 \[ = 0x8 \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 8, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 8 \[ = 0x8 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -229,8 +232,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{31 \[ = 0x1F \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 31, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 31 \[ = 0x1F \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -238,8 +241,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{27 \[ = 0x1B \]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 27, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 27 \[ = 0x1B \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -247,8 +250,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{3 [ = 0x3 ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 3, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 3 [ = 0x3 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -256,8 +259,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{1 [ = 0x1 ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 1, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 1 [ = 0x1 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -265,8 +268,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{0 [ = 0x0 ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 0, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 0 [ = 0x0 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -274,8 +277,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{6 [ = 0x6 ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 6, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 6 [ = 0x6 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -283,8 +286,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{12 [ = 0xC ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 12, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 12 [ = 0xC ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -292,15 +295,15 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{3 [ = 0x3 ]}, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, 3, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 3 [ = 0x3 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
     my $num_of_shifts = $UV_bit_width - 1;
-    my $expect_L = qq{9223372036854775808 [ = -9223372036854775808 ] [ = 0x8000000000000000 ]};
+    my $expect_L = qq{ Result: 9223372036854775808 [ = -9223372036854775808 ] [ = 0x8000000000000000 ]\n};
     my $arg_R = 9223372036854775808;
     if( $UV_bit_width == 32 ){
-        $expect_L = qq{2147483648 [ = -2147483648 ] [ = 0x80000000 ]};
+        $expect_L = qq{ Result: 2147483648 [ = -2147483648 ] [ = 0x80000000 ]\n};
         $arg_R = 2147483648;
     }
 
@@ -309,8 +312,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect_L, qq{UVの最大シフト数: $num_of_shifts} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect_L, qq{UVの最大シフト数: $num_of_shifts} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -318,74 +321,86 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{1 [ = 0x1 ]}, qq{UVの最大シフト数: $num_of_shifts} );
-    $t->stdout_is( qq{} );
+    equal( $res, 1, qq{数値のみ受け取る} );
+    $t->stdout_is( qq{ Result: 1 [ = 0x1 ]\n}, qq{UVの最大シフト数: $num_of_shifts} );
     $t->stderr_is( qq{} );
 
-    my $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]};
+    my $expect = qq{ Result: 18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+    $arg_R = 18446744073709551615;
     if( $UV_bit_width == 32 ){
-        $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]};
+        $expect = qq{ Result: 4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        $arg_R  = 4294967295;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{~1+1=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
-    $expect = qq{18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]};
+    $expect = qq{ Result: 18446744073709551615 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+    $arg_R  = 18446744073709551615;
     if( $UV_bit_width == 32 ){
-        $expect = qq{4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]};
+        $expect = qq{ Result: 4294967295 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        $arg_R  = 4294967295;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{1+~1=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
-    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]};
+    $expect = qq{ Result: 36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+    $arg_R  = 36893488147419103232;
     if( $UV_bit_width == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]};
+        $expect = qq{ Result: 8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        $arg_R  = 8589934588;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{~1*2=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
-    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]};
+    $expect = qq{ Result: 36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+    $arg_R  = 36893488147419103232;
     if( $UV_bit_width == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]};
+        $expect = qq{ Result: 8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        $arg_R  = 8589934588;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{2*~1=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
-    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]};
+    $expect = qq{ Result: 36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+    $arg_R  = 36893488147419103232;
     if( $UV_bit_width == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]};
+        $expect = qq{ Result: 8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        $arg_R  = 8589934588;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{2*~1=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{複雑な解は文字列で受け取る} );
-    $t->stdout_is( qq{} );
+    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
+
+    $c->_setOutputSel( $os_org );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{（１９２０＊＊２＋１０８０＊＊２）＝} );
@@ -2086,18 +2101,23 @@ subtest qq{Normal (In-Proc Test)} => sub{
 
 
 
-    $expect = qq{64 [ = 0x40 ]};
+    $os_org = $c->_getOutputSel();
+    $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
+
+    $expect = qq{ Result: 64 [ = 0x40 ]\n};
     if( $UV_bit_width == 32 ){
-        $expect = qq{32 [ = 0x20 ]};
+        $expect = qq{ Result: 32 [ = 0x20 ]\n};
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{log(~0+1)/log(2)=} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
-    equal( $res, $expect, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
-    $t->stdout_is( qq{} );
+    equal( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
+
+    $c->_setOutputSel( $os_org );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{log( 10, 100, 1000 )} );
@@ -2199,31 +2219,36 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-    $expect = qq{64 [ = 0x40 ]};
+    $os_org = $c->_getOutputSel();
+    $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
+
+    $expect = qq{ Result: 64 [ = 0x40 ]\n};
     if( $UV_bit_width == 32 ){
-        $expect = qq{32 [ = 0x20 ]};
+        $expect = qq{ Result: 32 [ = 0x20 ]\n};
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{pow_inv( ~0+1, 2 )} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
-    equal( $res, $expect, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
-    $t->stdout_is( qq{} );
+    equal( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
 
-    $expect = qq{( 18446744073709551615, 18446744073709551614 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFE ) ]};
+    $expect = qq{ Result: ( 18446744073709551615, 18446744073709551614 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFE ) ]\n};
     if( $UV_bit_width == 32 ){
-        $expect = qq{( 4294967295, 4294967294 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFF, 0xFFFFFFFE ) ]};
+        $expect = qq{ Result: ( 4294967295, 4294967294 ) [ = ( -1, -2 ) ] [ = ( 0xFFFFFFFF, 0xFFFFFFFE ) ]\n};
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{linstep( ~0, -1, 2 )} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, $expect, qq{linstep( ~0, -1, 2 ) => $expect} );
-    $t->stdout_is( qq{} );
+    equal( scalar( @{ $res } ), 2, qq{2個のリストがあれば良し} );
+    $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
+
+    $c->_setOutputSel( $os_org );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{pow_inv( 4294967296, 2 )} );
@@ -2874,7 +2899,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{1 [ = 0x1 ]}, qq{32bitクラスの整数（素数）} );
+    equal( $res, 1, qq{32bitクラスの整数（素数）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2883,7 +2908,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{0 [ = 0x0 ]}, qq{32bitクラスの整数（非素数）} );
+    equal( $res, 0, qq{32bitクラスの整数（非素数）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2950,20 +2975,22 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $os_org = $c->_getOutputSel();
+    $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
 
     ## 64bit: 3473826439 [ = 0xCF0E6287 ]
     ## 32bit: 2942933887 [ = -1352033409 ] [ = 0xAF699B7F ]
-    $expect = qr/^\d+ \[ = 0x[\dA-F]{1,8} \]$/;
+    $expect = qr/^ Result: \d+ \[ = 0x[\dA-F]{1,8} \]$/;
     if( $UV_bit_width == 32 ){
-        $expect = qr/^\d+(?: \[ = \-\d+ \])? \[ = 0x[\dA-F]{1,8} \]$/;
+        $expect = qr/^ Result: \d+(?: \[ = \-\d+ \])? \[ = 0x[\dA-F]{1,8} \]$/;
     }
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{get_prime( 32 )|0} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0, qq{\$UV_bit_width="$UV_bit_width"} );
-    t_like( $res, $expect );
-    $t->stdout_is( qq{} );
+    t_like( $res, qr/^\d+$/ );
+    $t->stdout_like( $expect );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -2971,8 +2998,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    t_like( $res, qr/^\d+ \[ = 0x[\dA-F]{1,6} \]$/ );
-    $t->stdout_is( qq{} );
+    t_like( $res, qr/^\d+$/ );
+    $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -2980,8 +3007,8 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    t_like( $res, qr/^\d+ \[ = 0x[\dA-F]{1,4} \]$/ );
-    $t->stdout_is( qq{} );
+    t_like( $res, qr/^\d+$/ );
+    $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
@@ -2989,9 +3016,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    t_like( $res, qr/^\d+ \[ = 0x[\dA-F]{1} \]$/ );
-    $t->stdout_is( qq{} );
+    t_like( $res, qr/^\d+$/ );
+    $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
+
+    $c->_setOutputSel( $os_org );
 
 
 
@@ -3386,7 +3415,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
-    equal( $res, qq{( 100, 138.75, 177.5, 216.25, 255 ) [ = ( 0x64, 138.75, 177.5, 216.25, 0xFF ) ]} );
+    equal( scalar( @{ $res } ), 5, qq{linspace( 0x64, 0xff, 5 )} );
+    equal( ${ $res }[ 0 ], 100 );
+    equal( ${ $res }[ 1 ], 138.75 );
+    equal( ${ $res }[ 2 ], 177.5  );
+    equal( ${ $res }[ 3 ], 216.25 );
+    equal( ${ $res }[ 4 ], 255 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

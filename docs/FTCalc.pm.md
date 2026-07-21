@@ -126,7 +126,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 - [constant](https://metacpan.org/pod/constant) — first included in perl 5.004
 - [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
-- [IPC::Open2](https://metacpan.org/pod/IPC%3A%3AOpen2) — first included in perl 5
+- [IPC::Open3](https://metacpan.org/pod/IPC%3A%3AOpen3) — first included in perl 5
 - [parent](https://metacpan.org/pod/parent) — first included in perl v5.10.1
 - [strict](https://metacpan.org/pod/strict) — first included in perl 5
 - [Symbol](https://metacpan.org/pod/Symbol) - first included in perl 5.002
