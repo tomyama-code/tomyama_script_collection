@@ -1695,7 +1695,7 @@ The **c** script was created with the following in mind:
 
     kgf2newton( _KGF_ ) -->Convert-to--> _NEWTON_.
     Conversion of force, weight, and torque.
-    alias: kgf2n(), キログラム重→ニュートン(), キログラム重２ニュートン().
+    alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
 
         $ c 'kgf2newton( 6.5 )'
         63.743225
@@ -1704,7 +1704,7 @@ The **c** script was created with the following in mind:
 
     newton2kgf( _NEWTON_ ) -->Convert-to--> _KGF_.
     Conversion of force, weight, and torque.
-    alias: n2kgf(), ニュートン→キログラム重(), ニュートン２キログラム重().
+    alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
 
         $ c 'newton2kgf( 64 )'
         6.52618376306
@@ -1868,6 +1868,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 - [base](https://metacpan.org/pod/base) - first included in perl 5.00405
 - [constant](https://metacpan.org/pod/constant) — first included in perl 5.004
 - [Encode](https://metacpan.org/pod/Encode) — first included in perl v5.7.3
+- [Errno](https://metacpan.org/pod/Errno) — first released with perl 5.005
 - [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
 - [List::Util](https://metacpan.org/pod/List%3A%3AUtil) — first included in perl v5.7.3
 - [POSIX](https://metacpan.org/pod/POSIX) — first included in perl 5

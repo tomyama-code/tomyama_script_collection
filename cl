@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.35 $
+## - $Revision: 2.37 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -194,7 +194,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.35 $};
+    my $rev = q{$Revision: 2.37 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1089,13 +1089,13 @@ sub age_of_moon( $ )
     my $age_raw = &age_of_moon_instant( $epoch );
     #print( qq{\$age_raw=$age_raw\n} );
 
-    # 確実に四捨五入して小数第一位にする
-    my $age_rounded = sprintf( '%6.3f', int( $age_raw * 1000 + 0.5 ) / 1000 );
+    # 確実に切り捨てにする
+    my $age_rounded = sprintf( '%6.3f', int( $age_raw * 1000 ) / 1000 );
     #print( qq{\$age_rounded=$age_rounded\n} );
 
-    my $next_threshold = $age_rounded + 0.0005;
+    my $next_threshold = $age_rounded + 0.001;
     if( $next_threshold >= SAKUBOU ){
-        $next_threshold = 0.0005;
+        $next_threshold = 0.001;
     }
     #print( qq{\$next_threshold=$next_threshold\n} );
 
@@ -1255,20 +1255,6 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 =over 4
 
 =item L<perl>(1)
-
-=item L<constant>
-
-=item L<File::Basename>
-
-=item L<POSIX>
-
-=item L<strict>
-
-=item L<Time::HiRes>
-
-=item L<Time::Local>
-
-=item L<warnings>
 
 =back
 

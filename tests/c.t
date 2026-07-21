@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.13 $
+## - $Revision: 1.15 $
 ################################################################################
 
 use strict;
@@ -95,6 +95,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
     equal( $res, 386, qq{整数の計算} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0.22*10**(-6)=} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{指数表記} );
+    equal( $res, 0.00000022, qq{0.22*10**(-6) = 0.00000022} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sqrt(power(2, 100)+power(2, 100))=} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{3桁区切りの回避} );
+    equal( $res, 1592262918131443.25 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2430,15 +2448,6 @@ subtest qq{Normal (In-Proc Test)} => sub{
 
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{rad2deg(atan2(100, 200))=} );
-    } );
-    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-    $t->exit_is( 0 );
-    equal( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{fmod( 10.234, 3 )} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
@@ -3169,6 +3178,38 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) =} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( $res, 5, qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 5} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{slice( 2025, 12, 16, 0, 3 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( scalar( @{ $res } ), 3, qq{年月日} );
+    equal( ${ $res }[ 0 ], 2025 );
+    equal( ${ $res }[ 1 ], 12 );
+    equal( ${ $res }[ 2 ], 16 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{slice( 2025, 12, 16, -1, 1 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( $res, 16, qq{slice( 2025, 12, 16, -1, 1 ) => 16} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) =} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
@@ -3210,38 +3251,6 @@ subtest qq{Normal (In-Proc Test)} => sub{
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
     equal( $res, 9, qq{max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) => 9} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) =} );
-    } );
-    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-    $t->exit_is( 0 );
-    equal( $res, 5, qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 5} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{slice( 2025, 12, 16, 0, 3 )} );
-    } );
-    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-    $t->exit_is( 0 );
-    equal( scalar( @{ $res } ), 3, qq{年月日} );
-    equal( ${ $res }[ 0 ], 2025 );
-    equal( ${ $res }[ 1 ], 12 );
-    equal( ${ $res }[ 2 ], 16 );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{slice( 2025, 12, 16, -1, 1 )} );
-    } );
-    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-    $t->exit_is( 0 );
-    equal( $res, 16, qq{slice( 2025, 12, 16, -1, 1 ) => 16} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3707,6 +3716,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rad2deg(atan2(100, 200))=} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+#    $t = tests::Tester->run_blk( sub{
+#        $res = $c->formula( qq{timer( 1 )} );
+#    } );
+#    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+#    $t->exit_is( 0 );
+#    like( $res, qr/^0\.\d+$/, qq{1秒未満で検出: $res} );
+#    $t->stdout_is( qq{} );  # STDOUTの出力を確認した方が良いという考えから Ex-Proc Test で実施
+#    $t->stderr_is( qq{} );
+
 
 
     $t = tests::Tester->run_blk( sub{
@@ -3828,19 +3855,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_like( qr/^c: evaluator: error: midpt_between_points: \$argc=5: Invalid number of arguments\.\n/ );
     undef( $t );
 
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(power(2, 100)+power(2, 100))='} );
-    $t->exit_is( 0, qq{./c 'sqrt(power(2, 100)+power(2, 100))='} );
-    $t->stdout_is( qq{1592262918131443.25\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-
-    $t = tests::Tester->run_cmd( qq{./c '0.22*10**(-6)='} );
-    $t->exit_is( 0, qq{./c '0.22*10**(-6)='} );
-    $t->stdout_is( qq{0.00000022\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
 
 
     $t = tests::Tester->run_cmd( qq{./c '１' 'cos(deg2rad(45))'} );
@@ -4926,11 +4940,29 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{キログラム→ニュートン( 2.5 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( $res, 24.516625, qq{キログラム→ニュートン( 2.5 ) => 24.516625} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ニュートン→キログラム重( 17 )} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
     equal( $res, 1.73351756206, qq{ニュートン→キログラム重( 17 ) => 1.73351756206} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{ニュートン→キログラム( 20 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0 );
+    equal( $res, 2.03943242596, qq{ニュートン→キログラム( 20 ) => 2.03943242596} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

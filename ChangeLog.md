@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.78] - 2026-07-22
+### Changed
+- `c` [1.04.182]:
+  - Add an alias.
+- `cl` [1.02.037]:
+  - The display of the moon's age has been changed from a rounded value to a truncated one.
+
 ## [0.2.77] - 2026-07-21
 ### Changed
 - `FTCalc.pm`

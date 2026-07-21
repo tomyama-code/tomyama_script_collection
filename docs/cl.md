@@ -110,13 +110,6 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 # SEE ALSO
 
 - [perl](https://metacpan.org/pod/perl)(1)
-- [constant](https://metacpan.org/pod/constant)
-- [File::Basename](https://metacpan.org/pod/File%3A%3ABasename)
-- [POSIX](https://metacpan.org/pod/POSIX)
-- [strict](https://metacpan.org/pod/strict)
-- [Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes)
-- [Time::Local](https://metacpan.org/pod/Time%3A%3ALocal)
-- [warnings](https://metacpan.org/pod/warnings)
 
 # AUTHOR
 

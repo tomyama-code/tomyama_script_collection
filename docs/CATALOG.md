@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.8 $
+- $Revision: 1.9 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -42,7 +42,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 4.178 $
+- $Revision: 4.182 $
 
 - Script Structure
   - main
@@ -73,7 +73,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.35 $
+- $Revision: 2.37 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -226,7 +226,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.71 $
+- $Revision: 2.72 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

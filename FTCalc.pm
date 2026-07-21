@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -405,9 +405,9 @@ sub _FtcOpen3( $$$@ )
     }
 }
 
-sub _FtcSysread( $$$ )
+sub _FtcSysread( *\$$;$ )
 {
-    my( $fh, $data, $size ) = @_;
+    my( $_filehandle, undef, $_length ) = @_;
     if( &_get_action_flag( _FTC_FAIL_SYSREAD_READ_ERR ) ){
         &_clr_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
         print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_READ_ERR\n} );
@@ -415,11 +415,11 @@ sub _FtcSysread( $$$ )
     }elsif( &_get_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM ) ){
         &_clr_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
         print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_CLOSED_STREAM\n} );
-        $fh->close();
+        $_filehandle->close();
         return 0;
     }
 
-    return sysread( $fh, $_[ 1 ], $size );
+    return sysread( $_filehandle, $_[ 1 ], $_length );
 }
 
 =head1 FUNCTIONS
@@ -621,13 +621,19 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
+=item * L<Carp> — first released with perl 5
+
 =item * L<constant> — first included in perl 5.004
 
 =item * L<File::Basename> — first included in perl 5
 
+=item * L<IO::Select> — first released with perl 5.00307
+
 =item * L<IPC::Open3> — first included in perl 5
 
 =item * L<parent> — first included in perl v5.10.1
+
+=item * L<Scalar::Util> — first released with perl v5.7.3
 
 =item * L<strict> — first included in perl 5
 

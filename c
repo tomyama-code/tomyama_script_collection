@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.178 $
+## - $Revision: 4.182 $
 ##
 ## - Script Structure
 ##   - main
@@ -169,7 +169,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.178 $};
+    my $rev = q{$Revision: 4.182 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -745,8 +745,8 @@ use constant {
     H_G2LB => qq{gram2pound( GRAM ) --Convert-to--> POUND. Weight conversion. alias: グラム→ポンド(), グラム２ポンド().},
     H_OZ2G => qq{ounce2gram( OUNCE ) -->Convert-to--> GRAM. Weight conversion. alias: オンス→グラム(), オンス２グラム().},
     H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. Weight conversion. alias: グラム→オンス(), グラム２オンス().},
-    H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム重2ニュートン().},
-    H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン2キログラム重().},
+    H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
+    H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
     H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
     H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
@@ -3070,25 +3070,26 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!((?:20|19)\d{2})年(\d{1,2})月(\d{1,2})日!$1, $2, $3!go;
     $expr =~ s!(\d{1,2})時(\d{1,2})分(\d{1,2})秒!$1, $2, $3!go;
     $expr =~ s!(\d{1,2})時(\d{1,2})分!$1, $2, 0!go;
-    $expr =~ s!(?:北緯|東経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( $1, $2, $3 )!go;
-    $expr =~ s!(?:南緯|西経)(\d+)°(\d+)'(\d+(?:\.\d+)?)"!dms2rad( -$1, -$2, -$3 )!go;
-    $expr =~ s!(?:北緯|東経)(\d+)°(\d+(?:\.\d+)?)'!dms2rad( $1, $2, 0 )!go;
-    $expr =~ s!(?:南緯|西経)(\d+)°(\d+(?:\.\d+)?)'!dms2rad( -$1, -$2, 0 )!go;
+    $expr =~ s!(?:北緯|東経)(\d+)[度°](\d+)['分](\d+(?:\.\d+)?)["秒]!dms2rad( $1, $2, $3 )!go;
+    $expr =~ s!(?:南緯|西経)(\d+)[度°](\d+)['分](\d+(?:\.\d+)?)["秒]!dms2rad( -$1, -$2, -$3 )!go;
+    $expr =~ s!(?:北緯|東経)(\d+)[度°](\d+(?:\.\d+)?)['分]!dms2rad( $1, $2, 0 )!go;
+    $expr =~ s!(?:南緯|西経)(\d+)[度°](\d+(?:\.\d+)?)['分]!dms2rad( -$1, -$2, 0 )!go;
     $expr =~ s!(?:北緯|東経)(\d+(?:\.\d+)?)[度°]!deg2rad( $1 )!go;
     $expr =~ s!(?:南緯|西経)(\d+(?:\.\d+)?)[度°]!deg2rad( -$1 )!go;
     ## ex.) 35°12'34"N 139°40'56"E
-    $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[NE]!dms2rad( $1, $2, $3 )!go;
-    $expr =~ s!(\d+)°(\d+)'(\d+(?:\.\d+)?)"[SW]!dms2rad( -$1, -$2, -$3 )!go;
-    $expr =~ s!(\d+)°(\d+(?:\.\d+)?)'[NE]!dms2rad( $1, $2, 0 )!go;
-    $expr =~ s!(\d+)°(\d+(?:\.\d+)?)'[SW]!dms2rad( -$1, -$2, 0 )!go;
-    $expr =~ s!(\d+(?:\.\d+)?)°[NE]!deg2rad( $1 )!go;
-    $expr =~ s!(\d+(?:\.\d+)?)°[SW]!deg2rad( -$1 )!go;
+    $expr =~ s!(\d+)[度°](\d+)['分](\d+(?:\.\d+)?)["秒] ?[NE]!dms2rad( $1, $2, $3 )!go;
+    $expr =~ s!(\d+)[度°](\d+)['分](\d+(?:\.\d+)?)["秒] ?[SW]!dms2rad( -$1, -$2, -$3 )!go;
+    $expr =~ s!(\d+)[度°](\d+(?:\.\d+)?)['分] ?[NE]!dms2rad( $1, $2, 0 )!go;
+    $expr =~ s!(\d+)[度°](\d+(?:\.\d+)?)['分] ?[SW]!dms2rad( -$1, -$2, 0 )!go;
+    $expr =~ s!(\d+(?:\.\d+)?)[度°] ?[NE]!deg2rad( $1 )!go;
+    $expr =~ s!(\d+(?:\.\d+)?)[度°] ?[SW]!deg2rad( -$1 )!go;
     $expr =~ s!→!2!go;
     $expr =~ s!メートル!meter!go;
     $expr =~ s!マイル!mile!go;
     $expr =~ s!海里!nautical_mile!go;
     $expr =~ s!里!ri!go;
     $expr =~ s!キログラム重!kgf!go;
+    $expr =~ s!キログラム!kgf!go;
     $expr =~ s!グラム!gram!go;
     $expr =~ s!ポンド!pound!go;
     $expr =~ s!オンス!ounce!go;
@@ -4275,6 +4276,7 @@ sub Run( @ )
         $bReadStdin = 1;
     }else{
         $status = $self->Calculate( $expr );
+        $bReadStdin = 0;
     }
 
     if( $bReadStdin ){
@@ -6272,7 +6274,7 @@ alias: グラム→オンス(), グラム２オンス().
 
 kgf2newton( I<KGF> ) -->Convert-to--> I<NEWTON>.
 Conversion of force, weight, and torque.
-alias: kgf2n(), キログラム重→ニュートン(), キログラム重２ニュートン().
+alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
 
   $ c 'kgf2newton( 6.5 )'
   63.743225
@@ -6281,7 +6283,7 @@ alias: kgf2n(), キログラム重→ニュートン(), キログラム重２ニ
 
 newton2kgf( I<NEWTON> ) -->Convert-to--> I<KGF>.
 Conversion of force, weight, and torque.
-alias: n2kgf(), ニュートン→キログラム重(), ニュートン２キログラム重().
+alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
 
   $ c 'newton2kgf( 64 )'
   6.52618376306
@@ -6451,6 +6453,8 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 =item * L<constant> — first included in perl 5.004
 
 =item * L<Encode> — first included in perl v5.7.3
+
+=item * L<Errno> — first released with perl 5.005
 
 =item * L<File::Basename> — first included in perl 5
 
