@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.79] - 2026-07-23
+### Added
+- `c` [1.04.182]:
+  - Added a function.
+    - get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH.
+
 ## [0.2.78] - 2026-07-22
 ### Changed
 - `c` [1.04.182]:

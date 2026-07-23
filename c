@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.182 $
+## - $Revision: 4.183 $
 ##
 ## - Script Structure
 ##   - main
@@ -169,7 +169,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.182 $};
+    my $rev = q{$Revision: 4.183 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -510,6 +510,9 @@ use constant E_ACT => qw(
 ## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
 use constant pi => 4 * atan2( 1, 1 );
 
+# 天文学における平均朔望月（月の満ち欠けの平均周期）
+use constant SAKUBOU => 29.530588853;
+
 ## 単位換算係数 Unit Conversion Factor
 ## 長さ
 use constant UCFACTOR_RI            => 3927.2727272727; # 3,927.27 meters
@@ -726,6 +729,7 @@ use constant {
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_AOMN => qq{age_of_moon( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
     H_AOMI => qq{age_of_moon_instant( EPOCH ). Returns the moon age for the specified the epoch. Maximum deviation of about 2 days. alias: age_of_moon_i().},
+    H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
@@ -862,6 +866,7 @@ use constant {
     'age'                        => [ 1790, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
     'age_of_moon'                => [ 1800, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'age_of_moon_instant'        => [ 1810, T_FUNCTION,     1, H_AOMI, sub{ &age_of_moon_instant( $_[ 0 ] ) } ],
+    'get_next_moon_age_epoch'    => [ 1815, T_FUNCTION, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
     'local2epoch'                => [ 1820, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
     'gmt2epoch'                  => [ 1830, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
     'epoch2local'                => [ 1840, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
@@ -2476,7 +2481,7 @@ sub age_of_moon_instant( $ )
     my $diff_days = $mjd - 51549.1;
 
     # 天文学における平均朔望月（月の満ち欠けの平均周期）
-    my $synodic_month = 29.530588853;
+    my $synodic_month = SAKUBOU;
 
     # 経過日数から現在の月齢を算出
     my $age = $diff_days / $synodic_month;
@@ -2487,6 +2492,34 @@ sub age_of_moon_instant( $ )
 
     # コア用途のため丸めずに返す
     return $age;
+}
+
+sub get_next_moon_age_epoch( $;$ )
+{
+    my( $moon_age, $ref_date_epoch ) = @_;
+    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
+    #print( qq{\$ref_date_epoch="$ref_date_epoch"\n} );
+
+    if( !( 0 <= $moon_age && $moon_age < SAKUBOU ) ){
+        die( qq{"$moon_age": MOON_AGE is out of range.\n} );
+    }
+
+    my $age_raw = &age_of_moon_instant( $ref_date_epoch );
+
+    my $age_diff = $moon_age - $age_raw;
+    if( $age_diff < 0 ){
+        $age_diff += SAKUBOU;
+    }
+    #print( qq{\$age_diff="$age_diff"\n} );
+
+    # 月齢の 1日（＝86400秒） を 秒数 に変換
+    my $seconds_to_wait = &POSIX::ceil( $age_diff * 86400 );
+    #print( qq{\$seconds_to_wait="$seconds_to_wait"\n} );
+
+    my $next_future_epoch = $ref_date_epoch + $seconds_to_wait;
+    #print( qq{\$next_future_epoch="$next_future_epoch"\n} );
+
+    return $next_future_epoch;
 }
 
 sub local2epoch( $$$;$$$ )
@@ -4646,10 +4679,11 @@ asin, acos, atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_po
 angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km,
 geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
 geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap,
-age, age_of_moon, age_of_moon_instant, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
-dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm,
-mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km
+age, age_of_moon, age_of_moon_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
+meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
+telemeter_km
 
 =head1 OPTIONS
 
@@ -6099,6 +6133,33 @@ Moon age at 12:00:
 
   $ c 'age_of_moon_i( local2epoch( 2025, 12, 5, 12 ) )'
   14.705978187
+
+=item C<get_next_moon_age_epoch>
+
+get_next_moon_age_epoch( I<MOON_AGE> [, I<REF_DATE_EPOCH> ] ) --Convert-to--> I<EPOCH>.
+Returns the next future UNIX timestamp corresponding to the specified moon age.
+The range that can be specified for I<MOON_AGE> is I<0 <= MOON_AGE < SAKUBOU (29.530588853)>.
+If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
+
+  $ FULL_MOON='SAKUBOU / 2'
+  $ c "epoch2local(
+         get_next_moon_age_epoch(
+           $FULL_MOON,
+           local2epoch( 2027-01-01 00:00:00 )
+         )
+       )"
+  ( 2027, 1, 22, 23, 42, 6 )
+  $
+
+If you wish to view past information, please change the reference date:
+
+  $ c "epoch2local(
+         get_next_moon_age_epoch(
+           $FULL_MOON,
+           local2epoch( 2027-01-01 00:00:00 ) - dhms2sec( SAKUBOU )
+         )
+       )"
+  ( 2026, 12, 24, 10, 58, 3 )
 
 =item C<local2epoch>
 

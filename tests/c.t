@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.15 $
+## - $Revision: 1.18 $
 ################################################################################
 
 use strict;
@@ -20,7 +20,7 @@ use FTCalc;
 
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     my %def_val;
-    $def_val{def_timeout} = 2.0;
+    $def_val{def_timeout} = 3.0;
     &FTCalc::set_default_value( %def_val );
 }
 
@@ -530,16 +530,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{dist_between_points( -50, -50, -50, 50, 50 )=} );
-#    } );
-#    #$t->dump();
-#    ok( defined( $t->exception ), '例外（die）が発生すること' );
-#    $t->exit_isnt( 0 );
-#    #equal( $res, 141.421356237, qq{141.421356237} );
-#    $t->stdout_is( qq{} );
-##    $t->stderr_like( qr/^c: evaluator: error: dist_between_points: \$argc=5: Invalid number of arguments\.\n/ );
-#    $t->exception_like( qr/^FTCalc: warn: There is no data in the standard input / );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{dist_between_points( -50, -50, -50, 50, 50 )=} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0 );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: dist_between_points: \$argc=5: Invalid number of arguments\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{dist_between_points( -50, -50, -50, 50, 50, 50 )=} );
@@ -561,8 +559,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-
-
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{midpt_between_points( -50, -50, -50, 50, 50 )=} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0 );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: midpt_between_points: \$argc=5: Invalid number of arguments\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{midpt_between_points( -50, -50, -50, 50, 50, 50 )=} );
@@ -1024,7 +1028,32 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{dms2rad( $dms_Galapagos_Iss_Lon, -90, -25 )} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0 );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="5": Not a multiple of 3\.\n/ );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{dms2rad( -90, -25 )} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0 );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "dms2rad": Operand missing\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1 + ( 2 + ( 3 + dms2rad( -90, -25 ) ) )} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0 );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="2": Not a multiple of 3\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{deg2dms( $deg_Madagascar_Lat )} );
@@ -1416,57 +1445,57 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{geo_all_km( 10, 10, -10, -10 )} );
-#    } );
-#    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-#    $t->exit_is( 0 );
-#    equal( scalar( @{ $res } ), 4, qq{引数（座標）の正規化} );
-#    equal( ${ $res }[ 0 ], 10045.2740731, qq{大圏航路（Great Circle）の距離（km）} );
-#    equal( ${ $res }[ 1 ], 309.826898594, qq{大圏航路（Great Circle）の方角（度）} );
-#    equal( ${ $res }[ 2 ], 10058.0659261, qq{等角航路（Rhumb Line）の距離（km）} );
-#    equal( ${ $res }[ 3 ], 316.502246503, qq{等角航路（Rhumb Line）の方角（度）} );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{geo_all_km( 10, 10, -10, -10 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{./c 'geo_all_km( 10, 10, -10, -10 )'} );
+    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.575222039230621, 0.575222039230621, 0.575222039230621, -0.575222039230621 )} );
+    equal( ${ $res }[ 0 ], 10045.2740731, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 309.826898594, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 10058.0659261, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 316.502246503, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{geo_all_km( 1, 4, 2, -100 )} );
-#    } );
-#    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-#    $t->exit_is( 0 );
-#    equal( scalar( @{ $res } ), 4, qq{引数（座標）の正規化} );
-#    equal( ${ $res }[ 0 ], 1341.45302198, qq{大圏航路（Great Circle）の距離（km）} );
-#    equal( ${ $res }[ 1 ], 319.995434444, qq{大圏航路（Great Circle）の方角（度）} );
-#    equal( ${ $res }[ 2 ], 1346.08951591, qq{等角航路（Rhumb Line）の距離（km）} );
-#    equal( ${ $res }[ 3 ], 312.190223662, qq{等角航路（Rhumb Line）の方角（度）} );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{geo_all_km( 1, 4, 2, -100 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{./c 'geo_all_km( 1, 4, 2, -100 )'} );
+    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, -2.28318530717959, 1.14159265358979, -2.61062773871641 )} );
+    equal( ${ $res }[ 0 ], 1341.45302198, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 319.995434444, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 1346.08951591, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 312.190223662, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{geo_all_km( 100, 100, -100, -100 )} );
-#    } );
-#    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-#    $t->exit_is( 0 );
-#    equal( scalar( @{ $res } ), 4, qq{引数（座標）の正規化} );
-#    equal( ${ $res }[ 0 ], 9315.0650115, qq{大圏航路（Great Circle）の距離（km）} );
-#    equal( ${ $res }[ 1 ], 49.4032576339, qq{大圏航路（Great Circle）の方角（度）} );
-#    equal( ${ $res }[ 2 ], 9323.62154307, qq{等角航路（Rhumb Line）の距離（km）} );
-#    equal( ${ $res }[ 3 ], 43.7610906052, qq{等角航路（Rhumb Line）の方角（度）} );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{geo_all_km( 100, 100, -100, -100 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{./c 'geo_all_km( 100, 100, -100, -100 )'} );
+    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.53096491487338, -0.530964914873376, 0.53096491487338, 0.530964914873383 )} );
+    equal( ${ $res }[ 0 ], 9315.0650115 , qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 49.4032576339, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 9323.62154307, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 43.7610906052, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{geo_all_km( 1, -4, 1, 4 )} );
-#    } );
-#    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
-#    $t->exit_is( 0 );
-#    equal( scalar( @{ $res } ), 4, qq{( P  A B  dec ) = ( 1  0 1  0 )} );
-#    equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
-#    equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
-#    equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
-#    equal( ${ $res }[ 3 ], 90, qq{等角航路（Rhumb Line）の方角（度）} );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{geo_all_km( 1, -4, 1, 4 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
+    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
+    equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{epoch2local( 1763999942 )} );
@@ -1739,6 +1768,79 @@ subtest qq{Normal (In-Proc Test)} => sub{
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
     $t->exit_is( 0 );
     equal( $res, 6.24701057982, qq{アポロ11号が月面に着陸した時} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    my $now = &CORE::time();
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{get_next_moon_age_epoch( -0.000000001 )} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{MOON_AGEが範囲外（ 0 未満 )} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "\-1e\-09": MOON_AGE is out of range\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{get_next_moon_age_epoch( 0, $now )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{MOON_AGEが範囲内の最小値} );
+    ok( $res >= $now, qq{未来の時間} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    my $res_last = $res;
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{get_next_moon_age_epoch( 29.530588852, $now )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{MOON_AGEが範囲内の最大値ぎりぎり} );
+    ok( $res == $res_last, qq{未来の時間，かつ大概は0と同じ秒を指す} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{get_next_moon_age_epoch( 29.530588853 )} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{MOON_AGEが範囲外（ 朔望月以上 )} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "29.530588853": MOON_AGE is out of range\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{age_of_moon_instant( get_next_moon_age_epoch( 23, local2epoch( 2027-01-01 00:00:00 ) ) )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{MOON_AGEが基準日(22.308323098)よりも大きい} );
+    equal( $res, 23.0000013388 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{age_of_moon_instant( get_next_moon_age_epoch( 23, local2epoch( 2027-01-01 00:00:00 ) ) -1 )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{1秒前であれば23にはならないこと} );
+    equal( $res, 22.9999897647 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{epoch2local( get_next_moon_age_epoch( 22, local2epoch( 2027-01-01 00:00:00 ) ) )} );
+    } );
+    ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
+    $t->exit_is( 0, qq{MOON_AGEが基準日(22.308323098)よりも小さい} );
+    equal( scalar( @{ $res } ), 6, qq{( 2027, 1, 30, 5, 20, 4 )} );
+    equal( ${ $res }[ 0 ], 2027 );
+    equal( ${ $res }[ 1 ], 1 );
+    equal( ${ $res }[ 2 ], 30 );
+    equal( ${ $res }[ 3 ], 5 );
+    equal( ${ $res }[ 4 ], 20 );
+    equal( ${ $res }[ 5 ], 4 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2117,7 +2219,23 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log( -123.456 ) =} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log( -123.456 ) ='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log\( -123.456 \): Must be a positive number\.\n/ );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log(0)/log(2)=} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log(0)/log(2)='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log\( 0 \): Must be a positive number\.\n/ );
 
     $os_org = $c->_getOutputSel();
     $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
@@ -2194,6 +2312,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log2( -123.456 ) =} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log2( -123.456 ) ='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log2\( -123.456 \): Must be a positive number\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log2(0)=} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log2(0)='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log2\( 0 \): Must be a positive number\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{exp10( 5 )} );
     } );
     ok( !defined( $t->exception ), '例外（die）が発生しないこと' );
@@ -2236,6 +2372,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 2 ], 3, qq{log10( 1000 ) => 3} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log10( -123.456 ) =} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log10( -123.456 ) ='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log10\( -123.456 \): Must be a positive number\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{log10(0)=} );
+    } );
+    ok( defined( $t->exception ), '例外（die）が発生すること' );
+    $t->exit_isnt( 0, qq{./c 'log10(0)='} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: log10\( 0 \): Must be a positive number\.\n/ );
 
     $os_org = $c->_getOutputSel();
     $c->_setOutputSel( FTC_FSC_OUTPUT_RESULT );
@@ -3843,18 +3997,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'dist_between_points( -50, -50, -50, 50, 50 )='} );
-    $t->exit_isnt( 0, qq{./c 'dist_between_points( -50, -50, -50, 50, 50 )='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: dist_between_points: \$argc=5: Invalid number of arguments\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'midpt_between_points( -50, -50, -50, 50, 50 )='} );
-    $t->exit_isnt( 0, qq{./c 'midpt_between_points( -50, -50, -50, 50, 50 )='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: midpt_between_points: \$argc=5: Invalid number of arguments\.\n/ );
-    undef( $t );
-
 
 
     $t = tests::Tester->run_cmd( qq{./c '１' 'cos(deg2rad(45))'} );
@@ -3863,47 +4005,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'dms2rad( $dms_Galapagos_Iss_Lon, -90, -25 )'} );
-    $t->exit_isnt( 0, qq{./c 'dms2rad( $dms_Galapagos_Iss_Lon, -90, -25 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="5": Not a multiple of 3\.\n/ );
-    undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'dms2rad( -90, -25 )'} );
-    $t->exit_isnt( 0, qq{./c 'dms2rad( -90, -25 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: "dms2rad": Operand missing\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '1 + ( 2 + ( 3 + dms2rad( -90, -25 ) ) )'} );
-    $t->exit_isnt( 0, qq{./c '1 + ( 2 + ( 3 + dms2rad( -90, -25 ) ) )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: dms2rad: \$arg_counter="2": Not a multiple of 3\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'geo_all_km( 10, 10, -10, -10 )'} );
-    $t->exit_is( 0, qq{./c 'geo_all_km( 10, 10, -10, -10 )'} );
-    $t->stdout_is( qq{( 10045.2740731, 309.826898594, 10058.0659261, 316.502246503 )\n}, qq{引数（座標）の正規化} );
-    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'geo_all_km( 1, 4, 2, -100 )'} );
-    $t->exit_is( 0, qq{./c 'geo_all_km( 1, 4, 2, -100 )'} );
-    $t->stdout_is( qq{( 1341.45302198, 319.995434444, 1346.08951591, 312.190223662 )\n}, qq{引数（座標）の正規化} );
-    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'geo_all_km( 100, 100, -100, -100 )'} );
-    $t->exit_is( 0, qq{./c 'geo_all_km( 100, 100, -100, -100 )'} );
-    $t->stdout_is( qq{( 9315.0650115, 49.4032576339, 9323.62154307, 43.7610906052 )\n}, qq{引数（座標）の正規化} );
-    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
-    $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
-    $t->stdout_is( qq{( 5386.30789906, 45.7429575198, 5930.42524018, 90 )\n}, qq{( P  A B  dec ) = ( 1  0 1  0 )} );
-    $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージ} );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'laptimer( 1 )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'laptimer( 1 )'} );
@@ -3953,7 +4055,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t = tests::Tester->run_cmd( qq{./c 'timer( 1 )'} );
     $t->exit_is( 0, qq{./c 'timer( 1 )'} );
     $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
-    $t->stdout_like( qr/\n\d+\.\d+\n/ );
+    $t->stdout_like( qr/\n\d+\.\d+\n/, qq{STDOUTの出力を確認した方が良いという考えからFTCalcを使わない方法でテスト} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
@@ -3997,42 +4099,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log( -123.456 ) ='} );
-    $t->exit_isnt( 0, qq{./c 'log( -123.456 ) ='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log\( -123.456 \): Must be a positive number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log(0)/log(2)='} );
-    $t->exit_isnt( 0, qq{./c 'log(0)/log(2)='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log\( 0 \): Must be a positive number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log2( -123.456 ) ='} );
-    $t->exit_isnt( 0, qq{./c 'log2( -123.456 ) ='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log2\( -123.456 \): Must be a positive number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log2(0)='} );
-    $t->exit_isnt( 0, qq{./c 'log2(0)='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log2\( 0 \): Must be a positive number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log10( -123.456 ) ='} );
-    $t->exit_isnt( 0, qq{./c 'log10( -123.456 ) ='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log10\( -123.456 \): Must be a positive number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'log10(0)='} );
-    $t->exit_isnt( 0, qq{./c 'log10(0)='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: log10\( 0 \): Must be a positive number\.\n/ );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{./c ' ' '2PI10='} );

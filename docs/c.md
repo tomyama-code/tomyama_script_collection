@@ -77,10 +77,11 @@ asin, acos, atan, atan2, hypot, angle\_deg, dist\_between\_points, midpt\_betwee
 angle\_between\_points, vector\_angle, geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km,
 geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km,
 geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap,
-age, age\_of\_moon, age\_of\_moon\_instant, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec,
-dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm,
-mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, laptimer, timer,
-stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km
+age, age\_of\_moon, age\_of\_moon\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local,
+epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
+meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+telemeter\_km
 
 # OPTIONS
 
@@ -1520,6 +1521,33 @@ The **c** script was created with the following in mind:
 
         $ c 'age_of_moon_i( local2epoch( 2025, 12, 5, 12 ) )'
         14.705978187
+
+- `get_next_moon_age_epoch`
+
+    get\_next\_moon\_age\_epoch( _MOON\_AGE_ \[, _REF\_DATE\_EPOCH_ \] ) --Convert-to--> _EPOCH_.
+    Returns the next future UNIX timestamp corresponding to the specified moon age.
+    The range that can be specified for _MOON\_AGE_ is _0 <= MOON\_AGE < SAKUBOU (29.530588853)_.
+    If _REF\_DATE\_EPOCH_ is omitted, _NOW_ is used.
+
+        $ FULL_MOON='SAKUBOU / 2'
+        $ c "epoch2local(
+               get_next_moon_age_epoch(
+                 $FULL_MOON,
+                 local2epoch( 2027-01-01 00:00:00 )
+               )
+             )"
+        ( 2027, 1, 22, 23, 42, 6 )
+        $
+
+    If you wish to view past information, please change the reference date:
+
+        $ c "epoch2local(
+               get_next_moon_age_epoch(
+                 $FULL_MOON,
+                 local2epoch( 2027-01-01 00:00:00 ) - dhms2sec( SAKUBOU )
+               )
+             )"
+        ( 2026, 12, 24, 10, 58, 3 )
 
 - `local2epoch`
 
