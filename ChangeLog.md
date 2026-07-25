@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.2.80] - 2026-07-25
+### Changed
+- `c` [1.04.186]:
+  - Added logic to the moon-age calculation functions to display the moon's phase using ASCII art when the `--verbose` flag is used.
+  - Renamed function:
+    - age_of_moon() -> moon_age()
+    - age_of_moon_instant() -> moon_age_instant()
+- `FTCalc.pm`:
+  - Fixed a bug where STDERR could be lost when returning a list from the formula method.
+
 ## [0.2.79] - 2026-07-23
 ### Added
 - `c` [1.04.182]:

@@ -1,6 +1,6 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.5 $
+## - $Revision: 1.6 $
 ################################################################################
 
 use strict;
@@ -63,8 +63,8 @@ sub capture( & )
         $code_ret = $code->();
         1
     };
-     my $e = $@; # エラーが起きた場合は捕捉しておく
-     $e = undef if( $ok );
+    my $e = $@; # エラーが起きた場合は捕捉しておく
+    $e = undef if( $ok );
     #print( qq{\$code_ret="$code_ret"\n} );
 
     # 出力先を元に戻す
@@ -242,6 +242,30 @@ sub exit_isnt( $$;$ )
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     isnt( $self->{exit_code}, $expected, $msg );
+}
+
+sub has_exception( $;$ )
+{
+    my( $self, $msg ) = @_;
+
+    $msg //= 'Should raise an exception (die).';
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    return ok( defined( $self->exception ), $msg );
+}
+
+sub has_no_exception( $;$ )
+{
+    my( $self, $msg ) = @_;
+
+    $msg //= 'Should execute successfully without exception.';
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    return ok( !defined( $self->exception ), $msg );
 }
 
 sub stdout_is( $$;$ )

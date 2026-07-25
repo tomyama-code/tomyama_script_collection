@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.9 $
+## - $Revision: 1.11 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -55,7 +55,7 @@ use IPC::Open3 qw(open3);       # first released with perl 5
 use Symbol 'gensym';            # first released with perl 5.002
                                 # vivify a separate handle for STDERR
 use IO::Select;                 # first released with perl 5.00307
-use Scalar::Util qw(looks_like_number); # first released with perl v5.7.3
+use Scalar::Util qw(looks_like_number);     # first released with perl v5.7.3
 use File::Basename qw(dirname);
 use parent 'Exporter';
 
@@ -81,7 +81,8 @@ use constant FTC_FSC_OUTPUT_RESULT  => 0x20;
 use constant FTC_FSC_OUTPUT_BOTH    => 0x30;
 
 $main::def_autoflush = 1;
-$main::def_timeout = 0.5;
+#$main::def_timeout = 0.5;
+$main::def_timeout = 1.0;
 $main::def_b_verbose = 0;
 $main::def_formula_os = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
 $main::action_flag = 0x00;
@@ -298,6 +299,7 @@ sub formula( $$;$ )
     my $raw_result = '';
     my $turn_completed = 0;
     my $error_occurred = 0;
+    my @result_list;
     while( !$turn_completed ){
         my @ready = $self->{selector}->can_read( $self->_getTimeout() );
 
@@ -350,19 +352,15 @@ sub formula( $$;$ )
                     # カッコを除去してカンマで分割
                     if( $calc_result =~ m/^\(\s*(.*?)\s*\)$/o ){
                         my @list = split( /, /, $1 );
-                        if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
-                            if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
-                                $self->_vPrint( qq{ Result: $raw_result\n} );
-                            }else{
-                                $self->_print( qq{ Result: $raw_result\n} );
-                            }
-                        }
-                        return wantarray ? @list : \@list;
+                        $turn_completed = 1;
+                        @result_list = @list;
                     }
 
                     if( &Scalar::Util::looks_like_number( $calc_result ) ){
                         $turn_completed = 1;
                         $calc_result += 0;
+
+                        @result_list = ( $calc_result );
                     }
                 }
             }
@@ -377,7 +375,6 @@ sub formula( $$;$ )
         &Carp::croak( $msg );
     }
 
-    # 単一の値（リストではない場合）の処理
     if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
         if( $output_sel & FTC_FSC_FOLLOW_VERBOSE ){
             $self->_vPrint( qq{ Result: $raw_result\n} );
@@ -385,7 +382,12 @@ sub formula( $$;$ )
             $self->_print( qq{ Result: $raw_result\n} );
         }
     }
-    return $calc_result;
+
+    if( scalar( @result_list ) > 1 ){
+        return wantarray ? @result_list : \@result_list;
+    }
+    return $result_list[ 0 ] if( defined( $result_list[ 0 ] ) );
+    return '';
 }
 
 sub _FtcOpen3( $$$@ )

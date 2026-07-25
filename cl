@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.37 $
+## - $Revision: 2.38 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -67,7 +67,7 @@ my $DEF_COLOR_LIGHT = qq{$COLOR_RESET[$ANSI_es{'FG_BLACK'}m[$ANSI_es{'BG_WHITE
 my $DEF_COLOR_DARK  = qq{$COLOR_RESET[$ANSI_es{'FG_WHITE'}m[$ANSI_es{'BG_BLACK'}m};
 my $DEF_COLOR = $DEF_COLOR_DARK;
 
-exit( &pl_main( @ARGV ) );
+exit( &pl_main( @ARGV ) ) unless caller();
 
 
 sub pl_main( @ )
@@ -194,7 +194,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.37 $};
+    my $rev = q{$Revision: 2.38 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.183 $
+## - $Revision: 4.186 $
 ##
 ## - Script Structure
 ##   - main
@@ -169,7 +169,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.183 $};
+    my $rev = q{$Revision: 4.186 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -561,6 +561,342 @@ use constant WGS84_RECIPROCAL_FLATTENING => 298.257223563;          # 逆扁平�
 use constant WGS84_FLATTENING => 1.0 / WGS84_RECIPROCAL_FLATTENING; # 扁平率
 use constant WGS84_POW_E                 => 0.006694379990141316;   # 離心率の二乗: e^2 = 2f - f^2
 
+use constant MOON_AGE_AA_H_LEN => 11;
+
+%TableProvider::moon_age_aa = (
+   '00' => [ q{..................},
+             q{.....::::::::.....},
+             q{...::::::::::::...},
+             q{..::::::::::::::..},
+             q{.::::::::::::::::.},
+             q{.::::::::::::::::.},
+             q{.::::::::::::::::.},
+             q{..::::::::::::::..},
+             q{...::::::::::::...},
+             q{.....::::::::.....},
+             q{..................} ],
+   '01' => [ q{..................},
+             q{.....:::::::0.....},
+             q{...:::::::::::0...},
+             q{..:::::::::::::0..},
+             q{.:::::::::::::::0.},
+             q{.:::::::::::::::0.},
+             q{.:::::::::::::::0.},
+             q{..:::::::::::::0..},
+             q{...:::::::::::0...},
+             q{.....:::::::0.....},
+             q{..................} ],
+   '02' => [ q{..................},
+             q{.....:::::::0.....},
+             q{...:::::::::::0...},
+             q{..:::::::::::::0..},
+             q{.::::::::::::::00.},
+             q{.::::::::::::::00.},
+             q{.::::::::::::::00.},
+             q{..:::::::::::::0..},
+             q{...:::::::::::0...},
+             q{.....:::::::0.....},
+             q{..................} ],
+   '03' => [ q{..................},
+             q{.....::::::00.....},
+             q{...:::::::::000...},
+             q{..:::::::::::000..},
+             q{.::::::::::::0000.},
+             q{.::::::::::::0000.},
+             q{.::::::::::::0000.},
+             q{..:::::::::::000..},
+             q{...:::::::::000...},
+             q{.....::::::00.....},
+             q{..................} ],
+   '04' => [ q{..................},
+             q{.....::::::00.....},
+             q{...::::::::0000...},
+             q{..::::::::::0000..},
+             q{.:::::::::::00000.},
+             q{.:::::::::::00000.},
+             q{.:::::::::::00000.},
+             q{..::::::::::0000..},
+             q{...::::::::0000...},
+             q{.....::::::00.....},
+             q{..................} ],
+   '05' => [ q{..................},
+             q{.....:::::000.....},
+             q{...::::::::0000...},
+             q{..:::::::::00000..},
+             q{.::::::::::000000.},
+             q{.::::::::::000000.},
+             q{.::::::::::000000.},
+             q{..:::::::::00000..},
+             q{...::::::::0000...},
+             q{.....:::::000.....},
+             q{..................} ],
+   '06' => [ q{..................},
+             q{.....::::0000.....},
+             q{...:::::::00000...},
+             q{..::::::::000000..},
+             q{.:::::::::0000000.},
+             q{.:::::::::0000000.},
+             q{.:::::::::0000000.},
+             q{..::::::::000000..},
+             q{...:::::::00000...},
+             q{.....::::0000.....},
+             q{..................} ],
+   '07' => [ q{..................},
+             q{.....::::0000.....},
+             q{...::::::000000...},
+             q{..:::::::0000000..},
+             q{.::::::::00000000.},
+             q{.::::::::00000000.},
+             q{.::::::::00000000.},
+             q{..:::::::0000000..},
+             q{...::::::000000...},
+             q{.....::::0000.....},
+             q{..................} ],
+   '08' => [ q{..................},
+             q{.....::::0000.....},
+             q{...:::::0000000...},
+             q{..::::::00000000..},
+             q{.:::::::000000000.},
+             q{.:::::::000000000.},
+             q{.:::::::000000000.},
+             q{..::::::00000000..},
+             q{...:::::0000000...},
+             q{.....::::0000.....},
+             q{..................} ],
+   '09' => [ q{..................},
+             q{.....:::00000.....},
+             q{...::::00000000...},
+             q{..:::::000000000..},
+             q{.::::::0000000000.},
+             q{.::::::0000000000.},
+             q{.::::::0000000000.},
+             q{..:::::000000000..},
+             q{...::::00000000...},
+             q{.....:::00000.....},
+             q{..................} ],
+   '10' => [ q{..................},
+             q{.....::000000.....},
+             q{...::::00000000...},
+             q{..::::0000000000..},
+             q{.:::::00000000000.},
+             q{.:::::00000000000.},
+             q{.:::::00000000000.},
+             q{..::::0000000000..},
+             q{...::::00000000...},
+             q{.....::000000.....},
+             q{..................} ],
+   '11' => [ q{..................},
+             q{.....::000000.....},
+             q{...:::000000000...},
+             q{..:::00000000000..},
+             q{.::::000000000000.},
+             q{.::::000000000000.},
+             q{.::::000000000000.},
+             q{..:::00000000000..},
+             q{...:::000000000...},
+             q{.....::000000.....},
+             q{..................} ],
+   '12' => [ q{..................},
+             q{.....:0000000.....},
+             q{...::0000000000...},
+             q{..::000000000000..},
+             q{.:::0000000000000.},
+             q{.:::0000000000000.},
+             q{.:::0000000000000.},
+             q{..::000000000000..},
+             q{...::0000000000...},
+             q{.....:0000000.....},
+             q{..................} ],
+   '13' => [ q{..................},
+             q{.....:0000000.....},
+             q{...:00000000000...},
+             q{..:0000000000000..},
+             q{.::00000000000000.},
+             q{.::00000000000000.},
+             q{.::00000000000000.},
+             q{..:0000000000000..},
+             q{...:00000000000...},
+             q{.....:0000000.....},
+             q{..................} ],
+   '14' => [ q{..................},
+             q{.....:0000000.....},
+             q{...:00000000000...},
+             q{..:0000000000000..},
+             q{.:000000000000000.},
+             q{.:000000000000000.},
+             q{.:000000000000000.},
+             q{..:0000000000000..},
+             q{...:00000000000...},
+             q{.....:0000000.....},
+             q{..................} ],
+   '15' => [ q{..................},
+             q{.....00000000.....},
+             q{...000000000000...},
+             q{..00000000000000..},
+             q{.0000000000000000.},
+             q{.0000000000000000.},
+             q{.0000000000000000.},
+             q{..00000000000000..},
+             q{...000000000000...},
+             q{.....00000000.....},
+             q{..................} ],
+   '16' => [ q{..................},
+             q{.....0000000:.....},
+             q{...00000000000:...},
+             q{..0000000000000:..},
+             q{.000000000000000:.},
+             q{.000000000000000:.},
+             q{.000000000000000:.},
+             q{..0000000000000:..},
+             q{...00000000000:...},
+             q{.....0000000:.....},
+             q{..................} ],
+   '17' => [ q{..................},
+             q{.....0000000:.....},
+             q{...00000000000:...},
+             q{..0000000000000:..},
+             q{.00000000000000::.},
+             q{.00000000000000::.},
+             q{.00000000000000::.},
+             q{..0000000000000:..},
+             q{...00000000000:...},
+             q{.....0000000:.....},
+             q{..................} ],
+   '18' => [ q{..................},
+             q{.....0000000:.....},
+             q{...0000000000::...},
+             q{..000000000000::..},
+             q{.0000000000000:::.},
+             q{.0000000000000:::.},
+             q{.0000000000000:::.},
+             q{..000000000000::..},
+             q{...0000000000::...},
+             q{.....0000000:.....},
+             q{..................} ],
+   '19' => [ q{..................},
+             q{.....000000::.....},
+             q{...000000000:::...},
+             q{..00000000000:::..},
+             q{.000000000000::::.},
+             q{.000000000000::::.},
+             q{.000000000000::::.},
+             q{..00000000000:::..},
+             q{...000000000:::...},
+             q{.....000000::.....},
+             q{..................} ],
+   '20' => [ q{..................},
+             q{.....00000:::.....},
+             q{...00000000::::...},
+             q{..0000000000::::..},
+             q{.00000000000:::::.},
+             q{.00000000000:::::.},
+             q{.00000000000:::::.},
+             q{..0000000000::::..},
+             q{...00000000::::...},
+             q{.....00000:::.....},
+             q{..................} ],
+   '21' => [ q{..................},
+             q{.....00000:::.....},
+             q{...00000000::::...},
+             q{..000000000:::::..},
+             q{.0000000000::::::.},
+             q{.0000000000::::::.},
+             q{.0000000000::::::.},
+             q{..000000000:::::..},
+             q{...00000000::::...},
+             q{.....00000:::.....},
+             q{..................} ],
+   '22' => [ q{..................},
+             q{.....0000::::.....},
+             q{...000000::::::...},
+             q{..0000000:::::::..},
+             q{.00000000::::::::.},
+             q{.00000000::::::::.},
+             q{.00000000::::::::.},
+             q{..0000000:::::::..},
+             q{...000000::::::...},
+             q{.....0000::::.....},
+             q{..................} ],
+   '23' => [ q{..................},
+             q{.....0000::::.....},
+             q{...00000:::::::...},
+             q{..000000::::::::..},
+             q{.0000000:::::::::.},
+             q{.0000000:::::::::.},
+             q{.0000000:::::::::.},
+             q{..000000::::::::..},
+             q{...00000:::::::...},
+             q{.....0000::::.....},
+             q{..................} ],
+   '24' => [ q{..................},
+             q{.....000:::::.....},
+             q{...0000::::::::...},
+             q{..00000:::::::::..},
+             q{.000000::::::::::.},
+             q{.000000::::::::::.},
+             q{.000000::::::::::.},
+             q{..00000:::::::::..},
+             q{...0000::::::::...},
+             q{.....000:::::.....},
+             q{..................} ],
+   '25' => [ q{..................},
+             q{.....00::::::.....},
+             q{...0000::::::::...},
+             q{..0000::::::::::..},
+             q{.00000:::::::::::.},
+             q{.00000:::::::::::.},
+             q{.00000:::::::::::.},
+             q{..0000::::::::::..},
+             q{...0000::::::::...},
+             q{.....00::::::.....},
+             q{..................} ],
+   '26' => [ q{..................},
+             q{.....00::::::.....},
+             q{...000:::::::::...},
+             q{..000:::::::::::..},
+             q{.0000::::::::::::.},
+             q{.0000::::::::::::.},
+             q{.0000::::::::::::.},
+             q{..000:::::::::::..},
+             q{...000:::::::::...},
+             q{.....00::::::.....},
+             q{..................} ],
+   '27' => [ q{..................},
+             q{.....0:::::::.....},
+             q{...00::::::::::...},
+             q{..00::::::::::::..},
+             q{.000:::::::::::::.},
+             q{.000:::::::::::::.},
+             q{.000:::::::::::::.},
+             q{..00::::::::::::..},
+             q{...00::::::::::...},
+             q{.....0:::::::.....},
+             q{..................} ],
+   '28' => [ q{..................},
+             q{.....0:::::::.....},
+             q{...0:::::::::::...},
+             q{..0:::::::::::::..},
+             q{.00::::::::::::::.},
+             q{.00::::::::::::::.},
+             q{.00::::::::::::::.},
+             q{..0:::::::::::::..},
+             q{...0:::::::::::...},
+             q{.....0:::::::.....},
+             q{..................} ],
+
+   '29' => [ q{..................},
+             q{.....::::::::.....},
+             q{...0:::::::::::...},
+             q{..0:::::::::::::..},
+             q{.0:::::::::::::::.},
+             q{.0:::::::::::::::.},
+             q{.0:::::::::::::::.},
+             q{..0:::::::::::::..},
+             q{...0:::::::::::...},
+             q{.....::::::::.....},
+             q{..................} ],
+);
+
 # TableProvider コンストラクタ
 sub new
 {
@@ -727,8 +1063,8 @@ use constant {
     H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_AOMN => qq{age_of_moon( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
-    H_AOMI => qq{age_of_moon_instant( EPOCH ). Returns the moon age for the specified the epoch. Maximum deviation of about 2 days. alias: age_of_moon_i().},
+    H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
+    H_AOMI => qq{moon_age_instant( EPOCH ). Returns the moon age for the specified the epoch. Maximum deviation of about 2 days. alias: moon_age_i().},
     H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
@@ -864,8 +1200,8 @@ use constant {
     'geo_all_km'                 => [ 1770, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'is_leap'                    => [ 1780, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
     'age'                        => [ 1790, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'age_of_moon'                => [ 1800, T_FUNCTION,     3, H_AOMN, sub{ &age_of_moon( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'age_of_moon_instant'        => [ 1810, T_FUNCTION,     1, H_AOMI, sub{ &age_of_moon_instant( $_[ 0 ] ) } ],
+    'moon_age'                   => [ 1800, T_FUNCTION,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'moon_age_instant'           => [ 1810, T_FUNCTION,     1, H_AOMI, sub{ &moon_age_instant( $_[ 0 ] ) } ],
     'get_next_moon_age_epoch'    => [ 1815, T_FUNCTION, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
     'local2epoch'                => [ 1820, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
     'gmt2epoch'                  => [ 1830, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
@@ -2441,7 +2777,7 @@ sub age( $;$ )
 #
 #    return $age ;
 #}
-sub age_of_moon( $$$ )
+sub moon_age( $$$ )
 {
     my $y = shift( @_ );
     my $m = shift( @_ );
@@ -2451,12 +2787,67 @@ sub age_of_moon( $$$ )
 #    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
     my $epoch = &Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
 
-    my $age = &age_of_moon_instant( $epoch );
+    my $age = &moon_age_instant( $epoch );
 
     # 小数第1位に丸めて出力
     return sprintf( "%.1f", $age );
 }
-sub age_of_moon_instant( $ )
+
+my %moon_age_name_en;
+$moon_age_name_en{'00'} = 'New Moon';
+$moon_age_name_en{'02'} = 'Waxing Crescent';
+$moon_age_name_en{'07'} = 'First Quarter';
+$moon_age_name_en{'12'} = 'Waxing Gibbous';
+$moon_age_name_en{'15'} = 'Full Moon';
+$moon_age_name_en{'19'} = 'Waning Gibbous';
+$moon_age_name_en{'22'} = 'Last Quarter';   # 'Third Quarter' でもOK
+$moon_age_name_en{'26'} = 'Waning Crescent';
+
+my %moon_age_name_ja;
+$moon_age_name_ja{'00'} = '新月';
+$moon_age_name_ja{'02'} = '三日月';
+$moon_age_name_ja{'07'} = '上弦';
+$moon_age_name_ja{'12'} = '十三夜';
+$moon_age_name_ja{'15'} = '満月';
+$moon_age_name_ja{'19'} = '更待月';
+$moon_age_name_ja{'22'} = '下弦';
+$moon_age_name_ja{'26'} = '二十六夜';
+
+sub print_moon_age_AA_if_necessary( $ )
+{
+    my $age = shift( @_ );
+
+    #my( $p, $f, $l ) = caller();
+    #print( qq{\$p="$p", \$f="$f", \$l="$l"\n} );
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        my $page = int( $age + 0.5 );
+        $page = 0 if( $page > SAKUBOU );
+        my $key = sprintf( '%02d', $page );
+        #print( qq{\$key="$key"\n} );
+        for( my $idx=0; $idx<MOON_AGE_AA_H_LEN; $idx++ ){
+            my $line = "  $TableProvider::moon_age_aa{ $key }[ $idx ]";
+            if( $idx == 2 ){
+                $line .= "  Age: $page ( rounded )";
+            }elsif( $idx == 3 && defined( $moon_age_name_en{$key} ) ){
+                $line .= "  Phase: $moon_age_name_en{$key}";
+            }elsif( $idx == 5 && defined( $moon_age_name_ja{$key} ) ){
+                $line .= "  $moon_age_name_ja{$key}";
+            }
+            print( "$line\n" );
+        }
+    }
+}
+sub moon_age_instant( $ )
+{
+    my $epoch = shift( @_ );
+    my $age = &moon_age_instant_raw( $epoch );
+
+    &print_moon_age_AA_if_necessary( $age );
+
+    # コア用途のため丸めずに返す
+    return $age;
+}
+sub moon_age_instant_raw( $ )
 {
     my $epoch = shift( @_ );
 
@@ -2504,7 +2895,7 @@ sub get_next_moon_age_epoch( $;$ )
         die( qq{"$moon_age": MOON_AGE is out of range.\n} );
     }
 
-    my $age_raw = &age_of_moon_instant( $ref_date_epoch );
+    my $age_raw = &moon_age_instant_raw( $ref_date_epoch );
 
     my $age_diff = $moon_age - $age_raw;
     if( $age_diff < 0 ){
@@ -2518,6 +2909,8 @@ sub get_next_moon_age_epoch( $;$ )
 
     my $next_future_epoch = $ref_date_epoch + $seconds_to_wait;
     #print( qq{\$next_future_epoch="$next_future_epoch"\n} );
+
+    &print_moon_age_AA_if_necessary( $moon_age );
 
     return $next_future_epoch;
 }
@@ -3153,7 +3546,6 @@ sub FormulaNormalizationOneLine( $ )
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
     $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
-    $expr =~ s!\bage_of_moon_i\(! age_of_moon_instant(!go;
     $expr =~ s!\bang_dist\(! vector_angle(!go;
     $expr =~ s!\bangle\(! angle_between_points(!go;
     $expr =~ s!\bangular_distance\(! vector_angle(!go;
@@ -3179,6 +3571,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\blt\(! laptimer(!go;
     $expr =~ s!\bmidpt\(! midpt_between_points(!go;
     $expr =~ s!\bmmod\(! math_mod(!go;
+    $expr =~ s!\bmoon_age_i\(! moon_age_instant(!go;
     $expr =~ s!\bn2kgf\(! newton2kgf(!go;
     $expr =~ s!\bpct\(! percentage(!go;
     $expr =~ s!\bpf\(! prime_factorize(!go;
@@ -4679,7 +5072,7 @@ asin, acos, atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_po
 angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km,
 geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
 geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap,
-age, age_of_moon, age_of_moon_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local,
+age, moon_age, moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local,
 epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
 meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
 newton2kgf, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
@@ -6097,41 +6490,52 @@ If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
   $ c 'age( local2epoch( 2000, 1, 1 ) )'
   ( 26, 165 )
 
-=item C<age_of_moon>
+=item C<moon_age>
 
-age_of_moon( I<Y>, I<m>, I<d> ).
+moon_age( I<Y>, I<m>, I<d> ).
 Returns the moon age at "noon (12:00)" on the specified local date.
 Returns the value rounded to the first decimal place.
 Maximum deviation of about 2 days.
 
-  $ c 'age_of_moon( 2025, 12, 5 )'
+  $ c 'moon_age( 2025, 12, 5 )'
   14.7  # Moon's age is 15 days
 
 Today's Moon Age:
 
-  $ c 'age_of_moon( slice( epoch2local( now ), 0, 3 ) )' -v
+  $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' -v
   epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
   slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
-  age_of_moon( 2025, 12, 5 ) = 14.7
-  Formula: 'age_of_moon( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
-      RPN: '# # # 1764935943 epoch2local 0 3 slice age_of_moon'
+    ..................
+    .....00000000.....
+    ...000000000000...  Age: 15 ( rounded )
+    ..00000000000000..  Phase: Full Moon
+    .0000000000000000.
+    .0000000000000000.  満月
+    .0000000000000000.
+    ..00000000000000..
+    ...000000000000...
+    .....00000000.....
+    ..................
+  moon_age( 2025, 12, 5 ) = 14.7
+  Formula: 'moon_age( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
+      RPN: '# # # 1764935943 epoch2local 0 3 slice moon_age'
    Result: 14.7
 
-=item C<age_of_moon_instant>
+=item C<moon_age_instant>
 
-age_of_moon_instant( I<EPOCH> ).
+moon_age_instant( I<EPOCH> ).
 Returns the moon age for the specified the epoch.
 Maximum deviation of about 2 days.
-alias: age_of_moon_i().
+alias: moon_age_i().
 
 Current moon age:
 
-  $ c 'age_of_moon_instant( NOW )'
+  $ c 'moon_age_instant( NOW )'
   14.28749279
 
 Moon age at 12:00:
 
-  $ c 'age_of_moon_i( local2epoch( 2025, 12, 5, 12 ) )'
+  $ c 'moon_age_i( local2epoch( 2025, 12, 5, 12 ) )'
   14.705978187
 
 =item C<get_next_moon_age_epoch>
