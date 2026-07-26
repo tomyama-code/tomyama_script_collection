@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.189 $
+## - $Revision: 4.193 $
 ##
 ## - Script Structure
 ##   - main
@@ -95,13 +95,31 @@ sub GetHelpMsg()
     my $fns = &ArrayFitToDeviceWidth( $trm_columns, 4, &TableProvider::GetFunctionsList() );
 
     my $ops_help = qq{<OPERATORS>\n};
-    for my $op( &TableProvider::GetOperatorsList() ){
-        $ops_help .= &FmtHelp( $trm_columns, $op );
+    my $idx_max = &TableProvider::GetOpeCatLen();
+    for( my $idx=0; $idx<$idx_max; $idx++ ){
+        my $cat = $TableProvider::ope_cat_lists[ $idx ];
+        my @operations = &TableProvider::GetOperatorsList( $idx );
+        if( scalar( @operations ) ){
+            $ops_help .= "\n  " . $cat . "\n";
+
+            for my $fn( @operations ){
+                $ops_help .= &FmtHelp( $trm_columns, $fn );
+            }
+        }
     }
 
     my $fns_help = qq{<FUNCTIONS>\n};
-    for my $fn( &TableProvider::GetFunctionsList() ){
-        $fns_help .= &FmtHelp( $trm_columns, $fn );
+    $idx_max = &TableProvider::GetFuncCatLen();
+    for( my $idx=0; $idx<$idx_max; $idx++ ){
+        my $cat = $TableProvider::fnc_cat_lists[ $idx ];
+        my @functions = &TableProvider::GetFunctionsList( $idx );
+        if( scalar( @functions ) ){
+            $fns_help .= "\n  " . $cat . "\n";
+
+            for my $fn( @functions ){
+                $fns_help .= &FmtHelp( $trm_columns, $fn );
+            }
+        }
     }
 
     my $msg = "Usage: " .
@@ -171,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.189 $};
+    my $rev = q{$Revision: 4.193 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -231,7 +249,7 @@ sub FmtHelp( $ )
 {
     my $trm_columns = shift( @_ );
     my $ope = shift( @_ );
-    my $indent_len = 8;
+    my $indent_len = 10;
 
     my $fmt_text = '';
     my $line = '';
@@ -242,11 +260,11 @@ sub FmtHelp( $ )
     ##        to the given numerical argument. [POSIX]
     ##  $ope  $help
     my $ope_len = length( $ope );
-    my $padding_len = $indent_len - ( 2 + $ope_len );
+    my $padding_len = $indent_len - ( 4 + $ope_len );
     if( $padding_len > 0 ){
-        $line = "  $ope" . ' ' x $padding_len;
+        $line = "    $ope" . ' ' x $padding_len;
     }else{
-        $fmt_text = "  $ope" . "\n";
+        $fmt_text = "    $ope" . "\n";
         $line = ' ' x $indent_len;
     }
 
@@ -480,10 +498,58 @@ use Time::HiRes qw(time);
 use constant {
     O_INDX => 0,
     O_TYPE => 1,
-    O_ARGC => 2,
-    O_HELP => 3,
-    O_SUBR => 4,
+    O_CATG => 2,
+    O_ARGC => 3,
+    O_HELP => 4,
+    O_SUBR => 5,
 };
+
+use constant {
+    O_ARIT => 0,    # Arithmetic Operators（算術演算子）
+    O_BITW => 1,    # Bitwise Operators（ビット演算子）
+    O_SYTX => 2,    # Syntax / Control Symbols（構文記号 / 制御記号）
+    O_TERM => 3,    # Terminator（式の終端記号）
+    O_UCLS => 4,    # unclassified
+    O_CATGORY_LEN => 5
+};
+
+@TableProvider::ope_cat_lists = ();
+$TableProvider::ope_cat_lists[ 0 ] = 'Arithmetic Operators';      # （算術演算子）
+$TableProvider::ope_cat_lists[ 1 ] = 'Bitwise Operators';         # （ビット演算子）
+$TableProvider::ope_cat_lists[ 2 ] = 'Syntax / Control Symbols';  # （構文記号 / 制御記号）
+$TableProvider::ope_cat_lists[ 3 ] = 'Terminator';                # （式の終端記号）
+
+sub GetOpeCatLen()
+{
+    return O_CATGORY_LEN;
+}
+
+use constant {
+    F_MATH => 0,    # Math & Basic Arithmetic（基本数学・算術）
+    F_TRIG => 1,    # Trigonometry & Geometry（三角関数・幾何学・ベクトル）
+    F_LIST => 2,    # List & Sequence Operations（リスト・数列操作）
+    F_GIS_ => 3,    # Geographic & Navigation (GIS)（地理・航海計算）
+    F_TIME => 4,    # Time, Calendar & Measurement（日時・天体・計測）
+    F_UCNV => 5,    # Unit Conversion
+    F_UTLY => 6,    # Utility
+    F_UCLS => 7,    # unclassified
+    F_CATGORY_LEN => 8
+};
+
+sub GetFuncCatLen()
+{
+    return F_CATGORY_LEN;
+}
+
+@TableProvider::fnc_cat_lists = ();
+$TableProvider::fnc_cat_lists[ F_MATH ] = 'Math & Basic Arithmetic';       # （基本数学・算術）
+$TableProvider::fnc_cat_lists[ F_TRIG ] = 'Trigonometry & Geometry';       # （三角関数・幾何学・ベクトル）
+$TableProvider::fnc_cat_lists[ F_LIST ] = 'List & Sequence Operations';    # （リスト・数列操作）
+$TableProvider::fnc_cat_lists[ F_GIS_ ] = 'Geographic & Navigation (GIS)'; # （地理・航海計算）
+$TableProvider::fnc_cat_lists[ F_TIME ] = 'Time, Calendar & Measurement';  # （日時・天体・計測）
+$TableProvider::fnc_cat_lists[ F_UCNV ] = 'Unit Conversion';
+$TableProvider::fnc_cat_lists[ F_UTLY ] = 'Utility';
+$TableProvider::fnc_cat_lists[ F_UCLS ] = 'unclassified';
 
 use constant {
     T_OPERATOR => 0x01,
@@ -1065,7 +1131,7 @@ use constant {
     H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
-    H_AOMI => qq{moon_age_instant( EPOCH ). Returns the moon age for the specified the epoch. Maximum deviation of about 2 days. alias: moon_age_i().},
+    H_AOMI => qq{moon_age_instant( [ EPOCH ] ). Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
     H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
@@ -1101,140 +1167,140 @@ use constant {
 };
 
 %TableProvider::operators = (
-    '+'                          => [    0, T_OPERATOR,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'                          => [    1, T_OPERATOR,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'                          => [    2, T_OPERATOR,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'                          => [    3, T_OPERATOR,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'                          => [    4, T_OPERATOR,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'                         => [    5, T_OPERATOR,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'                          => [    6, T_OPERATOR,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'                          => [    7, T_OPERATOR,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'                          => [    8, T_OPERATOR,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '<<'                         => [    9, T_OPERATOR,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
-    '>>'                         => [   10, T_OPERATOR,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
-    '~'                          => [   11, T_OPERATOR,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('                        => [   12, T_OTHER,       -1, undef  ],
-    '('                          => [   13, T_OPERATOR,     2, H_BBEG ],
-    ','                          => [   14, T_OPERATOR,    -1, H_COMA ],
-    ')'                          => [   15, T_OPERATOR,     2, H_BEND ],
-    '='                          => [   16, T_OPERATOR,     1, H_EQUA ],
-    'OPERAND'                    => [   17, T_OTHER,        0, undef  ],
-    'BEGIN'                      => [   18, T_OTHER,        0, undef  ],
-    '#'                          => [   19, T_SENTINEL,    -1, undef  ],
-    'testfunc'                   => [   20, T_OTHER,        1, undef  ],
-    'fmod'                       => [ 1010, T_FUNCTION,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    'math_mod'                   => [ 1020, T_FUNCTION,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
-    'abs'                        => [ 1030, T_FUNCTION,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
-    'int'                        => [ 1040, T_FUNCTION,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
-    'floor'                      => [ 1050, T_FUNCTION,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
-    'ceil'                       => [ 1060, T_FUNCTION,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
-    'rounddown'                  => [ 1070, T_FUNCTION,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
-    'round'                      => [ 1080, T_FUNCTION,    VA, H_ROUD, sub{ &round( @_ ) } ],
-    'roundup'                    => [ 1090, T_FUNCTION,    VA, H_RODU, sub{ &roundup( @_ ) } ],
-    'percentage'                 => [ 1100, T_FUNCTION, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'              => [ 1110, T_FUNCTION, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'                   => [ 1120, T_FUNCTION,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
-    'prime_factorize'            => [ 1130, T_FUNCTION,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'                  => [ 1140, T_FUNCTION,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'                        => [ 1150, T_FUNCTION,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
-    'lcm'                        => [ 1160, T_FUNCTION,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
-    'ncr'                        => [ 1170, T_FUNCTION,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
-    'min'                        => [ 1180, T_FUNCTION,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'                        => [ 1190, T_FUNCTION,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'                    => [ 1200, T_FUNCTION,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'                      => [ 1210, T_FUNCTION,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
-    'slice'                      => [ 1220, T_FUNCTION,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
-    'uniq'                       => [ 1230, T_FUNCTION,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                        => [ 1240, T_FUNCTION,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                       => [ 1250, T_FUNCTION,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                        => [ 1260, T_FUNCTION,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
-    'add_each'                   => [ 1270, T_FUNCTION,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
-    'mul_each'                   => [ 1280, T_FUNCTION,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
-    'linspace'                   => [ 1290, T_FUNCTION, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
-    'linstep'                    => [ 1300, T_FUNCTION,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'mul_growth'                 => [ 1310, T_FUNCTION,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'gen_fibo_seq'               => [ 1320, T_FUNCTION,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'paper_size'                 => [ 1330, T_FUNCTION, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
-    'rand'                       => [ 1340, T_FUNCTION,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'exp'                        => [ 1350, T_FUNCTION,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
-    'exp2'                       => [ 1360, T_FUNCTION,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
-    'exp10'                      => [ 1370, T_FUNCTION,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
-    'log'                        => [ 1380, T_FUNCTION,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
-    'log2'                       => [ 1390, T_FUNCTION,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
-    'log10'                      => [ 1400, T_FUNCTION,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
-    'sqrt'                       => [ 1410, T_FUNCTION,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
-    'pow'                        => [ 1420, T_FUNCTION,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'                    => [ 1430, T_FUNCTION,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'                    => [ 1440, T_FUNCTION,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
-    'deg2rad'                    => [ 1450, T_FUNCTION,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
-    'dms2rad'                    => [ 1460, T_FUNCTION,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'                    => [ 1470, T_FUNCTION,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'                    => [ 1480, T_FUNCTION,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'                    => [ 1490, T_FUNCTION,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                        => [ 1500, T_FUNCTION,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
-    'cos'                        => [ 1510, T_FUNCTION,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
-    'tan'                        => [ 1520, T_FUNCTION,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
-    'asin'                       => [ 1530, T_FUNCTION,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
-    'acos'                       => [ 1540, T_FUNCTION,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
-    'atan'                       => [ 1550, T_FUNCTION,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
-    'atan2'                      => [ 1560, T_FUNCTION,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                      => [ 1570, T_FUNCTION,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'                  => [ 1580, T_FUNCTION, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
-    'dist_between_points'        => [ 1590, T_FUNCTION, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points'       => [ 1600, T_FUNCTION, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points'       => [ 1610, T_FUNCTION, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'               => [ 1620, T_FUNCTION, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                    => [ 1630, T_FUNCTION, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                 => [ 1640, T_FUNCTION,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'              => [ 1650, T_FUNCTION,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'             => [ 1660, T_FUNCTION,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'            => [ 1670, T_FUNCTION,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                => [ 1680, T_FUNCTION,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'     => [ 1690, T_FUNCTION,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'    => [ 1700, T_FUNCTION,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'          => [ 1710, T_FUNCTION,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'         => [ 1720, T_FUNCTION,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'             => [ 1730, T_FUNCTION,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'  => [ 1740, T_FUNCTION,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth' => [ 1750, T_FUNCTION,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                  => [ 1760, T_FUNCTION,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                 => [ 1770, T_FUNCTION,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'                    => [ 1780, T_FUNCTION,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
-    'age'                        => [ 1790, T_FUNCTION, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'moon_age'                   => [ 1800, T_FUNCTION,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'moon_age_instant'           => [ 1810, T_FUNCTION,     1, H_AOMI, sub{ &moon_age_instant( $_[ 0 ] ) } ],
-    'get_next_moon_age_epoch'    => [ 1815, T_FUNCTION, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
-    'local2epoch'                => [ 1820, T_FUNCTION, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'                  => [ 1830, T_FUNCTION, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'                => [ 1840, T_FUNCTION,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'                  => [ 1850, T_FUNCTION,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                   => [ 1860, T_FUNCTION, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                   => [ 1870, T_FUNCTION, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                  => [ 1880, T_FUNCTION, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'ri2meter'                   => [ 1890, T_FUNCTION,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                   => [ 1900, T_FUNCTION,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                 => [ 1910, T_FUNCTION,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                 => [ 1920, T_FUNCTION,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'        => [ 1930, T_FUNCTION,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'        => [ 1940, T_FUNCTION,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                    => [ 1950, T_FUNCTION,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                    => [ 1960, T_FUNCTION,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                 => [ 1970, T_FUNCTION,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                 => [ 1980, T_FUNCTION,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                 => [ 1990, T_FUNCTION,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                 => [ 2000, T_FUNCTION,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                 => [ 2010, T_FUNCTION,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                 => [ 2020, T_FUNCTION,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'laptimer'                   => [ 2030, T_FUNCTION,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                      => [ 2040, T_FUNCTION,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
-    'stopwatch'                  => [ 2050, T_FUNCTION,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                        => [ 2060, T_FUNCTION,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                      => [ 2070, T_FUNCTION,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                      => [ 2080, T_FUNCTION,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                 => [ 2090, T_FUNCTION,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                  => [ 2100, T_FUNCTION, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                => [ 2110, T_FUNCTION, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'               => [ 2120, T_FUNCTION, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    '+'                          => [    0, T_OPERATOR, O_ARIT,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
+    '-'                          => [    1, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    '*'                          => [    2, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'                          => [    3, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'                          => [    4, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'                         => [    5, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'                          => [    6, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'                          => [    7, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'                          => [    8, T_OPERATOR, O_BITW,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '<<'                         => [    9, T_OPERATOR, O_BITW,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'                         => [   10, T_OPERATOR, O_BITW,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'                          => [   11, T_OPERATOR, O_BITW,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('                        => [   12, T_OTHER   , F_UCLS,    -1, undef  ],
+    '('                          => [   13, T_OPERATOR, O_SYTX,     2, H_BBEG ],
+    ','                          => [   14, T_OPERATOR, O_SYTX,    -1, H_COMA ],
+    ')'                          => [   15, T_OPERATOR, O_SYTX,     2, H_BEND ],
+    '='                          => [   16, T_OPERATOR, O_TERM,     1, H_EQUA ],
+    'OPERAND'                    => [   17, T_OTHER   , F_UCLS,     0, undef  ],
+    'BEGIN'                      => [   18, T_OTHER   , F_UCLS,     0, undef  ],
+    '#'                          => [   19, T_SENTINEL, F_UCLS,    -1, undef  ],
+    'testfunc'                   => [   20, T_OTHER   , F_UCLS,     1, undef  ],
+    'fmod'                       => [ 1010, T_FUNCTION, F_MATH,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    'math_mod'                   => [ 1020, T_FUNCTION, F_MATH,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
+    'abs'                        => [ 1030, T_FUNCTION, F_MATH,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
+    'int'                        => [ 1040, T_FUNCTION, F_MATH,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
+    'floor'                      => [ 1050, T_FUNCTION, F_MATH,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
+    'ceil'                       => [ 1060, T_FUNCTION, F_MATH,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
+    'rounddown'                  => [ 1070, T_FUNCTION, F_MATH,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
+    'round'                      => [ 1080, T_FUNCTION, F_MATH,    VA, H_ROUD, sub{ &round( @_ ) } ],
+    'roundup'                    => [ 1090, T_FUNCTION, F_MATH,    VA, H_RODU, sub{ &roundup( @_ ) } ],
+    'percentage'                 => [ 1100, T_FUNCTION, F_MATH, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
+    'ratio_scaling'              => [ 1110, T_FUNCTION, F_MATH, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
+    'is_prime'                   => [ 1120, T_FUNCTION, F_MATH,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
+    'prime_factorize'            => [ 1130, T_FUNCTION, F_MATH,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'                  => [ 1140, T_FUNCTION, F_MATH,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
+    'gcd'                        => [ 1150, T_FUNCTION, F_MATH,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
+    'lcm'                        => [ 1160, T_FUNCTION, F_MATH,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
+    'ncr'                        => [ 1170, T_FUNCTION, F_LIST,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
+    'min'                        => [ 1180, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'                        => [ 1190, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'                    => [ 1200, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'                      => [ 1210, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
+    'slice'                      => [ 1220, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
+    'uniq'                       => [ 1230, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                        => [ 1240, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                       => [ 1250, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                        => [ 1260, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
+    'add_each'                   => [ 1270, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
+    'mul_each'                   => [ 1280, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
+    'linspace'                   => [ 1290, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
+    'linstep'                    => [ 1300, T_FUNCTION, F_LIST,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'mul_growth'                 => [ 1310, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'               => [ 1320, T_FUNCTION, F_LIST,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'paper_size'                 => [ 1330, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'rand'                       => [ 1340, T_FUNCTION, F_MATH,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
+    'exp'                        => [ 1350, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
+    'exp2'                       => [ 1360, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
+    'exp10'                      => [ 1370, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
+    'log'                        => [ 1380, T_FUNCTION, F_MATH,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
+    'log2'                       => [ 1390, T_FUNCTION, F_MATH,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
+    'log10'                      => [ 1400, T_FUNCTION, F_MATH,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
+    'sqrt'                       => [ 1410, T_FUNCTION, F_MATH,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
+    'pow'                        => [ 1420, T_FUNCTION, F_MATH,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'                    => [ 1430, T_FUNCTION, F_MATH,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'rad2deg'                    => [ 1440, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
+    'deg2rad'                    => [ 1450, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
+    'dms2rad'                    => [ 1460, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'                    => [ 1470, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'                    => [ 1480, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'                    => [ 1490, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                        => [ 1500, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
+    'cos'                        => [ 1510, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
+    'tan'                        => [ 1520, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
+    'asin'                       => [ 1530, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
+    'acos'                       => [ 1540, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
+    'atan'                       => [ 1550, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
+    'atan2'                      => [ 1560, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                      => [ 1570, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'                  => [ 1580, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
+    'dist_between_points'        => [ 1590, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points'       => [ 1600, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points'       => [ 1610, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'vector_angle'               => [ 1620, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
+    'geo2xyz'                    => [ 1630, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
+    'geo_radius'                 => [ 1640, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'              => [ 1650, T_FUNCTION, F_GIS_,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'             => [ 1660, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'            => [ 1670, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
+    'geo_azimuth'                => [ 1680, T_FUNCTION, F_GIS_,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'     => [ 1690, T_FUNCTION, F_GIS_,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'    => [ 1700, T_FUNCTION, F_GIS_,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'          => [ 1710, T_FUNCTION, F_GIS_,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'         => [ 1720, T_FUNCTION, F_GIS_,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'             => [ 1730, T_FUNCTION, F_GIS_,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'  => [ 1740, T_FUNCTION, F_GIS_,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth' => [ 1750, T_FUNCTION, F_GIS_,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                  => [ 1760, T_FUNCTION, F_GIS_,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                 => [ 1770, T_FUNCTION, F_GIS_,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'is_leap'                    => [ 1780, T_FUNCTION, F_TIME,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
+    'age'                        => [ 1790, T_FUNCTION, F_TIME, '1-2', H_AGE_, sub{ &age( @_ ) } ],
+    'moon_age'                   => [ 1800, T_FUNCTION, F_TIME,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'moon_age_instant'           => [ 1810, T_FUNCTION, F_TIME, '0-1', H_AOMI, sub{ &moon_age_instant( @_ ) } ],
+    'get_next_moon_age_epoch'    => [ 1815, T_FUNCTION, F_TIME, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
+    'local2epoch'                => [ 1820, T_FUNCTION, F_TIME, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'                  => [ 1830, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'                => [ 1840, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'                  => [ 1850, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'                   => [ 1860, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
+    'dhms2sec'                   => [ 1870, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                  => [ 1880, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
+    'ri2meter'                   => [ 1890, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                   => [ 1900, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                 => [ 1910, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                 => [ 1920, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'        => [ 1930, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'        => [ 1940, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                    => [ 1950, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                    => [ 1960, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                 => [ 1970, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                 => [ 1980, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                 => [ 1990, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                 => [ 2000, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                 => [ 2010, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                 => [ 2020, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'laptimer'                   => [ 2030, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                      => [ 2040, T_FUNCTION, F_TIME,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
+    'stopwatch'                  => [ 2050, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
+    'bpm'                        => [ 2060, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                      => [ 2070, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                      => [ 2080, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
+    'tachymeter'                 => [ 2090, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                  => [ 2100, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                => [ 2110, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'               => [ 2120, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1301,12 +1367,42 @@ sub FilterOperatorsList( $ )
 
 sub GetOperatorsList()
 {
-    return &FilterOperatorsList( T_OPERATOR );
+    my( $category ) = @_;
+    my @ope_lists = &FilterOperatorsList( T_OPERATOR );
+    if( defined( $category ) ){
+        my @filtered_ope_lists = ();
+        my $idx_len = scalar( @ope_lists );
+        for( my $idx=0; $idx<$idx_len; $idx++ ){
+            my $ope = $ope_lists[ $idx ];
+            my $cat = &GetOperatorsInfo( $ope, O_CATG );
+            #print( qq{$ope, $cat, $category\n} );
+            if( $cat == $category ){
+                push( @filtered_ope_lists, $ope );
+            }
+        }
+        return @filtered_ope_lists;
+    }
+    return @ope_lists;
 }
 
 sub GetFunctionsList()
 {
-    return &FilterOperatorsList( T_FUNCTION );
+    my( $category ) = @_;
+    my @fnc_lists = &FilterOperatorsList( T_FUNCTION );
+    if( defined( $category ) ){
+        my @filtered_func_lists = ();
+        my $idx_len = scalar( @fnc_lists );
+        for( my $idx=0; $idx<$idx_len; $idx++ ){
+            my $ope = $fnc_lists[ $idx ];
+            my $cat = &GetOperatorsInfo( $ope, O_CATG );
+            #print( qq{$ope, $cat, $category\n} );
+            if( $cat == $category ){
+                push( @filtered_func_lists, $ope );
+            }
+        }
+        return @filtered_func_lists;
+    }
+    return @fnc_lists;
 }
 
 sub GetTokenTblIdx( $ )
@@ -2838,9 +2934,10 @@ sub print_moon_age_AA_if_necessary( $ )
         }
     }
 }
-sub moon_age_instant( $ )
+sub moon_age_instant( ;$ )
 {
     my $epoch = shift( @_ );
+    $epoch = &CORE::time() if( !defined( $epoch ) );
     my $age = &moon_age_instant_raw( $epoch );
 
     &print_moon_age_AA_if_necessary( $age );
@@ -5020,6 +5117,28 @@ The B<c> script displays the result of the given expression.
 
 Turn your formulas into reusable data.
 
+=head2 Key Capabilities
+
+=over 4
+
+=item Math & Statistical Operations:
+
+Supports complex expressions,
+combination calculations (C<nCr>),
+list processing (C<linspace>, C<shuffle>),
+and raw Reverse Polish Notation (RPN) evaluation.
+
+=item Time & Age Tracking:
+
+Tracks precise timelines using historical datetime vectors,
+automated epoch/local time conversions, and dynamic countdowns.
+
+=item Geographic & Astronomical Calculations:
+
+Features advanced GIS navigation (Great-Circle and Rhumb Line distance/bearing) and localized lunar phase simulation with ASCII art visualizations.
+
+=back
+
 =head1 SYNOPSIS
 
 $ c [I<OPTIONS...>] I<EXPRESSIONS>
@@ -5492,6 +5611,8 @@ The B<c> script was created with the following in mind:
 
 =head1 OPERATORS
 
+=head2 Arithmetic Operators
+
 =over 8
 
 =item C<+>
@@ -5538,6 +5659,12 @@ Differences between modulo operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_
 Exponentiation.
 C<2 ** 3> -> C<8>. Similarly, C<pow( 2, 3 )>.
 
+=back
+
+=head2 Bitwise Operators
+
+=over 8
+
 =item C<|>
 
 Bitwise OR.
@@ -5568,6 +5695,12 @@ C<0x6 E<gt>E<gt> 1> -> C<3 [ = 0x3 ]>.
 Bitwise Inversion.
 C<~0> -> C<0xFFFFFFFFFFFFFFFFFF>.
 
+=back
+
+=head2 Syntax / Control Symbols
+
+=over 8
+
 =item C<(>
 
 A symbol that controls the priority of calculations.
@@ -5580,6 +5713,12 @@ The separator that separates function arguments.
 
 A symbol that controls the priority of calculations.
 
+=back
+
+=head2 Terminator
+
+=over 8
+
 =item C<=>
 
 Equals sign.
@@ -5591,6 +5730,8 @@ Similarly, C<1 + 2>.
 =back
 
 =head1 FUNCTIONS
+
+=head2 Math & Basic Arithmetic
 
 =over 8
 
@@ -5746,197 +5887,6 @@ Returns the least common multiple (LCM).
 
   $ c 'lcm( 402, 670, 804 )'
   4020
-
-=item C<ncr>
-
-nCr( I<N>, I<R> ).
-I<N> Choose I<R>. A combination of I<R> items selected from I<N> items.
-I<N> is a non-negative integer.
-I<R> is a positive integer.
-
-Number of combinations of choosing 3 out of 5:
-
-  $ c 'nCr( 5, 3 )'
-  10
-
-=item C<min>
-
-min( I<NUMBER1>,.. ).
-Returns the entry in the list with the lowest numerical value.
-[List::Util]
-
-  $ c 'min( 402, 670, 804 )'
-  402
-
-=item C<max>
-
-max( I<NUMBER1>,.. ).
-Returns the entry in the list with the highest numerical value.
-[List::Util]
-
-  $ c 'max( 402, 670, 804 )'
-  804
-
-=item C<shuffle>
-
-shuffle( I<NUMBER1>,.. ).
-Returns the values of the input in a random order.
-[List::Util]
-
-  $ c 'shuffle( 402, 670, 804 )'
-  ( 804, 402, 670 )
-
-=item C<first>
-
-first( I<NUMBER1>,.. ).
-Returns the head of the set.
-Same as slice( I<NUMBER1>,.. , 0, 1 ).
-
-  $ c 'first( 402, 670, 804 )'
-  402
-
-=item C<slice>
-
-slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ).
-Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
-
-Extract only the date (first three):
-
-  $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
-  ( 2025, 12, 17 )
-
-=item C<uniq>
-
-uniq( I<NUMBER1>,.. ).
-Filters a list of values to remove subsequent duplicates,
-as judged by a DWIM-ish string equality or "undef" test.
-Preserves the order of unique elements, and retains the first value of any duplicate set.
-[List::Util]
-
-  $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
-  ( 2, 3, 67 )
-
-=item C<sum>
-
-sum( I<NUMBER1>,.. ).
-Returns the numerical sum of all the elements in the list.
-[List::Util]
-
-  $ c 'sum( 1, 2, 3, 4 )'
-  10
-
-=item C<prod>
-
-prod( I<NUMBER1>,.. ).
-Returns the product of each value.
-
-  $ c 'prod( 1, 2, 3, 4 )'
-  24
-
-=item C<avg>
-
-avg( I<NUMBER1>,.. ).
-Returns the average value of all elements in a list.
-
-  $ c 'avg( 1, 2, 3, 4 )'
-  2.5
-
-=item C<add_each>
-
-add_each( I<NUMBER1>,.. , I<DELTA> ). Add each number.
-
-  $ c 'add_each( 100, 200, -10 )'
-  ( 90, 190 )
-
-=item C<mul_each>
-
-mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
-
-  $ c 'mul_each( 100, 200, 2 )'
-  ( 200, 400 )
-
-Estimate the size (in pixels) of an A4 sheet (in millimeters) scanned at 300 dpi.
-
-  $ c 'mul_each( 210, 297, ( 300 / 25.4 ) )'
-  ( 2480.31496063, 3507.87401575 )
-
-Major Moon Phases:
-
-  $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
-  ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
-
-=item C<linspace>
-
-linspace( I<START>, I<END>, I<LENGTH> [, I<DECIMAL_PLACES> ] ).
-Generates a list of evenly spaced numbers from I<START> to I<END>.
-Returns a sequence of numbers of size I<LENGTH>.
-I<LENGTH> is an integer greater than or equal to 2.
-Rounding the number if I<DECIMAL_PLACES> is specified.
-
-Divide the range from 0x33 to 0xCC into 5 parts:
-
-  $ c 'linspace( 0x33, 0xcc, 5 )'
-  ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
-  $ c 'linspace( 0x33, 0xcc, 5, 0 )'
-  ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
-
-=item C<linstep>
-
-linstep( I<START>, I<DELTA>, I<LENGTH> ).
-Generates a list of I<LENGTH> numbers that increase from I<START> by I<DELTA>.
-Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
-I<LENGTH> is an integer greater than or equal to 1.
-
-A sequence of 10 numbers that decrease by 2 from 101:
-
-  $ c 'linstep( 101, -2, 10 )'
-  ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
-
-=item C<mul_growth>
-
-mul_growth( I<START>, I<FACTOR>, I<LENGTH> ).
-Starting from I<START>, we multiply the value by I<FACTOR> and add it to the sequence.
-Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
-I<LENGTH> is an integer greater than or equal to 1.
-
-  $ c 'mul_growth( 100, 0.9, 8 )'
-  ( 100, 90, 81, 72.9, 65.61, 59.049, 53.1441, 47.82969 )
-
-=item C<gen_fibo_seq>
-
-gen_fibo_seq( I<A>, I<B>, I<LENGTH> ).
-Generates the Generalized Fibonacci Sequence.
-Returns the sequence of numbers starting at I<A>, I<B> and of size I<LENGTH>.
-I<LENGTH> is an integer greater than or equal to 2.
-
-Generate the Lucas sequence:
-
-  $ c 'gen_fibo_seq( 2, 1, 10 )'
-  ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
-
-=item C<paper_size>
-
-paper_size( I<SIZE> [, I<TYPE> ] ).
-Returns the following information in this order:
-length of short side, length of long side (in mm).
-SIZE is a non-negative integer.
-If TYPE is omitted or 0 is specified, it will be A size.
-If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
-
-What are the dimensions of A4 size ?:
-
-  $ c 'paper_size( 4 )'
-  ( 210, 297 )  # Short: 210 mm, Long: 297 mm
-
-What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
-
-  $ c 'paper_size( 4, 1 )'
-  ( 257, 364 )  # Short: 257 mm, Long: 364 mm
-
-Area of ​​A5 size:
-
-  $ c 'prod( paper_size( 5 ) )'
-  31080         # Area: 31,080 mm2
 
 =item C<rand>
 
@@ -6106,6 +6056,12 @@ Returns the power of I<A> to which I<B> is raised.
 
   $ c 'pow_inv( 8, 2 )'
   3
+
+=back
+
+=head2 Trigonometry & Geometry
+
+=over 8
 
 =item C<rad2deg>
 
@@ -6297,6 +6253,185 @@ alias: va(), angular_distance(), ang_dist().
 
   $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
   3.14159265359
+
+=back
+
+=head2 List & Sequence Operations
+
+=over 8
+
+=item C<ncr>
+
+nCr( I<N>, I<R> ).
+I<N> Choose I<R>. A combination of I<R> items selected from I<N> items.
+I<N> is a non-negative integer.
+I<R> is a positive integer.
+
+Number of combinations of choosing 3 out of 5:
+
+  $ c 'nCr( 5, 3 )'
+  10
+
+=item C<min>
+
+min( I<NUMBER1>,.. ).
+Returns the entry in the list with the lowest numerical value.
+[List::Util]
+
+  $ c 'min( 402, 670, 804 )'
+  402
+
+=item C<max>
+
+max( I<NUMBER1>,.. ).
+Returns the entry in the list with the highest numerical value.
+[List::Util]
+
+  $ c 'max( 402, 670, 804 )'
+  804
+
+=item C<shuffle>
+
+shuffle( I<NUMBER1>,.. ).
+Returns the values of the input in a random order.
+[List::Util]
+
+  $ c 'shuffle( 402, 670, 804 )'
+  ( 804, 402, 670 )
+
+=item C<first>
+
+first( I<NUMBER1>,.. ).
+Returns the head of the set.
+Same as slice( I<NUMBER1>,.. , 0, 1 ).
+
+  $ c 'first( 402, 670, 804 )'
+  402
+
+=item C<slice>
+
+slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ).
+Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
+
+Extract only the date (first three):
+
+  $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
+  ( 2025, 12, 17 )
+
+=item C<uniq>
+
+uniq( I<NUMBER1>,.. ).
+Filters a list of values to remove subsequent duplicates,
+as judged by a DWIM-ish string equality or "undef" test.
+Preserves the order of unique elements, and retains the first value of any duplicate set.
+[List::Util]
+
+  $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
+  ( 2, 3, 67 )
+
+=item C<sum>
+
+sum( I<NUMBER1>,.. ).
+Returns the numerical sum of all the elements in the list.
+[List::Util]
+
+  $ c 'sum( 1, 2, 3, 4 )'
+  10
+
+=item C<prod>
+
+prod( I<NUMBER1>,.. ).
+Returns the product of each value.
+
+  $ c 'prod( 1, 2, 3, 4 )'
+  24
+
+=item C<avg>
+
+avg( I<NUMBER1>,.. ).
+Returns the average value of all elements in a list.
+
+  $ c 'avg( 1, 2, 3, 4 )'
+  2.5
+
+=item C<add_each>
+
+add_each( I<NUMBER1>,.. , I<DELTA> ). Add each number.
+
+  $ c 'add_each( 100, 200, -10 )'
+  ( 90, 190 )
+
+=item C<mul_each>
+
+mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
+
+  $ c 'mul_each( 100, 200, 2 )'
+  ( 200, 400 )
+
+Estimate the size (in pixels) of an A4 sheet (in millimeters) scanned at 300 dpi.
+
+  $ c 'mul_each( 210, 297, ( 300 / 25.4 ) )'
+  ( 2480.31496063, 3507.87401575 )
+
+Major Moon Phases:
+
+  $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
+  ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
+
+=item C<linspace>
+
+linspace( I<START>, I<END>, I<LENGTH> [, I<DECIMAL_PLACES> ] ).
+Generates a list of evenly spaced numbers from I<START> to I<END>.
+Returns a sequence of numbers of size I<LENGTH>.
+I<LENGTH> is an integer greater than or equal to 2.
+Rounding the number if I<DECIMAL_PLACES> is specified.
+
+Divide the range from 0x33 to 0xCC into 5 parts:
+
+  $ c 'linspace( 0x33, 0xcc, 5 )'
+  ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+  $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+  ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
+
+=item C<linstep>
+
+linstep( I<START>, I<DELTA>, I<LENGTH> ).
+Generates a list of I<LENGTH> numbers that increase from I<START> by I<DELTA>.
+Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
+I<LENGTH> is an integer greater than or equal to 1.
+
+A sequence of 10 numbers that decrease by 2 from 101:
+
+  $ c 'linstep( 101, -2, 10 )'
+  ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
+
+=item C<mul_growth>
+
+mul_growth( I<START>, I<FACTOR>, I<LENGTH> ).
+Starting from I<START>, we multiply the value by I<FACTOR> and add it to the sequence.
+Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
+I<LENGTH> is an integer greater than or equal to 1.
+
+  $ c 'mul_growth( 100, 0.9, 8 )'
+  ( 100, 90, 81, 72.9, 65.61, 59.049, 53.1441, 47.82969 )
+
+=item C<gen_fibo_seq>
+
+gen_fibo_seq( I<A>, I<B>, I<LENGTH> ).
+Generates the Generalized Fibonacci Sequence.
+Returns the sequence of numbers starting at I<A>, I<B> and of size I<LENGTH>.
+I<LENGTH> is an integer greater than or equal to 2.
+
+Generate the Lucas sequence:
+
+  $ c 'gen_fibo_seq( 2, 1, 10 )'
+  ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
+
+=back
+
+=head2 Geographic & Navigation (GIS)
+
+=over 8
 
 =item C<geo2xyz>
 
@@ -6495,6 +6630,12 @@ Latitude and longitude must be specified in radians.
        )'
   ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
+=back
+
+=head2 Time, Calendar & Measurement
+
+=over 8
+
 =item C<is_leap>
 
 is_leap( I<YEAR1> [,.. ] ).
@@ -6529,9 +6670,9 @@ Maximum deviation of about 2 days.
   $ c 'moon_age( 2025, 12, 5 )'
   14.7  # Moon's age is 15 days
 
-Today's Moon Age:
+Moon's age today (at 12:00):
 
-  $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' -v
+  $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' --verbose
   epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
   slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
     ..................
@@ -6552,15 +6693,34 @@ Today's Moon Age:
 
 =item C<moon_age_instant>
 
-moon_age_instant( I<EPOCH> ).
-Returns the moon age for the specified the epoch.
-Maximum deviation of about 2 days.
+moon_age_instant( [ I<EPOCH> ] ).
+Returns the moon age for the specified I<EPOCH>.
+Defaults to the current time (NOW) if I<EPOCH> is omitted.
 alias: moon_age_i().
 
 Current moon age:
 
-  $ c 'moon_age_instant( NOW )'
-  14.28749279
+  $ c 'moon_age_instant()'
+  7.38265767671
+
+You can use verbose mode if you want to visualize the phase of the moon:
+
+  $ c 'moon_age_instant()' -v
+    ....................
+    ......;;;;0000......
+    ....;;;;;;000000....  Age: 7 ( rounded )
+    ..;;;;;;;;00000000..  Phase: First Quarter
+    .;;;;;;;;;000000000.
+    .;;;;;;;;;000000000.  上弦
+    .;;;;;;;;;000000000.
+    ..;;;;;;;;00000000..
+    ....;;;;;;000000....
+    ......;;;;0000......
+    ....................
+  moon_age_instant( ) = 7.38265767671229
+  Formula: 'moon_age_instant( ) ='
+      RPN: '# moon_age_instant'
+   Result: 7.38265767671
 
 Moon age at 12:00:
 
@@ -6574,7 +6734,7 @@ Returns the next future UNIX timestamp corresponding to the specified moon age.
 The range that can be specified for I<MOON_AGE> is I<0 <= MOON_AGE < SAKUBOU (29.530588853)>.
 If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
 
-  $ FULL_MOON='SAKUBOU / 2'
+  $ FULL_MOON='SAKUBOU * 0.5'
   $ c "epoch2local(
          get_next_moon_age_epoch(
            $FULL_MOON,
@@ -6655,132 +6815,8 @@ dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) -->Convert-to--> ( I<
 Returns the normalized value.
 alias: d2d().
 
-  $ c 'dhms2dhms( 0, 24 / SAKUBOU )'
+  $ c 'dhms2dhms( 1 / SAKUBOU )'
   ( 0, 0, 48, 45.7797882084 )
-
-=item C<ri2meter>
-
-ri2meter( I<RI> ) --Convert-to--> I<METER>.
-Length and distance conversion.
-alias: 里→メートル(), 里２メートル().
-
-  $ c 'ri2meter( 1 )'
-  3927.27272727
-
-=item C<meter2ri>
-
-meter2ri( I<METER> ) --Convert-to--> I<RI>.
-Length and distance conversion.
-alias: メートル→里(), メートル２里().
-
-  $ c 'meter2ri( 4000 )'
-  1.01851851852
-
-=item C<mile2meter>
-
-mile2meter( I<MILE> ) --Convert-to--> I<METER>.
-Length and distance conversion.
-alias: マイル→メートル(), マイル２メートル().
-
-  $ c 'mile2meter( 1 )'
-  1609.344
-
-=item C<meter2mile>
-
-meter2mile( I<METER> ) --Convert-to--> I<MILE>.
-Length and distance conversion.
-alias: メートル→マイル(), メートル２マイル().
-
-  $ c 'meter2mile( 2000 )'
-  1.24274238447
-
-=item C<nautical_mile2meter>
-
-nautical_mile2meter( I<NAUTICAL_MILE> ) --Convert-to--> I<METER>.
-Length and distance conversion.
-alias: 海里→メートル(), 海里２メートル().
-
-  $ c 'nautical_mile2meter( 1 )'
-  1852
-
-=item C<meter2nautical_mile>
-
-meter2nautical_mile( I<METER> ) --Convert-to--> I<NAUTICAL_MILE>.
-Length and distance conversion.
-alias: メートル→海里(), メートル２海里().
-
-  $ c 'meter2nautical_mile( 2000 )'
-  1.07991360691
-
-=item C<inch2mm>
-
-inch2mm( I<INCH> ) --Convert-to--> I<MM>.
-Length and distance conversion.
-
-  $ c 'inch2mm( 1 )'
-  25.4
-
-=item C<inch2mm>
-
-mm2inch( I<MM> ) --Convert-to--> I<INCH>.
-Length and distance conversion.
-
-  $ c 'mm2inch( 12.7 )'
-  0.5
-
-=item C<pound2gram>
-
-pound2gram( I<POUND> ) --Convert-to--> I<GRAM>.
-Weight conversion.
-alias: ポンド→グラム(), ポンド２グラム().
-
-  $ c 'pound2gram( 1 )'
-  453.59237
-
-=item C<gram2pound>
-
-gram2pound( I<GRAM> ) --Convert-to--> I<POUND>.
-Weight conversion.
-alias: グラム→ポンド(), グラム２ポンド().
-
-  $ c 'gram2pound( 500 )'
-  1.10231131092
-
-=item C<ounce2gram>
-
-ounce2gram( I<OUNCE> ) -->Convert-to--> I<GRAM>.
-Weight conversion.
-alias: オンス→グラム(), オンス２グラム().
-
-  $ c 'ounce2gram( 1 )'
-  28.349523125
-
-=item C<gram2ounce>
-
-gram2ounce( I<GRAM> ) -->Convert-to--> I<OUNCE>.
-Weight conversion.
-alias: グラム→オンス(), グラム２オンス().
-
-  $ c 'gram2ounce( 30 )'
-  1.05821885849
-
-=item C<newton2kgf>
-
-kgf2newton( I<KGF> ) -->Convert-to--> I<NEWTON>.
-Conversion of force, weight, and torque.
-alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
-
-  $ c 'kgf2newton( 6.5 )'
-  63.743225
-
-=item C<kgf2newton>
-
-newton2kgf( I<NEWTON> ) -->Convert-to--> I<KGF>.
-Conversion of force, weight, and torque.
-alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
-
-  $ c 'newton2kgf( 64 )'
-  6.52618376306
 
 =item C<laptimer>
 
@@ -6931,6 +6967,166 @@ Same as telemeter_m() / 1000.
 
   $ c 'telemeter_km( 8 )'
   2.7252  # kilometers
+
+=back
+
+=head2 Unit Conversion
+
+=over 8
+
+=item C<ri2meter>
+
+ri2meter( I<RI> ) --Convert-to--> I<METER>.
+Length and distance conversion.
+alias: 里→メートル(), 里２メートル().
+
+  $ c 'ri2meter( 1 )'
+  3927.27272727
+
+=item C<meter2ri>
+
+meter2ri( I<METER> ) --Convert-to--> I<RI>.
+Length and distance conversion.
+alias: メートル→里(), メートル２里().
+
+  $ c 'meter2ri( 4000 )'
+  1.01851851852
+
+=item C<mile2meter>
+
+mile2meter( I<MILE> ) --Convert-to--> I<METER>.
+Length and distance conversion.
+alias: マイル→メートル(), マイル２メートル().
+
+  $ c 'mile2meter( 1 )'
+  1609.344
+
+=item C<meter2mile>
+
+meter2mile( I<METER> ) --Convert-to--> I<MILE>.
+Length and distance conversion.
+alias: メートル→マイル(), メートル２マイル().
+
+  $ c 'meter2mile( 2000 )'
+  1.24274238447
+
+=item C<nautical_mile2meter>
+
+nautical_mile2meter( I<NAUTICAL_MILE> ) --Convert-to--> I<METER>.
+Length and distance conversion.
+alias: 海里→メートル(), 海里２メートル().
+
+  $ c 'nautical_mile2meter( 1 )'
+  1852
+
+=item C<meter2nautical_mile>
+
+meter2nautical_mile( I<METER> ) --Convert-to--> I<NAUTICAL_MILE>.
+Length and distance conversion.
+alias: メートル→海里(), メートル２海里().
+
+  $ c 'meter2nautical_mile( 2000 )'
+  1.07991360691
+
+=item C<inch2mm>
+
+inch2mm( I<INCH> ) --Convert-to--> I<MM>.
+Length and distance conversion.
+
+  $ c 'inch2mm( 1 )'
+  25.4
+
+=item C<inch2mm>
+
+mm2inch( I<MM> ) --Convert-to--> I<INCH>.
+Length and distance conversion.
+
+  $ c 'mm2inch( 12.7 )'
+  0.5
+
+=item C<pound2gram>
+
+pound2gram( I<POUND> ) --Convert-to--> I<GRAM>.
+Weight conversion.
+alias: ポンド→グラム(), ポンド２グラム().
+
+  $ c 'pound2gram( 1 )'
+  453.59237
+
+=item C<gram2pound>
+
+gram2pound( I<GRAM> ) --Convert-to--> I<POUND>.
+Weight conversion.
+alias: グラム→ポンド(), グラム２ポンド().
+
+  $ c 'gram2pound( 500 )'
+  1.10231131092
+
+=item C<ounce2gram>
+
+ounce2gram( I<OUNCE> ) -->Convert-to--> I<GRAM>.
+Weight conversion.
+alias: オンス→グラム(), オンス２グラム().
+
+  $ c 'ounce2gram( 1 )'
+  28.349523125
+
+=item C<gram2ounce>
+
+gram2ounce( I<GRAM> ) -->Convert-to--> I<OUNCE>.
+Weight conversion.
+alias: グラム→オンス(), グラム２オンス().
+
+  $ c 'gram2ounce( 30 )'
+  1.05821885849
+
+=item C<newton2kgf>
+
+kgf2newton( I<KGF> ) -->Convert-to--> I<NEWTON>.
+Conversion of force, weight, and torque.
+alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
+
+  $ c 'kgf2newton( 6.5 )'
+  63.743225
+
+=item C<kgf2newton>
+
+newton2kgf( I<NEWTON> ) -->Convert-to--> I<KGF>.
+Conversion of force, weight, and torque.
+alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
+
+  $ c 'newton2kgf( 64 )'
+  6.52618376306
+
+=back
+
+=head2 Utility
+
+=over 8
+
+=item C<paper_size>
+
+paper_size( I<SIZE> [, I<TYPE> ] ).
+Returns the following information in this order:
+length of short side, length of long side (in mm).
+SIZE is a non-negative integer.
+If TYPE is omitted or 0 is specified, it will be A size.
+If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
+
+What are the dimensions of A4 size ?:
+
+  $ c 'paper_size( 4 )'
+  ( 210, 297 )  # Short: 210 mm, Long: 297 mm
+
+What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
+
+  $ c 'paper_size( 4, 1 )'
+  ( 257, 364 )  # Short: 257 mm, Long: 364 mm
+
+Area of ​​A5 size:
+
+  $ c 'prod( paper_size( 5 ) )'
+  31080         # Area: 31,080 mm2
 
 =back
 

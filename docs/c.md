@@ -13,6 +13,24 @@ The **c** script displays the result of the given expression.
 
 Turn your formulas into reusable data.
 
+## Key Capabilities
+
+- Math & Statistical Operations:
+
+    Supports complex expressions,
+    combination calculations (`nCr`),
+    list processing (`linspace`, `shuffle`),
+    and raw Reverse Polish Notation (RPN) evaluation.
+
+- Time & Age Tracking:
+
+    Tracks precise timelines using historical datetime vectors,
+    automated epoch/local time conversions, and dynamic countdowns.
+
+- Geographic & Astronomical Calculations:
+
+    Features advanced GIS navigation (Great-Circle and Rhumb Line distance/bearing) and localized lunar phase simulation with ASCII art visualizations.
+
 # SYNOPSIS
 
 $ c \[_OPTIONS..._\] _EXPRESSIONS_
@@ -477,6 +495,8 @@ The **c** script was created with the following in mind:
 
 # OPERATORS
 
+## Arithmetic Operators
+
 - `+`
 
     Addition.
@@ -521,6 +541,8 @@ The **c** script was created with the following in mind:
     Exponentiation.
     `2 ** 3` -> `8`. Similarly, `pow( 2, 3 )`.
 
+## Bitwise Operators
+
 - `|`
 
     Bitwise OR.
@@ -551,6 +573,8 @@ The **c** script was created with the following in mind:
     Bitwise Inversion.
     `~0` -> `0xFFFFFFFFFFFFFFFFFF`.
 
+## Syntax / Control Symbols
+
 - `(`
 
     A symbol that controls the priority of calculations.
@@ -563,6 +587,8 @@ The **c** script was created with the following in mind:
 
     A symbol that controls the priority of calculations.
 
+## Terminator
+
 - `=`
 
     Equals sign.
@@ -572,6 +598,8 @@ The **c** script was created with the following in mind:
     Similarly, `1 + 2`.
 
 # FUNCTIONS
+
+## Math & Basic Arithmetic
 
 - `fmod`
 
@@ -725,197 +753,6 @@ The **c** script was created with the following in mind:
 
         $ c 'lcm( 402, 670, 804 )'
         4020
-
-- `ncr`
-
-    nCr( _N_, _R_ ).
-    _N_ Choose _R_. A combination of _R_ items selected from _N_ items.
-    _N_ is a non-negative integer.
-    _R_ is a positive integer.
-
-    Number of combinations of choosing 3 out of 5:
-
-        $ c 'nCr( 5, 3 )'
-        10
-
-- `min`
-
-    min( _NUMBER1_,.. ).
-    Returns the entry in the list with the lowest numerical value.
-    \[List::Util\]
-
-        $ c 'min( 402, 670, 804 )'
-        402
-
-- `max`
-
-    max( _NUMBER1_,.. ).
-    Returns the entry in the list with the highest numerical value.
-    \[List::Util\]
-
-        $ c 'max( 402, 670, 804 )'
-        804
-
-- `shuffle`
-
-    shuffle( _NUMBER1_,.. ).
-    Returns the values of the input in a random order.
-    \[List::Util\]
-
-        $ c 'shuffle( 402, 670, 804 )'
-        ( 804, 402, 670 )
-
-- `first`
-
-    first( _NUMBER1_,.. ).
-    Returns the head of the set.
-    Same as slice( _NUMBER1_,.. , 0, 1 ).
-
-        $ c 'first( 402, 670, 804 )'
-        402
-
-- `slice`
-
-    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ).
-    Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
-
-    Extract only the date (first three):
-
-        $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
-        ( 2025, 12, 17 )
-
-- `uniq`
-
-    uniq( _NUMBER1_,.. ).
-    Filters a list of values to remove subsequent duplicates,
-    as judged by a DWIM-ish string equality or "undef" test.
-    Preserves the order of unique elements, and retains the first value of any duplicate set.
-    \[List::Util\]
-
-        $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
-        ( 2, 3, 67 )
-
-- `sum`
-
-    sum( _NUMBER1_,.. ).
-    Returns the numerical sum of all the elements in the list.
-    \[List::Util\]
-
-        $ c 'sum( 1, 2, 3, 4 )'
-        10
-
-- `prod`
-
-    prod( _NUMBER1_,.. ).
-    Returns the product of each value.
-
-        $ c 'prod( 1, 2, 3, 4 )'
-        24
-
-- `avg`
-
-    avg( _NUMBER1_,.. ).
-    Returns the average value of all elements in a list.
-
-        $ c 'avg( 1, 2, 3, 4 )'
-        2.5
-
-- `add_each`
-
-    add\_each( _NUMBER1_,.. , _DELTA_ ). Add each number.
-
-        $ c 'add_each( 100, 200, -10 )'
-        ( 90, 190 )
-
-- `mul_each`
-
-    mul\_each( _NUMBER1_,.. , _FACTOR_ ). Multiply each number.
-
-        $ c 'mul_each( 100, 200, 2 )'
-        ( 200, 400 )
-
-    Estimate the size (in pixels) of an A4 sheet (in millimeters) scanned at 300 dpi.
-
-        $ c 'mul_each( 210, 297, ( 300 / 25.4 ) )'
-        ( 2480.31496063, 3507.87401575 )
-
-    Major Moon Phases:
-
-        $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
-        ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
-
-- `linspace`
-
-    linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ).
-    Generates a list of evenly spaced numbers from _START_ to _END_.
-    Returns a sequence of numbers of size _LENGTH_.
-    _LENGTH_ is an integer greater than or equal to 2.
-    Rounding the number if _DECIMAL\_PLACES_ is specified.
-
-    Divide the range from 0x33 to 0xCC into 5 parts:
-
-        $ c 'linspace( 0x33, 0xcc, 5 )'
-        ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
-        $ c 'linspace( 0x33, 0xcc, 5, 0 )'
-        ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
-
-- `linstep`
-
-    linstep( _START_, _DELTA_, _LENGTH_ ).
-    Generates a list of _LENGTH_ numbers that increase from _START_ by _DELTA_.
-    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
-    _LENGTH_ is an integer greater than or equal to 1.
-
-    A sequence of 10 numbers that decrease by 2 from 101:
-
-        $ c 'linstep( 101, -2, 10 )'
-        ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
-
-- `mul_growth`
-
-    mul\_growth( _START_, _FACTOR_, _LENGTH_ ).
-    Starting from _START_, we multiply the value by _FACTOR_ and add it to the sequence.
-    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
-    _LENGTH_ is an integer greater than or equal to 1.
-
-        $ c 'mul_growth( 100, 0.9, 8 )'
-        ( 100, 90, 81, 72.9, 65.61, 59.049, 53.1441, 47.82969 )
-
-- `gen_fibo_seq`
-
-    gen\_fibo\_seq( _A_, _B_, _LENGTH_ ).
-    Generates the Generalized Fibonacci Sequence.
-    Returns the sequence of numbers starting at _A_, _B_ and of size _LENGTH_.
-    _LENGTH_ is an integer greater than or equal to 2.
-
-    Generate the Lucas sequence:
-
-        $ c 'gen_fibo_seq( 2, 1, 10 )'
-        ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
-
-- `paper_size`
-
-    paper\_size( _SIZE_ \[, _TYPE_ \] ).
-    Returns the following information in this order:
-    length of short side, length of long side (in mm).
-    SIZE is a non-negative integer.
-    If TYPE is omitted or 0 is specified, it will be A size.
-    If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
-
-    What are the dimensions of A4 size ?:
-
-        $ c 'paper_size( 4 )'
-        ( 210, 297 )  # Short: 210 mm, Long: 297 mm
-
-    What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
-
-        $ c 'paper_size( 4, 1 )'
-        ( 257, 364 )  # Short: 257 mm, Long: 364 mm
-
-    Area of ​​A5 size:
-
-        $ c 'prod( paper_size( 5 ) )'
-        31080         # Area: 31,080 mm2
 
 - `rand`
 
@@ -1085,6 +922,8 @@ The **c** script was created with the following in mind:
 
         $ c 'pow_inv( 8, 2 )'
         3
+
+## Trigonometry & Geometry
 
 - `rad2deg`
 
@@ -1276,6 +1115,177 @@ The **c** script was created with the following in mind:
 
         $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
         3.14159265359
+
+## List & Sequence Operations
+
+- `ncr`
+
+    nCr( _N_, _R_ ).
+    _N_ Choose _R_. A combination of _R_ items selected from _N_ items.
+    _N_ is a non-negative integer.
+    _R_ is a positive integer.
+
+    Number of combinations of choosing 3 out of 5:
+
+        $ c 'nCr( 5, 3 )'
+        10
+
+- `min`
+
+    min( _NUMBER1_,.. ).
+    Returns the entry in the list with the lowest numerical value.
+    \[List::Util\]
+
+        $ c 'min( 402, 670, 804 )'
+        402
+
+- `max`
+
+    max( _NUMBER1_,.. ).
+    Returns the entry in the list with the highest numerical value.
+    \[List::Util\]
+
+        $ c 'max( 402, 670, 804 )'
+        804
+
+- `shuffle`
+
+    shuffle( _NUMBER1_,.. ).
+    Returns the values of the input in a random order.
+    \[List::Util\]
+
+        $ c 'shuffle( 402, 670, 804 )'
+        ( 804, 402, 670 )
+
+- `first`
+
+    first( _NUMBER1_,.. ).
+    Returns the head of the set.
+    Same as slice( _NUMBER1_,.. , 0, 1 ).
+
+        $ c 'first( 402, 670, 804 )'
+        402
+
+- `slice`
+
+    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ).
+    Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
+
+    Extract only the date (first three):
+
+        $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
+        ( 2025, 12, 17 )
+
+- `uniq`
+
+    uniq( _NUMBER1_,.. ).
+    Filters a list of values to remove subsequent duplicates,
+    as judged by a DWIM-ish string equality or "undef" test.
+    Preserves the order of unique elements, and retains the first value of any duplicate set.
+    \[List::Util\]
+
+        $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
+        ( 2, 3, 67 )
+
+- `sum`
+
+    sum( _NUMBER1_,.. ).
+    Returns the numerical sum of all the elements in the list.
+    \[List::Util\]
+
+        $ c 'sum( 1, 2, 3, 4 )'
+        10
+
+- `prod`
+
+    prod( _NUMBER1_,.. ).
+    Returns the product of each value.
+
+        $ c 'prod( 1, 2, 3, 4 )'
+        24
+
+- `avg`
+
+    avg( _NUMBER1_,.. ).
+    Returns the average value of all elements in a list.
+
+        $ c 'avg( 1, 2, 3, 4 )'
+        2.5
+
+- `add_each`
+
+    add\_each( _NUMBER1_,.. , _DELTA_ ). Add each number.
+
+        $ c 'add_each( 100, 200, -10 )'
+        ( 90, 190 )
+
+- `mul_each`
+
+    mul\_each( _NUMBER1_,.. , _FACTOR_ ). Multiply each number.
+
+        $ c 'mul_each( 100, 200, 2 )'
+        ( 200, 400 )
+
+    Estimate the size (in pixels) of an A4 sheet (in millimeters) scanned at 300 dpi.
+
+        $ c 'mul_each( 210, 297, ( 300 / 25.4 ) )'
+        ( 2480.31496063, 3507.87401575 )
+
+    Major Moon Phases:
+
+        $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
+        ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
+
+- `linspace`
+
+    linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ).
+    Generates a list of evenly spaced numbers from _START_ to _END_.
+    Returns a sequence of numbers of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 2.
+    Rounding the number if _DECIMAL\_PLACES_ is specified.
+
+    Divide the range from 0x33 to 0xCC into 5 parts:
+
+        $ c 'linspace( 0x33, 0xcc, 5 )'
+        ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
+        $ c 'linspace( 0x33, 0xcc, 5, 0 )'
+        ( 51, 89, 128, 166, 204 ) [ = ( 0x33, 0x59, 0x80, 0xA6, 0xCC ) ]
+
+- `linstep`
+
+    linstep( _START_, _DELTA_, _LENGTH_ ).
+    Generates a list of _LENGTH_ numbers that increase from _START_ by _DELTA_.
+    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 1.
+
+    A sequence of 10 numbers that decrease by 2 from 101:
+
+        $ c 'linstep( 101, -2, 10 )'
+        ( 101, 99, 97, 95, 93, 91, 89, 87, 85, 83 )
+
+- `mul_growth`
+
+    mul\_growth( _START_, _FACTOR_, _LENGTH_ ).
+    Starting from _START_, we multiply the value by _FACTOR_ and add it to the sequence.
+    Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 1.
+
+        $ c 'mul_growth( 100, 0.9, 8 )'
+        ( 100, 90, 81, 72.9, 65.61, 59.049, 53.1441, 47.82969 )
+
+- `gen_fibo_seq`
+
+    gen\_fibo\_seq( _A_, _B_, _LENGTH_ ).
+    Generates the Generalized Fibonacci Sequence.
+    Returns the sequence of numbers starting at _A_, _B_ and of size _LENGTH_.
+    _LENGTH_ is an integer greater than or equal to 2.
+
+    Generate the Lucas sequence:
+
+        $ c 'gen_fibo_seq( 2, 1, 10 )'
+        ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
+
+## Geographic & Navigation (GIS)
 
 - `geo2xyz`
 
@@ -1474,6 +1484,8 @@ The **c** script was created with the following in mind:
              )'
         ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
+## Time, Calendar & Measurement
+
 - `is_leap`
 
     is\_leap( _YEAR1_ \[,.. \] ).
@@ -1508,9 +1520,9 @@ The **c** script was created with the following in mind:
         $ c 'moon_age( 2025, 12, 5 )'
         14.7  # Moon's age is 15 days
 
-    Today's Moon Age:
+    Moon's age today (at 12:00):
 
-        $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' -v
+        $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' --verbose
         epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
         slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
           ..................
@@ -1531,15 +1543,34 @@ The **c** script was created with the following in mind:
 
 - `moon_age_instant`
 
-    moon\_age\_instant( _EPOCH_ ).
-    Returns the moon age for the specified the epoch.
-    Maximum deviation of about 2 days.
+    moon\_age\_instant( \[ _EPOCH_ \] ).
+    Returns the moon age for the specified _EPOCH_.
+    Defaults to the current time (NOW) if _EPOCH_ is omitted.
     alias: moon\_age\_i().
 
     Current moon age:
 
-        $ c 'moon_age_instant( NOW )'
-        14.28749279
+        $ c 'moon_age_instant()'
+        7.38265767671
+
+    You can use verbose mode if you want to visualize the phase of the moon:
+
+        $ c 'moon_age_instant()' -v
+          ....................
+          ......;;;;0000......
+          ....;;;;;;000000....  Age: 7 ( rounded )
+          ..;;;;;;;;00000000..  Phase: First Quarter
+          .;;;;;;;;;000000000.
+          .;;;;;;;;;000000000.  上弦
+          .;;;;;;;;;000000000.
+          ..;;;;;;;;00000000..
+          ....;;;;;;000000....
+          ......;;;;0000......
+          ....................
+        moon_age_instant( ) = 7.38265767671229
+        Formula: 'moon_age_instant( ) ='
+            RPN: '# moon_age_instant'
+         Result: 7.38265767671
 
     Moon age at 12:00:
 
@@ -1553,7 +1584,7 @@ The **c** script was created with the following in mind:
     The range that can be specified for _MOON\_AGE_ is _0 <= MOON\_AGE < SAKUBOU (29.530588853)_.
     If _REF\_DATE\_EPOCH_ is omitted, _NOW_ is used.
 
-        $ FULL_MOON='SAKUBOU / 2'
+        $ FULL_MOON='SAKUBOU * 0.5'
         $ c "epoch2local(
                get_next_moon_age_epoch(
                  $FULL_MOON,
@@ -1634,132 +1665,8 @@ The **c** script was created with the following in mind:
     Returns the normalized value.
     alias: d2d().
 
-        $ c 'dhms2dhms( 0, 24 / SAKUBOU )'
+        $ c 'dhms2dhms( 1 / SAKUBOU )'
         ( 0, 0, 48, 45.7797882084 )
-
-- `ri2meter`
-
-    ri2meter( _RI_ ) --Convert-to--> _METER_.
-    Length and distance conversion.
-    alias: 里→メートル(), 里２メートル().
-
-        $ c 'ri2meter( 1 )'
-        3927.27272727
-
-- `meter2ri`
-
-    meter2ri( _METER_ ) --Convert-to--> _RI_.
-    Length and distance conversion.
-    alias: メートル→里(), メートル２里().
-
-        $ c 'meter2ri( 4000 )'
-        1.01851851852
-
-- `mile2meter`
-
-    mile2meter( _MILE_ ) --Convert-to--> _METER_.
-    Length and distance conversion.
-    alias: マイル→メートル(), マイル２メートル().
-
-        $ c 'mile2meter( 1 )'
-        1609.344
-
-- `meter2mile`
-
-    meter2mile( _METER_ ) --Convert-to--> _MILE_.
-    Length and distance conversion.
-    alias: メートル→マイル(), メートル２マイル().
-
-        $ c 'meter2mile( 2000 )'
-        1.24274238447
-
-- `nautical_mile2meter`
-
-    nautical\_mile2meter( _NAUTICAL\_MILE_ ) --Convert-to--> _METER_.
-    Length and distance conversion.
-    alias: 海里→メートル(), 海里２メートル().
-
-        $ c 'nautical_mile2meter( 1 )'
-        1852
-
-- `meter2nautical_mile`
-
-    meter2nautical\_mile( _METER_ ) --Convert-to--> _NAUTICAL\_MILE_.
-    Length and distance conversion.
-    alias: メートル→海里(), メートル２海里().
-
-        $ c 'meter2nautical_mile( 2000 )'
-        1.07991360691
-
-- `inch2mm`
-
-    inch2mm( _INCH_ ) --Convert-to--> _MM_.
-    Length and distance conversion.
-
-        $ c 'inch2mm( 1 )'
-        25.4
-
-- `inch2mm`
-
-    mm2inch( _MM_ ) --Convert-to--> _INCH_.
-    Length and distance conversion.
-
-        $ c 'mm2inch( 12.7 )'
-        0.5
-
-- `pound2gram`
-
-    pound2gram( _POUND_ ) --Convert-to--> _GRAM_.
-    Weight conversion.
-    alias: ポンド→グラム(), ポンド２グラム().
-
-        $ c 'pound2gram( 1 )'
-        453.59237
-
-- `gram2pound`
-
-    gram2pound( _GRAM_ ) --Convert-to--> _POUND_.
-    Weight conversion.
-    alias: グラム→ポンド(), グラム２ポンド().
-
-        $ c 'gram2pound( 500 )'
-        1.10231131092
-
-- `ounce2gram`
-
-    ounce2gram( _OUNCE_ ) -->Convert-to--> _GRAM_.
-    Weight conversion.
-    alias: オンス→グラム(), オンス２グラム().
-
-        $ c 'ounce2gram( 1 )'
-        28.349523125
-
-- `gram2ounce`
-
-    gram2ounce( _GRAM_ ) -->Convert-to--> _OUNCE_.
-    Weight conversion.
-    alias: グラム→オンス(), グラム２オンス().
-
-        $ c 'gram2ounce( 30 )'
-        1.05821885849
-
-- `newton2kgf`
-
-    kgf2newton( _KGF_ ) -->Convert-to--> _NEWTON_.
-    Conversion of force, weight, and torque.
-    alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
-
-        $ c 'kgf2newton( 6.5 )'
-        63.743225
-
-- `kgf2newton`
-
-    newton2kgf( _NEWTON_ ) -->Convert-to--> _KGF_.
-    Conversion of force, weight, and torque.
-    alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
-
-        $ c 'newton2kgf( 64 )'
-        6.52618376306
 
 - `laptimer`
 
@@ -1910,6 +1817,158 @@ The **c** script was created with the following in mind:
 
         $ c 'telemeter_km( 8 )'
         2.7252  # kilometers
+
+## Unit Conversion
+
+- `ri2meter`
+
+    ri2meter( _RI_ ) --Convert-to--> _METER_.
+    Length and distance conversion.
+    alias: 里→メートル(), 里２メートル().
+
+        $ c 'ri2meter( 1 )'
+        3927.27272727
+
+- `meter2ri`
+
+    meter2ri( _METER_ ) --Convert-to--> _RI_.
+    Length and distance conversion.
+    alias: メートル→里(), メートル２里().
+
+        $ c 'meter2ri( 4000 )'
+        1.01851851852
+
+- `mile2meter`
+
+    mile2meter( _MILE_ ) --Convert-to--> _METER_.
+    Length and distance conversion.
+    alias: マイル→メートル(), マイル２メートル().
+
+        $ c 'mile2meter( 1 )'
+        1609.344
+
+- `meter2mile`
+
+    meter2mile( _METER_ ) --Convert-to--> _MILE_.
+    Length and distance conversion.
+    alias: メートル→マイル(), メートル２マイル().
+
+        $ c 'meter2mile( 2000 )'
+        1.24274238447
+
+- `nautical_mile2meter`
+
+    nautical\_mile2meter( _NAUTICAL\_MILE_ ) --Convert-to--> _METER_.
+    Length and distance conversion.
+    alias: 海里→メートル(), 海里２メートル().
+
+        $ c 'nautical_mile2meter( 1 )'
+        1852
+
+- `meter2nautical_mile`
+
+    meter2nautical\_mile( _METER_ ) --Convert-to--> _NAUTICAL\_MILE_.
+    Length and distance conversion.
+    alias: メートル→海里(), メートル２海里().
+
+        $ c 'meter2nautical_mile( 2000 )'
+        1.07991360691
+
+- `inch2mm`
+
+    inch2mm( _INCH_ ) --Convert-to--> _MM_.
+    Length and distance conversion.
+
+        $ c 'inch2mm( 1 )'
+        25.4
+
+- `inch2mm`
+
+    mm2inch( _MM_ ) --Convert-to--> _INCH_.
+    Length and distance conversion.
+
+        $ c 'mm2inch( 12.7 )'
+        0.5
+
+- `pound2gram`
+
+    pound2gram( _POUND_ ) --Convert-to--> _GRAM_.
+    Weight conversion.
+    alias: ポンド→グラム(), ポンド２グラム().
+
+        $ c 'pound2gram( 1 )'
+        453.59237
+
+- `gram2pound`
+
+    gram2pound( _GRAM_ ) --Convert-to--> _POUND_.
+    Weight conversion.
+    alias: グラム→ポンド(), グラム２ポンド().
+
+        $ c 'gram2pound( 500 )'
+        1.10231131092
+
+- `ounce2gram`
+
+    ounce2gram( _OUNCE_ ) -->Convert-to--> _GRAM_.
+    Weight conversion.
+    alias: オンス→グラム(), オンス２グラム().
+
+        $ c 'ounce2gram( 1 )'
+        28.349523125
+
+- `gram2ounce`
+
+    gram2ounce( _GRAM_ ) -->Convert-to--> _OUNCE_.
+    Weight conversion.
+    alias: グラム→オンス(), グラム２オンス().
+
+        $ c 'gram2ounce( 30 )'
+        1.05821885849
+
+- `newton2kgf`
+
+    kgf2newton( _KGF_ ) -->Convert-to--> _NEWTON_.
+    Conversion of force, weight, and torque.
+    alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
+
+        $ c 'kgf2newton( 6.5 )'
+        63.743225
+
+- `kgf2newton`
+
+    newton2kgf( _NEWTON_ ) -->Convert-to--> _KGF_.
+    Conversion of force, weight, and torque.
+    alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
+
+        $ c 'newton2kgf( 64 )'
+        6.52618376306
+
+## Utility
+
+- `paper_size`
+
+    paper\_size( _SIZE_ \[, _TYPE_ \] ).
+    Returns the following information in this order:
+    length of short side, length of long side (in mm).
+    SIZE is a non-negative integer.
+    If TYPE is omitted or 0 is specified, it will be A size.
+    If TYPE is specified as 1, it will be B size ( Japan's unique standards ).
+
+    What are the dimensions of A4 size ?:
+
+        $ c 'paper_size( 4 )'
+        ( 210, 297 )  # Short: 210 mm, Long: 297 mm
+
+    What are the dimensions of B4 size ?: ( B size is a standard unique to Japan )
+
+        $ c 'paper_size( 4, 1 )'
+        ( 257, 364 )  # Short: 257 mm, Long: 364 mm
+
+    Area of ​​A5 size:
+
+        $ c 'prod( paper_size( 5 ) )'
+        31080         # Area: 31,080 mm2
 
 # DEPENDENCIES
 

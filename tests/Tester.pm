@@ -1,6 +1,6 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.6 $
+## - $Revision: 1.7 $
 ################################################################################
 
 use strict;
@@ -321,6 +321,10 @@ sub stdout_like( $$;$ )
 {
     my( $self, $pattern, $msg ) = @_;
     $msg = "STDOUT matches pattern" if( !defined( $msg ) );
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     like($self->{stdout}, $pattern, $msg );
 }
 

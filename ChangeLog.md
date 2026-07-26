@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.82] - 2026-07-27
+### Changed
+- `c` [1.04.193]:
+  - Added a "category" attribute to operators and functions.
+  - Grouped operators and functions by category in the help display and POD.
+
 ## [0.2.81] - 2026-07-26
 ### Changed
 - `c` [1.04.189]:

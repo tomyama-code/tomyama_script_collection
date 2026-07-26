@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.26 $
+## - $Revision: 1.27 $
 ################################################################################
 
 use strict;
@@ -1972,9 +1972,18 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{moon_age_instant( gmt2epoch( 1969年7月20日 20時17分40秒 ) )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{./c 'moon_age_instant( gmt2epoch( 1969年7月20日 20時17分40秒 ) )'} );
     $t->has_no_exception();
     equal( $res, 6.24701057982, qq{アポロ11号が月面に着陸した時} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_age_instant()} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_age_instant()'} );
+    $t->has_no_exception();
+    ok( 0 <= $res && $res < 29.530588853, qq{月齢の範囲内の数値が返されること} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4753,7 +4762,7 @@ subtest qq{Script Structure} => sub{
     $t = tests::Tester->run_cmd( qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
     ## OutputFunc
-    $t->stdout_like( qr/\nengine: \$help_of_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
+    $t->stdout_like( qr/\nengine: \$help_of_unknown_operator="    \*\*\*\n/, 'OutputFunc' );
     ## TableProvider
     $t->stdout_like( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
     $t->stdout_like( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
@@ -5438,28 +5447,28 @@ subtest qq{-h, --help} => sub{
     $t = tests::Tester->run_cmd( qq{./c --test-test --help} );
     $t->exit_is( 0, qq{./c --test-test --help} );
     $t->stdout_like( qr/^Usage: c / );
-    $t->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
+    $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{PATH="./tests:\$PATH" ./c --test-test --help} );
     $t->exit_is( 0, qq{PATH="./tests:\$PATH" ./c --test-test --help} );
     $t->stdout_like( qr/^Usage: c / );
-    $t->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
+    $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{COLUMNS="70" LINES="30" ./c --help} );
     $t->exit_is( 0, qq{COLUMNS="70" LINES="30" ./c --help} );
     $t->stdout_like( qr/^Usage: c /, qq{Specified character width.} );
-    $t->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating\n/ );
+    $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{env -u COLUMNS -u LINES ./c --help} );
     $t->exit_is( 0, qq{env -u COLUMNS -u LINES ./c --help} );
     $t->stdout_like( qr/^Usage: c / );
-    $t->stdout_like( qr/\n  =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
+    $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 };
