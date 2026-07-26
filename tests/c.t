@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.23 $
+## - $Revision: 1.26 $
 ################################################################################
 
 use strict;
@@ -73,18 +73,18 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{slice( 2025, 12 )} );
+#        $res = $c->formula( qq{0xfc & 0x10  ~0x1 | 0x8 =} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'slice( 2025, 12 )'} );
-#    $t->has_exception();
-#    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+#    $t->exit_is( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 ='} );
+#    $t->has_no_exception();
+#    equal( $res, 252 );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: slice: \$argc=2: Not enough arguments\.\n/ );
+#    $t->stderr_is( qq{} );
 #
 #};
 #done_testing();
 #exit( 0 );
-#subtest qq{Normal (Wx-Proc Test)} => sub{
+#subtest qq{Normal (Ex-Proc Test)} => sub{
 #    my $t;
 #
 #    ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
@@ -157,6 +157,60 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0xfc & 0x10  ~0x1 | 0x8 =} );
+    } );
+    $t->exit_is( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 ='} );
+    $t->has_no_exception();
+    equal( $res, 252 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{１cos(deg2rad(４５))} );
+    } );
+    $t->exit_is( 0, qq{./c '１cos(deg2rad(４５))'} );
+    $t->has_no_exception();
+    equal( $res, 0.707106781187 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{12(3 2)2=} );
+    } );
+    $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
+    $t->has_no_exception();
+    equal( $res, 144, qq{12(3 2)2 => 144} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{2 3 4 =} );
+    } );
+    $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
+    $t->has_no_exception();
+    equal( $res, 24, qq{2 3 4 => 24} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{123 +2=} );
+    } );
+    $t->exit_is( 0, qq{./c '123 +2='} );
+    $t->has_no_exception();
+    equal( $res, 125, qq{乗算記号(*)を補完しない} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{123 2=} );
+    } );
+    $t->exit_is( 0, qq{./c '123 2='} );
+    $t->has_no_exception();
+    equal( $res, 246, qq{乗算記号(*)を補完する} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{0.22*10**(-6)=} );
     } );
     $t->exit_is( 0, qq{指数表記} );
@@ -164,6 +218,55 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( $res, 0.00000022, qq{0.22*10**(-6) = 0.00000022} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{)(=} );
+    } );
+    $t->exit_isnt( 0, qq{./c ')(='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: parser: error: "BEGIN", "\)": Wrong combination\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{***=} );
+    } );
+    $t->exit_isnt( 0, qq{./c '***='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "\*\*": Operand missing\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1+2*3+=} );
+    } );
+    $t->exit_isnt( 0, qq{./c '1+2*3+='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "\+": Operand missing\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1_2=} );
+    } );
+    $t->exit_isnt( 0, qq{./c '1_2='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "_2=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sqrt(#)=} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'sqrt(#)='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "#\)=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{sqrt(power(2, 100)+power(2,100))=} );
@@ -571,6 +674,15 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sqrt(-1)} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'sqrt(-1)'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: Can't take sqrt of \-1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{hypot( 1920, 1080 )=} );
     } );
     $t->exit_is( 0 );
@@ -798,15 +910,6 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( $res, 72.7492079698, qq{72.7492079698} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
-
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{sqrt(pow(2, 100)+pow(2, 100))=} );
-#    } );
-#    $t->exit_is( 0 );
-#    $t->has_no_exception();
-#    equal( $res, 1592262918131443.25, qq{1592262918131443.25} );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{pow(2+1,2*2)=} );
@@ -2668,24 +2771,6 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{12(3 2)2=} );
-    } );
-    $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
-    $t->has_no_exception();
-    equal( $res, 144, qq{12(3 2)2 => 144} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{2 3 4 =} );
-    } );
-    $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
-    $t->has_no_exception();
-    equal( $res, 24, qq{2 3 4 => 24} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{-10=} );
     } );
     $t->exit_is( 0 );
@@ -3809,7 +3894,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{add_each( -10 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'add_each( -10 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: add_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{add_each( 100, 200, -10 )} );
@@ -3822,7 +3914,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mul_each( ( 1 / 25.4 ) * 300 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'mul_each( ( 1 / 25.4 ) * 300 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: mul_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{mul_each( 210, 297, ( 1 / 25.4 ) * 300 )} );
@@ -3834,6 +3933,51 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 1 ], 3507.87401575, qq{297 * ( ( 1 / 25.4 ) * 300 )} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linspace( -10, 10 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "linspace": Operand missing\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linspace( -10, 10, 3, 1, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 3, 1, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linspace: \$arg_counter="5": The number of operands is incorrect\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linspace( -10, 10, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=0\] is less than 2\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linspace( -10, 10, 1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=1\.2\] is less than 2\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linspace( -10, 10, 2.1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 2.1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=2\.1\] is a decimal number\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{linspace( 4, 10, 3 )} );
@@ -3951,7 +4095,32 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linstep( 4, -10, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linstep( 4, -10, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=0\] is less than 1\.\n/ );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linstep( 4, 10, -1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linstep( 4, 10, -1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=\-1\.2\] is less than 1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{linstep( 4, 10, 1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'linstep( 4, 10, 1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=1\.2\] is a decimal number\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{linstep( 4, -10, 1 )} );
@@ -3986,7 +4155,32 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mul_growth( 1, 1, -1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, -1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=\-1\.2\] is less than 1\.\n/ );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mul_growth( 1, 1, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=0\] is less than 1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mul_growth( 1, 1, 1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, 1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=1\.2\] is a decimal number\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{mul_growth( -100, 0, 1 )} );
@@ -4081,7 +4275,32 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gen_fibo_seq( 2, 1, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=0\] is less than 2\.\n/ );
 
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gen_fibo_seq( 2, 1, -1.2 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, -1.2 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=\-1\.2\] is less than 2\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gen_fibo_seq( 2, 1, 2.1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, 2.1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=2\.1\] is a decimal number\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{gen_fibo_seq( -100, 100, 2 )} );
@@ -4371,24 +4590,9 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c '0xfc & 0x10  ~0x1 | 0x8 =' -v} );
-    $t->exit_is( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 =' -v} );
-    $t->stdout_like( qr/\n    RPN: '252 16 1 ~ \* & 8 \|'\n/ );
-    $t->stdout_like( qr/\n Result: 252 \[ = 0xFC \]\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
     $t = tests::Tester->run_cmd( qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
     $t->exit_is( 0, qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
     $t->stdout_is( qq{123643.912\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-
-
-    $t = tests::Tester->run_cmd( qq{./c '１' 'cos(deg2rad(45))'} );
-    $t->exit_is( 0, qq{./c '１' 'cos(deg2rad(45))'} );
-    $t->stdout_is( qq{0.707106781187\n} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
@@ -4503,12 +4707,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/\n Result: 62\.8318530718\n$/ );  ## 62.83185307179586476925286766559
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c ')(='} );
-    $t->exit_isnt( 0, qq{./c ')(='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: parser: error: "BEGIN", "\)": Wrong combination\.\n/ );
-    undef( $t );
-
     $t = tests::Tester->run_cmd( qq{./c '123' '2(='} );
     $t->exit_isnt( 0, qq{./c '123' '2(='} );
     $t->stdout_is( qq{}, qq{STDOUT is silent.} );
@@ -4521,103 +4719,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
     undef( $t );
 
-
-    $t = tests::Tester->run_cmd( qq{./c 'add_each( -10 )'} );
-    $t->exit_isnt( 0, qq{./c 'add_each( -10 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: add_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'mul_each( ( 1 / 25.4 ) * 300 )'} );
-    $t->exit_isnt( 0, qq{./c 'mul_each( ( 1 / 25.4 ) * 300 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: mul_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linspace( -10, 10 )'} );
-    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: "linspace": Operand missing\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linspace( -10, 10, 3, 1, 0 )'} );
-    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 3, 1, 0 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linspace: \$arg_counter="5": The number of operands is incorrect\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linspace( -10, 10, 0 )'} );
-    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 0 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=0\] is less than 2\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linspace( -10, 10, 1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=1\.2\] is less than 2\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linspace( -10, 10, 2.1 )'} );
-    $t->exit_isnt( 0, qq{./c 'linspace( -10, 10, 2.1 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linspace\(\): \$length\[=2\.1\] is a decimal number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linstep( 4, -10, 0 )'} );
-    $t->exit_isnt( 0, qq{./c 'linstep( 4, -10, 0 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=0\] is less than 1\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linstep( 4, 10, -1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'linstep( 4, 10, -1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=\-1\.2\] is less than 1\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linstep( 4, 10, 1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'linstep( 4, 10, 1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: linstep\(\): \$length\[=1\.2\] is a decimal number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'mul_growth( 1, 1, -1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, -1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=\-1\.2\] is less than 1\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'mul_growth( 1, 1, 0 )'} );
-    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, 0 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=0\] is less than 1\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'mul_growth( 1, 1, 1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'mul_growth( 1, 1, 1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: mul_growth\(\): \$length\[=1\.2\] is a decimal number\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'gen_fibo_seq( 2, 1, 0 )'} );
-    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, 0 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=0\] is less than 2\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'gen_fibo_seq( 2, 1, -1.2 )'} );
-    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, -1.2 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=\-1\.2\] is less than 2\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'gen_fibo_seq( 2, 1, 2.1 )'} );
-    $t->exit_isnt( 0, qq{./c 'gen_fibo_seq( 2, 1, 2.1 )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: gen_fibo_seq\(\): \$length\[=2\.1\] is a decimal number\.\n/ );
-    undef( $t );
-
     $t = tests::Tester->run_cmd( qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
     $t->exit_is( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
     $t->stdout_like( qr/\n    RPN: '# # 10 rand # 10 rand # 10 rand # 10 rand # 10 rand min'\n/ );
@@ -4627,69 +4728,21 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
     $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
     $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
-    $t->stdout_like( qr/\n  ...0:::::::::::...  Age: 29 \( rounded \)\n/ );
+    $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 29 \( rounded \)\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
     $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
-    $t->stdout_like( qr/\n  ...::::::::::::...  Age: 0 \( rounded \)\n/ );
+    $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 0 \( rounded \)\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
     ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
-
-    $t = tests::Tester->run_cmd( qq{./c '***='} );
-    $t->exit_isnt( 0, qq{./c '***='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: "\*\*": Operand missing\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '1+2*3+='} );
-    $t->exit_isnt( 0, qq{./c '1+2*3+='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: "\+": Operand missing\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '1_2='} );
-    $t->exit_isnt( 0, qq{./c '1_2='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: lexer: error: "_2=": Could not interpret\.\n/ );
-    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
-    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(#)='} );
-    $t->exit_isnt( 0, qq{./c 'sqrt(#)='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: lexer: error: "#\)=": Could not interpret\.\n/ );
-    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
-    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '123' '+2=' -v} );
-    $t->exit_is( 0, qq{./c '123' '+2=' -v} );
-    $t->stdout_like( qr/123 \+ 2 = 125\n/ );
-    $t->stdout_like( qr/\n Result: 125\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '123' '2=' -v} );
-    $t->exit_is( 0, qq{./c '123' '2=' -v} );
-    $t->stdout_like( qr/^123 \* 2 = 246\n/ );
-    $t->stdout_like( qr/\n Result: 246\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{./c 'sqrt(4)=' =r} );
     $t->exit_isnt( 0, qq{./c 'sqrt(4)=' =r} );
     $t->stdout_is( qq{}, qq{STDOUT is silent.} );
     $t->stderr_is( qq{c: engine: warn: "=r": Ignore. The calculation process has been completed.\n} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(-1)'} );
-    $t->exit_isnt( 0, qq{./c 'sqrt(-1)'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: evaluator: error: Can't take sqrt of \-1\.\n/ );
     undef( $t );
 
 };
@@ -5064,7 +5117,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{va( 100, 100, 100, 100 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for vector_angle()} );
     $t->has_no_exception();
     equal( $res, 0, qq{va( 100, 100, 100, 100 ) => 0} );
     $t->stdout_is( qq{} );
@@ -5428,13 +5481,18 @@ subtest qq{-b, --banner} => sub{
 };
 
 subtest qq{-u, --user-defined} => sub{
+    my $c = FTCalc->new();
     my $t;
+    my $res;
 
-    $t = tests::Tester->run_cmd( qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )} );
+    } );
     $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $t->stdout_is( qq{403.822719846\n} );
+    $t->has_no_exception();
+    equal( $res, 403.822719846 );
+    $t->stdout_is( qq{} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
 
     `rm -f .c.rc`;
 
@@ -5445,27 +5503,41 @@ subtest qq{-u, --user-defined} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{_LOAD_USER_RC} );
+        $res = $c->formula( qq{geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )} );
+    } );
     $t->exit_isnt( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: lexer: error: "tokyo_st_coord, osaka_st_coord \)=": Could not interpret\.\n/ );
-    undef( $t );
 
     `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.failed && mv .c.rc.failed .c.rc`;
 
-    $t = tests::Tester->run_cmd( qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{_LOAD_USER_RC} );
+        $res = $c->formula( qq{geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )} );
+    } );
     $t->exit_isnt( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/c: lexer: error: \.\/\.c\.rc: Failed to load user rc file: / );
-    undef( $t );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/c: lexer: error: .*\.\/\.c\.rc: Failed to load user rc file: / );
 
     `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
 
-    $t = tests::Tester->run_cmd( qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{_VERBOSE} );
+        $res = $c->formula( qq{_LOAD_USER_RC} );
+        $res = $c->formula( qq{geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )} );
+    } );
+    $c->formula( qq{_NO_VERBOSE} );
     $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $t->stdout_like( qr/\n Result: 403\.822719846\n/ );
+    $t->has_no_exception();
+    equal( $res, 403.822719846 );
+    $t->stdout_is( qq{} );
     $t->stderr_is( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
-    undef( $t );
 
     `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
 
@@ -5476,11 +5548,15 @@ subtest qq{-u, --user-defined} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
-    $t->stdout_like( qr/\n Result: 403\.822719846\n/ );
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{_LOAD_USER_RC} );
+        $res = $c->formula( qq{geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )} );
+    } );
+    $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
+    $t->has_no_exception();
+    equal( $res, 403.822719846 );
+    $t->stdout_is( qq{} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
 
 };
 

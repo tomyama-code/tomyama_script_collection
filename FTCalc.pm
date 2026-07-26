@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.11 $
+## - $Revision: 1.12 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -345,6 +345,7 @@ sub formula( $$;$ )
 
                     $calc_result = $raw_result;
 
+                    $calc_result =~ s!^ Result: !!o;
                     # 別表記を除去
                     while( $calc_result =~ s! \[ = .+ \]$!!o ){};
 

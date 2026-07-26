@@ -31,13 +31,21 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ### Constant:
 
-- PI
+- _PI_
 
     3.14159265358979
 
-- NOW
+- _NOW_
 
     CURRENT-TIME
+
+- _SAKUBOU_
+
+    A synodic month is the time between two consecutive new moons, lasting about 29.530588853 days.
+
+- _CHIJIKU_
+
+    Axial tilt is the angle between Earth's rotational axis and its orbital plane, which is about 23.436 degrees.
 
 - User-defined-file
 
@@ -826,10 +834,15 @@ The **c** script was created with the following in mind:
         $ c 'mul_each( 100, 200, 2 )'
         ( 200, 400 )
 
-    Estimate the size (pixels) of an A4 sheet of paper (millimeters) scanned at 300 dpi:
+    Estimate the size (in pixels) of an A4 sheet (in millimeters) scanned at 300 dpi.
 
-        $ c 'mul_each( 210, 297, ( 1 / 25.4 ) * 300 )'
+        $ c 'mul_each( 210, 297, ( 300 / 25.4 ) )'
         ( 2480.31496063, 3507.87401575 )
+
+    Major Moon Phases:
+
+        $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
+        ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
 
 - `linspace`
 

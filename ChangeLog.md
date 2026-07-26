@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.2.81] - 2026-07-26
+### Changed
+- `c` [1.04.189]:
+  - Increased the width of the moon ASCII art (by two characters).
+
 ## [0.2.80] - 2026-07-25
 ### Changed
 - `c` [1.04.186]:
