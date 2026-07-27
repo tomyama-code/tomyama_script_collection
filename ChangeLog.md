@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.83] - 2026-07-28
+### Changed
+- `c` [1.04.195]:
+  - Added a function.
+    - div_each( NUMBER1,.. , DIVISOR ). Divide each number.
+
 ## [0.2.82] - 2026-07-27
 ### Changed
 - `c` [1.04.193]:

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.193 $
+## - $Revision: 4.195 $
 ##
 ## - Script Structure
 ##   - main
@@ -189,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.193 $};
+    my $rev = q{$Revision: 4.195 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -526,10 +526,10 @@ sub GetOpeCatLen()
 
 use constant {
     F_MATH => 0,    # Math & Basic Arithmetic（基本数学・算術）
-    F_TRIG => 1,    # Trigonometry & Geometry（三角関数・幾何学・ベクトル）
-    F_LIST => 2,    # List & Sequence Operations（リスト・数列操作）
-    F_GIS_ => 3,    # Geographic & Navigation (GIS)（地理・航海計算）
-    F_TIME => 4,    # Time, Calendar & Measurement（日時・天体・計測）
+    F_LIST => 1,    # List & Sequence Operations（リスト・数列操作）
+    F_TIME => 2,    # Time, Calendar & Measurement（日時・天体・計測）
+    F_TRIG => 3,    # Trigonometry & Geometry（三角関数・幾何学・ベクトル）
+    F_GIS_ => 4,    # Geographic & Navigation (GIS)（地理・航海計算）
     F_UCNV => 5,    # Unit Conversion
     F_UTLY => 6,    # Utility
     F_UCLS => 7,    # unclassified
@@ -543,10 +543,10 @@ sub GetFuncCatLen()
 
 @TableProvider::fnc_cat_lists = ();
 $TableProvider::fnc_cat_lists[ F_MATH ] = 'Math & Basic Arithmetic';       # （基本数学・算術）
-$TableProvider::fnc_cat_lists[ F_TRIG ] = 'Trigonometry & Geometry';       # （三角関数・幾何学・ベクトル）
 $TableProvider::fnc_cat_lists[ F_LIST ] = 'List & Sequence Operations';    # （リスト・数列操作）
-$TableProvider::fnc_cat_lists[ F_GIS_ ] = 'Geographic & Navigation (GIS)'; # （地理・航海計算）
 $TableProvider::fnc_cat_lists[ F_TIME ] = 'Time, Calendar & Measurement';  # （日時・天体・計測）
+$TableProvider::fnc_cat_lists[ F_TRIG ] = 'Trigonometry & Geometry';       # （三角関数・幾何学・ベクトル）
+$TableProvider::fnc_cat_lists[ F_GIS_ ] = 'Geographic & Navigation (GIS)'; # （地理・航海計算）
 $TableProvider::fnc_cat_lists[ F_UCNV ] = 'Unit Conversion';
 $TableProvider::fnc_cat_lists[ F_UTLY ] = 'Utility';
 $TableProvider::fnc_cat_lists[ F_UCLS ] = 'unclassified';
@@ -1067,6 +1067,16 @@ use constant {
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
     H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
     H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM).},
+    H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
+    H_POEX => qq{exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
+    H_EXP2 => qq{exp2( N1 [,.. ] ). Returns the base 2 raised to the power N.},
+    H_EP10 => qq{exp10( N1 [,.. ] ). Returns the base 10 raised to the power N.},
+    H_LOGA => qq{log( N1 [,.. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
+    H_LOG2 => qq{log2( N1 [,.. ] ). Returns the common logarithm to the base 2.},
+    H_LG10 => qq{log10( N1 [,.. ] ). Returns the common logarithm to the base 10.},
+    H_SQRT => qq{sqrt( N1 [,.. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
+    H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
+    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
     H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
@@ -1079,21 +1089,33 @@ use constant {
     H_AVRG => qq{avg( NUMBER1,.. ). Returns the average value of all elements in a list.},
     H_ADEC => qq{add_each( NUMBER1,.. , DELTA ). Add each number.},
     H_MLEC => qq{mul_each( NUMBER1,.. , FACTOR ). Multiply each number.},
-    H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ). Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounding the number if DECIMAL_PLACES is specified.},
+    H_DVEC => qq{div_each( NUMBER1,.. , DIVISOR ). Divide each number.},
+    H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ). Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounds the intermediate number if DECIMAL_PLACES is specified, keeping the start and end values exact.},
     H_LNST => qq{linstep( START, DELTA, LENGTH ). Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ). Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_GFIS => qq{gen_fibo_seq( A, B, LENGTH ). Generates the Generalized Fibonacci Sequence. Returns the sequence of numbers starting at A, B and of size LENGTH. LENGTH is an integer greater than or equal to 2.},
-    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
-    H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
-    H_POEX => qq{exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
-    H_EXP2 => qq{exp2( N1 [,.. ] ). Returns the base 2 raised to the power N.},
-    H_EP10 => qq{exp10( N1 [,.. ] ). Returns the base 10 raised to the power N.},
-    H_LOGA => qq{log( N1 [,.. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
-    H_LOG2 => qq{log2( N1 [,.. ] ). Returns the common logarithm to the base 2.},
-    H_LG10 => qq{log10( N1 [,.. ] ). Returns the common logarithm to the base 10.},
-    H_SQRT => qq{sqrt( N1 [,.. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
-    H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
-    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
+    H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
+    H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
+    H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
+    H_AOMI => qq{moon_age_instant( [ EPOCH ] ). Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
+    H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
+    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
+    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
+    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
+    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
+    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ). alias: d2s().},
+    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value. alias: d2d().},
+    H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
+    H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
+    H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
+    H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
+    H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
+    H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
+    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
+    H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
+    H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
+    H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
     H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
     H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
@@ -1128,18 +1150,6 @@ use constant {
     H_R2KM => qq{geo_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_km_azm().},
     H_GA_M => qq{geo_all_m( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
-    H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
-    H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
-    H_AOMI => qq{moon_age_instant( [ EPOCH ] ). Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
-    H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
-    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
-    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
-    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
-    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
-    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ). alias: d2s().},
-    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value. alias: d2d().},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. Length and distance conversion. alias: 里→メートル(), 里２メートル().},
     H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. Length and distance conversion. alias: メートル→里(), メートル２里().},
     H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
@@ -1154,16 +1164,7 @@ use constant {
     H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. Weight conversion. alias: グラム→オンス(), グラム２オンス().},
     H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
     H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
-    H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
-    H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
-    H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
-    H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
-    H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
-    H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
-    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
-    H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
-    H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
-    H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
+    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
 };
 
 %TableProvider::operators = (
@@ -1204,103 +1205,104 @@ use constant {
     'get_prime'                  => [ 1140, T_FUNCTION, F_MATH,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
     'gcd'                        => [ 1150, T_FUNCTION, F_MATH,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
     'lcm'                        => [ 1160, T_FUNCTION, F_MATH,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
-    'ncr'                        => [ 1170, T_FUNCTION, F_LIST,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
-    'min'                        => [ 1180, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'                        => [ 1190, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'                    => [ 1200, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'first'                      => [ 1210, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
-    'slice'                      => [ 1220, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
-    'uniq'                       => [ 1230, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                        => [ 1240, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                       => [ 1250, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                        => [ 1260, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
-    'add_each'                   => [ 1270, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
-    'mul_each'                   => [ 1280, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
-    'linspace'                   => [ 1290, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
-    'linstep'                    => [ 1300, T_FUNCTION, F_LIST,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'mul_growth'                 => [ 1310, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'gen_fibo_seq'               => [ 1320, T_FUNCTION, F_LIST,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'paper_size'                 => [ 1330, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
-    'rand'                       => [ 1340, T_FUNCTION, F_MATH,     1, H_RAND, sub{ rand( $_[ 0 ] ) } ],
-    'exp'                        => [ 1350, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
-    'exp2'                       => [ 1360, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
-    'exp10'                      => [ 1370, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
-    'log'                        => [ 1380, T_FUNCTION, F_MATH,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
-    'log2'                       => [ 1390, T_FUNCTION, F_MATH,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
-    'log10'                      => [ 1400, T_FUNCTION, F_MATH,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
-    'sqrt'                       => [ 1410, T_FUNCTION, F_MATH,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
-    'pow'                        => [ 1420, T_FUNCTION, F_MATH,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'                    => [ 1430, T_FUNCTION, F_MATH,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'rad2deg'                    => [ 1440, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
-    'deg2rad'                    => [ 1450, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
-    'dms2rad'                    => [ 1460, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'                    => [ 1470, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'                    => [ 1480, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'                    => [ 1490, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                        => [ 1500, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
-    'cos'                        => [ 1510, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
-    'tan'                        => [ 1520, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
-    'asin'                       => [ 1530, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
-    'acos'                       => [ 1540, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
-    'atan'                       => [ 1550, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
-    'atan2'                      => [ 1560, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                      => [ 1570, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'                  => [ 1580, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
-    'dist_between_points'        => [ 1590, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points'       => [ 1600, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points'       => [ 1610, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'               => [ 1620, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                    => [ 1630, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                 => [ 1640, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'              => [ 1650, T_FUNCTION, F_GIS_,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'             => [ 1660, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'            => [ 1670, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                => [ 1680, T_FUNCTION, F_GIS_,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'     => [ 1690, T_FUNCTION, F_GIS_,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'    => [ 1700, T_FUNCTION, F_GIS_,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'          => [ 1710, T_FUNCTION, F_GIS_,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'         => [ 1720, T_FUNCTION, F_GIS_,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'             => [ 1730, T_FUNCTION, F_GIS_,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'  => [ 1740, T_FUNCTION, F_GIS_,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth' => [ 1750, T_FUNCTION, F_GIS_,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                  => [ 1760, T_FUNCTION, F_GIS_,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                 => [ 1770, T_FUNCTION, F_GIS_,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'is_leap'                    => [ 1780, T_FUNCTION, F_TIME,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
-    'age'                        => [ 1790, T_FUNCTION, F_TIME, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'moon_age'                   => [ 1800, T_FUNCTION, F_TIME,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'moon_age_instant'           => [ 1810, T_FUNCTION, F_TIME, '0-1', H_AOMI, sub{ &moon_age_instant( @_ ) } ],
-    'get_next_moon_age_epoch'    => [ 1815, T_FUNCTION, F_TIME, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
-    'local2epoch'                => [ 1820, T_FUNCTION, F_TIME, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'                  => [ 1830, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'                => [ 1840, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'                  => [ 1850, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                   => [ 1860, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                   => [ 1870, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                  => [ 1880, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'ri2meter'                   => [ 1890, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                   => [ 1900, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                 => [ 1910, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                 => [ 1920, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'        => [ 1930, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'        => [ 1940, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                    => [ 1950, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                    => [ 1960, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                 => [ 1970, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                 => [ 1980, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                 => [ 1990, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                 => [ 2000, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                 => [ 2010, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                 => [ 2020, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'laptimer'                   => [ 2030, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                      => [ 2040, T_FUNCTION, F_TIME,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
-    'stopwatch'                  => [ 2050, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                        => [ 2060, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                      => [ 2070, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                      => [ 2080, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                 => [ 2090, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                  => [ 2100, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                => [ 2110, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'               => [ 2120, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    'rand'                       => [ 1170, T_FUNCTION, F_MATH,     1, H_RAND, sub{ &CORE::rand( $_[ 0 ] ) } ],
+    'exp'                        => [ 1180, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
+    'exp2'                       => [ 1190, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
+    'exp10'                      => [ 1200, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
+    'log'                        => [ 1210, T_FUNCTION, F_MATH,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
+    'log2'                       => [ 1220, T_FUNCTION, F_MATH,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
+    'log10'                      => [ 1230, T_FUNCTION, F_MATH,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
+    'sqrt'                       => [ 1240, T_FUNCTION, F_MATH,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
+    'pow'                        => [ 1250, T_FUNCTION, F_MATH,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    'pow_inv'                    => [ 1260, T_FUNCTION, F_MATH,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'ncr'                        => [ 1270, T_FUNCTION, F_LIST,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
+    'min'                        => [ 1280, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
+    'max'                        => [ 1290, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
+    'shuffle'                    => [ 1300, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'first'                      => [ 1310, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
+    'slice'                      => [ 1320, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
+    'uniq'                       => [ 1330, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
+    'sum'                        => [ 1340, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
+    'prod'                       => [ 1350, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ &prod( @_ ) } ],
+    'avg'                        => [ 1360, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
+    'add_each'                   => [ 1370, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
+    'mul_each'                   => [ 1380, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
+    'div_each'                   => [ 1390, T_FUNCTION, F_LIST,    VA, H_DVEC, sub{ &div_each( @_ ) } ],
+    'linspace'                   => [ 1400, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
+    'linstep'                    => [ 1410, T_FUNCTION, F_LIST,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'mul_growth'                 => [ 1420, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'               => [ 1430, T_FUNCTION, F_LIST,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'is_leap'                    => [ 1440, T_FUNCTION, F_TIME,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
+    'age'                        => [ 1450, T_FUNCTION, F_TIME, '1-2', H_AGE_, sub{ &age( @_ ) } ],
+    'moon_age'                   => [ 1460, T_FUNCTION, F_TIME,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'moon_age_instant'           => [ 1470, T_FUNCTION, F_TIME, '0-1', H_AOMI, sub{ &moon_age_instant( @_ ) } ],
+    'get_next_moon_age_epoch'    => [ 1480, T_FUNCTION, F_TIME, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
+    'local2epoch'                => [ 1490, T_FUNCTION, F_TIME, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
+    'gmt2epoch'                  => [ 1500, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
+    'epoch2local'                => [ 1510, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'                  => [ 1520, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
+    'sec2dhms'                   => [ 1530, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
+    'dhms2sec'                   => [ 1540, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                  => [ 1550, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
+    'laptimer'                   => [ 1560, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                      => [ 1570, T_FUNCTION, F_TIME,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
+    'stopwatch'                  => [ 1580, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
+    'bpm'                        => [ 1590, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                      => [ 1600, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                      => [ 1610, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
+    'tachymeter'                 => [ 1620, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                  => [ 1630, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                => [ 1640, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'               => [ 1650, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    'rad2deg'                    => [ 1660, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
+    'deg2rad'                    => [ 1670, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
+    'dms2rad'                    => [ 1680, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'                    => [ 1690, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'                    => [ 1700, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'                    => [ 1710, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                        => [ 1720, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
+    'cos'                        => [ 1730, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
+    'tan'                        => [ 1740, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
+    'asin'                       => [ 1750, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
+    'acos'                       => [ 1760, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
+    'atan'                       => [ 1770, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
+    'atan2'                      => [ 1780, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                      => [ 1790, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'                  => [ 1800, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
+    'dist_between_points'        => [ 1810, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points'       => [ 1820, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points'       => [ 1830, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'vector_angle'               => [ 1840, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
+    'geo2xyz'                    => [ 1850, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
+    'geo_radius'                 => [ 1860, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'radius_of_lat'              => [ 1870, T_FUNCTION, F_GIS_,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'             => [ 1880, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'            => [ 1890, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
+    'geo_azimuth'                => [ 1900, T_FUNCTION, F_GIS_,     4, H_GDEG, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'     => [ 1910, T_FUNCTION, F_GIS_,     4, H_DD_M, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'    => [ 1920, T_FUNCTION, F_GIS_,     4, H_DDKM, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'          => [ 1930, T_FUNCTION, F_GIS_,     4, H_RD_M, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'         => [ 1940, T_FUNCTION, F_GIS_,     4, H_RDKM, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'             => [ 1950, T_FUNCTION, F_GIS_,     4, H_RAZM, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'  => [ 1960, T_FUNCTION, F_GIS_,     4, H_R2_M, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth' => [ 1970, T_FUNCTION, F_GIS_,     4, H_R2KM, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                  => [ 1980, T_FUNCTION, F_GIS_,     4, H_GA_M, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                 => [ 1990, T_FUNCTION, F_GIS_,     4, H_GAKM, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'ri2meter'                   => [ 2000, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                   => [ 2010, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                 => [ 2020, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                 => [ 2030, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'        => [ 2040, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'        => [ 2050, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                    => [ 2060, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                    => [ 2070, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                 => [ 2080, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                 => [ 2090, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                 => [ 2100, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                 => [ 2110, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                 => [ 2120, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                 => [ 2130, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'paper_size'                 => [ 2140, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1457,6 +1459,8 @@ sub IsSentinel( $ )
     return $bSentinel;
 }
 
+## Arithmetic Operators
+
 sub _C_DIV( $$ )
 {
     if( $_[1] == 0 ){
@@ -1464,6 +1468,8 @@ sub _C_DIV( $$ )
     }
     return $_[ 0 ] / $_[ 1 ];
 }
+
+## Math & Basic Arithmetic
 
 # ゼロ方向切り捨てベースのmod()関数
 #   同等と思われる剰余算機能
@@ -1749,6 +1755,92 @@ sub lcm( $@ )
     return $lcm;
 }
 
+sub _C_EXP( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, exp( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_EXP2( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        #my $val = exp( $arg * log( 2 ) );
+        my $val = 2 ** $arg;
+        push( @ret_vals, $val );
+    }
+    return @ret_vals;
+}
+
+sub _C_EXP10( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        #my $val = exp( $arg * log( 10 ) );
+        my $val = 10 ** $arg;
+        push( @ret_vals, $val );
+    }
+    return @ret_vals;
+}
+
+sub _C_LOG( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        if( $arg <= 0 ){
+            die( qq{log( $arg ): Must be a positive number.\n} );
+        }
+        push( @ret_vals, log( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_LOG2( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        if( $arg <= 0 ){
+            die( qq{log2( $arg ): Must be a positive number.\n} );
+        }
+        push( @ret_vals, log( $arg ) / log( 2 ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_LOG10( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        if( $arg <= 0 ){
+            die( qq{log10( $arg ): Must be a positive number.\n} );
+        }
+        push( @ret_vals, log( $arg ) / log( 10 ) );
+    }
+    return @ret_vals;
+}
+
+sub _C_SQRT( @ )
+{
+    my @ret_vals = ();
+    for my $arg( @_ ){
+        push( @ret_vals, sqrt( $arg ) );
+    }
+    return @ret_vals;
+}
+
+sub pow_inv( $$ )
+{
+    my( $n, $x ) = @_;
+    my $y = log( $n ) / log( $x );
+    my $rounded = int( $y + 0.5 );  # 四捨五入
+    return ( $x ** $rounded == $n ) ? $rounded : $y;
+}
+
+## List & Sequence Operations
+
 sub nCr( $$ )
 {
     my( $n, $r ) = @_;
@@ -1849,6 +1941,23 @@ sub mul_each( @ )
     my @ret_vals = ();
     for my $operand( @_ ){
         push( @ret_vals, $operand * $factor );
+    }
+    return @ret_vals;
+}
+
+sub div_each( @ )
+{
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{div_each(): \$argc=$argc: Insufficient number of arguments.\n} );
+    }
+    my $divisor = pop( @_ );
+    if( $divisor == 0 ){
+        die( qq{"$divisor": Illegal division by zero.\n} );
+    }
+    my @ret_vals = ();
+    for my $operand( @_ ){
+        push( @ret_vals, $operand / $divisor );
     }
     return @ret_vals;
 }
@@ -1956,143 +2065,614 @@ sub gen_fibo_seq( $$$ )
     return reverse( @ret_vals );
 }
 
-## paper_size()
-##
-## paper_size( SIZE [, TYPE ] ).
-## Returns the following information in this order:
-## length of short side, length of long side (in mm).
-## SIZE is a positive integer.
-## If TYPE is omitted or 0 is specified, it will be A size.
-## If TYPE is specified, it will be B size ( Japan's unique standards ).
-##
-sub paper_size( $$ )
+## Time, Calendar & Measurement
+
+## Revision: 1.1
+sub is_leap_year( $ )
 {
-    my( $size, $type ) = @_;
-    if( $size < 0 ){
-        die( qq{paper_size(): \$size[=$size] is negative.\n} );
+    my $year = shift( @_ );
+    my $retBool = ( ( ( $year % 4 == 0 ) &&
+                      ( ( $year % 100 != 0 ) ||
+                        ( $year % 400 == 0 ) )
+                    ) ? 1 : 0 );
+    return $retBool;
+}
+
+sub is_leap( @ )
+{
+    my @ret_vals = ();
+    for my $year( @_ ){
+        push( @ret_vals, &is_leap_year( $year ) );
     }
-    if( $size != int( $size ) ){
-        die( qq{paper_size(): \$size[=$size] is a decimal number.\n} );
+    return @ret_vals;
+}
+
+sub age( $;$ )
+{
+    my( $birthday_epoch, $ref_date_epoch ) = @_;
+    $ref_date_epoch = time() if( !defined( $ref_date_epoch ) );
+
+    my $negFlag = 0;
+    if( $birthday_epoch > $ref_date_epoch ){
+        $negFlag = 1;
+        my $tmp_epoch = $birthday_epoch;
+        $birthday_epoch = $ref_date_epoch;
+        $ref_date_epoch = $tmp_epoch;
     }
 
-    my $paper_type = 'A';
-    my $long_side  = 1189;
-    my $short_side =  841;
-    ## B判の場合
-    if( defined( $type ) && $type == 1 ){
-        $paper_type = 'B';
-        ## B判はA判の面積の1.5倍という思想。計算で出すなら以下のようになる。
-        ## $long_side  = &POSIX::floor( $long_side * sqrt( 1.5 ) );
-        ## $short_side = &POSIX::floor( $short_side * sqrt( 1.5 ) );
-        $long_side  = 1456;
-        $short_side = 1030;
+    my( $bY, $bm, $bd, $bH, $bM, $bS ) = &epoch2local( $birthday_epoch );
+    my( $rY, $rm, $rd, $rH, $rM, $rS ) = &epoch2local( $ref_date_epoch );
+
+    my $bYear = sprintf( "%04d.%02d%02d", $bY, $bm, $bd );
+    my $rYear = sprintf( "%04d.%02d%02d", $rY, $rm, $rd );
+
+    my $age = int( $rYear - $bYear );
+
+    my $lY = $rY;
+    my $bmmdd = sprintf( "%02d%02d", $bm, $bd );
+    my $rmmdd = sprintf( "%02d%02d", $rm, $rd );
+    $lY -= 1 if( $bmmdd > $rmmdd );
+    my $lastbirthday_epoch = &local2epoch( $lY, $bm, $bd, $bH, $bM, $bS );
+
+    my $days = int( ( $ref_date_epoch - $lastbirthday_epoch ) / 86400 );
+
+    if( $negFlag ){
+        $age *= -1;
+        $days *= -1;
     }
 
-    my $counter = $size;
-    my $bWarnLongSide = 1;
-    my $bWarnShortSide = 1;
-    while( $counter-- ){
-        my $paper_size = $paper_type . ( $size - $counter );
-        my $short_side_next = &POSIX::floor( $long_side / 2 );
-        $long_side = $short_side;
-        if( $long_side == 0 && $bWarnLongSide ){
-            $bWarnLongSide = 0;
-            warn( qq{paper_size(): $paper_size: The long side reaches 0 mm.\n} );
+    return ( $age, $days );
+}
+
+## Revision: 1.1
+#sub age_of_moon( $$$ )
+#{
+#    my $y = shift( @_ );
+#    my $m = shift( @_ );
+#    my $d = shift( @_ );
+#    #my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
+#    # 現代の軌道に合わせて全体を0.7日分引き下げ、月ごとのゆらぎを最適化
+#    my @c = ( 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
+#    #printf ("DATE: %04d/%02d/%02d\n", $y, $m, $d) ;
+#
+#    my $age = ( ( ( $y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
+#
+#    return $age ;
+#}
+sub moon_age( $$$ )
+{
+    my $y = shift( @_ );
+    my $m = shift( @_ );
+    my $d = shift( @_ );
+
+    # 指定されたローカル日時の「その日の正午（12時）」のエポック秒を作る
+#    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
+    my $epoch = &Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
+
+    my $age = &moon_age_instant( $epoch );
+
+    # 小数第1位に丸めて出力
+    return sprintf( "%.1f", $age );
+}
+
+my %moon_age_name_en;
+$moon_age_name_en{'00'} = 'New Moon';
+$moon_age_name_en{'02'} = 'Waxing Crescent';
+$moon_age_name_en{'07'} = 'First Quarter';
+$moon_age_name_en{'12'} = 'Waxing Gibbous';
+$moon_age_name_en{'15'} = 'Full Moon';
+$moon_age_name_en{'19'} = 'Waning Gibbous';
+$moon_age_name_en{'22'} = 'Last Quarter';   # 'Third Quarter' でもOK
+$moon_age_name_en{'26'} = 'Waning Crescent';
+
+my %moon_age_name_ja;
+$moon_age_name_ja{'00'} = '新月';
+$moon_age_name_ja{'02'} = '三日月';
+$moon_age_name_ja{'07'} = '上弦';
+$moon_age_name_ja{'12'} = '十三夜';
+$moon_age_name_ja{'15'} = '満月';
+$moon_age_name_ja{'19'} = '更待月';
+$moon_age_name_ja{'22'} = '下弦';
+$moon_age_name_ja{'26'} = '二十六夜';
+
+sub print_moon_age_AA_if_necessary( $ )
+{
+    my $age = shift( @_ );
+
+    #my( $p, $f, $l ) = caller();
+    #print( qq{\$p="$p", \$f="$f", \$l="$l"\n} );
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        my $page = int( $age + 0.5 );
+        $page = 0 if( $page > SAKUBOU );
+        my $key = sprintf( '%02d', $page );
+        #print( qq{\$key="$key"\n} );
+        for( my $idx=0; $idx<MOON_AGE_AA_H_LEN; $idx++ ){
+            my $line = "  $TableProvider::moon_age_aa{ $key }[ $idx ]";
+            if( $idx == 2 ){
+                $line .= "  Age: $page ( rounded )";
+            }elsif( $idx == 3 && defined( $moon_age_name_en{$key} ) ){
+                $line .= "  Phase: $moon_age_name_en{$key}";
+            }elsif( $idx == 5 && defined( $moon_age_name_ja{$key} ) ){
+                $line .= "  $moon_age_name_ja{$key}";
+            }
+            print( "$line\n" );
         }
-        $short_side = $short_side_next;
-        if( $short_side == 0 && $bWarnShortSide ){
-            $bWarnShortSide = 0;
-            warn( qq{paper_size(): $paper_size: The short side reaches 0 mm.\n} );
+    }
+}
+sub moon_age_instant( ;$ )
+{
+    my $epoch = shift( @_ );
+    $epoch = &CORE::time() if( !defined( $epoch ) );
+    my $age = &moon_age_instant_raw( $epoch );
+
+    &print_moon_age_AA_if_necessary( $age );
+
+    # コア用途のため丸めずに返す
+    return $age;
+}
+sub moon_age_instant_raw( $ )
+{
+    my $epoch = shift( @_ );
+
+    my( $sec, $min, $hour, $mday, $mon, $year ) = gmtime( $epoch );
+    my $y = $year + 1900;
+    my $m = $mon + 1;
+
+    # 時・分・秒を日に換算
+    my $d = $mday + ( $hour / 24 ) + ( $min / 1440 ) + ( $sec / 86400 );
+
+    # 1月、2月を前年の13月、14月として処理（ツェラーの公式等の定石）
+    if( $m <= 2 ){
+        $y--;
+        $m += 12;
+    }
+
+    # 完全整数処理による「修正ユリウス日 (MJD)」の算出
+    my $mjd = int( 365.25 * $y ) + int( $y / 400 ) - int( $y / 100 )
+            + int( ( 153 * $m - 162 ) / 5 ) + $d - 678912;
+
+    # 上記の整数日数変換に100%適合させた「新月基準点 (Epoch)」
+    my $diff_days = $mjd - 51549.1;
+
+    # 天文学における平均朔望月（月の満ち欠けの平均周期）
+    my $synodic_month = SAKUBOU;
+
+    # 経過日数から現在の月齢を算出
+    my $age = $diff_days / $synodic_month;
+    $age = ( $age - int( $age ) ) * $synodic_month;
+
+    # マイナス値になった場合の補正
+    $age += $synodic_month if( $age < 0 );
+
+    # コア用途のため丸めずに返す
+    return $age;
+}
+
+sub get_next_moon_age_epoch( $;$ )
+{
+    my( $moon_age, $ref_date_epoch ) = @_;
+    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
+    #print( qq{\$ref_date_epoch="$ref_date_epoch"\n} );
+
+    if( !( 0 <= $moon_age && $moon_age < SAKUBOU ) ){
+        die( qq{"$moon_age": MOON_AGE is out of range.\n} );
+    }
+
+    my $age_raw = &moon_age_instant_raw( $ref_date_epoch );
+
+    my $age_diff = $moon_age - $age_raw;
+    if( $age_diff < 0 ){
+        $age_diff += SAKUBOU;
+    }
+    #print( qq{\$age_diff="$age_diff"\n} );
+
+    # 月齢の 1日（＝86400秒） を 秒数 に変換
+    my $seconds_to_wait = &POSIX::ceil( $age_diff * 86400 );
+    #print( qq{\$seconds_to_wait="$seconds_to_wait"\n} );
+
+    my $next_future_epoch = $ref_date_epoch + $seconds_to_wait;
+    #print( qq{\$next_future_epoch="$next_future_epoch"\n} );
+
+    &print_moon_age_AA_if_necessary( $moon_age );
+
+    return $next_future_epoch;
+}
+
+sub local2epoch( $$$;$$$ )
+{
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+#    $year -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
+    $month -= 1;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
+    my $epoch = &Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
+    return $epoch;
+}
+
+sub gmt2epoch( $$$;$$$ )
+{
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+#    $year -= 1900; # timegm()は4桁の西暦を解釈できる。4桁で渡すべき。
+    $month -= 1;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
+    my $epoch = &Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
+    return $epoch;
+}
+
+sub epoch2local( $ )
+{
+    my $epoch = shift( @_ );
+    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $epoch );
+    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
+    $month += 1;
+    return ( $year, $month, $mday, $hour, $minute, $sec );
+}
+
+sub epoch2gmt( $ )
+{
+    my $epoch = shift( @_ );
+    my( $sec, $minute, $hour, $mday, $month, $year ) = gmtime( $epoch );
+    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
+    $month += 1;
+    return ( $year, $month, $mday, $hour, $minute, $sec );
+}
+
+sub sec2dhms( $;$ )
+{
+    my( $duration, $decimal_places ) = @_;
+    #print( qq{\$duration="$duration"\n} );
+
+    my $bNeg = ( $duration < 0 ? 1 : 0 );
+    my $duration_abs = abs( $duration );
+    if( defined( $decimal_places ) ){
+        my @dum = &round( $duration_abs, $decimal_places );
+        $duration_abs = $dum[ 0 ];
+        #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
+    }
+
+    my $sec = &_C_MOD( $duration_abs, 60 );
+    ## support:
+    ##   $ ./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'
+    ##   ( 0, 0, 48, 45.7800000000002 ) -> 45.78
+    ##   ( 0, 0, 48, 45.7799999999998 ) -> 45.78 （マイナス誤差も救済）
+    if( defined( $decimal_places ) ){
+#        # 指定された桁数で四捨五入し、末尾の不要な0を消すために + 0 で数値化
+#        $sec = sprintf( "%.${decimal_places}f", $sec ) + 0;
+        $sec = sprintf( "%.${decimal_places}f", $sec )
+    }
+    my $remain = int( $duration_abs / 60 );
+    my $minute = &_C_MOD( $remain, 60 );
+    $remain = int( $remain / 60 );
+    my $hour = &_C_MOD( $remain, 24 );
+    my $days = int( $remain / 24 );
+
+    if( $bNeg ){
+        $sec *= -1;
+        $minute *= -1;
+        $hour *= -1;
+        $days *= -1;
+    }
+
+    return ( $days, $hour, $minute, $sec );
+}
+
+sub dhms2sec( $;$$$ )
+{
+    my( $days, $hour, $minute, $sec ) = @_;
+    $hour = 0 if( !defined( $hour ) );
+    $minute = 0 if( !defined( $minute ) );
+    $sec = 0 if( !defined( $sec ) );
+
+    my $duration_sec = 0;
+    $duration_sec += 86400 * $days;
+    $duration_sec +=  3600 * $hour;
+    $duration_sec +=    60 * $minute;
+    $duration_sec +=         $sec;
+
+    return $duration_sec;
+}
+
+sub dhms2dhms( $;$$$$ )
+{
+    my( $days, $hour, $minute, $sec, $decimal_places ) = @_;
+    return &sec2dhms( &dhms2sec( $days, $hour, $minute, $sec ), $decimal_places );
+}
+
+sub msec2hms( $ )
+{
+    my $duration = shift( @_ );
+    #print( qq{\$duration="$duration"\n} );
+
+    my $sec = &_C_MOD( $duration, 60 );
+    #print( qq{\$sec="$sec"\n} );
+    my $remain = int( $duration / 60 );
+    my $minute = $remain % 60;
+    $remain = int( $remain / 60 );
+    my $hour = $remain % 24;
+    ## 24時間以上は捨てる。
+    ## 0～24時間の間を環状に回り続けるイメージ。
+
+    return ( $hour, $minute, $sec );
+}
+
+sub waitEnter( $;$ )
+{
+    my $zero_time = shift( @_ );
+    my $b_continue_after_zero = 1;
+    if( defined( $_[ 0 ] ) ){
+        $b_continue_after_zero = shift( @_ );
+    }
+
+    #print( qq{\$zero_time="$zero_time"\n} );
+
+    # 標準出力をオートフラッシュ（バッファリング無効）
+    my $autoflash_backup = $|;  # Probably 0
+    $| = 1;
+
+    #print( "タイマー開始。Enterキーで終了します...\n" );
+
+    my $bBelCheck = -1;
+    my $line = '';
+    while( 1 ){
+        my $bel = '';
+        # 1. タイマーの計算と表示
+        my $lap     = &Time::HiRes::time();
+        my $elapsed = $lap - $zero_time;
+        if( $elapsed >= 0 ){
+            #print( qq{\$elapsed="$elapsed"\n} );
+            if( $bBelCheck == 1 ){
+                $bBelCheck = 0;
+                $bel = "\a";
+            }
+            if( $b_continue_after_zero == 0 ){
+                print( "$bel" );
+                last;
+            }
+        }else{
+            if( $bBelCheck == -1 ){
+                $bBelCheck = 1;
+            }
+        }
+        $elapsed = abs( $elapsed );
+        my $days    = int( $elapsed / 86400 );
+        my $hours   = int( ( $elapsed % 86400 ) / 3600 );
+        my $mins    = int( ( $elapsed % 3600 ) / 60 );
+        my $secs    = int( $elapsed % 60 );
+        my $msecs   = int( ( $elapsed - int( $elapsed ) ) * 1000 );
+
+        # \r で行頭に戻って上書き
+        if( $days ){
+            printf( "$bel\r%3d %02d:%02d:%02d.%03d ",
+                $days, $hours, $mins, $secs, $msecs );
+        }else{
+            printf( "$bel\r%02d:%02d:%02d.%03d ",
+                $hours, $mins, $secs, $msecs );
+        }
+        ## 次の出力にも"\r"を入れておくこと
+
+        # 2. 標準入力の監視 (select を使用)
+        # vec(ビットベクトル)を作成して STDIN(ファイル記述子0)をセット
+        my $rin = '';
+        vec( $rin, fileno( STDIN ), 1 ) = 1;
+
+        # select(読込待ちベクトル, 書込待ち, 例外待ち, タイムアウト秒)
+        # 0.05秒だけ入力を待ち、無ければ次に進む
+        my $nfound = select( my $rout = $rin, undef, undef, 0.05 );
+        if( $nfound > 0 ){
+            # バッファリングしない sysread を使う
+            my $char;
+            my $bytes = &_C_SYSREAD( \*STDIN, $char, 1 );
+
+            if( defined( $bytes ) ){
+                if( $bytes > 0 ){
+                    if( $char eq "\n" ){
+                        # Enter（改行）を検知したら、末尾のキャリッジリターン(\r)を削ってループ終了
+                        $line =~ s/\r$//o;
+                        last;
+                    }
+
+                    # 改行以外の文字は、1文字ずつ $line に蓄積していく
+                    $line .= $char;
+                }else{
+                    # $bytes == 0 (EOF) などの場合は、パイプが閉じられただけなので
+                    # last せずにスルーして、タイマー処理を継続させる
+                    #warn( "c: warn: zero\n" );
+                    next;
+                }
+            }else{
+                my $msg = sprintf( "c: warn: %d: sysread(): %s", __LINE__, $! );
+                warn( $msg );
+            }
         }
     }
 
-    my @ret_vals = ( $short_side, $long_side );
-    return @ret_vals;
+    # 標準出力のオートフラッシュ設定を元に戻しておく
+    $| = $autoflash_backup;
+    return $line;
 }
 
-sub _C_EXP( @ )
+use Errno qw(EINTR);
+my $_c_sysread_counter = 0;
+sub _C_SYSREAD( *\$$;$ )
 {
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        push( @ret_vals, exp( $arg ) );
+    # プロトタイプで \$$ を指定しているため、
+    # $_[1] には参照ではなく、呼び出し元のスカラー変数そのものが直接入る
+    my( $_filehandle, undef, $_length ) = @_;
+
+    if( $TableProvider::CAppConfig->GetBTestTestTest() ){
+        $TableProvider::CAppConfig->SetBTestTestTest( 0 );
+        $_c_sysread_counter = 10;
+        $! = EINTR;
+        return undef;
+    }elsif( $_c_sysread_counter > 0 ){
+        $_c_sysread_counter--;
+        return 0;
     }
-    return @ret_vals;
+
+    # $_[1] を直接 sysread に渡すことで、呼び出し元の変数を書き換える
+    return sysread( $_filehandle, $_[1], $_length );
 }
 
-sub _C_EXP2( @ )
+sub laptimer( $ )
 {
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        #my $val = exp( $arg * log( 2 ) );
-        my $val = 2 ** $arg;
-        push( @ret_vals, $val );
-    }
-    return @ret_vals;
-}
-
-sub _C_EXP10( @ )
-{
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        #my $val = exp( $arg * log( 10 ) );
-        my $val = 10 ** $arg;
-        push( @ret_vals, $val );
-    }
-    return @ret_vals;
-}
-
-sub _C_LOG( @ )
-{
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        if( $arg <= 0 ){
-            die( qq{log( $arg ): Must be a positive number.\n} );
+    my $cycle = shift( @_ );
+    my $b_rich_print = 1;
+    $b_rich_print = 0 if( $cycle < 0 );
+    $cycle = int( abs( $cycle ) );
+    my $remain = $cycle;
+    my $beg = &Time::HiRes::time();
+    #print( qq{\$beg=$beg\n} );
+    my $lap_last = $beg;
+    my $spl_time = 0;
+    my $cycle_w = length( $cycle );
+    my $lap_w = ( $cycle_w * 2 ) + 1;
+    if( $cycle && $b_rich_print ){
+        if( $cycle == 1 ){
+            print( qq{Elaps         Date-Time\n} );
+            print( qq{------------  -------------------\n} );
+        }else{
+            printf( qq{%-${lap_w}s  Split-Time    Lap-Time      Date-Time\n}, 'Lap' );
+            print( '-' x $lap_w . qq{  ------------  ------------  -------------------\n} );
         }
-        push( @ret_vals, log( $arg ) );
     }
-    return @ret_vals;
-}
-
-sub _C_LOG2( @ )
-{
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        if( $arg <= 0 ){
-            die( qq{log2( $arg ): Must be a positive number.\n} );
+    my $lap_old = $beg;
+    while( $remain-- != 0 ){
+        my $seq = $cycle - $remain;
+        #print( qq{\$remain=$remain\n} );
+        #print( qq{\$line="$line"\n} );
+        my $line = &waitEnter( $lap_old );
+        if( $line ne '' ){
+            $remain = 0;
         }
-        push( @ret_vals, log( $arg ) / log( 2 ) );
-    }
-    return @ret_vals;
-}
-
-sub _C_LOG10( @ )
-{
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        if( $arg <= 0 ){
-            die( qq{log10( $arg ): Must be a positive number.\n} );
+        my $lap = &Time::HiRes::time();
+        $lap_old = $lap;
+        $spl_time = $lap - $beg;
+        my $lap_time = $lap - $lap_last;
+        $lap_last = $lap;
+        my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( int( $lap ) );
+        $year += 1900;
+        $month += 1;
+        my @st = &msec2hms( $spl_time );
+        my @lt = &msec2hms( $lap_time );
+        if( $b_rich_print ){
+            if( $cycle == 1 ){
+                printf( qq{\r%02d:%02d:%06.3f  } .
+                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
+                    $year, $month, $mday, $hour, $minute, $sec );
+            }else{
+                printf( qq{\r%${cycle_w}d/%${cycle_w}d  %02d:%02d:%06.3f  %02d:%02d:%06.3f  } .
+                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
+                    $seq, $cycle,
+                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
+                    $lt[ 0 ], $lt[ 1 ], $lt[ 2 ],
+                    $year, $month, $mday, $hour, $minute, $sec );
+            }
+        }else{
+            printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d\n},
+                $year, $month, $mday, $hour, $minute, $sec );
         }
-        push( @ret_vals, log( $arg ) / log( 10 ) );
     }
-    return @ret_vals;
+
+    return $spl_time;
 }
 
-sub _C_SQRT( @ )
+sub timer( $ )
 {
-    my @ret_vals = ();
-    for my $arg( @_ ){
-        push( @ret_vals, sqrt( $arg ) );
+    my $target = shift( @_ );
+    my $zero_time = $target;
+
+    my $b_continue_after_zero = 1;
+    # 31536000=86400*365
+    if( $target < 31536000 ){           # 1971-01-01 00:00:00 より前なら
+        my $start_time = &Time::HiRes::time();
+        $zero_time = $start_time + $target; # エポックにする
+        $b_continue_after_zero = 0;         # ゼロに到達したら終了
     }
-    return @ret_vals;
+    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $zero_time );
+    $year += 1900;
+    $month += 1;
+    my $msec = ( $zero_time - int( $zero_time ) ) * 1000;;
+    printf( qq{%04d-%02d-%02d %02d:%02d:%02d.%03d  TARGET\n},
+        $year, $month, $mday, $hour, $minute, $sec, $msec );
+
+    &waitEnter( $zero_time, $b_continue_after_zero );
+
+    my $end_time = &Time::HiRes::time();
+    ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
+    $year += 1900;
+    $month += 1;
+    $msec = ( $end_time - int( $end_time ) ) * 1000;
+    printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d.%03d\n},
+        $year, $month, $mday, $hour, $minute, $sec, $msec );
+    my $elaps = $end_time - $zero_time;
+    return $elaps;
 }
 
-sub pow_inv( $$ )
+sub stopwatch()
 {
-    my( $n, $x ) = @_;
-    my $y = log( $n ) / log( $x );
-    my $rounded = int( $y + 0.5 );  # 四捨五入
-    return ( $x ** $rounded == $n ) ? $rounded : $y;
+    my $t = &laptimer( -1 );
+    print( qq{stopwatch() = $t sec.\n} );
+    return $t;
 }
+
+sub bpm( $$ )
+{
+    my $count = shift( @_ );
+    my $sec = shift( @_ );
+    return ( $count * 60 ) / $sec;
+}
+
+sub bpm15()
+{
+    my $t = &stopwatch();
+    return &bpm( 15, $t );
+}
+
+sub bpm30()
+{
+    my $t = &stopwatch();
+    return &bpm( 30, $t );
+}
+
+sub tachymeter( $ )
+{
+    my $sec = shift( @_ );
+    return 3600 / $sec;
+}
+
+sub telemeter( $;$ )
+{
+    my( $sec, $temperature ) = @_;
+
+    ## 国際標準大気(ISA)の基準気温 15℃ をデフォルト値にする。
+    # (15℃のとき音速は 340.65 m/s となり、一般的な 340 m/s に最も近くなる)
+    ## 光の速度は無視。(光速 ＝ 299792458 m/s ≒ 30万キロメートル毎秒)
+    $temperature = 15 if( !defined( $temperature ) );
+
+    my $sound_speed_at_zero = 331.5;
+    my $temp_coefficient    = 0.61;
+
+    my $speed_of_sound = $sound_speed_at_zero +
+        ( $temp_coefficient * $temperature );
+
+    return $sec * $speed_of_sound;
+}
+
+sub telemeter_m( $;$ )
+{
+    return &telemeter( @_ );
+}
+
+sub telemeter_km( $;$ )
+{
+    return &telemeter( @_ ) / 1000;
+}
+
+## Trigonometry & Geometry
 
 sub RAD2DEG( $ )
 {
@@ -2334,6 +2914,8 @@ sub vector_angle( $$$$;$$$ )
     return $radian if( $is_radian );
     return &RAD2DEG( $radian );
 }
+
+## Geographic & Navigation (GIS)
 
 sub geo2xyz( $$;$ )
 {
@@ -2802,319 +3384,7 @@ sub geo_all_km( $$$$ )
     return @ret_vals;
 }
 
-## Revision: 1.1
-sub is_leap_year( $ )
-{
-    my $year = shift( @_ );
-    my $retBool = ( ( ( $year % 4 == 0 ) &&
-                      ( ( $year % 100 != 0 ) ||
-                        ( $year % 400 == 0 ) )
-                    ) ? 1 : 0 );
-    return $retBool;
-}
-
-sub is_leap( @ )
-{
-    my @ret_vals = ();
-    for my $year( @_ ){
-        push( @ret_vals, &is_leap_year( $year ) );
-    }
-    return @ret_vals;
-}
-
-sub age( $;$ )
-{
-    my( $birthday_epoch, $ref_date_epoch ) = @_;
-    $ref_date_epoch = time() if( !defined( $ref_date_epoch ) );
-
-    my $negFlag = 0;
-    if( $birthday_epoch > $ref_date_epoch ){
-        $negFlag = 1;
-        my $tmp_epoch = $birthday_epoch;
-        $birthday_epoch = $ref_date_epoch;
-        $ref_date_epoch = $tmp_epoch;
-    }
-
-    my( $bY, $bm, $bd, $bH, $bM, $bS ) = &epoch2local( $birthday_epoch );
-    my( $rY, $rm, $rd, $rH, $rM, $rS ) = &epoch2local( $ref_date_epoch );
-
-    my $bYear = sprintf( "%04d.%02d%02d", $bY, $bm, $bd );
-    my $rYear = sprintf( "%04d.%02d%02d", $rY, $rm, $rd );
-
-    my $age = int( $rYear - $bYear );
-
-    my $lY = $rY;
-    my $bmmdd = sprintf( "%02d%02d", $bm, $bd );
-    my $rmmdd = sprintf( "%02d%02d", $rm, $rd );
-    $lY -= 1 if( $bmmdd > $rmmdd );
-    my $lastbirthday_epoch = &local2epoch( $lY, $bm, $bd, $bH, $bM, $bS );
-
-    my $days = int( ( $ref_date_epoch - $lastbirthday_epoch ) / 86400 );
-
-    if( $negFlag ){
-        $age *= -1;
-        $days *= -1;
-    }
-
-    return ( $age, $days );
-}
-
-## Revision: 1.1
-#sub age_of_moon( $$$ )
-#{
-#    my $y = shift( @_ );
-#    my $m = shift( @_ );
-#    my $d = shift( @_ );
-#    #my @c = ( 0, 2, 0, 2, 2, 4, 5, 6, 7, 8, 9, 10 );
-#    # 現代の軌道に合わせて全体を0.7日分引き下げ、月ごとのゆらぎを最適化
-#    my @c = ( 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
-#    #printf ("DATE: %04d/%02d/%02d\n", $y, $m, $d) ;
-#
-#    my $age = ( ( ( $y - 11 ) % 19 ) * 11 + $c[ $m - 1 ] + $d ) % 30;
-#
-#    return $age ;
-#}
-sub moon_age( $$$ )
-{
-    my $y = shift( @_ );
-    my $m = shift( @_ );
-    my $d = shift( @_ );
-
-    # 指定されたローカル日時の「その日の正午（12時）」のエポック秒を作る
-#    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
-    my $epoch = &Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
-
-    my $age = &moon_age_instant( $epoch );
-
-    # 小数第1位に丸めて出力
-    return sprintf( "%.1f", $age );
-}
-
-my %moon_age_name_en;
-$moon_age_name_en{'00'} = 'New Moon';
-$moon_age_name_en{'02'} = 'Waxing Crescent';
-$moon_age_name_en{'07'} = 'First Quarter';
-$moon_age_name_en{'12'} = 'Waxing Gibbous';
-$moon_age_name_en{'15'} = 'Full Moon';
-$moon_age_name_en{'19'} = 'Waning Gibbous';
-$moon_age_name_en{'22'} = 'Last Quarter';   # 'Third Quarter' でもOK
-$moon_age_name_en{'26'} = 'Waning Crescent';
-
-my %moon_age_name_ja;
-$moon_age_name_ja{'00'} = '新月';
-$moon_age_name_ja{'02'} = '三日月';
-$moon_age_name_ja{'07'} = '上弦';
-$moon_age_name_ja{'12'} = '十三夜';
-$moon_age_name_ja{'15'} = '満月';
-$moon_age_name_ja{'19'} = '更待月';
-$moon_age_name_ja{'22'} = '下弦';
-$moon_age_name_ja{'26'} = '二十六夜';
-
-sub print_moon_age_AA_if_necessary( $ )
-{
-    my $age = shift( @_ );
-
-    #my( $p, $f, $l ) = caller();
-    #print( qq{\$p="$p", \$f="$f", \$l="$l"\n} );
-    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
-        my $page = int( $age + 0.5 );
-        $page = 0 if( $page > SAKUBOU );
-        my $key = sprintf( '%02d', $page );
-        #print( qq{\$key="$key"\n} );
-        for( my $idx=0; $idx<MOON_AGE_AA_H_LEN; $idx++ ){
-            my $line = "  $TableProvider::moon_age_aa{ $key }[ $idx ]";
-            if( $idx == 2 ){
-                $line .= "  Age: $page ( rounded )";
-            }elsif( $idx == 3 && defined( $moon_age_name_en{$key} ) ){
-                $line .= "  Phase: $moon_age_name_en{$key}";
-            }elsif( $idx == 5 && defined( $moon_age_name_ja{$key} ) ){
-                $line .= "  $moon_age_name_ja{$key}";
-            }
-            print( "$line\n" );
-        }
-    }
-}
-sub moon_age_instant( ;$ )
-{
-    my $epoch = shift( @_ );
-    $epoch = &CORE::time() if( !defined( $epoch ) );
-    my $age = &moon_age_instant_raw( $epoch );
-
-    &print_moon_age_AA_if_necessary( $age );
-
-    # コア用途のため丸めずに返す
-    return $age;
-}
-sub moon_age_instant_raw( $ )
-{
-    my $epoch = shift( @_ );
-
-    my( $sec, $min, $hour, $mday, $mon, $year ) = gmtime( $epoch );
-    my $y = $year + 1900;
-    my $m = $mon + 1;
-
-    # 時・分・秒を日に換算
-    my $d = $mday + ( $hour / 24 ) + ( $min / 1440 ) + ( $sec / 86400 );
-
-    # 1月、2月を前年の13月、14月として処理（ツェラーの公式等の定石）
-    if( $m <= 2 ){
-        $y--;
-        $m += 12;
-    }
-
-    # 完全整数処理による「修正ユリウス日 (MJD)」の算出
-    my $mjd = int( 365.25 * $y ) + int( $y / 400 ) - int( $y / 100 )
-            + int( ( 153 * $m - 162 ) / 5 ) + $d - 678912;
-
-    # 上記の整数日数変換に100%適合させた「新月基準点 (Epoch)」
-    my $diff_days = $mjd - 51549.1;
-
-    # 天文学における平均朔望月（月の満ち欠けの平均周期）
-    my $synodic_month = SAKUBOU;
-
-    # 経過日数から現在の月齢を算出
-    my $age = $diff_days / $synodic_month;
-    $age = ( $age - int( $age ) ) * $synodic_month;
-
-    # マイナス値になった場合の補正
-    $age += $synodic_month if( $age < 0 );
-
-    # コア用途のため丸めずに返す
-    return $age;
-}
-
-sub get_next_moon_age_epoch( $;$ )
-{
-    my( $moon_age, $ref_date_epoch ) = @_;
-    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
-    #print( qq{\$ref_date_epoch="$ref_date_epoch"\n} );
-
-    if( !( 0 <= $moon_age && $moon_age < SAKUBOU ) ){
-        die( qq{"$moon_age": MOON_AGE is out of range.\n} );
-    }
-
-    my $age_raw = &moon_age_instant_raw( $ref_date_epoch );
-
-    my $age_diff = $moon_age - $age_raw;
-    if( $age_diff < 0 ){
-        $age_diff += SAKUBOU;
-    }
-    #print( qq{\$age_diff="$age_diff"\n} );
-
-    # 月齢の 1日（＝86400秒） を 秒数 に変換
-    my $seconds_to_wait = &POSIX::ceil( $age_diff * 86400 );
-    #print( qq{\$seconds_to_wait="$seconds_to_wait"\n} );
-
-    my $next_future_epoch = $ref_date_epoch + $seconds_to_wait;
-    #print( qq{\$next_future_epoch="$next_future_epoch"\n} );
-
-    &print_moon_age_AA_if_necessary( $moon_age );
-
-    return $next_future_epoch;
-}
-
-sub local2epoch( $$$;$$$ )
-{
-    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
-#    $year -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
-    $month -= 1;
-    $hour = 0 if( !defined( $hour ) );
-    $minute = 0 if( !defined( $minute ) );
-    $sec = 0 if( !defined( $sec ) );
-    my $epoch = &Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
-    return $epoch;
-}
-
-sub gmt2epoch( $$$;$$$ )
-{
-    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
-#    $year -= 1900; # timegm()は4桁の西暦を解釈できる。4桁で渡すべき。
-    $month -= 1;
-    $hour = 0 if( !defined( $hour ) );
-    $minute = 0 if( !defined( $minute ) );
-    $sec = 0 if( !defined( $sec ) );
-    my $epoch = &Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
-    return $epoch;
-}
-
-sub epoch2local( $ )
-{
-    my $epoch = shift( @_ );
-    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $epoch );
-    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
-    $month += 1;
-    return ( $year, $month, $mday, $hour, $minute, $sec );
-}
-
-sub epoch2gmt( $ )
-{
-    my $epoch = shift( @_ );
-    my( $sec, $minute, $hour, $mday, $month, $year ) = gmtime( $epoch );
-    $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
-    $month += 1;
-    return ( $year, $month, $mday, $hour, $minute, $sec );
-}
-
-sub sec2dhms( $;$ )
-{
-    my( $duration, $decimal_places ) = @_;
-    #print( qq{\$duration="$duration"\n} );
-
-    my $bNeg = ( $duration < 0 ? 1 : 0 );
-    my $duration_abs = abs( $duration );
-    if( defined( $decimal_places ) ){
-        my @dum = &round( $duration_abs, $decimal_places );
-        $duration_abs = $dum[ 0 ];
-        #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
-    }
-
-    my $sec = &_C_MOD( $duration_abs, 60 );
-    ## support:
-    ##   $ ./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'
-    ##   ( 0, 0, 48, 45.7800000000002 ) -> 45.78
-    ##   ( 0, 0, 48, 45.7799999999998 ) -> 45.78 （マイナス誤差も救済）
-    if( defined( $decimal_places ) ){
-#        # 指定された桁数で四捨五入し、末尾の不要な0を消すために + 0 で数値化
-#        $sec = sprintf( "%.${decimal_places}f", $sec ) + 0;
-        $sec = sprintf( "%.${decimal_places}f", $sec )
-    }
-    my $remain = int( $duration_abs / 60 );
-    my $minute = &_C_MOD( $remain, 60 );
-    $remain = int( $remain / 60 );
-    my $hour = &_C_MOD( $remain, 24 );
-    my $days = int( $remain / 24 );
-
-    if( $bNeg ){
-        $sec *= -1;
-        $minute *= -1;
-        $hour *= -1;
-        $days *= -1;
-    }
-
-    return ( $days, $hour, $minute, $sec );
-}
-
-sub dhms2sec( $;$$$ )
-{
-    my( $days, $hour, $minute, $sec ) = @_;
-    $hour = 0 if( !defined( $hour ) );
-    $minute = 0 if( !defined( $minute ) );
-    $sec = 0 if( !defined( $sec ) );
-
-    my $duration_sec = 0;
-    $duration_sec += 86400 * $days;
-    $duration_sec +=  3600 * $hour;
-    $duration_sec +=    60 * $minute;
-    $duration_sec +=         $sec;
-
-    return $duration_sec;
-}
-
-sub dhms2dhms( $;$$$$ )
-{
-    my( $days, $hour, $minute, $sec, $decimal_places ) = @_;
-    return &sec2dhms( &dhms2sec( $days, $hour, $minute, $sec ), $decimal_places );
-}
+## Unit Conversion
 
 ## 長さ変換: 里→メートル[m]
 sub ri2meter( $ )
@@ -3228,295 +3498,51 @@ sub newton2kgf( $ )
     return $kgf;
 }
 
-sub msec2hms( $ )
+## Utility
+
+sub paper_size( $$ )
 {
-    my $duration = shift( @_ );
-    #print( qq{\$duration="$duration"\n} );
-
-    my $sec = &_C_MOD( $duration, 60 );
-    #print( qq{\$sec="$sec"\n} );
-    my $remain = int( $duration / 60 );
-    my $minute = $remain % 60;
-    $remain = int( $remain / 60 );
-    my $hour = $remain % 24;
-    ## 24時間以上は捨てる。
-    ## 0～24時間の間を環状に回り続けるイメージ。
-
-    return ( $hour, $minute, $sec );
-}
-
-sub waitEnter( $;$ )
-{
-    my $zero_time = shift( @_ );
-    my $b_continue_after_zero = 1;
-    if( defined( $_[ 0 ] ) ){
-        $b_continue_after_zero = shift( @_ );
+    my( $size, $type ) = @_;
+    if( $size < 0 ){
+        die( qq{paper_size(): \$size[=$size] is negative.\n} );
+    }
+    if( $size != int( $size ) ){
+        die( qq{paper_size(): \$size[=$size] is a decimal number.\n} );
     }
 
-    #print( qq{\$zero_time="$zero_time"\n} );
+    my $paper_type = 'A';
+    my $long_side  = 1189;
+    my $short_side =  841;
+    ## B判の場合
+    if( defined( $type ) && $type == 1 ){
+        $paper_type = 'B';
+        ## B判はA判の面積の1.5倍という思想。計算で出すなら以下のようになる。
+        ## $long_side  = &POSIX::floor( $long_side * sqrt( 1.5 ) );
+        ## $short_side = &POSIX::floor( $short_side * sqrt( 1.5 ) );
+        $long_side  = 1456;
+        $short_side = 1030;
+    }
 
-    # 標準出力をオートフラッシュ（バッファリング無効）
-    my $autoflash_backup = $|;  # Probably 0
-    $| = 1;
-
-    #print( "タイマー開始。Enterキーで終了します...\n" );
-
-    my $bBelCheck = -1;
-    my $line = '';
-    while( 1 ){
-        my $bel = '';
-        # 1. タイマーの計算と表示
-        my $lap     = &Time::HiRes::time();
-        my $elapsed = $lap - $zero_time;
-        if( $elapsed >= 0 ){
-            #print( qq{\$elapsed="$elapsed"\n} );
-            if( $bBelCheck == 1 ){
-                $bBelCheck = 0;
-                $bel = "\a";
-            }
-            if( $b_continue_after_zero == 0 ){
-                print( "$bel" );
-                last;
-            }
-        }else{
-            if( $bBelCheck == -1 ){
-                $bBelCheck = 1;
-            }
+    my $counter = $size;
+    my $bWarnLongSide = 1;
+    my $bWarnShortSide = 1;
+    while( $counter-- ){
+        my $paper_size = $paper_type . ( $size - $counter );
+        my $short_side_next = &POSIX::floor( $long_side / 2 );
+        $long_side = $short_side;
+        if( $long_side == 0 && $bWarnLongSide ){
+            $bWarnLongSide = 0;
+            warn( qq{paper_size(): $paper_size: The long side reaches 0 mm.\n} );
         }
-        $elapsed = abs( $elapsed );
-        my $days    = int( $elapsed / 86400 );
-        my $hours   = int( ( $elapsed % 86400 ) / 3600 );
-        my $mins    = int( ( $elapsed % 3600 ) / 60 );
-        my $secs    = int( $elapsed % 60 );
-        my $msecs   = int( ( $elapsed - int( $elapsed ) ) * 1000 );
-
-        # \r で行頭に戻って上書き
-        if( $days ){
-            printf( "$bel\r%3d %02d:%02d:%02d.%03d ",
-                $days, $hours, $mins, $secs, $msecs );
-        }else{
-            printf( "$bel\r%02d:%02d:%02d.%03d ",
-                $hours, $mins, $secs, $msecs );
-        }
-        ## 次の出力にも"\r"を入れておくこと
-
-        # 2. 標準入力の監視 (select を使用)
-        # vec(ビットベクトル)を作成して STDIN(ファイル記述子0)をセット
-        my $rin = '';
-        vec( $rin, fileno( STDIN ), 1 ) = 1;
-
-        # select(読込待ちベクトル, 書込待ち, 例外待ち, タイムアウト秒)
-        # 0.05秒だけ入力を待ち、無ければ次に進む
-        my $nfound = select( my $rout = $rin, undef, undef, 0.05 );
-        if( $nfound > 0 ){
-            # バッファリングしない sysread を使う
-            my $char;
-            my $bytes = &_C_SYSREAD( \*STDIN, $char, 1 );
-
-            if( defined( $bytes ) ){
-                if( $bytes > 0 ){
-                    if( $char eq "\n" ){
-                        # Enter（改行）を検知したら、末尾のキャリッジリターン(\r)を削ってループ終了
-                        $line =~ s/\r$//o;
-                        last;
-                    }
-
-                    # 改行以外の文字は、1文字ずつ $line に蓄積していく
-                    $line .= $char;
-                }else{
-                    # $bytes == 0 (EOF) などの場合は、パイプが閉じられただけなので
-                    # last せずにスルーして、タイマー処理を継続させる
-                    #warn( "c: warn: zero\n" );
-                    next;
-                }
-            }else{
-                my $msg = sprintf( "c: warn: %d: sysread(): %s", __LINE__, $! );
-                warn( $msg );
-            }
+        $short_side = $short_side_next;
+        if( $short_side == 0 && $bWarnShortSide ){
+            $bWarnShortSide = 0;
+            warn( qq{paper_size(): $paper_size: The short side reaches 0 mm.\n} );
         }
     }
 
-    # 標準出力のオートフラッシュ設定を元に戻しておく
-    $| = $autoflash_backup;
-    return $line;
-}
-
-use Errno qw(EINTR);
-my $_c_sysread_counter = 0;
-sub _C_SYSREAD( *\$$;$ )
-{
-    # プロトタイプで \$$ を指定しているため、
-    # $_[1] には参照ではなく、呼び出し元のスカラー変数そのものが直接入る
-    my( $_filehandle, undef, $_length ) = @_;
-
-    if( $TableProvider::CAppConfig->GetBTestTestTest() ){
-        $TableProvider::CAppConfig->SetBTestTestTest( 0 );
-        $_c_sysread_counter = 10;
-        $! = EINTR;
-        return undef;
-    }elsif( $_c_sysread_counter > 0 ){
-        $_c_sysread_counter--;
-        return 0;
-    }
-
-    # $_[1] を直接 sysread に渡すことで、呼び出し元の変数を書き換える
-    return sysread( $_filehandle, $_[1], $_length );
-}
-
-sub laptimer( $ )
-{
-    my $cycle = shift( @_ );
-    my $b_rich_print = 1;
-    $b_rich_print = 0 if( $cycle < 0 );
-    $cycle = int( abs( $cycle ) );
-    my $remain = $cycle;
-    my $beg = &Time::HiRes::time();
-    #print( qq{\$beg=$beg\n} );
-    my $lap_last = $beg;
-    my $spl_time = 0;
-    my $cycle_w = length( $cycle );
-    my $lap_w = ( $cycle_w * 2 ) + 1;
-    if( $cycle && $b_rich_print ){
-        if( $cycle == 1 ){
-            print( qq{Elaps         Date-Time\n} );
-            print( qq{------------  -------------------\n} );
-        }else{
-            printf( qq{%-${lap_w}s  Split-Time    Lap-Time      Date-Time\n}, 'Lap' );
-            print( '-' x $lap_w . qq{  ------------  ------------  -------------------\n} );
-        }
-    }
-    my $lap_old = $beg;
-    while( $remain-- != 0 ){
-        my $seq = $cycle - $remain;
-        #print( qq{\$remain=$remain\n} );
-        #print( qq{\$line="$line"\n} );
-        my $line = &waitEnter( $lap_old );
-        if( $line ne '' ){
-            $remain = 0;
-        }
-        my $lap = &Time::HiRes::time();
-        $lap_old = $lap;
-        $spl_time = $lap - $beg;
-        my $lap_time = $lap - $lap_last;
-        $lap_last = $lap;
-        my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( int( $lap ) );
-        $year += 1900;
-        $month += 1;
-        my @st = &msec2hms( $spl_time );
-        my @lt = &msec2hms( $lap_time );
-        if( $b_rich_print ){
-            if( $cycle == 1 ){
-                printf( qq{\r%02d:%02d:%06.3f  } .
-                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
-                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
-                    $year, $month, $mday, $hour, $minute, $sec );
-            }else{
-                printf( qq{\r%${cycle_w}d/%${cycle_w}d  %02d:%02d:%06.3f  %02d:%02d:%06.3f  } .
-                        qq{%04d-%02d-%02d %02d:%02d:%02d\n},
-                    $seq, $cycle,
-                    $st[ 0 ], $st[ 1 ], $st[ 2 ],
-                    $lt[ 0 ], $lt[ 1 ], $lt[ 2 ],
-                    $year, $month, $mday, $hour, $minute, $sec );
-            }
-        }else{
-            printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d\n},
-                $year, $month, $mday, $hour, $minute, $sec );
-        }
-    }
-
-    return $spl_time;
-}
-
-sub timer( $ )
-{
-    my $target = shift( @_ );
-    my $zero_time = $target;
-
-    my $b_continue_after_zero = 1;
-    # 31536000=86400*365
-    if( $target < 31536000 ){           # 1971-01-01 00:00:00 より前なら
-        my $start_time = &Time::HiRes::time();
-        $zero_time = $start_time + $target; # エポックにする
-        $b_continue_after_zero = 0;         # ゼロに到達したら終了
-    }
-    my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $zero_time );
-    $year += 1900;
-    $month += 1;
-    my $msec = ( $zero_time - int( $zero_time ) ) * 1000;;
-    printf( qq{%04d-%02d-%02d %02d:%02d:%02d.%03d  TARGET\n},
-        $year, $month, $mday, $hour, $minute, $sec, $msec );
-
-    &waitEnter( $zero_time, $b_continue_after_zero );
-
-    my $end_time = &Time::HiRes::time();
-    ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
-    $year += 1900;
-    $month += 1;
-    $msec = ( $end_time - int( $end_time ) ) * 1000;
-    printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d.%03d\n},
-        $year, $month, $mday, $hour, $minute, $sec, $msec );
-    my $elaps = $end_time - $zero_time;
-    return $elaps;
-}
-
-sub stopwatch()
-{
-    my $t = &laptimer( -1 );
-    print( qq{stopwatch() = $t sec.\n} );
-    return $t;
-}
-
-sub bpm( $$ )
-{
-    my $count = shift( @_ );
-    my $sec = shift( @_ );
-    return ( $count * 60 ) / $sec;
-}
-
-sub bpm15()
-{
-    my $t = &stopwatch();
-    return &bpm( 15, $t );
-}
-
-sub bpm30()
-{
-    my $t = &stopwatch();
-    return &bpm( 30, $t );
-}
-
-sub tachymeter( $ )
-{
-    my $sec = shift( @_ );
-    return 3600 / $sec;
-}
-
-sub telemeter( $;$ )
-{
-    my( $sec, $temperature ) = @_;
-
-    ## 国際標準大気(ISA)の基準気温 15℃ をデフォルト値にする。
-    # (15℃のとき音速は 340.65 m/s となり、一般的な 340 m/s に最も近くなる)
-    ## 光の速度は無視。(光速 ＝ 299792458 m/s ≒ 30万キロメートル毎秒)
-    $temperature = 15 if( !defined( $temperature ) );
-
-    my $sound_speed_at_zero = 331.5;
-    my $temp_coefficient    = 0.61;
-
-    my $speed_of_sound = $sound_speed_at_zero +
-        ( $temp_coefficient * $temperature );
-
-    return $sec * $speed_of_sound;
-}
-
-sub telemeter_m( $;$ )
-{
-    return &telemeter( @_ );
-}
-
-sub telemeter_km( $;$ )
-{
-    return &telemeter( @_ ) / 1000;
+    my @ret_vals = ( $short_side, $long_side );
+    return @ret_vals;
 }
 
 
@@ -5167,13 +5193,33 @@ $ c [I<OPTIONS...>] I<EXPRESSIONS>
 
 CURRENT-TIME
 
+Convert to local time:
+
+  $ c 'epoch2local( NOW )'
+  ( 2025, 12, 5, 20, 59, 3 )
+
 =item I<SAKUBOU>
 
 A synodic month is the time between two consecutive new moons, lasting about 29.530588853 days.
 
+Major Moon Phases (High Precision - New, 1st Qtr, Full, 3rd Qtr, Next New):
+
+  $ c 'linspace( 0, SAKUBOU, 5 )'
+  ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
+
+Major Moon Phases (Rounded intermediate values to 0 decimals):
+
+  $ c 'linspace( 0, SAKUBOU, 5, 0 )'
+  ( 0, 7, 15, 22, 29.530588853 )
+
 =item I<CHIJIKU>
 
 Axial tilt is the angle between Earth's rotational axis and its orbital plane, which is about 23.436 degrees.
+
+Arctic Circle Latitude (90 - Tilt):
+
+  $ c 90 - CHIJIKU
+  66.564
 
 =item User-defined-file
 
@@ -5207,19 +5253,17 @@ Axial tilt is the angle between Earth's rotational axis and its orbital plane, w
 
 =head2 FUNCTIONS
 
-fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime,
-prime_factorize, get_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
-add_each, mul_each, linspace, linstep, mul_growth, gen_fibo_seq, paper_size, rand, exp, exp2, exp10, log,
-log2, log10, sqrt, pow, pow_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan,
-asin, acos, atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_points,
-angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m, geo_distance_km,
-geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
-geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, is_leap,
-age, moon_age, moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
-meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
-newton2kgf, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
-telemeter_km
+fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
+get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, first, slice,
+uniq, sum, prod, avg, add_each, mul_each, div_each, linspace, linstep, mul_growth, gen_fibo_seq, is_leap, age, moon_age,
+moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms,
+laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad,
+dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle_deg, dist_between_points,
+midpt_between_points, angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m,
+geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
+geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram,
+gram2ounce, kgf2newton, newton2kgf, paper_size
 
 =head1 OPTIONS
 
@@ -6059,203 +6103,6 @@ Returns the power of I<A> to which I<B> is raised.
 
 =back
 
-=head2 Trigonometry & Geometry
-
-=over 8
-
-=item C<rad2deg>
-
-rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
-
-  $ c 'rad2deg( 2.50620553940126 )'
-  143.595
-
-=item C<deg2rad>
-
-deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
-
-  $ c 'deg2rad( 143.595 )'
-  2.5062055394
-
-=item C<dms2rad>
-
-dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
-
-  $ c 'dms2rad( 143, 35, 42.0000000000002 )'
-  2.5062055394
-
-=item C<dms2deg>
-
-dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
-
-  $ c 'dms2deg( 143, 35, 42.0000000000002 )'
-  143.595
-
-=item C<deg2dms>
-
-deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
-
-  $ c 'deg2dms( 143.595 )'
-  ( 143, 35, 42 )
-
-=item C<dms2dms>
-
-dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
-
-  $ c 'dms2dms( 143, 35.7, 0 )'
-  ( 143, 35, 42 )
-
-=item C<sin>
-
-sin( I<RADIANS> ).
-Returns the sine of I<RADIANS>.
-[Perl Native]
-
-=item C<cos>
-
-cos( I<RADIANS> ).
-Returns the cosine of I<RADIANS>.
-[Perl Native]
-
-=item C<tan>
-
-tan( I<RADIANS> ).
-Returns the tangent of I<RADIANS>.
-
-=item C<asin>
-
-asin( I<RATIO> ).
-The arcus (also known as the inverse) functions of the sine.
-
-  $ c 'rad2deg( asin( 1 / 2 ) )'
-  30
-
-=item C<acos>
-
-acos( I<RATIO> ).
-The arcus (also known as the inverse) functions of the cosine.
-
-  $ c 'rad2deg( acos( 1 / 2 ) )'
-  60
-
-=item C<atan>
-
-atan( I<RATIO> ).
-The arcus (also known as the inverse) functions of the tangent.
-
-  $ c 'rad2deg( atan( 1 / 1 ) )'
-  45
-
-=item C<atan2>
-
-atan2( I<Y>, I<X> ).
-The principal value of the arc tangent of I<Y> / I<X>.
-[Perl Native]
-
-  $ c 'rad2deg( atan2( 1, 1 ) )'
-  45
-
-=item C<hypot>
-
-hypot( I<X>, I<Y> ).
-Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments.
-[POSIX]
-
-  $ c 'hypot( 3, 4 )'
-  5
-
-=item C<angle_deg>
-
-angle_deg( I<X>, I<Y> [, I<IS_AZIMUTH> ] ).
-Returns the straight line distance from (0,0) to (I<X>,I<Y>).
-Returns the standard mathematical angle (0 degrees = east, counterclockwise).
-If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise).
-
-  $ c 'angle_deg( 3, 4 )'
-  53.1301023542
-
-=item C<dist_between_points>
-
-dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
-Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
-alias: dist().
-
-  $ c 'dist_between_points( 100, 10, 200, 110 )'
-  141.421356237
-
-  $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
-  173.205080757
-
-=item C<midpt_between_points>
-
-midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
-Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>).
-alias: midpt().
-
-  $ c 'midpt_between_points( 100, 10, 200, 110 )'
-  ( 150, 60 )
-
-  $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
-  ( 150, 60, 100 )
-
-=item C<angle_between_points>
-
-angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_AZIMUTH> ] ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_AZIMUTH> ] ).
-Returns the angle from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or the horizontal and vertical angles from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
-Angles are in degrees.
-Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
-If I<IS_AZIMUTH> is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
-alias: angle().
-
-  $ c 'angle_between_points( 100, 10, 150, 110 )'
-  63.4349488229
-
-  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
-  ( 63.4349488229, 41.8103148958 )
-
-I<IS_AZIMUTH> is set to true
-
-  $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
-  26.5650511771
-
-  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
-  ( 26.5650511771, 41.8103148958 )
-
-=item C<vector_angle>
-
-vector_angle( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_RADIAN> ] ) or
-vector_angle( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_RADIAN> ] ).
-Returns the angle between two vectors as viewed from the origin.
-Angles are in degrees.
-If I<IS_RADIAN> is set, it returns radians instead of degrees.
-alias: va(), angular_distance(), ang_dist().
-
-2D Angle (Degrees):
-
-  $ c 'vector_angle( -100, -100, 100, -100 )'
-  90
-
-2D Angle (Radians):
-
-  $ c 'vector_angle( 100, -100, -100, -100, 1 )'
-  1.57079632679
-
-3D Angle (Degrees):
-
-  ## Angular distance between Central America and Tokyo
-  $ c 'vector_angle(
-         geo2xyz( deg2rad( 10.4, -68.4 ) ),
-         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
-       )'
-  127.008055363
-
-3D Angle (Radians) using alias:
-
-  $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
-  3.14159265359
-
-=back
-
 =head2 List & Sequence Operations
 
 =over 8
@@ -6378,15 +6225,35 @@ Major Moon Phases:
   $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
   ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
 
+=item C<div_each>
+
+div_each( I<NUMBER1>,.. , I<DIVISOR> ). Divide each number.
+
+Simplify ratio:
+
+  $ c 'gcd( 31080, 62370, 124740 )'
+  210
+  $ c 'div_each( 31080, 62370, 124740, 210 )'
+  ( 148, 297, 594 )
+
+Normalize ratio:
+
+  $ c 'min( 148, 297, 594 )'
+  148
+  $ c 'div_each( 148, 297, 594, 148 )'
+  ( 1, 2.00675675676, 4.01351351351 )
+  $ c 'round( div_each( 148, 297, 594, 148 ), 0 )'
+  ( 1, 2, 4 )
+
 =item C<linspace>
 
 linspace( I<START>, I<END>, I<LENGTH> [, I<DECIMAL_PLACES> ] ).
 Generates a list of evenly spaced numbers from I<START> to I<END>.
 Returns a sequence of numbers of size I<LENGTH>.
 I<LENGTH> is an integer greater than or equal to 2.
-Rounding the number if I<DECIMAL_PLACES> is specified.
+Rounds the intermediate number if I<DECIMAL_PLACES> is specified, keeping the start and end values exact.
 
-Divide the range from 0x33 to 0xCC into 5 parts:
+Divide the color range from 0x33 to 0xCC into 5 parts:
 
   $ c 'linspace( 0x33, 0xcc, 5 )'
   ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
@@ -6426,209 +6293,6 @@ Generate the Lucas sequence:
 
   $ c 'gen_fibo_seq( 2, 1, 10 )'
   ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
-
-=back
-
-=head2 Geographic & Navigation (GIS)
-
-=over 8
-
-=item C<geo2xyz>
-
-geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ).
-Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
-If I<HEIGHT_M> is omitted, the calculation is performed assuming an elevation of 0 m.
-alias: g2xyz().
-
-  ## Calculate the straight-line distance from the epicenter to the observation point.
-  $ c 'dist_between_points(
-         geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
-         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
-       ) / 1000'
-  72.7492079698   ## 72.75 km
-
-=item C<geo_radius>
-
-geo_radius( I<LAT> ).
-Given a latitude (in radians),
-returns the distance from the center of the Earth to its surface (in meters).
-
-What is the radius of the equator (0 degrees latitude)?
-
-  $ c 'geo_radius( deg2rad( 0 ) )'
-  6378137   # 6,378,137 m
-
-=item C<radius_of_lat>
-
-radius_of_lat( I<LAT> ).
-Given a latitude (in radians), returns the radius of that parallel (in meters).
-
-Radius of the parallel at 45 degrees latitude (distance of 1 radian):
-
-  $ c 'radius_of_lat( deg2rad( 45 ) )'
-  4517590.87885     # 4,517,590.88 m
-
-=item C<geo_distance_m>
-
-geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Calculates and returns the distance (in meters) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-alias: gd_m().
-
-  $ TOKYO_ST='35.68129, 139.76706'
-  $ OSAKA_ST='34.70248, 135.49595'
-  $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403822.719846     # 403,822.72 m
-
-=item C<geo_distance_km>
-
-geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Calculates and returns the distance (in kilometers) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-Same as geo_distance_m() / 1000.
-alias: gd_km().
-
-  $ TOKYO_ST='35.68129, 139.76706'
-  $ OSAKA_ST='34.70248, 135.49595'
-  $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  403.822719846     # 403.82 km
-
-=item C<geo_azimuth>
-
-geo_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the geographic azimuth (bearing) in degrees from I<A> to I<B>.
-Note: 0 degrees is North, 90 degrees is East (clockwise).
-Input: Latitude/Longitude in radians.
-alias: gazm().
-
-  $ TOKYO_ST='35.68129, 139.76706'
-  $ OSAKA_ST='34.70248, 135.49595'
-  $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-  255.640247215
-
-=item C<geo_dist_m_and_azimuth>
-
-geo_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the distance (in meters) and bearing (in degrees) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-North is 0 degrees.
-alias: gd_m_azm().
-
-  $ c 'geo_dist_m_and_azimuth(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
-
-=item C<geo_dist_km_and_azimuth>
-
-geo_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-North is 0 degrees.
-alias: gd_km_azm().
-
-  $ c 'geo_dist_km_and_azimuth(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913.341859625, 257.157936196 )  # 913.34 km ; 257 degrees
-
-=item C<geo_rl_distance_m>
-
-geo_rl_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Calculates and returns the rhumbnail distance (in meters) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-alias: gd_rl_m().
-
-  $ c 'geo_rl_distance_m(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  913686.10938  # 913,686.11 m
-
-=item C<geo_rl_distance_km>
-
-geo_rl_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Calculates and returns the rhumbnail distance (in kilometers) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-alias: gd_rl_km().
-
-  $ c 'geo_rl_distance_km(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  913.68610938  # 913.69 km
-
-=item C<geo_rl_azimuth>
-
-geo_rl_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the azimuth (heading) in degrees of the rhumbnail from I<A> to I<B>.
-Note: 0 degrees is North, 90 degrees is East (clockwise).
-Input: Latitude/Longitude in radians.
-alias: gazm_rl().
-
-  $ c 'geo_rl_azimuth(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  254.394179317     # 254 degrees
-
-=item C<geo_rl_dist_m_and_azimuth>
-
-geo_rl_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the rhumbnail distance (in meters) and bearing (in degrees) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-North is 0 degrees.
-alias: gd_rl_m_azm().
-
-  $ c 'geo_rl_dist_m_and_azimuth(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
-
-=item C<geo_rl_dist_km_and_azimuth>
-
-geo_rl_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
-Latitude and longitude must be specified in radians.
-North is 0 degrees.
-alias: gd_rl_km_azm().
-
-  $ c 'geo_rl_dist_km_and_azimuth(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913.68610938, 254.394179317 )   # 913.69 km, 254 degrees
-
-=item C<geo_all_m>
-
-geo_all_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
-and the distance and azimuth (bearing) of the rhumb line, in degrees.
-Distances are in meters and azimuth in degrees.
-Latitude and longitude must be specified in radians.
-
-  $ c 'geo_all_m(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913341.859625, 257.157936196, 913686.10938, 254.394179317 )
-
-=item C<geo_all_km>
-
-geo_all_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
-Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
-and the distance and azimuth (bearing) of the rhumb line, in degrees.
-Distances are in kilometers and azimuth in degrees.
-Latitude and longitude must be specified in radians.
-
-  $ c 'geo_all_km(
-         deg2rad( 35.68129, 139.76706 ),
-         dms2rad( 33, 27, 56, 130, 10, 32 )
-       )'
-  ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
 =back
 
@@ -6967,6 +6631,407 @@ Same as telemeter_m() / 1000.
 
   $ c 'telemeter_km( 8 )'
   2.7252  # kilometers
+
+=back
+
+=head2 Trigonometry & Geometry
+
+=over 8
+
+=item C<rad2deg>
+
+rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
+
+  $ c 'rad2deg( 2.50620553940126 )'
+  143.595
+
+=item C<deg2rad>
+
+deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+
+  $ c 'deg2rad( 143.595 )'
+  2.5062055394
+
+=item C<dms2rad>
+
+dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+
+  $ c 'dms2rad( 143, 35, 42.0000000000002 )'
+  2.5062055394
+
+=item C<dms2deg>
+
+dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
+
+  $ c 'dms2deg( 143, 35, 42.0000000000002 )'
+  143.595
+
+=item C<deg2dms>
+
+deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+
+  $ c 'deg2dms( 143.595 )'
+  ( 143, 35, 42 )
+
+=item C<dms2dms>
+
+dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+
+  $ c 'dms2dms( 143, 35.7, 0 )'
+  ( 143, 35, 42 )
+
+=item C<sin>
+
+sin( I<RADIANS> ).
+Returns the sine of I<RADIANS>.
+[Perl Native]
+
+=item C<cos>
+
+cos( I<RADIANS> ).
+Returns the cosine of I<RADIANS>.
+[Perl Native]
+
+=item C<tan>
+
+tan( I<RADIANS> ).
+Returns the tangent of I<RADIANS>.
+
+=item C<asin>
+
+asin( I<RATIO> ).
+The arcus (also known as the inverse) functions of the sine.
+
+  $ c 'rad2deg( asin( 1 / 2 ) )'
+  30
+
+=item C<acos>
+
+acos( I<RATIO> ).
+The arcus (also known as the inverse) functions of the cosine.
+
+  $ c 'rad2deg( acos( 1 / 2 ) )'
+  60
+
+=item C<atan>
+
+atan( I<RATIO> ).
+The arcus (also known as the inverse) functions of the tangent.
+
+  $ c 'rad2deg( atan( 1 / 1 ) )'
+  45
+
+=item C<atan2>
+
+atan2( I<Y>, I<X> ).
+The principal value of the arc tangent of I<Y> / I<X>.
+[Perl Native]
+
+  $ c 'rad2deg( atan2( 1, 1 ) )'
+  45
+
+=item C<hypot>
+
+hypot( I<X>, I<Y> ).
+Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments.
+[POSIX]
+
+  $ c 'hypot( 3, 4 )'
+  5
+
+=item C<angle_deg>
+
+angle_deg( I<X>, I<Y> [, I<IS_AZIMUTH> ] ).
+Returns the straight line distance from (0,0) to (I<X>,I<Y>).
+Returns the standard mathematical angle (0 degrees = east, counterclockwise).
+If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise).
+
+  $ c 'angle_deg( 3, 4 )'
+  53.1301023542
+
+=item C<dist_between_points>
+
+dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+alias: dist().
+
+  $ c 'dist_between_points( 100, 10, 200, 110 )'
+  141.421356237
+
+  $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
+  173.205080757
+
+=item C<midpt_between_points>
+
+midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>).
+alias: midpt().
+
+  $ c 'midpt_between_points( 100, 10, 200, 110 )'
+  ( 150, 60 )
+
+  $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
+  ( 150, 60, 100 )
+
+=item C<angle_between_points>
+
+angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_AZIMUTH> ] ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_AZIMUTH> ] ).
+Returns the angle from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or the horizontal and vertical angles from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
+Angles are in degrees.
+Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
+If I<IS_AZIMUTH> is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
+alias: angle().
+
+  $ c 'angle_between_points( 100, 10, 150, 110 )'
+  63.4349488229
+
+  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
+  ( 63.4349488229, 41.8103148958 )
+
+I<IS_AZIMUTH> is set to true
+
+  $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
+  26.5650511771
+
+  $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
+  ( 26.5650511771, 41.8103148958 )
+
+=item C<vector_angle>
+
+vector_angle( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_RADIAN> ] ) or
+vector_angle( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_RADIAN> ] ).
+Returns the angle between two vectors as viewed from the origin.
+Angles are in degrees.
+If I<IS_RADIAN> is set, it returns radians instead of degrees.
+alias: va(), angular_distance(), ang_dist().
+
+2D Angle (Degrees):
+
+  $ c 'vector_angle( -100, -100, 100, -100 )'
+  90
+
+2D Angle (Radians):
+
+  $ c 'vector_angle( 100, -100, -100, -100, 1 )'
+  1.57079632679
+
+3D Angle (Degrees):
+
+  ## Angular distance between Central America and Tokyo
+  $ c 'vector_angle(
+         geo2xyz( deg2rad( 10.4, -68.4 ) ),
+         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+       )'
+  127.008055363
+
+3D Angle (Radians) using alias:
+
+  $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
+  3.14159265359
+
+=back
+
+=head2 Geographic & Navigation (GIS)
+
+=over 8
+
+=item C<geo2xyz>
+
+geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ).
+Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
+If I<HEIGHT_M> is omitted, the calculation is performed assuming an elevation of 0 m.
+alias: g2xyz().
+
+Calculate the straight-line distance from the epicenter to the observation point:
+
+  $ c 'dist_between_points(
+         geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
+         geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+       ) / 1000'
+  72.7492079698   ## 72.75 km
+
+=item C<geo_radius>
+
+geo_radius( I<LAT> ).
+Given a latitude (in radians),
+returns the distance from the center of the Earth to its surface (in meters).
+
+What is the radius of the equator (0 degrees latitude)?
+
+  $ c 'geo_radius( deg2rad( 0 ) )'
+  6378137   # 6,378,137 m
+
+=item C<radius_of_lat>
+
+radius_of_lat( I<LAT> ).
+Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+  $ c 'radius_of_lat( deg2rad( 45 ) )'
+  4517590.87885     # 4,517,590.88 m
+
+=item C<geo_distance_m>
+
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the distance (in meters) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+alias: gd_m().
+
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  403822.719846     # 403,822.72 m
+
+=item C<geo_distance_km>
+
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the distance (in kilometers) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+Same as geo_distance_m() / 1000.
+alias: gd_km().
+
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  403.822719846     # 403.82 km
+
+=item C<geo_azimuth>
+
+geo_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the geographic azimuth (bearing) in degrees from I<A> to I<B>.
+Note: 0 degrees is North, 90 degrees is East (clockwise).
+Input: Latitude/Longitude in radians.
+alias: gazm().
+
+  $ TOKYO_ST='35.68129, 139.76706'
+  $ OSAKA_ST='34.70248, 135.49595'
+  $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+  255.640247215
+
+=item C<geo_dist_m_and_azimuth>
+
+geo_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the distance (in meters) and bearing (in degrees) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_m_azm().
+
+  $ c 'geo_dist_m_and_azimuth(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
+
+=item C<geo_dist_km_and_azimuth>
+
+geo_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_km_azm().
+
+  $ c 'geo_dist_km_and_azimuth(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913.341859625, 257.157936196 )  # 913.34 km ; 257 degrees
+
+=item C<geo_rl_distance_m>
+
+geo_rl_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the rhumbnail distance (in meters) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+alias: gd_rl_m().
+
+  $ c 'geo_rl_distance_m(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  913686.10938  # 913,686.11 m
+
+=item C<geo_rl_distance_km>
+
+geo_rl_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Calculates and returns the rhumbnail distance (in kilometers) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+alias: gd_rl_km().
+
+  $ c 'geo_rl_distance_km(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  913.68610938  # 913.69 km
+
+=item C<geo_rl_azimuth>
+
+geo_rl_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the azimuth (heading) in degrees of the rhumbnail from I<A> to I<B>.
+Note: 0 degrees is North, 90 degrees is East (clockwise).
+Input: Latitude/Longitude in radians.
+alias: gazm_rl().
+
+  $ c 'geo_rl_azimuth(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  254.394179317     # 254 degrees
+
+=item C<geo_rl_dist_m_and_azimuth>
+
+geo_rl_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the rhumbnail distance (in meters) and bearing (in degrees) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_rl_m_azm().
+
+  $ c 'geo_rl_dist_m_and_azimuth(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
+
+=item C<geo_rl_dist_km_and_azimuth>
+
+geo_rl_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
+Latitude and longitude must be specified in radians.
+North is 0 degrees.
+alias: gd_rl_km_azm().
+
+  $ c 'geo_rl_dist_km_and_azimuth(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913.68610938, 254.394179317 )   # 913.69 km, 254 degrees
+
+=item C<geo_all_m>
+
+geo_all_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
+and the distance and azimuth (bearing) of the rhumb line, in degrees.
+Distances are in meters and azimuth in degrees.
+Latitude and longitude must be specified in radians.
+
+  $ c 'geo_all_m(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913341.859625, 257.157936196, 913686.10938, 254.394179317 )
+
+=item C<geo_all_km>
+
+geo_all_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
+and the distance and azimuth (bearing) of the rhumb line, in degrees.
+Distances are in kilometers and azimuth in degrees.
+Latitude and longitude must be specified in radians.
+
+  $ c 'geo_all_km(
+         deg2rad( 35.68129, 139.76706 ),
+         dms2rad( 33, 27, 56, 130, 10, 32 )
+       )'
+  ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
 =back
 

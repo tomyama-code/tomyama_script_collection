@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.27 $
+## - $Revision: 1.28 $
 ################################################################################
 
 use strict;
@@ -73,13 +73,13 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{0xfc & 0x10  ~0x1 | 0x8 =} );
+#        $res = $c->formula( qq{div_each( 210 )} );
 #    } );
-#    $t->exit_is( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 ='} );
-#    $t->has_no_exception();
-#    equal( $res, 252 );
+#    $t->exit_isnt( 0, qq{./c 'div_each( 210 )'} );
+#    $t->has_exception();
+#    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_is( qq{} );
+#    $t->stderr_like( qr/^c: evaluator: error: div_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
 #
 #};
 #done_testing();
@@ -3940,6 +3940,36 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( scalar( @{ $res } ), 2, qq{mul_each( 210, 297, ( 1 / 25.4 ) * 300 )} );
     equal( ${ $res }[ 0 ], 2480.31496063, qq{210 * ( ( 1 / 25.4 ) * 300 )} );
     equal( ${ $res }[ 1 ], 3507.87401575, qq{297 * ( ( 1 / 25.4 ) * 300 )} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{div_each( 210 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'div_each( 210 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: div_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{div_each( 31080, 62370, 124740, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'div_each( 31080, 62370, 124740, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "0": Illegal division by zero\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{div_each( 31080, 62370, 124740, 210 )} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3, qq{div_each( 31080, 62370, 124740, 210 )} );
+    equal( ${ $res }[ 0 ], 148, qq{ 31080 / 210 = 148 } );
+    equal( ${ $res }[ 1 ], 297, qq{ 62370 / 210 = 297 } );
+    equal( ${ $res }[ 2 ], 594, qq{124740 / 210 = 594 } );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

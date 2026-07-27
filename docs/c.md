@@ -57,13 +57,33 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
     CURRENT-TIME
 
+    Convert to local time:
+
+        $ c 'epoch2local( NOW )'
+        ( 2025, 12, 5, 20, 59, 3 )
+
 - _SAKUBOU_
 
     A synodic month is the time between two consecutive new moons, lasting about 29.530588853 days.
 
+    Major Moon Phases (High Precision - New, 1st Qtr, Full, 3rd Qtr, Next New):
+
+        $ c 'linspace( 0, SAKUBOU, 5 )'
+        ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
+
+    Major Moon Phases (Rounded intermediate values to 0 decimals):
+
+        $ c 'linspace( 0, SAKUBOU, 5, 0 )'
+        ( 0, 7, 15, 22, 29.530588853 )
+
 - _CHIJIKU_
 
     Axial tilt is the angle between Earth's rotational axis and its orbital plane, which is about 23.436 degrees.
+
+    Arctic Circle Latitude (90 - Tilt):
+
+        $ c 90 - CHIJIKU
+        66.564
 
 - User-defined-file
 
@@ -95,19 +115,17 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime,
-prime\_factorize, get\_prime, gcd, lcm, ncr, min, max, shuffle, first, slice, uniq, sum, prod, avg,
-add\_each, mul\_each, linspace, linstep, mul\_growth, gen\_fibo\_seq, paper\_size, rand, exp, exp2, exp10, log,
-log2, log10, sqrt, pow, pow\_inv, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan,
-asin, acos, atan, atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points,
-angle\_between\_points, vector\_angle, geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km,
-geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km,
-geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, is\_leap,
-age, moon\_age, moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local,
-epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
-meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
-newton2kgf, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
-telemeter\_km
+fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
+get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, first, slice,
+uniq, sum, prod, avg, add\_each, mul\_each, div\_each, linspace, linstep, mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age,
+moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms,
+laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad,
+dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle\_deg, dist\_between\_points,
+midpt\_between\_points, angle\_between\_points, vector\_angle, geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m,
+geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km,
+geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram,
+gram2ounce, kgf2newton, newton2kgf, paper\_size
 
 # OPTIONS
 
@@ -923,199 +941,6 @@ The **c** script was created with the following in mind:
         $ c 'pow_inv( 8, 2 )'
         3
 
-## Trigonometry & Geometry
-
-- `rad2deg`
-
-    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
-
-        $ c 'rad2deg( 2.50620553940126 )'
-        143.595
-
-- `deg2rad`
-
-    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
-
-        $ c 'deg2rad( 143.595 )'
-        2.5062055394
-
-- `dms2rad`
-
-    dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
-
-        $ c 'dms2rad( 143, 35, 42.0000000000002 )'
-        2.5062055394
-
-- `dms2deg`
-
-    dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
-
-        $ c 'dms2deg( 143, 35, 42.0000000000002 )'
-        143.595
-
-- `deg2dms`
-
-    deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
-
-        $ c 'deg2dms( 143.595 )'
-        ( 143, 35, 42 )
-
-- `dms2dms`
-
-    dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
-
-        $ c 'dms2dms( 143, 35.7, 0 )'
-        ( 143, 35, 42 )
-
-- `sin`
-
-    sin( _RADIANS_ ).
-    Returns the sine of _RADIANS_.
-    \[Perl Native\]
-
-- `cos`
-
-    cos( _RADIANS_ ).
-    Returns the cosine of _RADIANS_.
-    \[Perl Native\]
-
-- `tan`
-
-    tan( _RADIANS_ ).
-    Returns the tangent of _RADIANS_.
-
-- `asin`
-
-    asin( _RATIO_ ).
-    The arcus (also known as the inverse) functions of the sine.
-
-        $ c 'rad2deg( asin( 1 / 2 ) )'
-        30
-
-- `acos`
-
-    acos( _RATIO_ ).
-    The arcus (also known as the inverse) functions of the cosine.
-
-        $ c 'rad2deg( acos( 1 / 2 ) )'
-        60
-
-- `atan`
-
-    atan( _RATIO_ ).
-    The arcus (also known as the inverse) functions of the tangent.
-
-        $ c 'rad2deg( atan( 1 / 1 ) )'
-        45
-
-- `atan2`
-
-    atan2( _Y_, _X_ ).
-    The principal value of the arc tangent of _Y_ / _X_.
-    \[Perl Native\]
-
-        $ c 'rad2deg( atan2( 1, 1 ) )'
-        45
-
-- `hypot`
-
-    hypot( _X_, _Y_ ).
-    Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments.
-    \[POSIX\]
-
-        $ c 'hypot( 3, 4 )'
-        5
-
-- `angle_deg`
-
-    angle\_deg( _X_, _Y_ \[, _IS\_AZIMUTH_ \] ).
-    Returns the straight line distance from (0,0) to (_X_,_Y_).
-    Returns the standard mathematical angle (0 degrees = east, counterclockwise).
-    If _IS\_AZIMUTH_ is set to true, returns the angle (0 degrees = north, clockwise).
-
-        $ c 'angle_deg( 3, 4 )'
-        53.1301023542
-
-- `dist_between_points`
-
-    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
-    Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
-    alias: dist().
-
-        $ c 'dist_between_points( 100, 10, 200, 110 )'
-        141.421356237
-
-        $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
-        173.205080757
-
-- `midpt_between_points`
-
-    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
-    Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_).
-    alias: midpt().
-
-        $ c 'midpt_between_points( 100, 10, 200, 110 )'
-        ( 150, 60 )
-
-        $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
-        ( 150, 60, 100 )
-
-- `angle_between_points`
-
-    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_AZIMUTH_ \] ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_AZIMUTH_ \] ).
-    Returns the angle from (_X1_,_Y1_) to (_X2_,_Y2_) or the horizontal and vertical angles from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
-    Angles are in degrees.
-    Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
-    If _IS\_AZIMUTH_ is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
-    alias: angle().
-
-        $ c 'angle_between_points( 100, 10, 150, 110 )'
-        63.4349488229
-
-        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
-        ( 63.4349488229, 41.8103148958 )
-
-    _IS\_AZIMUTH_ is set to true
-
-        $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
-        26.5650511771
-
-        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
-        ( 26.5650511771, 41.8103148958 )
-
-- `vector_angle`
-
-    vector\_angle( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_RADIAN_ \] ) or
-    vector\_angle( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_RADIAN_ \] ).
-    Returns the angle between two vectors as viewed from the origin.
-    Angles are in degrees.
-    If _IS\_RADIAN_ is set, it returns radians instead of degrees.
-    alias: va(), angular\_distance(), ang\_dist().
-
-    2D Angle (Degrees):
-
-        $ c 'vector_angle( -100, -100, 100, -100 )'
-        90
-
-    2D Angle (Radians):
-
-        $ c 'vector_angle( 100, -100, -100, -100, 1 )'
-        1.57079632679
-
-    3D Angle (Degrees):
-
-        ## Angular distance between Central America and Tokyo
-        $ c 'vector_angle(
-               geo2xyz( deg2rad( 10.4, -68.4 ) ),
-               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
-             )'
-        127.008055363
-
-    3D Angle (Radians) using alias:
-
-        $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
-        3.14159265359
-
 ## List & Sequence Operations
 
 - `ncr`
@@ -1236,15 +1061,35 @@ The **c** script was created with the following in mind:
         $ c 'mul_each( 0, 0.25, 0.5, 0.75, 1, SAKUBOU )'
         ( 0, 7.38264721325, 14.7652944265, 22.1479416398, 29.530588853 )
 
+- `div_each`
+
+    div\_each( _NUMBER1_,.. , _DIVISOR_ ). Divide each number.
+
+    Simplify ratio:
+
+        $ c 'gcd( 31080, 62370, 124740 )'
+        210
+        $ c 'div_each( 31080, 62370, 124740, 210 )'
+        ( 148, 297, 594 )
+
+    Normalize ratio:
+
+        $ c 'min( 148, 297, 594 )'
+        148
+        $ c 'div_each( 148, 297, 594, 148 )'
+        ( 1, 2.00675675676, 4.01351351351 )
+        $ c 'round( div_each( 148, 297, 594, 148 ), 0 )'
+        ( 1, 2, 4 )
+
 - `linspace`
 
     linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ).
     Generates a list of evenly spaced numbers from _START_ to _END_.
     Returns a sequence of numbers of size _LENGTH_.
     _LENGTH_ is an integer greater than or equal to 2.
-    Rounding the number if _DECIMAL\_PLACES_ is specified.
+    Rounds the intermediate number if _DECIMAL\_PLACES_ is specified, keeping the start and end values exact.
 
-    Divide the range from 0x33 to 0xCC into 5 parts:
+    Divide the color range from 0x33 to 0xCC into 5 parts:
 
         $ c 'linspace( 0x33, 0xcc, 5 )'
         ( 51, 89.25, 127.5, 165.75, 204 ) [ = ( 0x33, 89.25, 127.5, 165.75, 0xCC ) ]
@@ -1284,205 +1129,6 @@ The **c** script was created with the following in mind:
 
         $ c 'gen_fibo_seq( 2, 1, 10 )'
         ( 2, 1, 3, 4, 7, 11, 18, 29, 47, 76 )
-
-## Geographic & Navigation (GIS)
-
-- `geo2xyz`
-
-    geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ).
-    Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
-    If _HEIGHT\_M_ is omitted, the calculation is performed assuming an elevation of 0 m.
-    alias: g2xyz().
-
-        ## Calculate the straight-line distance from the epicenter to the observation point.
-        $ c 'dist_between_points(
-               geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
-               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
-             ) / 1000'
-        72.7492079698   ## 72.75 km
-
-- `geo_radius`
-
-    geo\_radius( _LAT_ ).
-    Given a latitude (in radians),
-    returns the distance from the center of the Earth to its surface (in meters).
-
-    What is the radius of the equator (0 degrees latitude)?
-
-        $ c 'geo_radius( deg2rad( 0 ) )'
-        6378137   # 6,378,137 m
-
-- `radius_of_lat`
-
-    radius\_of\_lat( _LAT_ ).
-    Given a latitude (in radians), returns the radius of that parallel (in meters).
-
-    Radius of the parallel at 45 degrees latitude (distance of 1 radian):
-
-        $ c 'radius_of_lat( deg2rad( 45 ) )'
-        4517590.87885     # 4,517,590.88 m
-
-- `geo_distance_m`
-
-    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Calculates and returns the distance (in meters) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    alias: gd\_m().
-
-        $ TOKYO_ST='35.68129, 139.76706'
-        $ OSAKA_ST='34.70248, 135.49595'
-        $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403822.719846     # 403,822.72 m
-
-- `geo_distance_km`
-
-    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Calculates and returns the distance (in kilometers) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    Same as geo\_distance\_m() / 1000.
-    alias: gd\_km().
-
-        $ TOKYO_ST='35.68129, 139.76706'
-        $ OSAKA_ST='34.70248, 135.49595'
-        $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403.822719846     # 403.82 km
-
-- `geo_azimuth`
-
-    geo\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the geographic azimuth (bearing) in degrees from _A_ to _B_.
-    Note: 0 degrees is North, 90 degrees is East (clockwise).
-    Input: Latitude/Longitude in radians.
-    alias: gazm().
-
-        $ TOKYO_ST='35.68129, 139.76706'
-        $ OSAKA_ST='34.70248, 135.49595'
-        $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        255.640247215
-
-- `geo_dist_m_and_azimuth`
-
-    geo\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the distance (in meters) and bearing (in degrees) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    North is 0 degrees.
-    alias: gd\_m\_azm().
-
-        $ c 'geo_dist_m_and_azimuth(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
-
-- `geo_dist_km_and_azimuth`
-
-    geo\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    North is 0 degrees.
-    alias: gd\_km\_azm().
-
-        $ c 'geo_dist_km_and_azimuth(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913.341859625, 257.157936196 )  # 913.34 km ; 257 degrees
-
-- `geo_rl_distance_m`
-
-    geo\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Calculates and returns the rhumbnail distance (in meters) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    alias: gd\_rl\_m().
-
-        $ c 'geo_rl_distance_m(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        913686.10938  # 913,686.11 m
-
-- `geo_rl_distance_km`
-
-    geo\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Calculates and returns the rhumbnail distance (in kilometers) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    alias: gd\_rl\_km().
-
-        $ c 'geo_rl_distance_km(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        913.68610938  # 913.69 km
-
-- `geo_rl_azimuth`
-
-    geo\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the azimuth (heading) in degrees of the rhumbnail from _A_ to _B_.
-    Note: 0 degrees is North, 90 degrees is East (clockwise).
-    Input: Latitude/Longitude in radians.
-    alias: gazm\_rl().
-
-        $ c 'geo_rl_azimuth(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        254.394179317     # 254 degrees
-
-- `geo_rl_dist_m_and_azimuth`
-
-    geo\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the rhumbnail distance (in meters) and bearing (in degrees) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    North is 0 degrees.
-    alias: gd\_rl\_m\_azm().
-
-        $ c 'geo_rl_dist_m_and_azimuth(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
-
-- `geo_rl_dist_km_and_azimuth`
-
-    geo\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
-    Latitude and longitude must be specified in radians.
-    North is 0 degrees.
-    alias: gd\_rl\_km\_azm().
-
-        $ c 'geo_rl_dist_km_and_azimuth(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913.68610938, 254.394179317 )   # 913.69 km, 254 degrees
-
-- `geo_all_m`
-
-    geo\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
-    and the distance and azimuth (bearing) of the rhumb line, in degrees.
-    Distances are in meters and azimuth in degrees.
-    Latitude and longitude must be specified in radians.
-
-        $ c 'geo_all_m(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913341.859625, 257.157936196, 913686.10938, 254.394179317 )
-
-- `geo_all_km`
-
-    geo\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
-    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
-    and the distance and azimuth (bearing) of the rhumb line, in degrees.
-    Distances are in kilometers and azimuth in degrees.
-    Latitude and longitude must be specified in radians.
-
-        $ c 'geo_all_km(
-               deg2rad( 35.68129, 139.76706 ),
-               dms2rad( 33, 27, 56, 130, 10, 32 )
-             )'
-        ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
 ## Time, Calendar & Measurement
 
@@ -1817,6 +1463,399 @@ The **c** script was created with the following in mind:
 
         $ c 'telemeter_km( 8 )'
         2.7252  # kilometers
+
+## Trigonometry & Geometry
+
+- `rad2deg`
+
+    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
+
+        $ c 'rad2deg( 2.50620553940126 )'
+        143.595
+
+- `deg2rad`
+
+    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+
+        $ c 'deg2rad( 143.595 )'
+        2.5062055394
+
+- `dms2rad`
+
+    dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+
+        $ c 'dms2rad( 143, 35, 42.0000000000002 )'
+        2.5062055394
+
+- `dms2deg`
+
+    dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
+
+        $ c 'dms2deg( 143, 35, 42.0000000000002 )'
+        143.595
+
+- `deg2dms`
+
+    deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+
+        $ c 'deg2dms( 143.595 )'
+        ( 143, 35, 42 )
+
+- `dms2dms`
+
+    dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+
+        $ c 'dms2dms( 143, 35.7, 0 )'
+        ( 143, 35, 42 )
+
+- `sin`
+
+    sin( _RADIANS_ ).
+    Returns the sine of _RADIANS_.
+    \[Perl Native\]
+
+- `cos`
+
+    cos( _RADIANS_ ).
+    Returns the cosine of _RADIANS_.
+    \[Perl Native\]
+
+- `tan`
+
+    tan( _RADIANS_ ).
+    Returns the tangent of _RADIANS_.
+
+- `asin`
+
+    asin( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the sine.
+
+        $ c 'rad2deg( asin( 1 / 2 ) )'
+        30
+
+- `acos`
+
+    acos( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the cosine.
+
+        $ c 'rad2deg( acos( 1 / 2 ) )'
+        60
+
+- `atan`
+
+    atan( _RATIO_ ).
+    The arcus (also known as the inverse) functions of the tangent.
+
+        $ c 'rad2deg( atan( 1 / 1 ) )'
+        45
+
+- `atan2`
+
+    atan2( _Y_, _X_ ).
+    The principal value of the arc tangent of _Y_ / _X_.
+    \[Perl Native\]
+
+        $ c 'rad2deg( atan2( 1, 1 ) )'
+        45
+
+- `hypot`
+
+    hypot( _X_, _Y_ ).
+    Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments.
+    \[POSIX\]
+
+        $ c 'hypot( 3, 4 )'
+        5
+
+- `angle_deg`
+
+    angle\_deg( _X_, _Y_ \[, _IS\_AZIMUTH_ \] ).
+    Returns the straight line distance from (0,0) to (_X_,_Y_).
+    Returns the standard mathematical angle (0 degrees = east, counterclockwise).
+    If _IS\_AZIMUTH_ is set to true, returns the angle (0 degrees = north, clockwise).
+
+        $ c 'angle_deg( 3, 4 )'
+        53.1301023542
+
+- `dist_between_points`
+
+    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    alias: dist().
+
+        $ c 'dist_between_points( 100, 10, 200, 110 )'
+        141.421356237
+
+        $ c 'dist_between_points( 100, 10, 50, 200, 110, 150 )'
+        173.205080757
+
+- `midpt_between_points`
+
+    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_).
+    alias: midpt().
+
+        $ c 'midpt_between_points( 100, 10, 200, 110 )'
+        ( 150, 60 )
+
+        $ c 'midpt_between_points( 100, 10, 50, 200, 110, 150 )'
+        ( 150, 60, 100 )
+
+- `angle_between_points`
+
+    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_AZIMUTH_ \] ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_AZIMUTH_ \] ).
+    Returns the angle from (_X1_,_Y1_) to (_X2_,_Y2_) or the horizontal and vertical angles from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
+    Angles are in degrees.
+    Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
+    If _IS\_AZIMUTH_ is set to true, the horizontal angle is returned (0 degrees = north, clockwise).
+    alias: angle().
+
+        $ c 'angle_between_points( 100, 10, 150, 110 )'
+        63.4349488229
+
+        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150 )'
+        ( 63.4349488229, 41.8103148958 )
+
+    _IS\_AZIMUTH_ is set to true
+
+        $ c 'angle_between_points( 100, 10, 150, 110, 1 )'
+        26.5650511771
+
+        $ c 'angle_between_points( 100, 10, 50, 150, 110, 150, 1 )'
+        ( 26.5650511771, 41.8103148958 )
+
+- `vector_angle`
+
+    vector\_angle( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_RADIAN_ \] ) or
+    vector\_angle( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_RADIAN_ \] ).
+    Returns the angle between two vectors as viewed from the origin.
+    Angles are in degrees.
+    If _IS\_RADIAN_ is set, it returns radians instead of degrees.
+    alias: va(), angular\_distance(), ang\_dist().
+
+    2D Angle (Degrees):
+
+        $ c 'vector_angle( -100, -100, 100, -100 )'
+        90
+
+    2D Angle (Radians):
+
+        $ c 'vector_angle( 100, -100, -100, -100, 1 )'
+        1.57079632679
+
+    3D Angle (Degrees):
+
+        ## Angular distance between Central America and Tokyo
+        $ c 'vector_angle(
+               geo2xyz( deg2rad( 10.4, -68.4 ) ),
+               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+             )'
+        127.008055363
+
+    3D Angle (Radians) using alias:
+
+        $ c 'va( -20, -100, -100, 20, 100, 100, 1 )'
+        3.14159265359
+
+## Geographic & Navigation (GIS)
+
+- `geo2xyz`
+
+    geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ).
+    Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
+    If _HEIGHT\_M_ is omitted, the calculation is performed assuming an elevation of 0 m.
+    alias: g2xyz().
+
+    Calculate the straight-line distance from the epicenter to the observation point:
+
+        $ c 'dist_between_points(
+               geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
+               geo2xyz( deg2rad( 35.68129, 139.76706 ) )
+             ) / 1000'
+        72.7492079698   ## 72.75 km
+
+- `geo_radius`
+
+    geo\_radius( _LAT_ ).
+    Given a latitude (in radians),
+    returns the distance from the center of the Earth to its surface (in meters).
+
+    What is the radius of the equator (0 degrees latitude)?
+
+        $ c 'geo_radius( deg2rad( 0 ) )'
+        6378137   # 6,378,137 m
+
+- `radius_of_lat`
+
+    radius\_of\_lat( _LAT_ ).
+    Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+    Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+        $ c 'radius_of_lat( deg2rad( 45 ) )'
+        4517590.87885     # 4,517,590.88 m
+
+- `geo_distance_m`
+
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    alias: gd\_m().
+
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        403822.719846     # 403,822.72 m
+
+- `geo_distance_km`
+
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the distance (in kilometers) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    Same as geo\_distance\_m() / 1000.
+    alias: gd\_km().
+
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_distance_km( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        403.822719846     # 403.82 km
+
+- `geo_azimuth`
+
+    geo\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the geographic azimuth (bearing) in degrees from _A_ to _B_.
+    Note: 0 degrees is North, 90 degrees is East (clockwise).
+    Input: Latitude/Longitude in radians.
+    alias: gazm().
+
+        $ TOKYO_ST='35.68129, 139.76706'
+        $ OSAKA_ST='34.70248, 135.49595'
+        $ c "geo_azimuth( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
+        255.640247215
+
+- `geo_dist_m_and_azimuth`
+
+    geo\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the distance (in meters) and bearing (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_m\_azm().
+
+        $ c 'geo_dist_m_and_azimuth(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
+
+- `geo_dist_km_and_azimuth`
+
+    geo\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_km\_azm().
+
+        $ c 'geo_dist_km_and_azimuth(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913.341859625, 257.157936196 )  # 913.34 km ; 257 degrees
+
+- `geo_rl_distance_m`
+
+    geo\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the rhumbnail distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    alias: gd\_rl\_m().
+
+        $ c 'geo_rl_distance_m(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        913686.10938  # 913,686.11 m
+
+- `geo_rl_distance_km`
+
+    geo\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Calculates and returns the rhumbnail distance (in kilometers) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    alias: gd\_rl\_km().
+
+        $ c 'geo_rl_distance_km(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        913.68610938  # 913.69 km
+
+- `geo_rl_azimuth`
+
+    geo\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the azimuth (heading) in degrees of the rhumbnail from _A_ to _B_.
+    Note: 0 degrees is North, 90 degrees is East (clockwise).
+    Input: Latitude/Longitude in radians.
+    alias: gazm\_rl().
+
+        $ c 'geo_rl_azimuth(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        254.394179317     # 254 degrees
+
+- `geo_rl_dist_m_and_azimuth`
+
+    geo\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the rhumbnail distance (in meters) and bearing (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_rl\_m\_azm().
+
+        $ c 'geo_rl_dist_m_and_azimuth(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
+
+- `geo_rl_dist_km_and_azimuth`
+
+    geo\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+    alias: gd\_rl\_km\_azm().
+
+        $ c 'geo_rl_dist_km_and_azimuth(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913.68610938, 254.394179317 )   # 913.69 km, 254 degrees
+
+- `geo_all_m`
+
+    geo\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
+    and the distance and azimuth (bearing) of the rhumb line, in degrees.
+    Distances are in meters and azimuth in degrees.
+    Latitude and longitude must be specified in radians.
+
+        $ c 'geo_all_m(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913341.859625, 257.157936196, 913686.10938, 254.394179317 )
+
+- `geo_all_km`
+
+    geo\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
+    and the distance and azimuth (bearing) of the rhumb line, in degrees.
+    Distances are in kilometers and azimuth in degrees.
+    Latitude and longitude must be specified in radians.
+
+        $ c 'geo_all_km(
+               deg2rad( 35.68129, 139.76706 ),
+               dms2rad( 33, 27, 56, 130, 10, 32 )
+             )'
+        ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
 ## Unit Conversion
 
