@@ -116,16 +116,16 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 ## FUNCTIONS
 
 fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, first, slice,
-uniq, sum, prod, avg, add\_each, mul\_each, div\_each, linspace, linstep, mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age,
-moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms,
-laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad,
-dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle\_deg, dist\_between\_points,
-midpt\_between\_points, angle\_between\_points, vector\_angle, geo2xyz, geo\_radius, radius\_of\_lat, geo\_distance\_m,
-geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km,
-geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, ri2meter, meter2ri,
-mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram,
-gram2ounce, kgf2newton, newton2kgf, paper\_size
+get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, first, head,
+tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each, simplify\_ratio, normalize\_ratio, linspace, linstep,
+mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age, moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
+atan, atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle, geo2xyz,
+geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth,
+geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m,
+geo\_all\_km, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch,
+pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper\_size
 
 # OPTIONS
 
@@ -544,15 +544,15 @@ The **c** script was created with the following in mind:
 
     Differences between modulo operations ([`fmod`](#fmod) and [`math_mod`](#math_mod)):
 
-        ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
-        ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│ any┃
-        ┠─────╂──┼──┼──┼──┼──┨
-        ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
-        ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
-        ┃ %, fmod()┃-0.7│-0.7│+0.7│+0.7│ err┃
-        ┠─────╂──┼──┼──┼──┼──┨
-        ┃math_mod()┃-0.7│+1.5│-1.5│+0.7│ err┃
-        ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
+        +----------+----+----+----+----+----+
+        |dividend  |-5.1|-5.1|+5.1|+5.1| any|
+        +----------+----+----+----+----+----+
+        |divisor   |-2.2|+2.2|-2.2|+2.2|  0 |
+        +==========+====+====+====+====+====+
+        |%, fmod() |-0.7|-0.7|+0.7|+0.7| err|
+        +----------+----+----+----+----+----+
+        |math_mod()|-0.7|+1.5|-1.5|+0.7| err|
+        +----------+----+----+----+----+----+
 
 - `**`
 
@@ -640,7 +640,7 @@ The **c** script was created with the following in mind:
 
 - `abs`
 
-    abs( _N1_ \[,.. \] ).
+    abs( _N1_ \[, .. \] ).
     Returns the absolute value of its argument.
     \[Perl Native\]
 
@@ -649,7 +649,7 @@ The **c** script was created with the following in mind:
 
 - `int`
 
-    int( _N1_ \[,.. \] ).
+    int( _N1_ \[, .. \] ).
     Returns the integer portion of _N_.
     \[Perl Native\]
 
@@ -658,7 +658,7 @@ The **c** script was created with the following in mind:
 
 - `floor`
 
-    floor( _N1_ \[,.. \] ).
+    floor( _N1_ \[, .. \] ).
     Returning the largest integer value less than or equal to the numerical argument.
     \[POSIX\]
 
@@ -667,7 +667,7 @@ The **c** script was created with the following in mind:
 
 - `ceil`
 
-    ceil( _N1_ \[,.. \] ).
+    ceil( _N1_ \[, .. \] ).
     Returning the smallest integer value greater than or equal to the given numerical argument.
     \[POSIX\]
 
@@ -676,7 +676,7 @@ The **c** script was created with the following in mind:
 
 - `rounddown`
 
-    rounddown( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    rounddown( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ truncated to _DECIMAL\_PLACES_.
 
         $ c 'rounddown( -1.2, 1.2, 0 )'
@@ -684,7 +684,7 @@ The **c** script was created with the following in mind:
 
 - `round`
 
-    round( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    round( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ rounded to _DECIMAL\_PLACES_
 
         $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
@@ -692,7 +692,7 @@ The **c** script was created with the following in mind:
 
 - `roundup`
 
-    roundup( _NUMBER1_ \[ ,.. \], _DECIMAL\_PLACES_ ).
+    roundup( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
     Returns the value of _NUMBER1_ rounded up to _DECIMAL\_PLACES_.
 
         $ c 'roundup( -1.2, 1.2, 0 )'
@@ -725,7 +725,7 @@ The **c** script was created with the following in mind:
 
 - `is_prime`
 
-    is\_prime( _NUM1_ \[,.. \] ).
+    is\_prime( _NUM1_ \[, .. \] ).
     Prime number test.
     Returns 1 if _NUM_ is prime, otherwise returns 0.
 
@@ -757,7 +757,7 @@ The **c** script was created with the following in mind:
 
 - `gcd`
 
-    gcd( _NUMBER1_,.. ).
+    gcd( _NUMBER1_, .. ).
     Returns the greatest common divisor (GCD),
     which is the largest positive integer that divides each of the operands.
 
@@ -766,7 +766,7 @@ The **c** script was created with the following in mind:
 
 - `lcm`
 
-    lcm( _NUMBER1_,.. ).
+    lcm( _NUMBER1_, .. ).
     Returns the least common multiple (LCM).
 
         $ c 'lcm( 402, 670, 804 )'
@@ -790,7 +790,7 @@ The **c** script was created with the following in mind:
 
 - `exp`
 
-    exp( _N1_ \[,.. \] ).
+    exp( _N1_ \[, .. \] ).
     Returns e (the natural logarithm base) to the power of _N_.
     \[Perl Native\]
 
@@ -801,7 +801,7 @@ The **c** script was created with the following in mind:
 
 - `log`
 
-    log( _N1_ \[,.. \] ).
+    log( _N1_ \[, .. \] ).
     Returns the natural logarithm (base e) of _N_.
     \[Perl Native\]
 
@@ -846,7 +846,7 @@ The **c** script was created with the following in mind:
 
 - `exp2`
 
-    exp2( _N1_ \[,.. \] ).
+    exp2( _N1_ \[, .. \] ).
     Returns the base 2 raised to the power N.
 
         $ c 'exp2( 8, 16, 32 )'
@@ -863,7 +863,7 @@ The **c** script was created with the following in mind:
 
 - `log2`
 
-    log2( _N1_ \[,.. \] ).
+    log2( _N1_ \[, .. \] ).
     Returns the common logarithm to the base 2.
 
         $ c 'log2( 256, 65536, 4294967296 )'
@@ -880,7 +880,7 @@ The **c** script was created with the following in mind:
 
 - `exp10`
 
-    exp10( _N1_ \[,.. \] ).
+    exp10( _N1_ \[, .. \] ).
     Returns the base 10 raised to the power N.
 
         $ c 'exp10( 1, 2, 3 )'
@@ -897,7 +897,7 @@ The **c** script was created with the following in mind:
 
 - `log10`
 
-    log10( _N1_ \[,.. \] ).
+    log10( _N1_ \[, .. \] ).
     Returns the common logarithm to the base 10.
 
         $ c 'log10( 10, 100, 1000 )'
@@ -914,7 +914,7 @@ The **c** script was created with the following in mind:
 
 - `sqrt`
 
-    sqrt( _N1_ \[,.. \] ).
+    sqrt( _N1_ \[, .. \] ).
     Return the positive square root of _N_.
     Works only for non-negative operands.
     \[Perl Native\]
@@ -957,7 +957,7 @@ The **c** script was created with the following in mind:
 
 - `min`
 
-    min( _NUMBER1_,.. ).
+    min( _NUMBER1_, .. ).
     Returns the entry in the list with the lowest numerical value.
     \[List::Util\]
 
@@ -966,7 +966,7 @@ The **c** script was created with the following in mind:
 
 - `max`
 
-    max( _NUMBER1_,.. ).
+    max( _NUMBER1_, .. ).
     Returns the entry in the list with the highest numerical value.
     \[List::Util\]
 
@@ -975,7 +975,7 @@ The **c** script was created with the following in mind:
 
 - `shuffle`
 
-    shuffle( _NUMBER1_,.. ).
+    shuffle( _NUMBER1_, .. ).
     Returns the values of the input in a random order.
     \[List::Util\]
 
@@ -984,16 +984,36 @@ The **c** script was created with the following in mind:
 
 - `first`
 
-    first( _NUMBER1_,.. ).
+    first( _NUMBER1_, .. ).
     Returns the head of the set.
     Same as slice( _NUMBER1_,.. , 0, 1 ).
 
         $ c 'first( 402, 670, 804 )'
         402
 
+- `head`
+
+    head( _NUMBER1_, .. _LENGTH_ ).
+    Returns the first _LENGTH_ elements from the set.
+    _LENGTH_ is an integer greater than or equal to 1.
+    \[List::Util\]
+
+        $ c 'head( 100, 200, 300, 2 )'
+        ( 100, 200 )
+
+- `tail`
+
+    tail( _NUMBER1_, .. _LENGTH_ ).
+    Returns the last _LENGTH_ elements from the set.
+    _LENGTH_ is an integer greater than or equal to 1.
+    \[List::Util\]
+
+        $ c 'tail( 100, 200, 300, 2 )'
+        ( 200, 300 )
+
 - `slice`
 
-    slice( _NUMBER1_,.., _OFFSET_, _LENGTH_ ).
+    slice( _NUMBER1_, .., _OFFSET_, _LENGTH_ ).
     Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
 
     Extract only the date (first three):
@@ -1003,7 +1023,7 @@ The **c** script was created with the following in mind:
 
 - `uniq`
 
-    uniq( _NUMBER1_,.. ).
+    uniq( _NUMBER1_, .. ).
     Filters a list of values to remove subsequent duplicates,
     as judged by a DWIM-ish string equality or "undef" test.
     Preserves the order of unique elements, and retains the first value of any duplicate set.
@@ -1014,7 +1034,7 @@ The **c** script was created with the following in mind:
 
 - `sum`
 
-    sum( _NUMBER1_,.. ).
+    sum( _NUMBER1_, .. ).
     Returns the numerical sum of all the elements in the list.
     \[List::Util\]
 
@@ -1023,7 +1043,7 @@ The **c** script was created with the following in mind:
 
 - `prod`
 
-    prod( _NUMBER1_,.. ).
+    prod( _NUMBER1_, .. ).
     Returns the product of each value.
 
         $ c 'prod( 1, 2, 3, 4 )'
@@ -1031,7 +1051,7 @@ The **c** script was created with the following in mind:
 
 - `avg`
 
-    avg( _NUMBER1_,.. ).
+    avg( _NUMBER1_, .. ).
     Returns the average value of all elements in a list.
 
         $ c 'avg( 1, 2, 3, 4 )'
@@ -1039,14 +1059,14 @@ The **c** script was created with the following in mind:
 
 - `add_each`
 
-    add\_each( _NUMBER1_,.. , _DELTA_ ). Add each number.
+    add\_each( _NUMBER1_, .. , _DELTA_ ). Add each number.
 
         $ c 'add_each( 100, 200, -10 )'
         ( 90, 190 )
 
 - `mul_each`
 
-    mul\_each( _NUMBER1_,.. , _FACTOR_ ). Multiply each number.
+    mul\_each( _NUMBER1_, .. , _FACTOR_ ). Multiply each number.
 
         $ c 'mul_each( 100, 200, 2 )'
         ( 200, 400 )
@@ -1063,23 +1083,47 @@ The **c** script was created with the following in mind:
 
 - `div_each`
 
-    div\_each( _NUMBER1_,.. , _DIVISOR_ ). Divide each number.
+    div\_each( _NUMBER1_, .. , _DIVISOR_ ). Divide each number.
 
     Simplify ratio:
 
-        $ c 'gcd( 31080, 62370, 124740 )'
+        $ num_seq_1='31080, 62370, 124740'
+        $ c "gcd( $num_seq_1 )"
         210
-        $ c 'div_each( 31080, 62370, 124740, 210 )'
+        $ c "div_each( $num_seq_1, 210 )"
         ( 148, 297, 594 )
 
     Normalize ratio:
 
-        $ c 'min( 148, 297, 594 )'
+        $ num_seq_2='148, 297, 594'
+        $ c "min( $num_seq_2 )"
         148
-        $ c 'div_each( 148, 297, 594, 148 )'
+        $ c "div_each( $num_seq_2, 148 )"
         ( 1, 2.00675675676, 4.01351351351 )
-        $ c 'round( div_each( 148, 297, 594, 148 ), 0 )'
+        $ c "round( div_each( $num_seq_2, 148 ), 0 )"
         ( 1, 2, 4 )
+
+- `simplify_ratio`
+
+    simplify\_ratio( _NUMBER1_, _NUMBER2_, .. ).
+    Reduce the ratio to the lowest integers.
+
+    Display resolution aspect ratio:
+
+        $ c 'simplify_ratio( 1920, 1080 )'
+        ( 16, 9 )
+
+- `normalize_ratio`
+
+    normalize\_ratio( _NUMBER1_, _NUMBER2_, .. ).
+    Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
+
+    Finding the golden ratio:
+
+        $ c 'tail( gen_fibo_seq( 0, 1, 100 ), 2 )'
+        ( 135301852344706760704, 218922995834555203584 )
+        $ c 'normalize_ratio( 135301852344706760704, 218922995834555203584 )'
+        ( 1, 1.61803398875 )
 
 - `linspace`
 

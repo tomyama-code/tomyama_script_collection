@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.28 $
+## - $Revision: 1.29 $
 ################################################################################
 
 use strict;
@@ -73,13 +73,13 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{div_each( 210 )} );
+#        $res = $c->formula( qq{simplify_ratio( pi )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'div_each( 210 )'} );
+#    $t->exit_isnt( 0, qq{./c 'simplify_ratio( pi )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: div_each\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+#    $t->stderr_like( qr/^c: evaluator: error: simplify_ratio\(\): \$argc=1: Insufficient number of arguments\.\n/ );
 #
 #};
 #done_testing();
@@ -3698,6 +3698,120 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 111 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'head( 111 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: head\(\): \$argc=1: Not enough arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 222, 111, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'head( 222, 111, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: head\(\): \$length=0: Argument value is out of range\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 222, 111, 1.01 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'head( 222, 111, 1.01 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: head\(\): \$length=1\.01: LENGTH must be an integer\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 222.0, 111.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'head( 222.0, 111.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 222 );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: tbl_prvdr: warn: head\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 222.0, 111.0, 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'head( 222.0, 111.0, 1 )'} );
+    $t->has_no_exception();
+    equal( $res, 222 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{head( 333.1, 222.0, 111.0, 3 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'head( 333.1, 222.0, 111.0, 3 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 333.1 );
+    equal( ${ $res }[ 1 ], 222 );
+    equal( ${ $res }[ 2 ], 111 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 111 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'tail( 111 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: tail\(\): \$argc=1: Not enough arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 222, 111, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'tail( 222, 111, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: tail\(\): \$length=0: Argument value is out of range\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 222, 111, 1.01 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'tail( 222, 111, 1.01 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: tail\(\): \$length=1\.01: LENGTH must be an integer\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 222.0, 111.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'tail( 222.0, 111.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 222 );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: tbl_prvdr: warn: tail\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 222.0, 111.0, 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'tail( 222.0, 111.0, 1 )'} );
+    $t->has_no_exception();
+    equal( $res, 111 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{tail( 333.1, 222.0, 111.0, 3 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'tail( 333.1, 222.0, 111.0, 3 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 333.1 );
+    equal( ${ $res }[ 1 ], 222 );
+    equal( ${ $res }[ 2 ], 111 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{slice( 2025, 12 )} );
     } );
     $t->exit_isnt( 0, qq{./c 'slice( 2025, 12 )'} );
@@ -3970,6 +4084,114 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 0 ], 148, qq{ 31080 / 210 = 148 } );
     equal( ${ $res }[ 1 ], 297, qq{ 62370 / 210 = 297 } );
     equal( ${ $res }[ 2 ], 594, qq{124740 / 210 = 594 } );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{simplify_ratio( pi )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'simplify_ratio( pi )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: simplify_ratio\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{simplify_ratio( 0, 0, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'simplify_ratio( 0, 0, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: simplify_ratio\(\): A ratio cannot be formed with zeros alone\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{simplify_ratio( 3, 1, 2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'simplify_ratio( 3, 1, 2 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 3 );
+    equal( ${ $res }[ 1 ], 1 );
+    equal( ${ $res }[ 2 ], 2 );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: tbl_prvdr: warn: simplify_ratio\(\): Could not be simplified\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{simplify_ratio( 6, 10, 14 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'simplify_ratio( 6, 10, 14 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 3 );
+    equal( ${ $res }[ 1 ], 5 );
+    equal( ${ $res }[ 2 ], 7 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{simplify_ratio( 9.876, pi, 1.2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'simplify_ratio( 9.876, pi, 1.2 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 987600000000000 );
+    equal( ${ $res }[ 1 ], 314159265358979 );
+    equal( ${ $res }[ 2 ], 120000000000000 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{normalize_ratio( pi )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'normalize_ratio( pi )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: normalize_ratio\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{normalize_ratio( 0, 0, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'normalize_ratio( 0, 0, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: normalize_ratio\(\): A ratio cannot be formed with zeros alone\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{normalize_ratio( 3, 1, 2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'normalize_ratio( 3, 1, 2 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 3 );
+    equal( ${ $res }[ 1 ], 1 );
+    equal( ${ $res }[ 2 ], 2 );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: tbl_prvdr: warn: normalize_ratio\(\): Could not be normalized\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{normalize_ratio( 6, 10, 14 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'normalize_ratio( 6, 10, 14 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 1 );
+    equal( ${ $res }[ 1 ], 1.66666666667 );
+    equal( ${ $res }[ 2 ], 2.33333333333 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{normalize_ratio( 9.876, pi, 1.2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'normalize_ratio( 9.876, pi, 1.2 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    equal( ${ $res }[ 0 ], 8.23 );
+    equal( ${ $res }[ 1 ], 2.61799387799 );
+    equal( ${ $res }[ 2 ], 1 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.195 $
+## - $Revision: 4.196 $
 ##
 ## - Script Structure
 ##   - main
@@ -189,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.195 $};
+    my $rev = q{$Revision: 4.196 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1053,48 +1053,52 @@ use constant {
     H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
     H_FMOD => qq{fmod( X, Y ). Modulo arithmetic. "fmod( 10, -1.2 )" -> "0.4". Same as "10 % -1.2". [POSIX]},
     H_MMOD => qq{math_mod( X, Y ). Modulo arithmetic. "math_mod( 10, -1.2 )" -> "-0.8". alias: mmod().},
-    H_ABS_ => qq{abs( N1 [,.. ] ). Returns the absolute value of its argument. [Perl Native]},
-    H_INT_ => qq{int( N1 [,.. ] ). Returns the integer portion of N. [Perl Native]},
-    H_FLOR => qq{floor( N1 [,.. ] ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
-    H_CEIL => qq{ceil( N1 [,.. ] ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
-    H_RODD => qq{rounddown( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
-    H_ROUD => qq{round( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
-    H_RODU => qq{roundup( NUMBER1 [,..], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
+    H_ABS_ => qq{abs( N1 [, .. ] ). Returns the absolute value of its argument. [Perl Native]},
+    H_INT_ => qq{int( N1 [, .. ] ). Returns the integer portion of N. [Perl Native]},
+    H_FLOR => qq{floor( N1 [, .. ] ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
+    H_CEIL => qq{ceil( N1 [, .. ] ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
+    H_RODD => qq{rounddown( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
+    H_ROUD => qq{round( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
+    H_RODU => qq{roundup( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
     H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
     H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
-    H_PRIM => qq{is_prime( NUM1 [,.. ] ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
+    H_PRIM => qq{is_prime( NUM1 [, .. ] ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
     H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
     H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
-    H_GCD_ => qq{gcd( NUMBER1,.. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
-    H_LCM_ => qq{lcm( NUMBER1,.. ). Returns the least common multiple (LCM).},
+    H_GCD_ => qq{gcd( NUMBER1, .. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
+    H_LCM_ => qq{lcm( NUMBER1, .. ). Returns the least common multiple (LCM).},
     H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
     H_POEX => qq{exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
-    H_EXP2 => qq{exp2( N1 [,.. ] ). Returns the base 2 raised to the power N.},
-    H_EP10 => qq{exp10( N1 [,.. ] ). Returns the base 10 raised to the power N.},
-    H_LOGA => qq{log( N1 [,.. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
-    H_LOG2 => qq{log2( N1 [,.. ] ). Returns the common logarithm to the base 2.},
-    H_LG10 => qq{log10( N1 [,.. ] ). Returns the common logarithm to the base 10.},
-    H_SQRT => qq{sqrt( N1 [,.. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
+    H_EXP2 => qq{exp2( N1 [, .. ] ). Returns the base 2 raised to the power N.},
+    H_EP10 => qq{exp10( N1 [, .. ] ). Returns the base 10 raised to the power N.},
+    H_LOGA => qq{log( N1 [, .. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
+    H_LOG2 => qq{log2( N1 [, .. ] ). Returns the common logarithm to the base 2.},
+    H_LG10 => qq{log10( N1 [, .. ] ). Returns the common logarithm to the base 10.},
+    H_SQRT => qq{sqrt( N1 [, .. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
     H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
     H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
     H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
-    H_MIN_ => qq{min( NUMBER1,.. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
-    H_MAX_ => qq{max( NUMBER1,.. ). Returns the entry in the list with the highest numerical value. [List::Util]},
-    H_SHFL => qq{shuffle( NUMBER1,.. ). Returns the values of the input in a random order. [List::Util]},
-    H_FRST => qq{first( NUMBER1,.. ). Returns the head of the set. Same as slice( NUMBER1,.. , 0, 1 ).},
-    H_SPLC => qq{slice( NUMBER1,.., OFFSET, LENGTH ). Extracts elements specified by OFFSET and LENGTH from a set.},
-    H_UNIQ => qq{uniq( NUMBER1,.. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
-    H_SUM_ => qq{sum( NUMBER1,.. ). Returns the numerical sum of all the elements in the list. [List::Util]},
-    H_PROD => qq{prod( NUMBER1,.. ). Returns the product of each value.},
-    H_AVRG => qq{avg( NUMBER1,.. ). Returns the average value of all elements in a list.},
-    H_ADEC => qq{add_each( NUMBER1,.. , DELTA ). Add each number.},
-    H_MLEC => qq{mul_each( NUMBER1,.. , FACTOR ). Multiply each number.},
-    H_DVEC => qq{div_each( NUMBER1,.. , DIVISOR ). Divide each number.},
+    H_MIN_ => qq{min( NUMBER1, .. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
+    H_MAX_ => qq{max( NUMBER1, .. ). Returns the entry in the list with the highest numerical value. [List::Util]},
+    H_SHFL => qq{shuffle( NUMBER1, .. ). Returns the values of the input in a random order. [List::Util]},
+    H_FRST => qq{first( NUMBER1, .. ). Returns the head of the set. Same as slice( NUMBER1,.. , 0, 1 ).},
+    H_HEAD => qq{head( NUMBER1, .., LENGTH ). Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
+    H_TAIL => qq{tail( NUMBER1, .., LENGTH ). Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
+    H_SPLC => qq{slice( NUMBER1, .., OFFSET, LENGTH ). Extracts elements specified by OFFSET and LENGTH from a set.},
+    H_UNIQ => qq{uniq( NUMBER1, .. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
+    H_SUM_ => qq{sum( NUMBER1, .. ). Returns the numerical sum of all the elements in the list. [List::Util]},
+    H_PROD => qq{prod( NUMBER1, .. ). Returns the product of each value.},
+    H_AVRG => qq{avg( NUMBER1, .. ). Returns the average value of all elements in a list.},
+    H_ADEC => qq{add_each( NUMBER1, .. , DELTA ). Add each number.},
+    H_MLEC => qq{mul_each( NUMBER1, .. , FACTOR ). Multiply each number.},
+    H_DVEC => qq{div_each( NUMBER1, .. , DIVISOR ). Divide each number.},
+    H_SMRT => qq{simplify_ratio( NUMBER1, NUMBER2, .. ). Reduce the ratio to the lowest integers.},
+    H_NMRT => qq{normalize_ratio( NUMBER1, NUMBER2, .. ). Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.},
     H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ). Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounds the intermediate number if DECIMAL_PLACES is specified, keeping the start and end values exact.},
     H_LNST => qq{linstep( START, DELTA, LENGTH ). Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ). Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_GFIS => qq{gen_fibo_seq( A, B, LENGTH ). Generates the Generalized Fibonacci Sequence. Returns the sequence of numbers starting at A, B and of size LENGTH. LENGTH is an integer greater than or equal to 2.},
-    H_LEAP => qq{is_leap( YEAR1 [,.. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
+    H_LEAP => qq{is_leap( YEAR1 [, .. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
     H_AOMI => qq{moon_age_instant( [ EPOCH ] ). Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
@@ -1220,6 +1224,8 @@ use constant {
     'max'                        => [ 1290, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
     'shuffle'                    => [ 1300, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
     'first'                      => [ 1310, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
+    'head'                       => [ 1313, T_FUNCTION, F_LIST,    VA, H_HEAD, sub{ &_C_HEAD( @_ ) } ],
+    'tail'                       => [ 1314, T_FUNCTION, F_LIST,    VA, H_TAIL, sub{ &_C_TAIL( @_ ) } ],
     'slice'                      => [ 1320, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
     'uniq'                       => [ 1330, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
     'sum'                        => [ 1340, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
@@ -1228,6 +1234,8 @@ use constant {
     'add_each'                   => [ 1370, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
     'mul_each'                   => [ 1380, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
     'div_each'                   => [ 1390, T_FUNCTION, F_LIST,    VA, H_DVEC, sub{ &div_each( @_ ) } ],
+    'simplify_ratio'             => [ 1395, T_FUNCTION, F_LIST,    VA, H_SMRT, sub{ &simplify_ratio( @_ ) } ],
+    'normalize_ratio'            => [ 1397, T_FUNCTION, F_LIST,    VA, H_NMRT, sub{ &normalize_ratio( @_ ) } ],
     'linspace'                   => [ 1400, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
     'linstep'                    => [ 1410, T_FUNCTION, F_LIST,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
     'mul_growth'                 => [ 1420, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
@@ -1736,7 +1744,7 @@ sub gcd( $@ )
 {
     my $gcd = shift( @_ );
     for( @_ ){
-        $gcd = _gcd2( $gcd, $_ );
+        $gcd = &_gcd2( $gcd, $_ );
     }
     return $gcd;
 }
@@ -1745,7 +1753,7 @@ sub lcm( $@ )
 {
     my $lcm = shift( @_ );
     for( @_ ){
-        my $g = _gcd2( $lcm, $_ );
+        my $g = &_gcd2( $lcm, $_ );
         if( $g == 0 ){
             $lcm = 0;
         }else{
@@ -1863,11 +1871,55 @@ sub _C_FIRST( @ )
     return $_[ 0 ];
 }
 
+sub _C_HEAD( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    if( $argc < 2 ){
+        die( qq{head(): \$argc=$argc: Not enough arguments.\n} );
+    }
+    my $length = pop( @argv ) + 0;
+    if( $length < 1 ){
+        die( qq{head(): \$length=$length: Argument value is out of range.\n} );
+    }
+    if( $length =~ m/\./o ){
+        die( qq{head(): \$length=$length: LENGTH must be an integer.\n} );
+    }
+    my @sets = &List::Util::head( $length, @argv );
+    my $got_len = scalar( @sets );
+    if( $got_len < $length ){
+        $TableProvider::opf->warnPrint( qq{head(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
+    }
+    return @sets;
+}
+
+sub _C_TAIL( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    if( $argc < 2 ){
+        die( qq{tail(): \$argc=$argc: Not enough arguments.\n} );
+    }
+    my $length = pop( @argv ) + 0;
+    if( $length < 1 ){
+        die( qq{tail(): \$length=$length: Argument value is out of range.\n} );
+    }
+    if( $length =~ m/\./o ){
+        die( qq{tail(): \$length=$length: LENGTH must be an integer.\n} );
+    }
+    my @sets = &List::Util::tail( $length, @argv );
+    my $got_len = scalar( @sets );
+    if( $got_len < $length ){
+        $TableProvider::opf->warnPrint( qq{tail(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
+    }
+    return @sets;
+}
+
 sub _C_SLICE( @ )
 {
     my @argv = @_;
     my $argc = scalar( @argv );
-    if( $argc <= 3 ){
+    if( $argc < 3 ){
         die( qq{slice: \$argc=$argc: Not enough arguments.\n} );
     }
     my $length = pop( @argv );
@@ -1956,6 +2008,71 @@ sub div_each( @ )
         die( qq{"$divisor": Illegal division by zero.\n} );
     }
     my @ret_vals = ();
+    for my $operand( @_ ){
+        push( @ret_vals, $operand / $divisor );
+    }
+    return @ret_vals;
+}
+
+sub simplify_ratio( @ )
+{
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{simplify_ratio(): \$argc=$argc: Insufficient number of arguments.\n} );
+    }
+    my $int_factor = 0;
+    for my $operand( @_ ){
+        my $ope_str = sprintf( '%s', $operand + 0 );
+        if( $ope_str =~ m!\.(\d+)$!o ){
+            my $len = length( $1 );
+            $int_factor = &List::Util::max( $len, $int_factor );
+        }
+    }
+    #print( qq{\$int_factor=$int_factor\n} );
+    my @integers = ();
+    for my $operand( @_ ){
+        my $int_num = $operand * ( 10 ** $int_factor );
+        #print( qq{\$int_num=$int_num\n} );
+        push( @integers, $int_num );
+    }
+    my $divisor = &gcd( @integers );
+    if( $divisor == 0 ){
+        die( qq{simplify_ratio(): A ratio cannot be formed with zeros alone.\n} );
+    }
+    my @ret_vals = ();
+    if( $int_factor == 0 && $divisor == 1 ){
+        $TableProvider::opf->warnPrint( qq{simplify_ratio(): Could not be simplified.\n} );
+    }
+    for my $operand( @integers ){
+        push( @ret_vals, $operand / $divisor );
+    }
+    return @ret_vals;
+}
+
+sub normalize_ratio( @ )
+{
+    my $argc = scalar( @_ );
+    if( $argc < 2 ){
+        die( qq{normalize_ratio(): \$argc=$argc: Insufficient number of arguments.\n} );
+    }
+    my $divisor = undef;
+    for my $operand( @_ ){
+        my $opd_abs = &CORE::abs( $operand );
+        if( $opd_abs == 0 ){
+            next;
+        }elsif( !defined( $divisor ) ){
+            $divisor = $opd_abs;
+        }elsif( $opd_abs < $divisor ){
+            $divisor = $opd_abs;
+        }
+    }
+    if( !defined( $divisor ) ){
+        die( qq{normalize_ratio(): A ratio cannot be formed with zeros alone.\n} );
+    }
+    my @ret_vals = ();
+    if( $divisor == 1 ){
+        $TableProvider::opf->warnPrint( qq{normalize_ratio(): Could not be normalized.\n} );
+    }
     for my $operand( @_ ){
         push( @ret_vals, $operand / $divisor );
     }
@@ -5254,16 +5371,16 @@ Arctic Circle Latitude (90 - Tilt):
 =head2 FUNCTIONS
 
 fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, first, slice,
-uniq, sum, prod, avg, add_each, mul_each, div_each, linspace, linstep, mul_growth, gen_fibo_seq, is_leap, age, moon_age,
-moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms,
-laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad,
-dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan, atan2, hypot, angle_deg, dist_between_points,
-midpt_between_points, angle_between_points, vector_angle, geo2xyz, geo_radius, radius_of_lat, geo_distance_m,
-geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km,
-geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, ri2meter, meter2ri,
-mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram,
-gram2ounce, kgf2newton, newton2kgf, paper_size
+get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, first, head,
+tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each, simplify_ratio, normalize_ratio, linspace, linstep,
+mul_growth, gen_fibo_seq, is_leap, age, moon_age, moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch,
+epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
+atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle, geo2xyz,
+geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth,
+geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m,
+geo_all_km, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch,
+pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper_size
 
 =head1 OPTIONS
 
@@ -5688,15 +5805,15 @@ Same as C<fmod( 10.234, 3 )>.
 
 Differences between modulo operations (L<C<fmod>|/fmod> and L<C<math_mod>|/math_mod>):
 
-  ┏━━━━━┳━━┯━━┯━━┯━━┯━━┓
-  ┃dividend  ┃-5.1│-5.1│+5.1│+5.1│ any┃
-  ┠─────╂──┼──┼──┼──┼──┨
-  ┃divisor   ┃-2.2│+2.2│-2.2│+2.2│  0 ┃
-  ┣━━━━━╋━━┿━━┿━━┿━━┿━━┫
-  ┃ %, fmod()┃-0.7│-0.7│+0.7│+0.7│ err┃
-  ┠─────╂──┼──┼──┼──┼──┨
-  ┃math_mod()┃-0.7│+1.5│-1.5│+0.7│ err┃
-  ┗━━━━━┻━━┷━━┷━━┷━━┷━━┛
+  +----------+----+----+----+----+----+
+  |dividend  |-5.1|-5.1|+5.1|+5.1| any|
+  +----------+----+----+----+----+----+
+  |divisor   |-2.2|+2.2|-2.2|+2.2|  0 |
+  +==========+====+====+====+====+====+
+  |%, fmod() |-0.7|-0.7|+0.7|+0.7| err|
+  +----------+----+----+----+----+----+
+  |math_mod()|-0.7|+1.5|-1.5|+0.7| err|
+  +----------+----+----+----+----+----+
 
 =item C<**>
 
@@ -5800,7 +5917,7 @@ Please refer to the L<% operator|/%> for the differences between the remainder o
 
 =item C<abs>
 
-abs( I<N1> [,.. ] ).
+abs( I<N1> [, .. ] ).
 Returns the absolute value of its argument.
 [Perl Native]
 
@@ -5809,7 +5926,7 @@ Returns the absolute value of its argument.
 
 =item C<int>
 
-int( I<N1> [,.. ] ).
+int( I<N1> [, .. ] ).
 Returns the integer portion of I<N>.
 [Perl Native]
 
@@ -5818,7 +5935,7 @@ Returns the integer portion of I<N>.
 
 =item C<floor>
 
-floor( I<N1> [,.. ] ).
+floor( I<N1> [, .. ] ).
 Returning the largest integer value less than or equal to the numerical argument.
 [POSIX]
 
@@ -5827,7 +5944,7 @@ Returning the largest integer value less than or equal to the numerical argument
 
 =item C<ceil>
 
-ceil( I<N1> [,.. ] ).
+ceil( I<N1> [, .. ] ).
 Returning the smallest integer value greater than or equal to the given numerical argument.
 [POSIX]
 
@@ -5836,7 +5953,7 @@ Returning the smallest integer value greater than or equal to the given numerica
 
 =item C<rounddown>
 
-rounddown( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+rounddown( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
   $ c 'rounddown( -1.2, 1.2, 0 )'
@@ -5844,7 +5961,7 @@ Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
 =item C<round>
 
-round( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+round( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
   $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
@@ -5852,7 +5969,7 @@ Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
 =item C<roundup>
 
-roundup( I<NUMBER1> [ ,.. ], I<DECIMAL_PLACES> ).
+roundup( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
 Returns the value of I<NUMBER1> rounded up to I<DECIMAL_PLACES>.
 
   $ c 'roundup( -1.2, 1.2, 0 )'
@@ -5885,7 +6002,7 @@ If it takes 66 seconds to make 5 units, what will be the production quantity aft
 
 =item C<is_prime>
 
-is_prime( I<NUM1> [,.. ] ).
+is_prime( I<NUM1> [, .. ] ).
 Prime number test.
 Returns 1 if I<NUM> is prime, otherwise returns 0.
 
@@ -5917,7 +6034,7 @@ where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
 
 =item C<gcd>
 
-gcd( I<NUMBER1>,.. ).
+gcd( I<NUMBER1>, .. ).
 Returns the greatest common divisor (GCD),
 which is the largest positive integer that divides each of the operands.
 
@@ -5926,7 +6043,7 @@ which is the largest positive integer that divides each of the operands.
 
 =item C<lcm>
 
-lcm( I<NUMBER1>,.. ).
+lcm( I<NUMBER1>, .. ).
 Returns the least common multiple (LCM).
 
   $ c 'lcm( 402, 670, 804 )'
@@ -5950,7 +6067,7 @@ A random number between 0 and 6:
 
 =item C<exp>
 
-exp( I<N1> [,.. ] ).
+exp( I<N1> [, .. ] ).
 Returns e (the natural logarithm base) to the power of I<N>.
 [Perl Native]
 
@@ -5961,7 +6078,7 @@ The base of natural logarithms e (Napier's constant):
 
 =item C<log>
 
-log( I<N1> [,.. ] ).
+log( I<N1> [, .. ] ).
 Returns the natural logarithm (base e) of I<N>.
 [Perl Native]
 
@@ -6006,7 +6123,7 @@ The reciprocal of an antilogarithm reverses the sign of the logarithm.
 
 =item C<exp2>
 
-exp2( I<N1> [,.. ] ).
+exp2( I<N1> [, .. ] ).
 Returns the base 2 raised to the power N.
 
   $ c 'exp2( 8, 16, 32 )'
@@ -6023,7 +6140,7 @@ The following three expressions are equivalent:
 
 =item C<log2>
 
-log2( I<N1> [,.. ] ).
+log2( I<N1> [, .. ] ).
 Returns the common logarithm to the base 2.
 
   $ c 'log2( 256, 65536, 4294967296 )'
@@ -6040,7 +6157,7 @@ The following three expressions are equivalent:
 
 =item C<exp10>
 
-exp10( I<N1> [,.. ] ).
+exp10( I<N1> [, .. ] ).
 Returns the base 10 raised to the power N.
 
   $ c 'exp10( 1, 2, 3 )'
@@ -6057,7 +6174,7 @@ The following three expressions are equivalent:
 
 =item C<log10>
 
-log10( I<N1> [,.. ] ).
+log10( I<N1> [, .. ] ).
 Returns the common logarithm to the base 10.
 
   $ c 'log10( 10, 100, 1000 )'
@@ -6074,7 +6191,7 @@ The following three expressions are equivalent:
 
 =item C<sqrt>
 
-sqrt( I<N1> [,.. ] ).
+sqrt( I<N1> [, .. ] ).
 Return the positive square root of I<N>.
 Works only for non-negative operands.
 [Perl Native]
@@ -6121,7 +6238,7 @@ Number of combinations of choosing 3 out of 5:
 
 =item C<min>
 
-min( I<NUMBER1>,.. ).
+min( I<NUMBER1>, .. ).
 Returns the entry in the list with the lowest numerical value.
 [List::Util]
 
@@ -6130,7 +6247,7 @@ Returns the entry in the list with the lowest numerical value.
 
 =item C<max>
 
-max( I<NUMBER1>,.. ).
+max( I<NUMBER1>, .. ).
 Returns the entry in the list with the highest numerical value.
 [List::Util]
 
@@ -6139,7 +6256,7 @@ Returns the entry in the list with the highest numerical value.
 
 =item C<shuffle>
 
-shuffle( I<NUMBER1>,.. ).
+shuffle( I<NUMBER1>, .. ).
 Returns the values of the input in a random order.
 [List::Util]
 
@@ -6148,16 +6265,36 @@ Returns the values of the input in a random order.
 
 =item C<first>
 
-first( I<NUMBER1>,.. ).
+first( I<NUMBER1>, .. ).
 Returns the head of the set.
 Same as slice( I<NUMBER1>,.. , 0, 1 ).
 
   $ c 'first( 402, 670, 804 )'
   402
 
+=item C<head>
+
+head( I<NUMBER1>, .. I<LENGTH> ).
+Returns the first I<LENGTH> elements from the set.
+I<LENGTH> is an integer greater than or equal to 1.
+[List::Util]
+
+  $ c 'head( 100, 200, 300, 2 )'
+  ( 100, 200 )
+
+=item C<tail>
+
+tail( I<NUMBER1>, .. I<LENGTH> ).
+Returns the last I<LENGTH> elements from the set.
+I<LENGTH> is an integer greater than or equal to 1.
+[List::Util]
+
+  $ c 'tail( 100, 200, 300, 2 )'
+  ( 200, 300 )
+
 =item C<slice>
 
-slice( I<NUMBER1>,.., I<OFFSET>, I<LENGTH> ).
+slice( I<NUMBER1>, .., I<OFFSET>, I<LENGTH> ).
 Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
 
 Extract only the date (first three):
@@ -6167,7 +6304,7 @@ Extract only the date (first three):
 
 =item C<uniq>
 
-uniq( I<NUMBER1>,.. ).
+uniq( I<NUMBER1>, .. ).
 Filters a list of values to remove subsequent duplicates,
 as judged by a DWIM-ish string equality or "undef" test.
 Preserves the order of unique elements, and retains the first value of any duplicate set.
@@ -6178,7 +6315,7 @@ Preserves the order of unique elements, and retains the first value of any dupli
 
 =item C<sum>
 
-sum( I<NUMBER1>,.. ).
+sum( I<NUMBER1>, .. ).
 Returns the numerical sum of all the elements in the list.
 [List::Util]
 
@@ -6187,7 +6324,7 @@ Returns the numerical sum of all the elements in the list.
 
 =item C<prod>
 
-prod( I<NUMBER1>,.. ).
+prod( I<NUMBER1>, .. ).
 Returns the product of each value.
 
   $ c 'prod( 1, 2, 3, 4 )'
@@ -6195,7 +6332,7 @@ Returns the product of each value.
 
 =item C<avg>
 
-avg( I<NUMBER1>,.. ).
+avg( I<NUMBER1>, .. ).
 Returns the average value of all elements in a list.
 
   $ c 'avg( 1, 2, 3, 4 )'
@@ -6203,14 +6340,14 @@ Returns the average value of all elements in a list.
 
 =item C<add_each>
 
-add_each( I<NUMBER1>,.. , I<DELTA> ). Add each number.
+add_each( I<NUMBER1>, .. , I<DELTA> ). Add each number.
 
   $ c 'add_each( 100, 200, -10 )'
   ( 90, 190 )
 
 =item C<mul_each>
 
-mul_each( I<NUMBER1>,.. , I<FACTOR> ). Multiply each number.
+mul_each( I<NUMBER1>, .. , I<FACTOR> ). Multiply each number.
 
   $ c 'mul_each( 100, 200, 2 )'
   ( 200, 400 )
@@ -6227,23 +6364,47 @@ Major Moon Phases:
 
 =item C<div_each>
 
-div_each( I<NUMBER1>,.. , I<DIVISOR> ). Divide each number.
+div_each( I<NUMBER1>, .. , I<DIVISOR> ). Divide each number.
 
 Simplify ratio:
 
-  $ c 'gcd( 31080, 62370, 124740 )'
+  $ num_seq_1='31080, 62370, 124740'
+  $ c "gcd( $num_seq_1 )"
   210
-  $ c 'div_each( 31080, 62370, 124740, 210 )'
+  $ c "div_each( $num_seq_1, 210 )"
   ( 148, 297, 594 )
 
 Normalize ratio:
 
-  $ c 'min( 148, 297, 594 )'
+  $ num_seq_2='148, 297, 594'
+  $ c "min( $num_seq_2 )"
   148
-  $ c 'div_each( 148, 297, 594, 148 )'
+  $ c "div_each( $num_seq_2, 148 )"
   ( 1, 2.00675675676, 4.01351351351 )
-  $ c 'round( div_each( 148, 297, 594, 148 ), 0 )'
+  $ c "round( div_each( $num_seq_2, 148 ), 0 )"
   ( 1, 2, 4 )
+
+=item C<simplify_ratio>
+
+simplify_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
+Reduce the ratio to the lowest integers.
+
+Display resolution aspect ratio:
+
+  $ c 'simplify_ratio( 1920, 1080 )'
+  ( 16, 9 )
+
+=item C<normalize_ratio>
+
+normalize_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
+Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
+
+Finding the golden ratio:
+
+  $ c 'tail( gen_fibo_seq( 0, 1, 100 ), 2 )'
+  ( 135301852344706760704, 218922995834555203584 )
+  $ c 'normalize_ratio( 135301852344706760704, 218922995834555203584 )'
+  ( 1, 1.61803398875 )
 
 =item C<linspace>
 

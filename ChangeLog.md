@@ -7,8 +7,17 @@
 ### Changed
 - xxx
 
+## [0.2.84] - 2026-07-29
+### Added
+- `c` [1.04.196]:
+  - Added a function.
+    - head(): Returns the first LENGTH elements from the set.
+    - tail(): Returns the last LENGTH elements from the set.
+    - simplify_ratio(): Reduce the ratio to the lowest integers.
+    - normalize_ratio(): Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
+
 ## [0.2.83] - 2026-07-28
-### Changed
+### Added
 - `c` [1.04.195]:
   - Added a function.
     - div_each( NUMBER1,.. , DIVISOR ). Divide each number.
