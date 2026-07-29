@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.29 $
+## - $Revision: 1.32 $
 ################################################################################
 
 use strict;
@@ -73,17 +73,17 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{simplify_ratio( pi )} );
+#        $res = $c->formula( qq{sample( 111 )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'simplify_ratio( pi )'} );
+#    $t->exit_isnt( 0, qq{./c 'sample( 111 )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: simplify_ratio\(\): \$argc=1: Insufficient number of arguments\.\n/ );
+#    $t->stderr_like( qr/^c: evaluator: error: sample\(\): \$argc=1: Not enough arguments\.\n/ );
 #
 #};
 #done_testing();
-#exit( 0 );
+#&POSIX::_exit( 0 );
 #subtest qq{Normal (Ex-Proc Test)} => sub{
 #    my $t;
 #
@@ -103,7 +103,7 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #
 #};
 #done_testing();
-#exit( 0 );
+#&POSIX::_exit( 0 );
 
 subtest qq{Normal (In-Proc Test)} => sub{
     my $c = FTCalc->new();
@@ -3689,6 +3689,63 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 111 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'sample( 111 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: sample\(\): \$argc=1: Not enough arguments\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 222, 111, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'sample( 222, 111, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: sample\(\): \$count=0: Argument value is out of range\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 222, 111, 1.01 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'sample( 222, 111, 1.01 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: sample\(\): \$count=1\.01: COUNT must be an integer\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 222.0, 111.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'sample( 222.0, 111.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 222 );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: tbl_prvdr: warn: sample\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 222.0, 111.0, 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'sample( 222.0, 111.0, 1 )'} );
+    $t->has_no_exception();
+    ok( $res == 222 || $res == 111, qq{\$res="$res"} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sample( 333.1, 222.0, 111.0, 3 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'sample( 333.1, 222.0, 111.0, 3 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3 );
+    ok( ${ $res }[ 0 ] == 333.1 || ${ $res }[ 0 ] == 222 || ${ $res }[ 0 ] == 111, qq{[ 0 ] = "${ $res }[ 0 ]"} );
+    ok( ${ $res }[ 1 ] == 333.1 || ${ $res }[ 1 ] == 222 || ${ $res }[ 1 ] == 111, qq{[ 1 ] = "${ $res }[ 1 ]"} );
+    ok( ${ $res }[ 2 ] == 333.1 || ${ $res }[ 2 ] == 222 || ${ $res }[ 2 ] == 111, qq{[ 2 ] = "${ $res }[ 2 ]"} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) =} );
     } );
     $t->exit_is( 0 );
@@ -4830,6 +4887,342 @@ subtest qq{Normal (In-Proc Test)} => sub{
 
 };
 
+subtest qq{Require ./c} => sub {
+
+    require './c';
+
+    subtest qq{Tests requiring checks of option switches or STDOUT} => sub{
+        my $t;
+        my $status;
+
+        my $expect;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '2', '~1=' );
+        } );
+        $t->exit_is( 0, qq{./c '2' '~1='} );
+        $t->has_no_exception();
+        $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
+        if( $UV_bit_width == 32 ){
+            $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
+        }
+        $t->stdout_is( $expect );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123,456-59', '+', '123.456((3-2)*1+1+(1-3/3))=' );
+        } );
+        $t->exit_is( 0, qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{123643.912\n} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'timer( 1 )' );
+        } );
+        $t->exit_is( 0, qq{./c 'timer( 1 )'} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
+        $t->stdout_like( qr/\n\d+\.\d+\n/, qq{STDOUTの出力を確認した方が良いという考えからFTCalcを使わない方法でテスト} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( ' ', '2PI10=' );
+        } );
+        $t->exit_is( 0, qq{./c ' ' '2PI10='} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '2PI10=', ' ' );
+        } );
+        $t->exit_is( 0, qq{./c '2PI10=' ' '} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '2PI10=', ' ', '-d' );
+        } );
+        $t->exit_is( 0, qq{./c '2PI10=' ' ' -d} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n Result: 62\.8318530718\n$/ );  ## 62.83185307179586476925286766559
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123', '2(=' );
+        } );
+        $t->exit_isnt( 0, qq{./c '123' '2(='} );
+        $t->has_exception();
+        $t->exception_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
+        $t->stdout_is( qq{} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123', '2(2=' );
+        } );
+        $t->exit_isnt( 0, qq{./c '123' '2(2='} );
+        $t->has_exception();
+        $t->exception_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
+        $t->stdout_is( qq{} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )', '-v' );
+        } );
+        $t->exit_is( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n    RPN: '# # 10 rand # 10 rand # 10 rand # 10 rand # 10 rand min'\n/ );
+        $t->stderr_is( qq{} );
+
+        ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )', '-v' );
+        } );
+        $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 29 \( rounded \)\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )', '-v' );
+        } );
+        $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 0 \( rounded \)\n/ );
+        $t->stderr_is( qq{} );
+        ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'sqrt(4)=', '=r' );
+        } );
+        $t->exit_is( 0, qq{./c 'sqrt(4)=' =r} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{} );
+        $t->stderr_is( qq{c: engine: warn: "=r": Ignore. The calculation process has been completed.\n} );
+
+    };
+
+    subtest qq{-d, --debug} =>sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123', '-d' );
+        } );
+        $t->exit_is( 0, qq{./c '123' -d} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^dbg: arg="\-d", \@val=0\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123', '--debug' );
+        } );
+        $t->exit_is( 0, qq{./c '123' --debug} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^dbg: arg="\-\-debug", \@val=0\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '123', '-dv' );
+        } );
+        $t->exit_is( 0, qq{./c '123' -dv} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/dbg: arg="\-d", \@val=1\ndbg: arg="\-v", \@val=0\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-d', '-20-3*2(1+sqrt(4))=' );
+        } );
+        $t->exit_is( 0, qq{./c -d '-20-3*2(1+sqrt(4))='} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^dbg: arg="\-d", \@val=1\n/ );
+        $t->stdout_like( qr/\nRemain RPN: \-20 3 2\n/ );
+        $t->stdout_like( qr/\n Result: \-38\n/ );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{-v, --verbose} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'sqrt(2**100)=', '-v' );
+        } );
+        $t->exit_is( 0, qq{./c 'sqrt(2**100)=' -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^2 \*\* 100 = 1\.26765060022823e\+30\n/ );
+        $t->stdout_like( qr/\nsqrt\( 1\.26765060022823e\+30 \) = 1\.12589990684262e\+15\n/ );
+        $t->stdout_like( qr/\n Result: 1125899906842624 \[ = 1\.12589990684262e\+15 \]\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'sqrt(pow(2, 100)+pow(2, 100))=', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'sqrt(pow(2, 100)+pow(2, 100))=' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n Result: 1592262918131443\.25 \[ = 1\.59226291813144e\+15 \]\n/ );  ## 1592262918131443.1411559535896932
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '0.22*10**(-6)=', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c '0.22*10**(-6)=' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n Result: 0.00000022 \[ = 2\.2e\-07 \]\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-v', '-20-3*2(1+sqrt(4))=' );
+        } );
+        $t->exit_is( 0, qq{./c -v '-20-3*2(1+sqrt(4))='} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^3 \* 2 = 6\n/ );
+        $t->stdout_like( qr/\nsqrt\( 4 \) = 2\n/ );
+        $t->stdout_like( qr/\n1 \+ 2 = 3\n/ );
+        $t->stdout_like( qr/\n6 \* 3 = 18\n/ );
+        $t->stdout_like( qr/\n\-20 \- 18 = \-38\n/ );
+        $t->stdout_like( qr/\n Result: \-38\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '10*-3*-5+-4/2=', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c '10*-3*-5+-4/2=' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^10 \* \-3 = \-30\n/ );
+        $t->stdout_like( qr/\n\-30 \* \-5 = 150\n/ );
+        $t->stdout_like( qr/\n\-4 \/ 2 = \-2\n/ );
+        $t->stdout_like( qr/\n150 \+ \-2 = 148\n/ );
+        $t->stdout_like( qr/\n Result: 148\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--verbose', '0x0d*0xff/(-0x5*-0x0d)=' );
+        } );
+        $t->exit_is( 0, qq{./c --verbose '0x0d*0xff/(-0x5*-0x0d)='} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^13 \* 255 = 3315\n/ );
+        $t->stdout_like( qr/\n\-5 \* \-13 = 65\n/ );
+        $t->stdout_like( qr/\n3315 \/ 65 = 51\n/ );
+        $t->stdout_like( qr/\n Result: 51 \[ = 0x33 \]\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'linstep( 0.00000022, -1, 2 )', '-v' );
+        } );
+        $t->exit_is( 0, qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n Result: \( 0\.00000022, \-0\.99999978 \) \[ = \( 2\.2e\-07, \-0\.99999978 \) \]\n/ );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{-r, --rpn} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '10*-3', '*-5+-4/2=', '-r' );
+        } );
+        $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' -r} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '10*-3', '*-5+-4/2=', '--rpn' );
+        } );
+        $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '10*-3', '*-5+-4/2=', '--rpn', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn --verbose} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Remain RPN: 10\n/ );
+        $t->stdout_like( qr/\nRemain RPN: 150 \-4 2\n/ );
+        $t->stdout_like( qr/\n10 \-3 \* \-5 \* \-4 2 \/ \+\n/ );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{--version} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--version' );
+        } );
+        $t->exit_is( 0, qq{./c --version} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Version: \d/ );
+        $t->stdout_like( qr/\n   Perl: v\d/ );
+        $t->stderr_is( qq{} );
+    };
+
+    subtest qq{-h, --help} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-h' );
+        } );
+        $t->exit_is( 0, qq{./c -h} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Usage: c / );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--help' );
+        } );
+        $t->exit_is( 0, qq{./c --help} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Usage: c / );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--test-test', '--help' );
+        } );
+        $t->exit_is( 0, qq{./c --test-test --help} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Usage: c / );
+        $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{-b, --banner} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-b', 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )' );
+        } );
+        $t->exit_is( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{( 0, 0, 48, 45.8 )\n} );
+        $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--banner', 'paper_size( 4 )' );
+        } );
+        $t->exit_is( 0, qq{./c --banner 'paper_size( 4 )'} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{( 210, 297 )\n} );
+        $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
+
+    };
+
+};
+#done_testing();
+#exit( 0 );
+
 subtest qq{Normal (Ex-Proc Test)} => sub{
     my $t;
 
@@ -4838,26 +5231,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_is( qq{\n} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
-
-    my $expect;
-
-    $t = tests::Tester->run_cmd( qq{./c '2' '~1='} );
-    $t->exit_is( 0, qq{./c '2' '~1='} );
-    $expect = qq{36893488147419103232 \[ = -1 \] \[ = 0xFFFFFFFFFFFFFFFF \]\n};
-    if( $UV_bit_width == 32 ){
-        $expect = qq{8589934588 \[ = -1 \] \[ = 0xFFFFFFFF \]\n};
-    }
-    $t->stdout_is( $expect );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
-    $t->exit_is( 0, qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
-    $t->stdout_is( qq{123643.912\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'laptimer( 1 )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'laptimer( 1 )'} );
@@ -4904,13 +5277,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./c 'timer( 1 )'} );
-    $t->exit_is( 0, qq{./c 'timer( 1 )'} );
-    $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
-    $t->stdout_like( qr/\n\d+\.\d+\n/, qq{STDOUTの出力を確認した方が良いという考えからFTCalcを使わない方法でテスト} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'stopwatch()'} );
     $t->exit_is( 0, qq{echo '' | ./c 'stopwatch()'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
@@ -4951,59 +5317,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c ' ' '2PI10='} );
-    $t->exit_is( 0, qq{./c ' ' '2PI10='} );
-    $t->stdout_is( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '2PI10=' ' '} );
-    $t->exit_is( 0, qq{./c '2PI10=' ' '} );
-    $t->stdout_is( qq{62.8318530718\n} );  ## 62.83185307179586476925286766559
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '2PI10=' ' ' -d} );
-    $t->exit_is( 0, qq{./c '2PI10=' ' ' -d} );
-    $t->stdout_like( qr/\n Result: 62\.8318530718\n$/ );  ## 62.83185307179586476925286766559
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '123' '2(='} );
-    $t->exit_isnt( 0, qq{./c '123' '2(='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '123' '2(2='} );
-    $t->exit_isnt( 0, qq{./c '123' '2(2='} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
-    $t->exit_is( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
-    $t->stdout_like( qr/\n    RPN: '# # 10 rand # 10 rand # 10 rand # 10 rand # 10 rand min'\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
-    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
-    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
-    $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 29 \( rounded \)\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
-    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
-    $t->stdout_like( qr/\n  ....;;;;;;;;;;;;....  Age: 0 \( rounded \)\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-    ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(4)=' =r} );
-    $t->exit_isnt( 0, qq{./c 'sqrt(4)=' =r} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
-    $t->stderr_is( qq{c: engine: warn: "=r": Ignore. The calculation process has been completed.\n} );
     undef( $t );
 
 };
@@ -5321,6 +5634,19 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{nr( -100pi, -43, 0, 129 )} );
+    } );
+    $t->exit_is( 0, qq{Alias for normalize_ratio()} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{./c 'nr( -100pi, -43, 0, 129 )'} );
+    equal( ${ $res }[ 0 ], -7.30602942695 );
+    equal( ${ $res }[ 1 ], -1 );
+    equal( ${ $res }[ 2 ],  0 );
+    equal( ${ $res }[ 3 ],  3 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{pct( 2, 3, 1 )} );
     } );
     $t->exit_is( 0, qq{Alias for percentage()} );
@@ -5376,6 +5702,19 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{sr( -100pi, -43, 0, 129 )} );
+    } );
+    $t->exit_is( 0, qq{Alias for simplify_ratio()} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{./c 'sr( -100pi, -43, 0, 129 )'} );
+    equal( ${ $res }[ 0 ], -7306029426953 );
+    equal( ${ $res }[ 1 ], -1000000000000 );
+    equal( ${ $res }[ 2 ],              0 );
+    equal( ${ $res }[ 3 ],  3000000000000 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{va( 100, 100, 100, 100 )} );
     } );
     $t->exit_is( 0, qq{Alias for vector_angle()} );
@@ -5388,7 +5727,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{里→メートル( 1 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for ri2meter()} );
     $t->has_no_exception();
     equal( $res, 3927.27272727, qq{里→メートル( 1 ) => 3927.27272727} );
     $t->stdout_is( qq{} );
@@ -5397,7 +5736,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{メートル→里( 4000 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for meter2ri()} );
     $t->has_no_exception();
     equal( $res, 1.01851851852, qq{メートル→里( 4000 ) => 1.01851851852} );
     $t->stdout_is( qq{} );
@@ -5406,7 +5745,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{マイル→メートル( 1 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for mile2meter()} );
     $t->has_no_exception();
     equal( $res, 1609.344, qq{マイル→メートル( 1 ) => 1609.344} );
     $t->stdout_is( qq{} );
@@ -5415,7 +5754,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{メートル→マイル( 2000 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for meter2mile()} );
     $t->has_no_exception();
     equal( $res, 1.24274238447, qq{メートル→マイル( 2000 ) => 1.24274238447} );
     $t->stdout_is( qq{} );
@@ -5424,7 +5763,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{海里→メートル( 1 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for nautical_mile2meter()} );
     $t->has_no_exception();
     equal( $res, 1852, qq{海里→メートル( 1 ) => 1852} );
     $t->stdout_is( qq{} );
@@ -5433,7 +5772,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{メートル→海里( 2000 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for meter2nautical_mile()} );
     $t->has_no_exception();
     equal( $res, 1.07991360691, qq{メートル→海里( 2000 ) => 1.07991360691} );
     $t->stdout_is( qq{} );
@@ -5442,7 +5781,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ポンド→グラム( 1 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for pound2gram()} );
     $t->has_no_exception();
     equal( $res, 453.59237, qq{ポンド→グラム( 1 ) => 453.59237} );
     $t->stdout_is( qq{} );
@@ -5451,7 +5790,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{グラム→ポンド( 500 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for gram2pound()} );
     $t->has_no_exception();
     equal( $res, 1.10231131092, qq{グラム→ポンド( 500 ) => 1.10231131092} );
     $t->stdout_is( qq{} );
@@ -5460,7 +5799,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{オンス→グラム( 1 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for ounce2gram()} );
     $t->has_no_exception();
     equal( $res, 28.349523125, qq{オンス→グラム( 1 ) => 28.349523125} );
     $t->stdout_is( qq{} );
@@ -5469,7 +5808,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{グラム→オンス( 30 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for gram2ounce()} );
     $t->has_no_exception();
     equal( $res, 1.05821885849, qq{グラム→オンス( 30 ) => 1.05821885849} );
     $t->stdout_is( qq{} );
@@ -5478,7 +5817,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{キログラム重→ニュートン( 2.25 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for kgf2newton()} );
     $t->has_no_exception();
     equal( $res, 22.0649625, qq{キログラム重→ニュートン( 2.25 ) => 22.0649625} );
     $t->stdout_is( qq{} );
@@ -5487,7 +5826,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{キログラム→ニュートン( 2.5 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for kgf2newton()} );
     $t->has_no_exception();
     equal( $res, 24.516625, qq{キログラム→ニュートン( 2.5 ) => 24.516625} );
     $t->stdout_is( qq{} );
@@ -5496,7 +5835,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ニュートン→キログラム重( 17 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for newton2kgf()} );
     $t->has_no_exception();
     equal( $res, 1.73351756206, qq{ニュートン→キログラム重( 17 ) => 1.73351756206} );
     $t->stdout_is( qq{} );
@@ -5505,7 +5844,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ニュートン→キログラム( 20 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{Alias for newton2kgf()} );
     $t->has_no_exception();
     equal( $res, 2.03943242596, qq{ニュートン→キログラム( 20 ) => 2.03943242596} );
     $t->stdout_is( qq{} );
@@ -5556,152 +5895,8 @@ subtest qq{aliases (Ex-Proc Test)} => sub{
 
 };
 
-subtest qq{-d, --debug} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{echo | ./c -d} );
-    $t->exit_is( 0, qq{echo | ./c -d} );
-    $t->stdout_like( qr/^dbg: arg="\-d", \@val=0\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{echo | ./c --debug} );
-    $t->exit_is( 0, qq{echo | ./c --debug} );
-    $t->stdout_like( qr/^dbg: arg="\-\-debug", \@val=0\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{echo | ./c -dv} );
-    $t->exit_is( 0, qq{echo | ./c -dv} );
-    $t->stdout_like( qr/dbg: arg="\-d", \@val=1\ndbg: arg="\-v", \@val=0\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c -d '-20-3*2(1+sqrt(4))='} );
-    $t->exit_is( 0, qq{./c -d '-20-3*2(1+sqrt(4))='} );
-    $t->stdout_like( qr/^dbg: arg="\-d", \@val=1\n/ );
-    $t->stdout_like( qr/\nRemain RPN: \-20 3 2\n/ );
-    $t->stdout_like( qr/\n Result: \-38\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-};
-
-subtest qq{-v, --verbose} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(2**100)=' -v} );
-    $t->exit_is( 0, qq{./c 'sqrt(2**100)=' -v} );
-    $t->stdout_like( qr/^2 \*\* 100 = 1\.26765060022823e\+30\n/ );
-    $t->stdout_like( qr/\nsqrt\( 1\.26765060022823e\+30 \) = 1\.12589990684262e\+15\n/ );
-    $t->stdout_like( qr/\n Result: 1125899906842624 \[ = 1\.12589990684262e\+15 \]\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'sqrt(pow(2, 100)+pow(2, 100))=' --verbose} );
-    $t->exit_is( 0, qq{./c 'sqrt(pow(2, 100)+pow(2, 100))=' --verbose} );
-    $t->stdout_like( qr/\n Result: 1592262918131443\.25 \[ = 1\.59226291813144e\+15 \]\n/ );  ## 1592262918131443.1411559535896932
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '0.22*10**(-6)=' --verbose} );
-    $t->exit_is( 0, qq{./c '0.22*10**(-6)=' --verbose} );
-    $t->stdout_like( qr/\n Result: 0.00000022 \[ = 2\.2e\-07 \]\n/ );            ## 0.00000022
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c -v '-20-3*2(1+sqrt(4))='} );
-    $t->exit_is( 0, qq{./c -v '-20-3*2(1+sqrt(4))='} );
-    $t->stdout_like( qr/^3 \* 2 = 6\n/ );
-    $t->stdout_like( qr/\nsqrt\( 4 \) = 2\n/ );
-    $t->stdout_like( qr/\n1 \+ 2 = 3\n/ );
-    $t->stdout_like( qr/\n6 \* 3 = 18\n/ );
-    $t->stdout_like( qr/\n\-20 \- 18 = \-38\n/ );
-    $t->stdout_like( qr/\n Result: \-38\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '10*-3*-5+-4/2=' --verbose} );
-    $t->exit_is( 0, qq{./c '10*-3*-5+-4/2=' --verbose} );
-    $t->stdout_like( qr/^10 \* \-3 = \-30\n/ );
-    $t->stdout_like( qr/\n\-30 \* \-5 = 150\n/ );
-    $t->stdout_like( qr/\n\-4 \/ 2 = \-2\n/ );
-    $t->stdout_like( qr/\n150 \+ \-2 = 148\n/ );
-    $t->stdout_like( qr/\n Result: 148\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c --verbose '0x0d*0xff/(-0x5*-0x0d)='} );
-    $t->exit_is( 0, qq{./c --verbose '0x0d*0xff/(-0x5*-0x0d)='} );
-    $t->stdout_like( qr/^13 \* 255 = 3315\n/ );
-    $t->stdout_like( qr/\n\-5 \* \-13 = 65\n/ );
-    $t->stdout_like( qr/\n3315 \/ 65 = 51\n/ );
-    $t->stdout_like( qr/\n Result: 51 \[ = 0x33 \]\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
-    $t->exit_is( 0, qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
-    $t->stdout_like( qr/\n Result: \( 0\.00000022, \-0\.99999978 \) \[ = \( 2\.2e\-07, \-0\.99999978 \) \]\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-};
-
-subtest qq{-r, --rpn} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c '10*-3' '*-5+-4/2=' -r} );
-    $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' -r} );
-    $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '10*-3' '*-5+-4/2=' --rpn} );
-    $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn} );
-    $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '10*-3' '*-5+-4/2=' --rpn --verbose} );
-    $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn --verbose} );
-    $t->stdout_like( qr/^Remain RPN: 10\n/ );
-    $t->stdout_like( qr/\nRemain RPN: 150 \-4 2\n/ );
-    $t->stdout_like( qr/\n10 \-3 \* \-5 \* \-4 2 \/ \+\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-};
-
-subtest qq{--version} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c --version} );
-    $t->exit_is( 0, qq{./c --version} );
-    $t->stdout_like( qr/^Version: \d/ );
-    $t->stdout_like( qr/\n   Perl: v\d/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-};
-
 subtest qq{-h, --help} => sub{
     my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c -h} );
-    $t->exit_is( 0, qq{./c -h} );
-    $t->stdout_like( qr/^Usage: c / );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c --help} );
-    $t->exit_is( 0, qq{./c --help} );
-    $t->stdout_like( qr/^Usage: c / );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c --test-test --help} );
-    $t->exit_is( 0, qq{./c --test-test --help} );
-    $t->stdout_like( qr/^Usage: c / );
-    $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{PATH="./tests:\$PATH" ./c --test-test --help} );
     $t->exit_is( 0, qq{PATH="./tests:\$PATH" ./c --test-test --help} );
@@ -5722,22 +5917,6 @@ subtest qq{-h, --help} => sub{
     $t->stdout_like( qr/^Usage: c / );
     $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
-    undef( $t );
-};
-
-subtest qq{-b, --banner} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
-    $t->exit_is( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
-    $t->stdout_is( qq{( 0, 0, 48, 45.8 )\n} );
-    $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c --banner 'paper_size( 4 )'} );
-    $t->exit_is( 0, qq{./c --banner 'paper_size( 4 )'} );
-    $t->stdout_is( qq{( 210, 297 )\n} );
-    $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
     undef( $t );
 };
 
@@ -5784,7 +5963,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->has_exception();
     $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
     $t->stdout_is( qq{} );
-    $t->stderr_like( qr/c: lexer: error: .*\.\/\.c\.rc: Failed to load user rc file: / );
+    $t->stderr_like( qr/c: lexer: error: .*\/\.c\.rc: Failed to load user rc file: / );
 
     `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
 
@@ -5838,3 +6017,5 @@ subtest qq{STDIN} => sub{
 };
 
 done_testing();
+#&POSIX::_exit( 0 );
+exit( 0 );

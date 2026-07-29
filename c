@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.196 $
+## - $Revision: 4.199 $
 ##
 ## - Script Structure
 ##   - main
@@ -189,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.196 $};
+    my $rev = q{$Revision: 4.199 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1081,7 +1081,8 @@ use constant {
     H_MIN_ => qq{min( NUMBER1, .. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1, .. ). Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( NUMBER1, .. ). Returns the values of the input in a random order. [List::Util]},
-    H_FRST => qq{first( NUMBER1, .. ). Returns the head of the set. Same as slice( NUMBER1,.. , 0, 1 ).},
+    H_SMPL => qq{sample( NUMBER1, .., COUNT ). Randomly select one from the set. COUNT is an integer greater than or equal to 1. [List::Util]},
+    H_FRST => qq{first( NUMBER1, .. ). Returns the head of the set. Same as head( NUMBER1,.. , 1 ), slice( NUMBER1,.. , 0, 1 ).},
     H_HEAD => qq{head( NUMBER1, .., LENGTH ). Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
     H_TAIL => qq{tail( NUMBER1, .., LENGTH ). Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
     H_SPLC => qq{slice( NUMBER1, .., OFFSET, LENGTH ). Extracts elements specified by OFFSET and LENGTH from a set.},
@@ -1092,8 +1093,8 @@ use constant {
     H_ADEC => qq{add_each( NUMBER1, .. , DELTA ). Add each number.},
     H_MLEC => qq{mul_each( NUMBER1, .. , FACTOR ). Multiply each number.},
     H_DVEC => qq{div_each( NUMBER1, .. , DIVISOR ). Divide each number.},
-    H_SMRT => qq{simplify_ratio( NUMBER1, NUMBER2, .. ). Reduce the ratio to the lowest integers.},
-    H_NMRT => qq{normalize_ratio( NUMBER1, NUMBER2, .. ). Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.},
+    H_SMRT => qq{simplify_ratio( NUMBER1, NUMBER2, .. ). Reduce the ratio to the lowest integers. alias: sr().},
+    H_NMRT => qq{normalize_ratio( NUMBER1, NUMBER2, .. ). Scale the ratio so the minimum non-zero absolute value becomes 1 or -1. alias: nr().},
     H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ). Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounds the intermediate number if DECIMAL_PLACES is specified, keeping the start and end values exact.},
     H_LNST => qq{linstep( START, DELTA, LENGTH ). Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
     H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ). Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
@@ -1223,6 +1224,7 @@ use constant {
     'min'                        => [ 1280, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
     'max'                        => [ 1290, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
     'shuffle'                    => [ 1300, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
+    'sample'                     => [ 1305, T_FUNCTION, F_LIST,    VA, H_SMPL, sub{ &_C_SAMPLE( @_ ) } ],
     'first'                      => [ 1310, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
     'head'                       => [ 1313, T_FUNCTION, F_LIST,    VA, H_HEAD, sub{ &_C_HEAD( @_ ) } ],
     'tail'                       => [ 1314, T_FUNCTION, F_LIST,    VA, H_TAIL, sub{ &_C_TAIL( @_ ) } ],
@@ -1864,6 +1866,28 @@ sub nCr( $$ )
     my $denominator = &prod( @denominator_array );
     my $res = $numerator / $denominator;
     return $res;
+}
+
+sub _C_SAMPLE( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    if( $argc < 2 ){
+        die( qq{sample(): \$argc=$argc: Not enough arguments.\n} );
+    }
+    my $count = pop( @argv ) + 0;
+    if( $count < 1 ){
+        die( qq{sample(): \$count=$count: Argument value is out of range.\n} );
+    }
+    if( $count =~ m/\./o ){
+        die( qq{sample(): \$count=$count: COUNT must be an integer.\n} );
+    }
+    my @sets = &List::Util::sample( $count, @argv );
+    my $got_len = scalar( @sets );
+    if( $got_len < $count ){
+        $TableProvider::opf->warnPrint( qq{sample(): The specified quantity is $count, but the quantity obtained is $got_len.\n} );
+    }
+    return @sets;
 }
 
 sub _C_FIRST( @ )
@@ -3814,11 +3838,13 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!\bmmod\(! math_mod(!go;
     $expr =~ s!\bmoon_age_i\(! moon_age_instant(!go;
     $expr =~ s!\bn2kgf\(! newton2kgf(!go;
+    $expr =~ s!\bnr\(! normalize_ratio(!go;
     $expr =~ s!\bpct\(! percentage(!go;
     $expr =~ s!\bpf\(! prime_factorize(!go;
     $expr =~ s!\bpower\(! pow(!go;
     $expr =~ s!\brs\(! ratio_scaling(!go;
     $expr =~ s!\bs2d\(! sec2dhms(!go;
+    $expr =~ s!\bsr\(! simplify_ratio(!go;
     $expr =~ s!\bsw\(! stopwatch(!go;
     $expr =~ s!\bva\(! vector_angle(!go;
 
@@ -3985,7 +4011,7 @@ sub new
     $self->LoadUserRcFiles( \%{ $self->{CONSTANTS} } );
     if( $self->{APPCONFIG}->GetBPrintUserDefined() ){
         $self->PrintUserDefined();
-        exit( 0 );
+        die( "EXIT_CODE: 0\n" );
     }
 #    $self->Reset();
 #    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaLexer: create\n} );
@@ -5151,19 +5177,38 @@ use File::Basename qw(dirname basename);
 
 my $opf = undef;
 
-exit( &pl_main( @ARGV ) );
-
+# uncoverable branch false
+exit( &pl_main( @ARGV ) ) unless caller();
 
 sub pl_main( @ )
 {
     ## 初期化処理
     my $conf = &init_script();
 
-    ## 引数解析
-    &parse_arg( $conf, @_ );
+    my $bContinue = 1;
+    my $status = 128;
+    my $fEngine;
 
-    my $fEngine = FormulaEngine->new( $conf );
-    my $status = $fEngine->Run( @main::expressions_raw );
+    eval{
+        ## 引数解析
+        &parse_arg( $conf, @_ );
+        $fEngine = FormulaEngine->new( $conf );
+    };
+    if( $@ ){
+        my $exception = $@;
+        # uncoverable branch false
+        if( $exception eq "EXIT_CODE: 0\n" ){
+            $bContinue = 0;
+            $status = 0;
+        }else{
+            # uncoverable statement
+            die( $exception );
+        }
+    }
+
+    if( $bContinue ){
+        $status = $fEngine->Run( @main::expressions_raw );
+    }
 
     return $status;
 }
@@ -5177,8 +5222,10 @@ sub init_script()
     @main::expressions_raw = ();
     ##############
 
-    my $apppath = &File::Basename::dirname( $0 );
-    my $appname = &File::Basename::basename( $0 );
+    my $exec_file = $0;
+    $exec_file =~ s!tests/.*$!c!;
+    my $apppath = &File::Basename::dirname( $exec_file );
+    my $appname = &File::Basename::basename( $exec_file );
     my $debug = 0;
     my $bTest = 0;
     my $bTestTestTest = 0;
@@ -5221,14 +5268,14 @@ sub parse_arg()
             $conf->SetBVerboseOutput( 1 );
         }elsif( $myparam eq '-h' || $myparam eq '--help' ){
             $opf->PrintHelp( 0 );
-            exit( 0 );
+            die( "EXIT_CODE: 0\n" );
         }elsif( $myparam eq '-r' || $myparam eq '--rpn' ){
             $conf->SetBRpn( 1 );
         }elsif( $myparam eq '-v' || $myparam eq '--verbose' ){
             $conf->SetBVerboseOutput( 1 );
         }elsif( $myparam eq '--version' ){
             $opf->PrintVersion();
-            exit( 0 );
+            die( "EXIT_CODE: 0\n" );
         }elsif( $myparam eq '-u' || $myparam eq '--user-defined' ){
             $conf->SetBPrintUserDefined( 1 );
         }elsif( $myparam eq '--test-test' ){
@@ -5244,6 +5291,8 @@ sub parse_arg()
             $myparam, scalar( @val ) );
     }
 }
+
+1;
 __END__
 
 =pod
@@ -5482,18 +5531,6 @@ Alternative Method
   Formula: 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) ) ='
       RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
    Result: 15
-
-The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
-and the radians of an arbitrarily selected value are calculated.
-
-  $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
-  linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
-  shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 )
-  first( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 ) = 50
-  deg2rad( 50 ) = 0.872664625997165
-  Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
-      RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
-   Result: 0.872664625997
 
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
@@ -6263,11 +6300,26 @@ Returns the values of the input in a random order.
   $ c 'shuffle( 402, 670, 804 )'
   ( 804, 402, 670 )
 
+=item C<sample>
+
+sample( I<NUMBER1>, .., I<COUNT> ).
+Randomly select one from the set.
+I<COUNT> is an integer greater than or equal to 1.
+[List::Util]
+
+  $ c 'sample( 402, 670, 804, 1 )'
+  670
+
+An integer less than 16 in which only 2 bits are set to 1:
+
+  $ c 'sum( sample( 0x1, 0x2, 0x4, 0x8, 2 ) )'
+  9 [ = 0x9 ]
+
 =item C<first>
 
 first( I<NUMBER1>, .. ).
 Returns the head of the set.
-Same as slice( I<NUMBER1>,.. , 0, 1 ).
+Same as head( I<NUMBER1>,.. , 1 ), slice( I<NUMBER1>,.. , 0, 1 ).
 
   $ c 'first( 402, 670, 804 )'
   402
@@ -6299,8 +6351,8 @@ Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
 
 Extract only the date (first three):
 
-  $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
-  ( 2025, 12, 17 )
+  $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 1, 4 )'
+  ( 12, 17, 22, 13 )
 
 =item C<uniq>
 
@@ -6388,6 +6440,7 @@ Normalize ratio:
 
 simplify_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
 Reduce the ratio to the lowest integers.
+alias: sr().
 
 Display resolution aspect ratio:
 
@@ -6398,6 +6451,7 @@ Display resolution aspect ratio:
 
 normalize_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
 Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
+alias: nr().
 
 Finding the golden ratio:
 
@@ -6497,9 +6551,9 @@ Maximum deviation of about 2 days.
 
 Moon's age today (at 12:00):
 
-  $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' --verbose
+  $ c 'moon_age( head( epoch2local( NOW ), 3 ) )' --verbose
   epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
-  slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
+  head( 2025, 12, 5, 20, 59, 3, 3 ) = ( 2025, 12, 5 )
     ..................
     .....00000000.....
     ...000000000000...  Age: 15 ( rounded )
@@ -6512,8 +6566,8 @@ Moon's age today (at 12:00):
     .....00000000.....
     ..................
   moon_age( 2025, 12, 5 ) = 14.7
-  Formula: 'moon_age( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
-      RPN: '# # # 1764935943 epoch2local 0 3 slice moon_age'
+  Formula: 'moon_age( head( epoch2local( 1764935943 ), 3 ) ) ='
+      RPN: '# # # 1764935943 epoch2local 3 head moon_age'
    Result: 14.7
 
 =item C<moon_age_instant>

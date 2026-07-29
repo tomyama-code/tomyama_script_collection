@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.2.85] - 2026-07-30
+### Added
+- `c` [1.04.199]:
+  - Added a function.
+    - sample(): Randomly select one from the set.
+
 ## [0.2.84] - 2026-07-29
 ### Added
 - `c` [1.04.196]:

@@ -224,18 +224,6 @@ Alternative Method
         RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
      Result: 15
 
-The candidate values ​​are 10 equally spaced values ​​from 0 to 90 degrees,
-and the radians of an arbitrarily selected value are calculated.
-
-    $ c 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) )' -v
-    linspace( 0, 90, 10 ) = ( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 )
-    shuffle( 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 ) = ( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 )
-    first( 50, 0, 90, 80, 40, 20, 70, 10, 30, 60 ) = 50
-    deg2rad( 50 ) = 0.872664625997165
-    Formula: 'deg2rad( first( shuffle( linspace( 0, 90, 10 ) ) ) ) ='
-        RPN: '# # # # 0 90 10 linspace shuffle first deg2rad'
-     Result: 0.872664625997
-
 If you specify the operands in hexadecimal or use bitwise operators,
 the calculation result will also be displayed in hexadecimal.
 
@@ -982,11 +970,26 @@ The **c** script was created with the following in mind:
         $ c 'shuffle( 402, 670, 804 )'
         ( 804, 402, 670 )
 
+- `sample`
+
+    sample( _NUMBER1_, .., _COUNT_ ).
+    Randomly select one from the set.
+    _COUNT_ is an integer greater than or equal to 1.
+    \[List::Util\]
+
+        $ c 'sample( 402, 670, 804, 1 )'
+        670
+
+    An integer less than 16 in which only 2 bits are set to 1:
+
+        $ c 'sum( sample( 0x1, 0x2, 0x4, 0x8, 2 ) )'
+        9 [ = 0x9 ]
+
 - `first`
 
     first( _NUMBER1_, .. ).
     Returns the head of the set.
-    Same as slice( _NUMBER1_,.. , 0, 1 ).
+    Same as head( _NUMBER1_,.. , 1 ), slice( _NUMBER1_,.. , 0, 1 ).
 
         $ c 'first( 402, 670, 804 )'
         402
@@ -1018,8 +1021,8 @@ The **c** script was created with the following in mind:
 
     Extract only the date (first three):
 
-        $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 0, 3 )'
-        ( 2025, 12, 17 )
+        $ c 'slice( ( 2025, 12, 17, 22, 13, 14 ), 1, 4 )'
+        ( 12, 17, 22, 13 )
 
 - `uniq`
 
@@ -1107,6 +1110,7 @@ The **c** script was created with the following in mind:
 
     simplify\_ratio( _NUMBER1_, _NUMBER2_, .. ).
     Reduce the ratio to the lowest integers.
+    alias: sr().
 
     Display resolution aspect ratio:
 
@@ -1117,6 +1121,7 @@ The **c** script was created with the following in mind:
 
     normalize\_ratio( _NUMBER1_, _NUMBER2_, .. ).
     Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
+    alias: nr().
 
     Finding the golden ratio:
 
@@ -1212,9 +1217,9 @@ The **c** script was created with the following in mind:
 
     Moon's age today (at 12:00):
 
-        $ c 'moon_age( slice( epoch2local( NOW ), 0, 3 ) )' --verbose
+        $ c 'moon_age( head( epoch2local( NOW ), 3 ) )' --verbose
         epoch2local( 1764935943 ) = ( 2025, 12, 5, 20, 59, 3 )
-        slice( 2025, 12, 5, 20, 59, 3, 0, 3 ) = ( 2025, 12, 5 )
+        head( 2025, 12, 5, 20, 59, 3, 3 ) = ( 2025, 12, 5 )
           ..................
           .....00000000.....
           ...000000000000...  Age: 15 ( rounded )
@@ -1227,8 +1232,8 @@ The **c** script was created with the following in mind:
           .....00000000.....
           ..................
         moon_age( 2025, 12, 5 ) = 14.7
-        Formula: 'moon_age( slice( epoch2local( 1764935943 ), 0, 3 ) ) ='
-            RPN: '# # # 1764935943 epoch2local 0 3 slice moon_age'
+        Formula: 'moon_age( head( epoch2local( 1764935943 ), 3 ) ) ='
+            RPN: '# # # 1764935943 epoch2local 3 head moon_age'
          Result: 14.7
 
 - `moon_age_instant`

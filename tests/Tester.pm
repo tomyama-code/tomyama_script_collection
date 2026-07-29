@@ -1,6 +1,6 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.7 $
+## - $Revision: 1.8 $
 ################################################################################
 
 use strict;
@@ -27,6 +27,23 @@ use File::Temp qw(tempfile);    # first released with perl v5.6.1
 
 use FindBin;                    # first released with perl 5.00307
 use Cwd 'getcwd';               # first released with perl 5
+
+## --- テスト対象のコード内でexitさせない ---
+#
+## 本物の exit を別名で退避
+#BEGIN{
+#    if( !defined( &CORE::exit_real ) ){
+#        *CORE::exit_real = \&CORE::GLOBAL::exit;
+#    }
+#}
+#
+## グローバルに常に exit を乗っ取る状態にする
+#*CORE::GLOBAL::exit = sub{
+#    my $code = shift // 0;
+#    die( "EXIT_CODE: $code\n" );    # exit の代わりに die を投げる
+#};
+#
+## --------------------------------------------------------
 
 my %phrase;
 $phrase{apppath} = $FindBin::Bin;
