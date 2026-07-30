@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.32 $
+## - $Revision: 1.33 $
 ################################################################################
 
 use strict;
@@ -73,17 +73,17 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{sample( 111 )} );
+#        $res = $c->formula( qq{rand( 6, 5, 4 )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'sample( 111 )'} );
+#    $t->exit_isnt( 0, qq{./c 'rand( 6, 5, 4 )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: sample\(\): \$argc=1: Not enough arguments\.\n/ );
+#    $t->stderr_like( qr/^c: evaluator: error: rand: \$arg_counter="3": The number of operands is incorrect\./ );
 #
 #};
 #done_testing();
-#&POSIX::_exit( 0 );
+#exit( 0 );
 #subtest qq{Normal (Ex-Proc Test)} => sub{
 #    my $t;
 #
@@ -103,7 +103,7 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #
 #};
 #done_testing();
-#&POSIX::_exit( 0 );
+#exit( 0 );
 
 subtest qq{Normal (In-Proc Test)} => sub{
     my $c = FTCalc->new();
@@ -3547,6 +3547,83 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand(-10)} );
+    } );
+    $t->exit_is( 0, qq{./c 'rand(-10)'} );
+    $t->has_no_exception();
+    t_like( $res, qr/^\-[0-9]\.\d+$/ );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand(0)} );
+    } );
+    $t->exit_is( 0, qq{./c 'rand(0)'} );
+    $t->has_no_exception();
+    t_like( $res, qr/^0\.\d+$/ );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand(10)} );
+    } );
+    $t->exit_is( 0, qq{./c 'rand(10)'} );
+    $t->has_no_exception();
+    t_like( $res, qr/^[0-9]\.\d+$/ );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand()} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'rand()'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: "rand": Operand missing\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand( 6, 5, 4 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'rand( 6, 5, 4 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: rand: \$arg_counter="3": The number of operands is incorrect\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand( 6, 0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'rand( 6, 0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: rand\(\): \$count=0: Argument value is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rand( 6, 5.4 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'rand( 6, 5.4 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: rand\(\): \$count=5\.4: COUNT must be an integer\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{int( rand( 6, 5 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'int( rand( 6, 5 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 5 );
+    t_like( ${ $res }[ 0 ], qr/^[012345]$/ );
+    t_like( ${ $res }[ 1 ], qr/^[012345]$/ );
+    t_like( ${ $res }[ 2 ], qr/^[012345]$/ );
+    t_like( ${ $res }[ 3 ], qr/^[012345]$/ );
+    t_like( ${ $res }[ 4 ], qr/^[012345]$/ );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ncr( -1.0, 2.0 )} );
     } );
     $t->exit_isnt( 0, qq{./c 'ncr( -1.0, 2.0 )'} );
@@ -4650,6 +4727,26 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
+
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{rad2deg(atan2(100, 200))=} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    equal( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+#    $t = tests::Tester->run_blk( sub{
+#        $res = $c->formula( qq{timer( 1 )} );
+#    } );
+#    $t->exit_is( 0 );
+#    $t->has_no_exception();
+#    like( $res, qr/^0\.\d+$/, qq{1秒未満で検出: $res} );
+#    $t->stdout_is( qq{} );  # STDOUTの出力を確認した方が良いという考えから Ex-Proc Test で実施
+#    $t->stderr_is( qq{} );
+
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{paper_size( 0 )} );
     } );
@@ -4755,62 +4852,6 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 1 ], 364 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
-
-
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{rand(-10)} );
-    } );
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    t_like( $res, qr/^\-\d\./ );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{rand(0)} );
-    } );
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    t_like( $res, qr/^\d\./ );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{rand(10)} );
-    } );
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    t_like( $res, qr/^\d\./ );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{int( rand( 2 ) )} );
-    } );
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    t_like( $res, qr/^[01]$/ );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{rad2deg(atan2(100, 200))=} );
-    } );
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    equal( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{timer( 1 )} );
-#    } );
-#    $t->exit_is( 0 );
-#    $t->has_no_exception();
-#    like( $res, qr/^0\.\d+$/, qq{1秒未満で検出: $res} );
-#    $t->stdout_is( qq{} );  # STDOUTの出力を確認した方が良いという考えから Ex-Proc Test で実施
-#    $t->stderr_is( qq{} );
 
 
 

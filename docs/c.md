@@ -116,8 +116,8 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 ## FUNCTIONS
 
 fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, first, head,
-tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each, simplify\_ratio, normalize\_ratio, linspace, linstep,
+get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, sample, first,
+head, tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each, simplify\_ratio, normalize\_ratio, linspace, linstep,
 mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age, moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
 telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
@@ -609,7 +609,7 @@ The **c** script was created with the following in mind:
 
 - `fmod`
 
-    fmod( _X_, _Y_ ).
+    fmod( _X_, _Y_ ):
     Modulo arithmetic.
     `fmod( 10, -1.2 )` -> `0.4`.
     Same as `10 % -1.2`.
@@ -619,7 +619,7 @@ The **c** script was created with the following in mind:
 
 - `math_mod`
 
-    math\_mod( _X_, _Y_ ).
+    math\_mod( _X_, _Y_ ):
     Modulo arithmetic.
     `math_mod( 10, -1.2 )` -> `-0.8`.
     alias: mmod().
@@ -628,7 +628,7 @@ The **c** script was created with the following in mind:
 
 - `abs`
 
-    abs( _N1_ \[, .. \] ).
+    abs( _N1_ \[, .. \] ):
     Returns the absolute value of its argument.
     \[Perl Native\]
 
@@ -637,7 +637,7 @@ The **c** script was created with the following in mind:
 
 - `int`
 
-    int( _N1_ \[, .. \] ).
+    int( _N1_ \[, .. \] ):
     Returns the integer portion of _N_.
     \[Perl Native\]
 
@@ -646,7 +646,7 @@ The **c** script was created with the following in mind:
 
 - `floor`
 
-    floor( _N1_ \[, .. \] ).
+    floor( _N1_ \[, .. \] ):
     Returning the largest integer value less than or equal to the numerical argument.
     \[POSIX\]
 
@@ -655,7 +655,7 @@ The **c** script was created with the following in mind:
 
 - `ceil`
 
-    ceil( _N1_ \[, .. \] ).
+    ceil( _N1_ \[, .. \] ):
     Returning the smallest integer value greater than or equal to the given numerical argument.
     \[POSIX\]
 
@@ -664,7 +664,7 @@ The **c** script was created with the following in mind:
 
 - `rounddown`
 
-    rounddown( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
+    rounddown( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ):
     Returns the value of _NUMBER1_ truncated to _DECIMAL\_PLACES_.
 
         $ c 'rounddown( -1.2, 1.2, 0 )'
@@ -672,7 +672,7 @@ The **c** script was created with the following in mind:
 
 - `round`
 
-    round( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
+    round( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ):
     Returns the value of _NUMBER1_ rounded to _DECIMAL\_PLACES_
 
         $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
@@ -680,7 +680,7 @@ The **c** script was created with the following in mind:
 
 - `roundup`
 
-    roundup( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ).
+    roundup( _NUMBER1_ \[ , .. \], _DECIMAL\_PLACES_ ):
     Returns the value of _NUMBER1_ rounded up to _DECIMAL\_PLACES_.
 
         $ c 'roundup( -1.2, 1.2, 0 )'
@@ -688,7 +688,7 @@ The **c** script was created with the following in mind:
 
 - `percentage`
 
-    percentage( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ).
+    percentage( _NUMERATOR_, _DENOMINATOR_ \[, _DECIMAL\_PLACES_ \] ):
     Returns the percentage, rounding the number if _DECIMAL\_PLACES_ is specified.
     alias: pct().
 
@@ -699,7 +699,7 @@ The **c** script was created with the following in mind:
 
 - `ratio_scaling`
 
-    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ).
+    ratio\_scaling( _A_, _B_, _C_ \[, _DECIMAL\_PLACES_ \] ):
     When _A_:_B_, return the value of _X_ in _A_:_B_=_C_:_X_.
     Rounding the number if _DECIMAL\_PLACES_ is specified.
     alias: rs().
@@ -713,7 +713,7 @@ The **c** script was created with the following in mind:
 
 - `is_prime`
 
-    is\_prime( _NUM1_ \[, .. \] ).
+    is\_prime( _NUM1_ \[, .. \] ):
     Prime number test.
     Returns 1 if _NUM_ is prime, otherwise returns 0.
 
@@ -724,7 +724,7 @@ The **c** script was created with the following in mind:
 
 - `prime_factorize`
 
-    prime\_factorize( _NUM_ ).
+    prime\_factorize( _NUM_ ):
     Do prime factorization. _NUM_ is an integer greater than or equal to 2.
     alias: pf().
 
@@ -736,7 +736,7 @@ The **c** script was created with the following in mind:
 
 - `get_prime`
 
-    get\_prime( _BIT\_WIDTH_ ).
+    get\_prime( _BIT\_WIDTH_ ):
     Returns a random prime number within the range of _BIT\_WIDTH_,
     where _BIT\_WIDTH_ is an integer between 4 and 32, inclusive.
 
@@ -745,7 +745,7 @@ The **c** script was created with the following in mind:
 
 - `gcd`
 
-    gcd( _NUMBER1_, .. ).
+    gcd( _NUMBER1_, .. ):
     Returns the greatest common divisor (GCD),
     which is the largest positive integer that divides each of the operands.
 
@@ -754,7 +754,7 @@ The **c** script was created with the following in mind:
 
 - `lcm`
 
-    lcm( _NUMBER1_, .. ).
+    lcm( _NUMBER1_, .. ):
     Returns the least common multiple (LCM).
 
         $ c 'lcm( 402, 670, 804 )'
@@ -762,23 +762,25 @@ The **c** script was created with the following in mind:
 
 - `rand`
 
-    rand( _N_ ).
-    Returns a random fractional number greater than or equal to 0 and less than the value of _N_.
+    rand( _RAND\_MAX_ \[, _COUNT_ \] ):
+    Returns a list of _COUNT_ random floating-point numbers greater than or equal to 0 and less than _RAND\_MAX_.
+    _COUNT_ must be an integer greater than or equal to 1.
+    If _COUNT_ is omitted, it defaults to 1.
     \[Perl Native\]
 
-    A random number between 0 and 6:
+    Example of getting a single random number between 0 and 6:
 
         $ c 'rand( 6 )'
         4.11497904963291
 
-    0 or 1 or 2 or 3 or 4 or 5:
+    Example of simulating rolling five 6-sided dice:
 
-        $ c 'int( rand( 6 ) )'
-        2
+        $ c 'add_each( int( rand( 6, 5 ) ), 1 )'
+        ( 1, 6, 4, 3, 4 )
 
 - `exp`
 
-    exp( _N1_ \[, .. \] ).
+    exp( _N1_ \[, .. \] ):
     Returns e (the natural logarithm base) to the power of _N_.
     \[Perl Native\]
 
@@ -789,7 +791,7 @@ The **c** script was created with the following in mind:
 
 - `log`
 
-    log( _N1_ \[, .. \] ).
+    log( _N1_ \[, .. \] ):
     Returns the natural logarithm (base e) of _N_.
     \[Perl Native\]
 
@@ -834,7 +836,7 @@ The **c** script was created with the following in mind:
 
 - `exp2`
 
-    exp2( _N1_ \[, .. \] ).
+    exp2( _N1_ \[, .. \] ):
     Returns the base 2 raised to the power N.
 
         $ c 'exp2( 8, 16, 32 )'
@@ -851,7 +853,7 @@ The **c** script was created with the following in mind:
 
 - `log2`
 
-    log2( _N1_ \[, .. \] ).
+    log2( _N1_ \[, .. \] ):
     Returns the common logarithm to the base 2.
 
         $ c 'log2( 256, 65536, 4294967296 )'
@@ -868,7 +870,7 @@ The **c** script was created with the following in mind:
 
 - `exp10`
 
-    exp10( _N1_ \[, .. \] ).
+    exp10( _N1_ \[, .. \] ):
     Returns the base 10 raised to the power N.
 
         $ c 'exp10( 1, 2, 3 )'
@@ -885,7 +887,7 @@ The **c** script was created with the following in mind:
 
 - `log10`
 
-    log10( _N1_ \[, .. \] ).
+    log10( _N1_ \[, .. \] ):
     Returns the common logarithm to the base 10.
 
         $ c 'log10( 10, 100, 1000 )'
@@ -902,7 +904,7 @@ The **c** script was created with the following in mind:
 
 - `sqrt`
 
-    sqrt( _N1_ \[, .. \] ).
+    sqrt( _N1_ \[, .. \] ):
     Return the positive square root of _N_.
     Works only for non-negative operands.
     \[Perl Native\]
@@ -912,7 +914,7 @@ The **c** script was created with the following in mind:
 
 - `pow`
 
-    pow( _A_, _B_ ).
+    pow( _A_, _B_ ):
     Exponentiation.
     "pow( 2, 3 )" -> 8.
     Similarly, "2 \*\* 3".
@@ -923,7 +925,7 @@ The **c** script was created with the following in mind:
 
 - `pow_inv`
 
-    pow\_inv( _A_, _B_ ).
+    pow\_inv( _A_, _B_ ):
     Returns the power of _A_ to which _B_ is raised.
 
         $ c 'pow_inv( 8, 2 )'
@@ -933,7 +935,7 @@ The **c** script was created with the following in mind:
 
 - `ncr`
 
-    nCr( _N_, _R_ ).
+    nCr( _N_, _R_ ):
     _N_ Choose _R_. A combination of _R_ items selected from _N_ items.
     _N_ is a non-negative integer.
     _R_ is a positive integer.
@@ -945,7 +947,7 @@ The **c** script was created with the following in mind:
 
 - `min`
 
-    min( _NUMBER1_, .. ).
+    min( _NUMBER1_, .. ):
     Returns the entry in the list with the lowest numerical value.
     \[List::Util\]
 
@@ -954,7 +956,7 @@ The **c** script was created with the following in mind:
 
 - `max`
 
-    max( _NUMBER1_, .. ).
+    max( _NUMBER1_, .. ):
     Returns the entry in the list with the highest numerical value.
     \[List::Util\]
 
@@ -963,7 +965,7 @@ The **c** script was created with the following in mind:
 
 - `shuffle`
 
-    shuffle( _NUMBER1_, .. ).
+    shuffle( _NUMBER1_, .. ):
     Returns the values of the input in a random order.
     \[List::Util\]
 
@@ -972,7 +974,7 @@ The **c** script was created with the following in mind:
 
 - `sample`
 
-    sample( _NUMBER1_, .., _COUNT_ ).
+    sample( _NUMBER1_, .., _COUNT_ ):
     Randomly select one from the set.
     _COUNT_ is an integer greater than or equal to 1.
     \[List::Util\]
@@ -987,7 +989,7 @@ The **c** script was created with the following in mind:
 
 - `first`
 
-    first( _NUMBER1_, .. ).
+    first( _NUMBER1_, .. ):
     Returns the head of the set.
     Same as head( _NUMBER1_,.. , 1 ), slice( _NUMBER1_,.. , 0, 1 ).
 
@@ -996,7 +998,7 @@ The **c** script was created with the following in mind:
 
 - `head`
 
-    head( _NUMBER1_, .. _LENGTH_ ).
+    head( _NUMBER1_, .. _LENGTH_ ):
     Returns the first _LENGTH_ elements from the set.
     _LENGTH_ is an integer greater than or equal to 1.
     \[List::Util\]
@@ -1006,7 +1008,7 @@ The **c** script was created with the following in mind:
 
 - `tail`
 
-    tail( _NUMBER1_, .. _LENGTH_ ).
+    tail( _NUMBER1_, .. _LENGTH_ ):
     Returns the last _LENGTH_ elements from the set.
     _LENGTH_ is an integer greater than or equal to 1.
     \[List::Util\]
@@ -1016,7 +1018,7 @@ The **c** script was created with the following in mind:
 
 - `slice`
 
-    slice( _NUMBER1_, .., _OFFSET_, _LENGTH_ ).
+    slice( _NUMBER1_, .., _OFFSET_, _LENGTH_ ):
     Extracts elements specified by _OFFSET_ and _LENGTH_ from a set.
 
     Extract only the date (first three):
@@ -1026,7 +1028,7 @@ The **c** script was created with the following in mind:
 
 - `uniq`
 
-    uniq( _NUMBER1_, .. ).
+    uniq( _NUMBER1_, .. ):
     Filters a list of values to remove subsequent duplicates,
     as judged by a DWIM-ish string equality or "undef" test.
     Preserves the order of unique elements, and retains the first value of any duplicate set.
@@ -1037,7 +1039,7 @@ The **c** script was created with the following in mind:
 
 - `sum`
 
-    sum( _NUMBER1_, .. ).
+    sum( _NUMBER1_, .. ):
     Returns the numerical sum of all the elements in the list.
     \[List::Util\]
 
@@ -1046,7 +1048,7 @@ The **c** script was created with the following in mind:
 
 - `prod`
 
-    prod( _NUMBER1_, .. ).
+    prod( _NUMBER1_, .. ):
     Returns the product of each value.
 
         $ c 'prod( 1, 2, 3, 4 )'
@@ -1054,7 +1056,7 @@ The **c** script was created with the following in mind:
 
 - `avg`
 
-    avg( _NUMBER1_, .. ).
+    avg( _NUMBER1_, .. ):
     Returns the average value of all elements in a list.
 
         $ c 'avg( 1, 2, 3, 4 )'
@@ -1062,14 +1064,16 @@ The **c** script was created with the following in mind:
 
 - `add_each`
 
-    add\_each( _NUMBER1_, .. , _DELTA_ ). Add each number.
+    add\_each( _NUMBER1_, .. , _DELTA_ ):
+    Add each number.
 
         $ c 'add_each( 100, 200, -10 )'
         ( 90, 190 )
 
 - `mul_each`
 
-    mul\_each( _NUMBER1_, .. , _FACTOR_ ). Multiply each number.
+    mul\_each( _NUMBER1_, .. , _FACTOR_ ):
+    Multiply each number.
 
         $ c 'mul_each( 100, 200, 2 )'
         ( 200, 400 )
@@ -1086,7 +1090,8 @@ The **c** script was created with the following in mind:
 
 - `div_each`
 
-    div\_each( _NUMBER1_, .. , _DIVISOR_ ). Divide each number.
+    div\_each( _NUMBER1_, .. , _DIVISOR_ ):
+    Divide each number.
 
     Simplify ratio:
 
@@ -1108,7 +1113,7 @@ The **c** script was created with the following in mind:
 
 - `simplify_ratio`
 
-    simplify\_ratio( _NUMBER1_, _NUMBER2_, .. ).
+    simplify\_ratio( _NUMBER1_, _NUMBER2_, .. ):
     Reduce the ratio to the lowest integers.
     alias: sr().
 
@@ -1119,7 +1124,7 @@ The **c** script was created with the following in mind:
 
 - `normalize_ratio`
 
-    normalize\_ratio( _NUMBER1_, _NUMBER2_, .. ).
+    normalize\_ratio( _NUMBER1_, _NUMBER2_, .. ):
     Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
     alias: nr().
 
@@ -1132,7 +1137,7 @@ The **c** script was created with the following in mind:
 
 - `linspace`
 
-    linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ).
+    linspace( _START_, _END_, _LENGTH_ \[, _DECIMAL\_PLACES_ \] ):
     Generates a list of evenly spaced numbers from _START_ to _END_.
     Returns a sequence of numbers of size _LENGTH_.
     _LENGTH_ is an integer greater than or equal to 2.
@@ -1147,7 +1152,7 @@ The **c** script was created with the following in mind:
 
 - `linstep`
 
-    linstep( _START_, _DELTA_, _LENGTH_ ).
+    linstep( _START_, _DELTA_, _LENGTH_ ):
     Generates a list of _LENGTH_ numbers that increase from _START_ by _DELTA_.
     Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
     _LENGTH_ is an integer greater than or equal to 1.
@@ -1159,7 +1164,7 @@ The **c** script was created with the following in mind:
 
 - `mul_growth`
 
-    mul\_growth( _START_, _FACTOR_, _LENGTH_ ).
+    mul\_growth( _START_, _FACTOR_, _LENGTH_ ):
     Starting from _START_, we multiply the value by _FACTOR_ and add it to the sequence.
     Returns the sequence of numbers starting at _START_ and of size _LENGTH_.
     _LENGTH_ is an integer greater than or equal to 1.
@@ -1169,7 +1174,7 @@ The **c** script was created with the following in mind:
 
 - `gen_fibo_seq`
 
-    gen\_fibo\_seq( _A_, _B_, _LENGTH_ ).
+    gen\_fibo\_seq( _A_, _B_, _LENGTH_ ):
     Generates the Generalized Fibonacci Sequence.
     Returns the sequence of numbers starting at _A_, _B_ and of size _LENGTH_.
     _LENGTH_ is an integer greater than or equal to 2.
@@ -1183,7 +1188,7 @@ The **c** script was created with the following in mind:
 
 - `is_leap`
 
-    is\_leap( _YEAR1_ \[,.. \] ).
+    is\_leap( _YEAR1_ \[,.. \] ):
     Leap year test: Returns 1 if _YEAR_ is a leap year, 0 otherwise.
 
         $ c 'is_leap( 2024 )'
@@ -1198,7 +1203,7 @@ The **c** script was created with the following in mind:
 
 - `age`
 
-    age( _BIRTHDAY\_EPOCH_ \[, _REF\_DATE\_EPOCH_ \] ).
+    age( _BIRTHDAY\_EPOCH_ \[, _REF\_DATE\_EPOCH_ \] ):
     Returns a list of ( age, days ).
     If _REF\_DATE\_EPOCH_ is omitted, _NOW_ is used.
 
@@ -1207,7 +1212,7 @@ The **c** script was created with the following in mind:
 
 - `moon_age`
 
-    moon\_age( _Y_, _m_, _d_ ).
+    moon\_age( _Y_, _m_, _d_ ):
     Returns the moon age at "noon (12:00)" on the specified local date.
     Returns the value rounded to the first decimal place.
     Maximum deviation of about 2 days.
@@ -1238,7 +1243,7 @@ The **c** script was created with the following in mind:
 
 - `moon_age_instant`
 
-    moon\_age\_instant( \[ _EPOCH_ \] ).
+    moon\_age\_instant( \[ _EPOCH_ \] ):
     Returns the moon age for the specified _EPOCH_.
     Defaults to the current time (NOW) if _EPOCH_ is omitted.
     alias: moon\_age\_i().
@@ -1301,7 +1306,7 @@ The **c** script was created with the following in mind:
 
 - `local2epoch`
 
-    local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
+    local2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ):
     Returns the local time in seconds since the epoch.
     alias: l2e().
 
@@ -1310,7 +1315,7 @@ The **c** script was created with the following in mind:
 
 - `gmt2epoch`
 
-    gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ).
+    gmt2epoch( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ):
     Returns the GMT time in seconds since the epoch.
     alias: g2e().
 
@@ -1319,7 +1324,7 @@ The **c** script was created with the following in mind:
 
 - `epoch2local`
 
-    epoch2local( _EPOCH_ ).
+    epoch2local( _EPOCH_ ):
     Returns the local time.
     ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
     alias: e2l().
@@ -1329,7 +1334,7 @@ The **c** script was created with the following in mind:
 
 - `epoch2gmt`
 
-    epoch2gmt( _EPOCH_ ).
+    epoch2gmt( _EPOCH_ ):
     Returns the GMT time.
     ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
     alias: e2g().
@@ -1339,7 +1344,7 @@ The **c** script was created with the following in mind:
 
 - `sec2dhms`
 
-    sec2dhms( _SECOND_ \[, _DECIMAL\_PLACES_ \] ) --Convert-to--> ( _D_, _H_, _M_, _S_ ).
+    sec2dhms( _SECOND_ \[, _DECIMAL\_PLACES_ \] ) --Convert-to--> ( _D_, _H_, _M_, _S_ ):
     Rounding the number if _DECIMAL\_PLACES_ is specified.
     alias: s2d.
 
@@ -1348,7 +1353,7 @@ The **c** script was created with the following in mind:
 
 - `dhms2sec`
 
-    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _SECOND_ ).
+    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _SECOND_ ):
     alias: d2s.
 
         $ c 'dhms2sec( 4, 03, 02, 01 )'
@@ -1356,7 +1361,7 @@ The **c** script was created with the following in mind:
 
 - `dhms2dhms`
 
-    dhms2dhms( _D_ \[, _H_, _M_, _S_, _DECIMAL\_PLACES_ \] ) -->Convert-to--> ( _D_, _H_, _M_, _S_ ).
+    dhms2dhms( _D_ \[, _H_, _M_, _S_, _DECIMAL\_PLACES_ \] ) -->Convert-to--> ( _D_, _H_, _M_, _S_ ):
     Returns the normalized value.
     alias: d2d().
 
@@ -1365,7 +1370,7 @@ The **c** script was created with the following in mind:
 
 - `laptimer`
 
-    laptimer( _LAPS_ ).
+    laptimer( _LAPS_ ):
     Each time you press Enter,
     the split time is measured and the time taken to measure _LAPS_ is returned.
     If _LAPS_ is set to a negative value, the split time is not output.
@@ -1386,7 +1391,7 @@ The **c** script was created with the following in mind:
 
 - `timer`
 
-    timer( _SECOND_ ).
+    timer( _SECOND_ ):
     If you specify a value less than 31536000 (365 days x 86400 seconds) for _SECOND_,
     the countdown will begin and end when it reaches zero.
     If you specify a value greater than this,
@@ -1427,7 +1432,7 @@ The **c** script was created with the following in mind:
 
 - `bpm`
 
-    bpm( _COUNT_, _SECOND_ ).
+    bpm( _COUNT_, _SECOND_ ):
     Specify the number of beats as _COUNT_ and the elapsed time as _SECOND_ to calculate the BPM.
 
         $ c 'bpm( 4, sw() )'
@@ -1464,7 +1469,7 @@ The **c** script was created with the following in mind:
 
 - `tachymeter`
 
-    tachymeter( _SECOND_ ).
+    tachymeter( _SECOND_ ):
     Returns the number of units of work that can be completed per hour,
     where _SECOND_ is the number of seconds required to complete one unit of work.
     Same as ratio\_scaling( _SECOND_, 1, 3600 ).
@@ -1479,7 +1484,7 @@ The **c** script was created with the following in mind:
 
 - `telemeter`
 
-    telemeter( _SECOND_ \[, _TEMPERATURE_ \] ).
+    telemeter( _SECOND_ \[, _TEMPERATURE_ \] ):
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in meters.
     If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -1493,7 +1498,7 @@ The **c** script was created with the following in mind:
 
 - `telemeter_m`
 
-    telemeter\_m( _SECOND_ \[, _TEMPERATURE_ \] ).
+    telemeter\_m( _SECOND_ \[, _TEMPERATURE_ \] ):
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in meters.
     If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -1504,7 +1509,7 @@ The **c** script was created with the following in mind:
 
 - `telemeter_km`
 
-    telemeter\_km( _SECOND_ \[, _TEMPERATURE_ \] ).
+    telemeter\_km( _SECOND_ \[, _TEMPERATURE_ \] ):
     Measures distance using the difference in the speed of light and sound.
     Returns the distance equivalent to _SECOND_ in kilometers.
     If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -1517,66 +1522,66 @@ The **c** script was created with the following in mind:
 
 - `rad2deg`
 
-    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
+    rad2deg( _RADIANS_ \[, _RADIANS_..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ):
 
         $ c 'rad2deg( 2.50620553940126 )'
         143.595
 
 - `deg2rad`
 
-    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+    deg2rad( _DEGREES_ \[, _DEGREES_..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ):
 
         $ c 'deg2rad( 143.595 )'
         2.5062055394
 
 - `dms2rad`
 
-    dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ).
+    dms2rad( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _RADIANS_ \[, _RADIANS_..\] ):
 
         $ c 'dms2rad( 143, 35, 42.0000000000002 )'
         2.5062055394
 
 - `dms2deg`
 
-    dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ).
+    dms2deg( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEGREES_ \[, _DEGREES_..\] ):
 
         $ c 'dms2deg( 143, 35, 42.0000000000002 )'
         143.595
 
 - `deg2dms`
 
-    deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+    deg2dms( _DEGREES_ \[, _DEGREES_..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ):
 
         $ c 'deg2dms( 143.595 )'
         ( 143, 35, 42 )
 
 - `dms2dms`
 
-    dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ).
+    dms2dms( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ) -> ( _DEG_, _MIN_, _SEC_ \[, _DEG_, _MIN_, _SEC_ ..\] ):
 
         $ c 'dms2dms( 143, 35.7, 0 )'
         ( 143, 35, 42 )
 
 - `sin`
 
-    sin( _RADIANS_ ).
+    sin( _RADIANS_ ):
     Returns the sine of _RADIANS_.
     \[Perl Native\]
 
 - `cos`
 
-    cos( _RADIANS_ ).
+    cos( _RADIANS_ ):
     Returns the cosine of _RADIANS_.
     \[Perl Native\]
 
 - `tan`
 
-    tan( _RADIANS_ ).
+    tan( _RADIANS_ ):
     Returns the tangent of _RADIANS_.
 
 - `asin`
 
-    asin( _RATIO_ ).
+    asin( _RATIO_ ):
     The arcus (also known as the inverse) functions of the sine.
 
         $ c 'rad2deg( asin( 1 / 2 ) )'
@@ -1584,7 +1589,7 @@ The **c** script was created with the following in mind:
 
 - `acos`
 
-    acos( _RATIO_ ).
+    acos( _RATIO_ ):
     The arcus (also known as the inverse) functions of the cosine.
 
         $ c 'rad2deg( acos( 1 / 2 ) )'
@@ -1592,7 +1597,7 @@ The **c** script was created with the following in mind:
 
 - `atan`
 
-    atan( _RATIO_ ).
+    atan( _RATIO_ ):
     The arcus (also known as the inverse) functions of the tangent.
 
         $ c 'rad2deg( atan( 1 / 1 ) )'
@@ -1600,7 +1605,7 @@ The **c** script was created with the following in mind:
 
 - `atan2`
 
-    atan2( _Y_, _X_ ).
+    atan2( _Y_, _X_ ):
     The principal value of the arc tangent of _Y_ / _X_.
     \[Perl Native\]
 
@@ -1609,7 +1614,7 @@ The **c** script was created with the following in mind:
 
 - `hypot`
 
-    hypot( _X_, _Y_ ).
+    hypot( _X_, _Y_ ):
     Equivalent to "sqrt( _X_ \* _X_ + _Y_ \* _Y_ )" except more stable on very large or very small arguments.
     \[POSIX\]
 
@@ -1618,7 +1623,7 @@ The **c** script was created with the following in mind:
 
 - `angle_deg`
 
-    angle\_deg( _X_, _Y_ \[, _IS\_AZIMUTH_ \] ).
+    angle\_deg( _X_, _Y_ \[, _IS\_AZIMUTH_ \] ):
     Returns the straight line distance from (0,0) to (_X_,_Y_).
     Returns the standard mathematical angle (0 degrees = east, counterclockwise).
     If _IS\_AZIMUTH_ is set to true, returns the angle (0 degrees = north, clockwise).
@@ -1628,7 +1633,7 @@ The **c** script was created with the following in mind:
 
 - `dist_between_points`
 
-    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    dist\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or dist\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ):
     Returns the straight-line distance from (_X1_,_Y1_) to (_X2_,_Y2_) or from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
     alias: dist().
 
@@ -1640,7 +1645,7 @@ The **c** script was created with the following in mind:
 
 - `midpt_between_points`
 
-    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ).
+    midpt\_between\_points( _X1_, _Y1_, _X2_, _Y2_ ) or midpt\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ ):
     Returns the coordinates of the midpoint between (_X1_,_Y1_) and (_X2_,_Y2_), or (_X1_,_Y1_,_Z1_) and (_X2_,_Y2_,_Z2_).
     alias: midpt().
 
@@ -1652,7 +1657,7 @@ The **c** script was created with the following in mind:
 
 - `angle_between_points`
 
-    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_AZIMUTH_ \] ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_AZIMUTH_ \] ).
+    angle\_between\_points( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_AZIMUTH_ \] ) or angle\_between\_points( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_AZIMUTH_ \] ):
     Returns the angle from (_X1_,_Y1_) to (_X2_,_Y2_) or the horizontal and vertical angles from (_X1_,_Y1_,_Z1_) to (_X2_,_Y2_,_Z2_).
     Angles are in degrees.
     Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
@@ -1676,7 +1681,7 @@ The **c** script was created with the following in mind:
 - `vector_angle`
 
     vector\_angle( _X1_, _Y1_, _X2_, _Y2_ \[, _IS\_RADIAN_ \] ) or
-    vector\_angle( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_RADIAN_ \] ).
+    vector\_angle( _X1_, _Y1_, _Z1_, _X2_, _Y2_, _Z2_ \[, _IS\_RADIAN_ \] ):
     Returns the angle between two vectors as viewed from the origin.
     Angles are in degrees.
     If _IS\_RADIAN_ is set, it returns radians instead of degrees.
@@ -1710,7 +1715,7 @@ The **c** script was created with the following in mind:
 
 - `geo2xyz`
 
-    geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ).
+    geo2xyz( _LAT\_RAD_, _LON\_RAD_ \[, _HEIGHT\_M_ \] ):
     Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
     If _HEIGHT\_M_ is omitted, the calculation is performed assuming an elevation of 0 m.
     alias: g2xyz().
@@ -1725,7 +1730,7 @@ The **c** script was created with the following in mind:
 
 - `geo_radius`
 
-    geo\_radius( _LAT_ ).
+    geo\_radius( _LAT_ ):
     Given a latitude (in radians),
     returns the distance from the center of the Earth to its surface (in meters).
 
@@ -1736,7 +1741,7 @@ The **c** script was created with the following in mind:
 
 - `radius_of_lat`
 
-    radius\_of\_lat( _LAT_ ).
+    radius\_of\_lat( _LAT_ ):
     Given a latitude (in radians), returns the radius of that parallel (in meters).
 
     Radius of the parallel at 45 degrees latitude (distance of 1 radian):
@@ -1746,7 +1751,7 @@ The **c** script was created with the following in mind:
 
 - `geo_distance_m`
 
-    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Calculates and returns the distance (in meters) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_m().
@@ -1758,7 +1763,7 @@ The **c** script was created with the following in mind:
 
 - `geo_distance_km`
 
-    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Calculates and returns the distance (in kilometers) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     Same as geo\_distance\_m() / 1000.
@@ -1771,7 +1776,7 @@ The **c** script was created with the following in mind:
 
 - `geo_azimuth`
 
-    geo\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the geographic azimuth (bearing) in degrees from _A_ to _B_.
     Note: 0 degrees is North, 90 degrees is East (clockwise).
     Input: Latitude/Longitude in radians.
@@ -1784,7 +1789,7 @@ The **c** script was created with the following in mind:
 
 - `geo_dist_m_and_azimuth`
 
-    geo\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the distance (in meters) and bearing (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
@@ -1798,7 +1803,7 @@ The **c** script was created with the following in mind:
 
 - `geo_dist_km_and_azimuth`
 
-    geo\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
@@ -1812,7 +1817,7 @@ The **c** script was created with the following in mind:
 
 - `geo_rl_distance_m`
 
-    geo\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Calculates and returns the rhumbnail distance (in meters) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_rl\_m().
@@ -1825,7 +1830,7 @@ The **c** script was created with the following in mind:
 
 - `geo_rl_distance_km`
 
-    geo\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Calculates and returns the rhumbnail distance (in kilometers) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_rl\_km().
@@ -1838,7 +1843,7 @@ The **c** script was created with the following in mind:
 
 - `geo_rl_azimuth`
 
-    geo\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the azimuth (heading) in degrees of the rhumbnail from _A_ to _B_.
     Note: 0 degrees is North, 90 degrees is East (clockwise).
     Input: Latitude/Longitude in radians.
@@ -1852,7 +1857,7 @@ The **c** script was created with the following in mind:
 
 - `geo_rl_dist_m_and_azimuth`
 
-    geo\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the rhumbnail distance (in meters) and bearing (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
@@ -1866,7 +1871,7 @@ The **c** script was created with the following in mind:
 
 - `geo_rl_dist_km_and_azimuth`
 
-    geo\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
@@ -1880,7 +1885,7 @@ The **c** script was created with the following in mind:
 
 - `geo_all_m`
 
-    geo\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
     and the distance and azimuth (bearing) of the rhumb line, in degrees.
     Distances are in meters and azimuth in degrees.
@@ -1894,7 +1899,7 @@ The **c** script was created with the following in mind:
 
 - `geo_all_km`
 
-    geo\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ).
+    geo\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
     Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
     and the distance and azimuth (bearing) of the rhumb line, in degrees.
     Distances are in kilometers and azimuth in degrees.
@@ -2036,7 +2041,7 @@ The **c** script was created with the following in mind:
 
 - `paper_size`
 
-    paper\_size( _SIZE_ \[, _TYPE_ \] ).
+    paper\_size( _SIZE_ \[, _TYPE_ \] ):
     Returns the following information in this order:
     length of short side, length of long side (in mm).
     SIZE is a non-negative integer.

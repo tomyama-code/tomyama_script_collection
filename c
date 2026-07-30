@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.199 $
+## - $Revision: 4.201 $
 ##
 ## - Script Structure
 ##   - main
@@ -189,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.199 $};
+    my $rev = q{$Revision: 4.201 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1051,110 +1051,110 @@ use constant {
     H_COMA => qq{The separator that separates function arguments.},
     H_BEND => qq{A symbol that controls the priority of calculations.},
     H_EQUA => qq{Equals sign. In *c* script, it has the meaning of terminating the calculation formula, but it is not necessary. "1 + 2 =". Similarly, "1 + 2".},
-    H_FMOD => qq{fmod( X, Y ). Modulo arithmetic. "fmod( 10, -1.2 )" -> "0.4". Same as "10 % -1.2". [POSIX]},
-    H_MMOD => qq{math_mod( X, Y ). Modulo arithmetic. "math_mod( 10, -1.2 )" -> "-0.8". alias: mmod().},
-    H_ABS_ => qq{abs( N1 [, .. ] ). Returns the absolute value of its argument. [Perl Native]},
-    H_INT_ => qq{int( N1 [, .. ] ). Returns the integer portion of N. [Perl Native]},
-    H_FLOR => qq{floor( N1 [, .. ] ). Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
-    H_CEIL => qq{ceil( N1 [, .. ] ). Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
-    H_RODD => qq{rounddown( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
-    H_ROUD => qq{round( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
-    H_RODU => qq{roundup( NUMBER1 [, .. ], DECIMAL_PLACES ). Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
-    H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ). Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
-    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ). When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
-    H_PRIM => qq{is_prime( NUM1 [, .. ] ). Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
-    H_PRFR => qq{prime_factorize( N ). Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
-    H_GPRM => qq{get_prime( BIT_WIDTH ). Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
-    H_GCD_ => qq{gcd( NUMBER1, .. ). Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
-    H_LCM_ => qq{lcm( NUMBER1, .. ). Returns the least common multiple (LCM).},
-    H_RAND => qq{rand( N ).  Returns a random fractional number greater than or equal to 0 and less than the value of N. [Perl Native]},
-    H_POEX => qq{exp( N1 [,.. ] ). Returns e (the natural logarithm base) to the power of N. [Perl Native]},
-    H_EXP2 => qq{exp2( N1 [, .. ] ). Returns the base 2 raised to the power N.},
-    H_EP10 => qq{exp10( N1 [, .. ] ). Returns the base 10 raised to the power N.},
-    H_LOGA => qq{log( N1 [, .. ] ). Returns the natural logarithm (base e) of N. [Perl Native]},
-    H_LOG2 => qq{log2( N1 [, .. ] ). Returns the common logarithm to the base 2.},
-    H_LG10 => qq{log10( N1 [, .. ] ). Returns the common logarithm to the base 10.},
-    H_SQRT => qq{sqrt( N1 [, .. ] ). Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
-    H_POWE => qq{pow( A, B ). Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
-    H_PWIV => qq{pow_inv( A, B ). Returns the power of A to which B is raised.},
-    H_NCHR => qq{nCr( N, R ). N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
-    H_MIN_ => qq{min( NUMBER1, .. ). Returns the entry in the list with the lowest numerical value. [List::Util]},
-    H_MAX_ => qq{max( NUMBER1, .. ). Returns the entry in the list with the highest numerical value. [List::Util]},
-    H_SHFL => qq{shuffle( NUMBER1, .. ). Returns the values of the input in a random order. [List::Util]},
-    H_SMPL => qq{sample( NUMBER1, .., COUNT ). Randomly select one from the set. COUNT is an integer greater than or equal to 1. [List::Util]},
-    H_FRST => qq{first( NUMBER1, .. ). Returns the head of the set. Same as head( NUMBER1,.. , 1 ), slice( NUMBER1,.. , 0, 1 ).},
-    H_HEAD => qq{head( NUMBER1, .., LENGTH ). Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
-    H_TAIL => qq{tail( NUMBER1, .., LENGTH ). Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
-    H_SPLC => qq{slice( NUMBER1, .., OFFSET, LENGTH ). Extracts elements specified by OFFSET and LENGTH from a set.},
-    H_UNIQ => qq{uniq( NUMBER1, .. ). Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
-    H_SUM_ => qq{sum( NUMBER1, .. ). Returns the numerical sum of all the elements in the list. [List::Util]},
-    H_PROD => qq{prod( NUMBER1, .. ). Returns the product of each value.},
-    H_AVRG => qq{avg( NUMBER1, .. ). Returns the average value of all elements in a list.},
-    H_ADEC => qq{add_each( NUMBER1, .. , DELTA ). Add each number.},
-    H_MLEC => qq{mul_each( NUMBER1, .. , FACTOR ). Multiply each number.},
-    H_DVEC => qq{div_each( NUMBER1, .. , DIVISOR ). Divide each number.},
-    H_SMRT => qq{simplify_ratio( NUMBER1, NUMBER2, .. ). Reduce the ratio to the lowest integers. alias: sr().},
-    H_NMRT => qq{normalize_ratio( NUMBER1, NUMBER2, .. ). Scale the ratio so the minimum non-zero absolute value becomes 1 or -1. alias: nr().},
-    H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ). Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounds the intermediate number if DECIMAL_PLACES is specified, keeping the start and end values exact.},
-    H_LNST => qq{linstep( START, DELTA, LENGTH ). Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
-    H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ). Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
-    H_GFIS => qq{gen_fibo_seq( A, B, LENGTH ). Generates the Generalized Fibonacci Sequence. Returns the sequence of numbers starting at A, B and of size LENGTH. LENGTH is an integer greater than or equal to 2.},
-    H_LEAP => qq{is_leap( YEAR1 [, .. ] ). Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
-    H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ). Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_AOMN => qq{moon_age( Y, m, d ). Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
-    H_AOMI => qq{moon_age_instant( [ EPOCH ] ). Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
+    H_FMOD => qq{fmod( X, Y ): Modulo arithmetic. "fmod( 10, -1.2 )" -> "0.4". Same as "10 % -1.2". [POSIX]},
+    H_MMOD => qq{math_mod( X, Y ): Modulo arithmetic. "math_mod( 10, -1.2 )" -> "-0.8". alias: mmod().},
+    H_ABS_ => qq{abs( N1 [, .. ] ): Returns the absolute value of its argument. [Perl Native]},
+    H_INT_ => qq{int( N1 [, .. ] ): Returns the integer portion of N. [Perl Native]},
+    H_FLOR => qq{floor( N1 [, .. ] ): Returning the largest integer value less than or equal to the numerical argument. [POSIX]},
+    H_CEIL => qq{ceil( N1 [, .. ] ): Returning the smallest integer value greater than or equal to the given numerical argument. [POSIX]},
+    H_RODD => qq{rounddown( NUMBER1 [, .. ], DECIMAL_PLACES ): Returns the value of NUMBER1 truncated to DECIMAL_PLACES.},
+    H_ROUD => qq{round( NUMBER1 [, .. ], DECIMAL_PLACES ): Returns the value of NUMBER1 rounded to DECIMAL_PLACES.},
+    H_RODU => qq{roundup( NUMBER1 [, .. ], DECIMAL_PLACES ): Returns the value of NUMBER1 rounded up to DECIMAL_PLACES.},
+    H_PCTG => qq{percentage( NUMERATOR, DENOMINATOR [, DECIMAL_PLACES ] ): Returns the percentage, rounding the number if DECIMAL_PLACES is specified. alias: pct().},
+    H_RASC => qq{ratio_scaling( A, B, C [, DECIMAL_PLACES ] ): When A:B, return the value of X in A:B=C:X. Rounding the number if DECIMAL_PLACES is specified. alias: rs().},
+    H_PRIM => qq{is_prime( NUM1 [, .. ] ): Prime number test. Returns 1 if NUM is prime, otherwise returns 0.},
+    H_PRFR => qq{prime_factorize( N ): Do prime factorization. N is an integer greater than or equal to 2. alias: pf().},
+    H_GPRM => qq{get_prime( BIT_WIDTH ): Returns a random prime number within the range of BIT_WIDTH, where BIT_WIDTH is an integer between 4 and 32, inclusive.},
+    H_GCD_ => qq{gcd( NUMBER1, .. ): Returns the greatest common divisor (GCD), which is the largest positive integer that divides each of the operands.},
+    H_LCM_ => qq{lcm( NUMBER1, .. ): Returns the least common multiple (LCM).},
+    H_RAND => qq{rand( RAND_MAX [, COUNT ] ): Returns a list of COUNT random floating-point numbers greater than or equal to 0 and less than RAND_MAX. COUNT must be an integer greater than or equal to 1. If COUNT is omitted, it defaults to 1. [Perl Native]},
+    H_POEX => qq{exp( N1 [,.. ] ): Returns e (the natural logarithm base) to the power of N. [Perl Native]},
+    H_EXP2 => qq{exp2( N1 [, .. ] ): Returns the base 2 raised to the power N.},
+    H_EP10 => qq{exp10( N1 [, .. ] ): Returns the base 10 raised to the power N.},
+    H_LOGA => qq{log( N1 [, .. ] ): Returns the natural logarithm (base e) of N. [Perl Native]},
+    H_LOG2 => qq{log2( N1 [, .. ] ): Returns the common logarithm to the base 2.},
+    H_LG10 => qq{log10( N1 [, .. ] ): Returns the common logarithm to the base 10.},
+    H_SQRT => qq{sqrt( N1 [, .. ] ): Return the positive square root of N. Works only for non-negative operands. [Perl Native]},
+    H_POWE => qq{pow( A, B ): Exponentiation. "pow( 2, 3 )" -> 8. Similarly, "2 ** 3". [Perl Native]},
+    H_PWIV => qq{pow_inv( A, B ): Returns the power of A to which B is raised.},
+    H_NCHR => qq{nCr( N, R ): N Choose R. A combination of R items selected from N items. N is a non-negative integer. R is a positive integer.},
+    H_MIN_ => qq{min( NUMBER1, .. ): Returns the entry in the list with the lowest numerical value. [List::Util]},
+    H_MAX_ => qq{max( NUMBER1, .. ): Returns the entry in the list with the highest numerical value. [List::Util]},
+    H_SHFL => qq{shuffle( NUMBER1, .. ): Returns the values of the input in a random order. [List::Util]},
+    H_SMPL => qq{sample( NUMBER1, .., COUNT ): Randomly select one from the set. COUNT is an integer greater than or equal to 1. [List::Util]},
+    H_FRST => qq{first( NUMBER1, .. ): Returns the head of the set. Same as head( NUMBER1,.. , 1 ), slice( NUMBER1,.. , 0, 1 ).},
+    H_HEAD => qq{head( NUMBER1, .., LENGTH ): Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
+    H_TAIL => qq{tail( NUMBER1, .., LENGTH ): Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
+    H_SPLC => qq{slice( NUMBER1, .., OFFSET, LENGTH ): Extracts elements specified by OFFSET and LENGTH from a set.},
+    H_UNIQ => qq{uniq( NUMBER1, .. ): Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
+    H_SUM_ => qq{sum( NUMBER1, .. ): Returns the numerical sum of all the elements in the list. [List::Util]},
+    H_PROD => qq{prod( NUMBER1, .. ): Returns the product of each value.},
+    H_AVRG => qq{avg( NUMBER1, .. ): Returns the average value of all elements in a list.},
+    H_ADEC => qq{add_each( NUMBER1, .. , DELTA ): Add each number.},
+    H_MLEC => qq{mul_each( NUMBER1, .. , FACTOR ): Multiply each number.},
+    H_DVEC => qq{div_each( NUMBER1, .. , DIVISOR ): Divide each number.},
+    H_SMRT => qq{simplify_ratio( NUMBER1, NUMBER2, .. ): Reduce the ratio to the lowest integers. alias: sr().},
+    H_NMRT => qq{normalize_ratio( NUMBER1, NUMBER2, .. ): Scale the ratio so the minimum non-zero absolute value becomes 1 or -1. alias: nr().},
+    H_LNSP => qq{linspace( START, END, LENGTH [, DECIMAL_PLACES] ): Generates a list of evenly spaced numbers from START to END. Returns a sequence of numbers of size LENGTH. LENGTH is an integer greater than or equal to 2. Rounds the intermediate number if DECIMAL_PLACES is specified, keeping the start and end values exact.},
+    H_LNST => qq{linstep( START, DELTA, LENGTH ): Generates a list of LENGTH numbers that increase from START by DELTA. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
+    H_MLGT => qq{mul_growth( START, FACTOR, LENGTH ): Starting from START, we multiply the value by FACTOR and add it to the sequence. Returns the sequence of numbers starting at START and of size LENGTH. LENGTH is an integer greater than or equal to 1.},
+    H_GFIS => qq{gen_fibo_seq( A, B, LENGTH ): Generates the Generalized Fibonacci Sequence. Returns the sequence of numbers starting at A, B and of size LENGTH. LENGTH is an integer greater than or equal to 2.},
+    H_LEAP => qq{is_leap( YEAR1 [, .. ] ): Leap year test: Returns 1 if YEAR is a leap year, 0 otherwise.},
+    H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ): Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
+    H_AOMN => qq{moon_age( Y, m, d ): Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
+    H_AOMI => qq{moon_age_instant( [ EPOCH ] ): Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
     H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
-    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ). Returns the local time in seconds since the epoch. alias: l2e().},
-    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ). Returns the GMT time in seconds since the epoch. alias: g2e().},
-    H_EP2L => qq{epoch2local( EPOCH ). Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
-    H_EP2G => qq{epoch2gmt( EPOCH ). Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
-    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ). Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
-    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ). alias: d2s().},
-    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ). Returns the normalized value. alias: d2d().},
-    H_LPTM => qq{laptimer( LAPS ). Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
-    H_TIMR => qq{timer( SECOND ). If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
+    H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ): Returns the local time in seconds since the epoch. alias: l2e().},
+    H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ): Returns the GMT time in seconds since the epoch. alias: g2e().},
+    H_EP2L => qq{epoch2local( EPOCH ): Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
+    H_EP2G => qq{epoch2gmt( EPOCH ): Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
+    H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ): alias: d2s().},
+    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ): Returns the normalized value. alias: d2d().},
+    H_LPTM => qq{laptimer( LAPS ): Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
+    H_TIMR => qq{timer( SECOND ): If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
-    H_BPMR => qq{bpm( COUNT, SECOND ). Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
+    H_BPMR => qq{bpm( COUNT, SECOND ): Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
     H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
     H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
-    H_TACH => qq{tachymeter( SECOND ). Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
-    H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
-    H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
-    H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ). Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
+    H_TACH => qq{tachymeter( SECOND ): Returns the number of units of work that can be completed per hour, where SECOND is the number of seconds required to complete one unit of work. Same as ratio_scaling( SECOND, 1, 3600 ).},
+    H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
+    H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
+    H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
     H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
     H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
     H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
     H_D2DM => qq{deg2dms( <DEGREES> [, <DEGREES>..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
     H_DMDM => qq{dms2dms( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
-    H_SINE => qq{sin( <RADIANS> ). Returns the sine of <RADIANS>. [Perl Native]},
-    H_COSI => qq{cos( <RADIANS> ). Returns the cosine of <RADIANS>. [Perl Native]},
-    H_TANG => qq{tan( <RADIANS> ). Returns the tangent of <RADIANS>.},
-    H_ASIN => qq{asin( N ). The arcus (also known as the inverse) functions of the sine.},
-    H_ACOS => qq{acos( N ). The arcus (also known as the inverse) functions of the cosine.},
-    H_ATAN => qq{atan( N ). The arcus (also known as the inverse) functions of the tangent.},
-    H_ATN2 => qq{atan2( Y, X ). The principal value of the arc tangent of Y / X.},
-    H_HYPT => qq{hypot( X, Y ). Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
-    H_SLPD => qq{angle_deg( X, Y [, IS_AZIMUTH ] ). Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degrees = east, counterclockwise). If IS_AZIMUTH is set to true, returns the angle (0 degrees = north, clockwise).},
-    H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
-    H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ). Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
-    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ). Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
-    H_VANG => qq{vector_angle( X1, Y1, X2, Y2 [, IS_RADIAN ] ) or vector_angle( X1, Y1, Z1, X2, Y2, Z2 [, IS_RADIAN ] ). Returns the angle between two vectors as viewed from the origin. Angles are in degrees. If IS_RADIAN is set, it returns radians instead of degrees. alias: va(), angular_distance(), ang_dist().},
-    H_GXYZ => qq{geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ). Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m. alias: g2xyz().},
-    H_GERA => qq{geo_radius( LAT ). Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
-    H_LATC => qq{radius_of_lat( LAT ). Given a latitude (in radians), returns the radius of that parallel (in meters).},
-    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_m().},
-    H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
-    H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
-    H_DD_M => qq{geo_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_m_azm().},
-    H_DDKM => qq{geo_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_km_azm().},
-    H_RD_M => qq{geo_rl_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the rhumbnail distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_rl_m().},
-    H_RDKM => qq{geo_rl_distance_m( A_LAT, A_LON, B_LAT, B_LON ). Calculates and returns the rhumbnail distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. alias: gd_rl_km().},
-    H_RAZM => qq{geo_rl_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the azimuth (heading) in degrees of the rhumbnail from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm_rl().},
-    H_R2_M => qq{geo_rl_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the rhumbnail distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_m_azm().},
-    H_R2KM => qq{geo_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ). Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_km_azm().},
-    H_GA_M => qq{geo_all_m( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
-    H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ). Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
+    H_SINE => qq{sin( <RADIANS> ): Returns the sine of <RADIANS>. [Perl Native]},
+    H_COSI => qq{cos( <RADIANS> ): Returns the cosine of <RADIANS>. [Perl Native]},
+    H_TANG => qq{tan( <RADIANS> ): Returns the tangent of <RADIANS>.},
+    H_ASIN => qq{asin( N ): The arcus (also known as the inverse) functions of the sine.},
+    H_ACOS => qq{acos( N ): The arcus (also known as the inverse) functions of the cosine.},
+    H_ATAN => qq{atan( N ): The arcus (also known as the inverse) functions of the tangent.},
+    H_ATN2 => qq{atan2( Y, X ): The principal value of the arc tangent of Y / X.},
+    H_HYPT => qq{hypot( X, Y ): Equivalent to "sqrt( X * X + Y * Y )" except more stable on very large or very small arguments. [POSIX]},
+    H_SLPD => qq{angle_deg( X, Y [, IS_AZIMUTH ] ): Returns the straight line distance from (0,0) to (X,Y). Returns the standard mathematical angle (0 degrees = east, counterclockwise). If IS_AZIMUTH is set to true, returns the angle (0 degrees = north, clockwise).},
+    H_DIST => qq{dist_between_points( X1, Y1, X2, Y2 ) or dist_between_points( X1, Y1, Z1, X2, Y2, Z2 ): Returns the straight-line distance from (X1,Y1) to (X2,Y2) or from (X1,Y1,Z1) to (X2,Y2,Z2). alias: dist().},
+    H_MIDP => qq{midpt_between_points( X1, Y1, X2, Y2 ) or midpt_between_points( X1, Y1, Z1, X2, Y2, Z2 ): Returns the coordinates of the midpoint between (X1,Y1) and (X2,Y2), or (X1,Y1,Z1) and (X2,Y2,Z2). alias: midpt().},
+    H_ANGL => qq{angle_between_points( X1, Y1, X2, Y2 [, IS_AZIMUTH ] ) or angle_between_points( X1, Y1, Z1, X2, Y2, Z2 [, IS_AZIMUTH ] ): Returns the angle from (X1,Y1) to (X2,Y2) or the horizontal and vertical angles from (X1,Y1,Z1) to (X2,Y2,Z2). Angles are in degrees. Returns the standard mathematical angle (0 degrees = East, counter-clockwise). If IS_AZIMUTH is set to true, the horizontal angle is returned (0 degrees = north, clockwise). alias: angle().},
+    H_VANG => qq{vector_angle( X1, Y1, X2, Y2 [, IS_RADIAN ] ) or vector_angle( X1, Y1, Z1, X2, Y2, Z2 [, IS_RADIAN ] ): Returns the angle between two vectors as viewed from the origin. Angles are in degrees. If IS_RADIAN is set, it returns radians instead of degrees. alias: va(), angular_distance(), ang_dist().},
+    H_GXYZ => qq{geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ): Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m. alias: g2xyz().},
+    H_GERA => qq{geo_radius( LAT ): Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
+    H_LATC => qq{radius_of_lat( LAT ): Given a latitude (in radians), returns the radius of that parallel (in meters).},
+    H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Calculates and returns the distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_m().},
+    H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Calculates and returns the distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
+    H_GDEG => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the geographic azimuth (bearing) in degrees from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
+    H_DD_M => qq{geo_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_m_azm().},
+    H_DDKM => qq{geo_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_km_azm().},
+    H_RD_M => qq{geo_rl_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Calculates and returns the rhumbnail distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_rl_m().},
+    H_RDKM => qq{geo_rl_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Calculates and returns the rhumbnail distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. alias: gd_rl_km().},
+    H_RAZM => qq{geo_rl_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the azimuth (heading) in degrees of the rhumbnail from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm_rl().},
+    H_R2_M => qq{geo_rl_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the rhumbnail distance (in meters) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_m_azm().},
+    H_R2KM => qq{geo_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_km_azm().},
+    H_GA_M => qq{geo_all_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
+    H_GAKM => qq{get_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance and azimuth (bearing) of the great circle (shortest distance) from A to B, and the distance and azimuth (bearing) of the rhumb line, in degrees. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. Length and distance conversion. alias: 里→メートル(), 里２メートル().},
     H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. Length and distance conversion. alias: メートル→里(), メートル２里().},
     H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
@@ -1169,7 +1169,7 @@ use constant {
     H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. Weight conversion. alias: グラム→オンス(), グラム２オンス().},
     H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
     H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
-    H_PASZ => qq{paper_size( SIZE [, TYPE ] ). Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
+    H_PASZ => qq{paper_size( SIZE [, TYPE ] ): Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
 };
 
 %TableProvider::operators = (
@@ -1210,7 +1210,7 @@ use constant {
     'get_prime'                  => [ 1140, T_FUNCTION, F_MATH,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
     'gcd'                        => [ 1150, T_FUNCTION, F_MATH,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
     'lcm'                        => [ 1160, T_FUNCTION, F_MATH,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
-    'rand'                       => [ 1170, T_FUNCTION, F_MATH,     1, H_RAND, sub{ &CORE::rand( $_[ 0 ] ) } ],
+    'rand'                       => [ 1170, T_FUNCTION, F_MATH, '1-2', H_RAND, sub{ &_C_RAND( @_ ) } ],
     'exp'                        => [ 1180, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
     'exp2'                       => [ 1190, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
     'exp10'                      => [ 1200, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
@@ -1763,6 +1763,26 @@ sub lcm( $@ )
         }
     }
     return $lcm;
+}
+
+sub _C_RAND( $;$ )
+{
+    my( $rand_max, $count ) = @_;
+    if( !defined( $count ) ){
+        $count = 1;
+    }elsif( $count < 1 ){
+        die( qq{rand(): \$count=$count: Argument value is out of range.\n} );
+    }elsif( $count =~ m/\./o ){
+        die( qq{rand(): \$count=$count: COUNT must be an integer.\n} );
+    }
+    my @ret_vals = ();
+    for( my $idx=0; $idx<$count; $idx++ ){
+        $ret_vals[ $idx ] = &CORE::rand( $rand_max );
+    }
+    if( $count == 1 ){
+        return $ret_vals[ 0 ];
+    }
+    return @ret_vals;
 }
 
 sub _C_EXP( @ )
@@ -5420,8 +5440,8 @@ Arctic Circle Latitude (90 - Tilt):
 =head2 FUNCTIONS
 
 fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, first, head,
-tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each, simplify_ratio, normalize_ratio, linspace, linstep,
+get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, sample, first,
+head, tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each, simplify_ratio, normalize_ratio, linspace, linstep,
 mul_growth, gen_fibo_seq, is_leap, age, moon_age, moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch,
 epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
 telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
@@ -5935,7 +5955,7 @@ Similarly, C<1 + 2>.
 
 =item C<fmod>
 
-fmod( I<X>, I<Y> ).
+fmod( I<X>, I<Y> ):
 Modulo arithmetic.
 C<fmod( 10, -1.2 )> -> C<0.4>.
 Same as C<10 % -1.2>.
@@ -5945,7 +5965,7 @@ Please refer to the L<% operator|/%> for the differences between the remainder o
 
 =item C<math_mod>
 
-math_mod( I<X>, I<Y> ).
+math_mod( I<X>, I<Y> ):
 Modulo arithmetic.
 C<math_mod( 10, -1.2 )> -> C<-0.8>.
 alias: mmod().
@@ -5954,7 +5974,7 @@ Please refer to the L<% operator|/%> for the differences between the remainder o
 
 =item C<abs>
 
-abs( I<N1> [, .. ] ).
+abs( I<N1> [, .. ] ):
 Returns the absolute value of its argument.
 [Perl Native]
 
@@ -5963,7 +5983,7 @@ Returns the absolute value of its argument.
 
 =item C<int>
 
-int( I<N1> [, .. ] ).
+int( I<N1> [, .. ] ):
 Returns the integer portion of I<N>.
 [Perl Native]
 
@@ -5972,7 +5992,7 @@ Returns the integer portion of I<N>.
 
 =item C<floor>
 
-floor( I<N1> [, .. ] ).
+floor( I<N1> [, .. ] ):
 Returning the largest integer value less than or equal to the numerical argument.
 [POSIX]
 
@@ -5981,7 +6001,7 @@ Returning the largest integer value less than or equal to the numerical argument
 
 =item C<ceil>
 
-ceil( I<N1> [, .. ] ).
+ceil( I<N1> [, .. ] ):
 Returning the smallest integer value greater than or equal to the given numerical argument.
 [POSIX]
 
@@ -5990,7 +6010,7 @@ Returning the smallest integer value greater than or equal to the given numerica
 
 =item C<rounddown>
 
-rounddown( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
+rounddown( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ):
 Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
   $ c 'rounddown( -1.2, 1.2, 0 )'
@@ -5998,7 +6018,7 @@ Returns the value of I<NUMBER1> truncated to I<DECIMAL_PLACES>.
 
 =item C<round>
 
-round( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
+round( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ):
 Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
   $ c 'round( -1.4, -1.5, 1.4, 1.5, 0 )'
@@ -6006,7 +6026,7 @@ Returns the value of I<NUMBER1> rounded to I<DECIMAL_PLACES>
 
 =item C<roundup>
 
-roundup( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ).
+roundup( I<NUMBER1> [ , .. ], I<DECIMAL_PLACES> ):
 Returns the value of I<NUMBER1> rounded up to I<DECIMAL_PLACES>.
 
   $ c 'roundup( -1.2, 1.2, 0 )'
@@ -6014,7 +6034,7 @@ Returns the value of I<NUMBER1> rounded up to I<DECIMAL_PLACES>.
 
 =item C<percentage>
 
-percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ).
+percentage( I<NUMERATOR>, I<DENOMINATOR> [, I<DECIMAL_PLACES> ] ):
 Returns the percentage, rounding the number if I<DECIMAL_PLACES> is specified.
 alias: pct().
 
@@ -6025,7 +6045,7 @@ alias: pct().
 
 =item C<ratio_scaling>
 
-ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ).
+ratio_scaling( I<A>, I<B>, I<C> [, I<DECIMAL_PLACES> ] ):
 When I<A>:I<B>, return the value of I<X> in I<A>:I<B>=I<C>:I<X>.
 Rounding the number if I<DECIMAL_PLACES> is specified.
 alias: rs().
@@ -6039,7 +6059,7 @@ If it takes 66 seconds to make 5 units, what will be the production quantity aft
 
 =item C<is_prime>
 
-is_prime( I<NUM1> [, .. ] ).
+is_prime( I<NUM1> [, .. ] ):
 Prime number test.
 Returns 1 if I<NUM> is prime, otherwise returns 0.
 
@@ -6050,7 +6070,7 @@ Returns 1 if I<NUM> is prime, otherwise returns 0.
 
 =item C<prime_factorize>
 
-prime_factorize( I<NUM> ).
+prime_factorize( I<NUM> ):
 Do prime factorization. I<NUM> is an integer greater than or equal to 2.
 alias: pf().
 
@@ -6062,7 +6082,7 @@ alias: pf().
 
 =item C<get_prime>
 
-get_prime( I<BIT_WIDTH> ).
+get_prime( I<BIT_WIDTH> ):
 Returns a random prime number within the range of I<BIT_WIDTH>,
 where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
 
@@ -6071,7 +6091,7 @@ where I<BIT_WIDTH> is an integer between 4 and 32, inclusive.
 
 =item C<gcd>
 
-gcd( I<NUMBER1>, .. ).
+gcd( I<NUMBER1>, .. ):
 Returns the greatest common divisor (GCD),
 which is the largest positive integer that divides each of the operands.
 
@@ -6080,7 +6100,7 @@ which is the largest positive integer that divides each of the operands.
 
 =item C<lcm>
 
-lcm( I<NUMBER1>, .. ).
+lcm( I<NUMBER1>, .. ):
 Returns the least common multiple (LCM).
 
   $ c 'lcm( 402, 670, 804 )'
@@ -6088,23 +6108,25 @@ Returns the least common multiple (LCM).
 
 =item C<rand>
 
-rand( I<N> ).
-Returns a random fractional number greater than or equal to 0 and less than the value of I<N>.
+rand( I<RAND_MAX> [, I<COUNT> ] ):
+Returns a list of I<COUNT> random floating-point numbers greater than or equal to 0 and less than I<RAND_MAX>.
+I<COUNT> must be an integer greater than or equal to 1.
+If I<COUNT> is omitted, it defaults to 1.
 [Perl Native]
 
-A random number between 0 and 6:
+Example of getting a single random number between 0 and 6:
 
   $ c 'rand( 6 )'
   4.11497904963291
 
-0 or 1 or 2 or 3 or 4 or 5:
+Example of simulating rolling five 6-sided dice:
 
-  $ c 'int( rand( 6 ) )'
-  2
+  $ c 'add_each( int( rand( 6, 5 ) ), 1 )'
+  ( 1, 6, 4, 3, 4 )
 
 =item C<exp>
 
-exp( I<N1> [, .. ] ).
+exp( I<N1> [, .. ] ):
 Returns e (the natural logarithm base) to the power of I<N>.
 [Perl Native]
 
@@ -6115,7 +6137,7 @@ The base of natural logarithms e (Napier's constant):
 
 =item C<log>
 
-log( I<N1> [, .. ] ).
+log( I<N1> [, .. ] ):
 Returns the natural logarithm (base e) of I<N>.
 [Perl Native]
 
@@ -6160,7 +6182,7 @@ The reciprocal of an antilogarithm reverses the sign of the logarithm.
 
 =item C<exp2>
 
-exp2( I<N1> [, .. ] ).
+exp2( I<N1> [, .. ] ):
 Returns the base 2 raised to the power N.
 
   $ c 'exp2( 8, 16, 32 )'
@@ -6177,7 +6199,7 @@ The following three expressions are equivalent:
 
 =item C<log2>
 
-log2( I<N1> [, .. ] ).
+log2( I<N1> [, .. ] ):
 Returns the common logarithm to the base 2.
 
   $ c 'log2( 256, 65536, 4294967296 )'
@@ -6194,7 +6216,7 @@ The following three expressions are equivalent:
 
 =item C<exp10>
 
-exp10( I<N1> [, .. ] ).
+exp10( I<N1> [, .. ] ):
 Returns the base 10 raised to the power N.
 
   $ c 'exp10( 1, 2, 3 )'
@@ -6211,7 +6233,7 @@ The following three expressions are equivalent:
 
 =item C<log10>
 
-log10( I<N1> [, .. ] ).
+log10( I<N1> [, .. ] ):
 Returns the common logarithm to the base 10.
 
   $ c 'log10( 10, 100, 1000 )'
@@ -6228,7 +6250,7 @@ The following three expressions are equivalent:
 
 =item C<sqrt>
 
-sqrt( I<N1> [, .. ] ).
+sqrt( I<N1> [, .. ] ):
 Return the positive square root of I<N>.
 Works only for non-negative operands.
 [Perl Native]
@@ -6238,7 +6260,7 @@ Works only for non-negative operands.
 
 =item C<pow>
 
-pow( I<A>, I<B> ).
+pow( I<A>, I<B> ):
 Exponentiation.
 "pow( 2, 3 )" -> 8.
 Similarly, "2 ** 3".
@@ -6249,7 +6271,7 @@ Similarly, "2 ** 3".
 
 =item C<pow_inv>
 
-pow_inv( I<A>, I<B> ).
+pow_inv( I<A>, I<B> ):
 Returns the power of I<A> to which I<B> is raised.
 
   $ c 'pow_inv( 8, 2 )'
@@ -6263,7 +6285,7 @@ Returns the power of I<A> to which I<B> is raised.
 
 =item C<ncr>
 
-nCr( I<N>, I<R> ).
+nCr( I<N>, I<R> ):
 I<N> Choose I<R>. A combination of I<R> items selected from I<N> items.
 I<N> is a non-negative integer.
 I<R> is a positive integer.
@@ -6275,7 +6297,7 @@ Number of combinations of choosing 3 out of 5:
 
 =item C<min>
 
-min( I<NUMBER1>, .. ).
+min( I<NUMBER1>, .. ):
 Returns the entry in the list with the lowest numerical value.
 [List::Util]
 
@@ -6284,7 +6306,7 @@ Returns the entry in the list with the lowest numerical value.
 
 =item C<max>
 
-max( I<NUMBER1>, .. ).
+max( I<NUMBER1>, .. ):
 Returns the entry in the list with the highest numerical value.
 [List::Util]
 
@@ -6293,7 +6315,7 @@ Returns the entry in the list with the highest numerical value.
 
 =item C<shuffle>
 
-shuffle( I<NUMBER1>, .. ).
+shuffle( I<NUMBER1>, .. ):
 Returns the values of the input in a random order.
 [List::Util]
 
@@ -6302,7 +6324,7 @@ Returns the values of the input in a random order.
 
 =item C<sample>
 
-sample( I<NUMBER1>, .., I<COUNT> ).
+sample( I<NUMBER1>, .., I<COUNT> ):
 Randomly select one from the set.
 I<COUNT> is an integer greater than or equal to 1.
 [List::Util]
@@ -6317,7 +6339,7 @@ An integer less than 16 in which only 2 bits are set to 1:
 
 =item C<first>
 
-first( I<NUMBER1>, .. ).
+first( I<NUMBER1>, .. ):
 Returns the head of the set.
 Same as head( I<NUMBER1>,.. , 1 ), slice( I<NUMBER1>,.. , 0, 1 ).
 
@@ -6326,7 +6348,7 @@ Same as head( I<NUMBER1>,.. , 1 ), slice( I<NUMBER1>,.. , 0, 1 ).
 
 =item C<head>
 
-head( I<NUMBER1>, .. I<LENGTH> ).
+head( I<NUMBER1>, .. I<LENGTH> ):
 Returns the first I<LENGTH> elements from the set.
 I<LENGTH> is an integer greater than or equal to 1.
 [List::Util]
@@ -6336,7 +6358,7 @@ I<LENGTH> is an integer greater than or equal to 1.
 
 =item C<tail>
 
-tail( I<NUMBER1>, .. I<LENGTH> ).
+tail( I<NUMBER1>, .. I<LENGTH> ):
 Returns the last I<LENGTH> elements from the set.
 I<LENGTH> is an integer greater than or equal to 1.
 [List::Util]
@@ -6346,7 +6368,7 @@ I<LENGTH> is an integer greater than or equal to 1.
 
 =item C<slice>
 
-slice( I<NUMBER1>, .., I<OFFSET>, I<LENGTH> ).
+slice( I<NUMBER1>, .., I<OFFSET>, I<LENGTH> ):
 Extracts elements specified by I<OFFSET> and I<LENGTH> from a set.
 
 Extract only the date (first three):
@@ -6356,7 +6378,7 @@ Extract only the date (first three):
 
 =item C<uniq>
 
-uniq( I<NUMBER1>, .. ).
+uniq( I<NUMBER1>, .. ):
 Filters a list of values to remove subsequent duplicates,
 as judged by a DWIM-ish string equality or "undef" test.
 Preserves the order of unique elements, and retains the first value of any duplicate set.
@@ -6367,7 +6389,7 @@ Preserves the order of unique elements, and retains the first value of any dupli
 
 =item C<sum>
 
-sum( I<NUMBER1>, .. ).
+sum( I<NUMBER1>, .. ):
 Returns the numerical sum of all the elements in the list.
 [List::Util]
 
@@ -6376,7 +6398,7 @@ Returns the numerical sum of all the elements in the list.
 
 =item C<prod>
 
-prod( I<NUMBER1>, .. ).
+prod( I<NUMBER1>, .. ):
 Returns the product of each value.
 
   $ c 'prod( 1, 2, 3, 4 )'
@@ -6384,7 +6406,7 @@ Returns the product of each value.
 
 =item C<avg>
 
-avg( I<NUMBER1>, .. ).
+avg( I<NUMBER1>, .. ):
 Returns the average value of all elements in a list.
 
   $ c 'avg( 1, 2, 3, 4 )'
@@ -6392,14 +6414,16 @@ Returns the average value of all elements in a list.
 
 =item C<add_each>
 
-add_each( I<NUMBER1>, .. , I<DELTA> ). Add each number.
+add_each( I<NUMBER1>, .. , I<DELTA> ):
+Add each number.
 
   $ c 'add_each( 100, 200, -10 )'
   ( 90, 190 )
 
 =item C<mul_each>
 
-mul_each( I<NUMBER1>, .. , I<FACTOR> ). Multiply each number.
+mul_each( I<NUMBER1>, .. , I<FACTOR> ):
+Multiply each number.
 
   $ c 'mul_each( 100, 200, 2 )'
   ( 200, 400 )
@@ -6416,7 +6440,8 @@ Major Moon Phases:
 
 =item C<div_each>
 
-div_each( I<NUMBER1>, .. , I<DIVISOR> ). Divide each number.
+div_each( I<NUMBER1>, .. , I<DIVISOR> ):
+Divide each number.
 
 Simplify ratio:
 
@@ -6438,7 +6463,7 @@ Normalize ratio:
 
 =item C<simplify_ratio>
 
-simplify_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
+simplify_ratio( I<NUMBER1>, I<NUMBER2>, .. ):
 Reduce the ratio to the lowest integers.
 alias: sr().
 
@@ -6449,7 +6474,7 @@ Display resolution aspect ratio:
 
 =item C<normalize_ratio>
 
-normalize_ratio( I<NUMBER1>, I<NUMBER2>, .. ).
+normalize_ratio( I<NUMBER1>, I<NUMBER2>, .. ):
 Scale the ratio so the minimum non-zero absolute value becomes 1 or -1.
 alias: nr().
 
@@ -6462,7 +6487,7 @@ Finding the golden ratio:
 
 =item C<linspace>
 
-linspace( I<START>, I<END>, I<LENGTH> [, I<DECIMAL_PLACES> ] ).
+linspace( I<START>, I<END>, I<LENGTH> [, I<DECIMAL_PLACES> ] ):
 Generates a list of evenly spaced numbers from I<START> to I<END>.
 Returns a sequence of numbers of size I<LENGTH>.
 I<LENGTH> is an integer greater than or equal to 2.
@@ -6477,7 +6502,7 @@ Divide the color range from 0x33 to 0xCC into 5 parts:
 
 =item C<linstep>
 
-linstep( I<START>, I<DELTA>, I<LENGTH> ).
+linstep( I<START>, I<DELTA>, I<LENGTH> ):
 Generates a list of I<LENGTH> numbers that increase from I<START> by I<DELTA>.
 Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
 I<LENGTH> is an integer greater than or equal to 1.
@@ -6489,7 +6514,7 @@ A sequence of 10 numbers that decrease by 2 from 101:
 
 =item C<mul_growth>
 
-mul_growth( I<START>, I<FACTOR>, I<LENGTH> ).
+mul_growth( I<START>, I<FACTOR>, I<LENGTH> ):
 Starting from I<START>, we multiply the value by I<FACTOR> and add it to the sequence.
 Returns the sequence of numbers starting at I<START> and of size I<LENGTH>.
 I<LENGTH> is an integer greater than or equal to 1.
@@ -6499,7 +6524,7 @@ I<LENGTH> is an integer greater than or equal to 1.
 
 =item C<gen_fibo_seq>
 
-gen_fibo_seq( I<A>, I<B>, I<LENGTH> ).
+gen_fibo_seq( I<A>, I<B>, I<LENGTH> ):
 Generates the Generalized Fibonacci Sequence.
 Returns the sequence of numbers starting at I<A>, I<B> and of size I<LENGTH>.
 I<LENGTH> is an integer greater than or equal to 2.
@@ -6517,7 +6542,7 @@ Generate the Lucas sequence:
 
 =item C<is_leap>
 
-is_leap( I<YEAR1> [,.. ] ).
+is_leap( I<YEAR1> [,.. ] ):
 Leap year test: Returns 1 if I<YEAR> is a leap year, 0 otherwise.
 
   $ c 'is_leap( 2024 )'
@@ -6532,7 +6557,7 @@ Evaluate together:
 
 =item C<age>
 
-age( I<BIRTHDAY_EPOCH> [, I<REF_DATE_EPOCH> ] ).
+age( I<BIRTHDAY_EPOCH> [, I<REF_DATE_EPOCH> ] ):
 Returns a list of ( age, days ).
 If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
 
@@ -6541,7 +6566,7 @@ If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
 
 =item C<moon_age>
 
-moon_age( I<Y>, I<m>, I<d> ).
+moon_age( I<Y>, I<m>, I<d> ):
 Returns the moon age at "noon (12:00)" on the specified local date.
 Returns the value rounded to the first decimal place.
 Maximum deviation of about 2 days.
@@ -6572,7 +6597,7 @@ Moon's age today (at 12:00):
 
 =item C<moon_age_instant>
 
-moon_age_instant( [ I<EPOCH> ] ).
+moon_age_instant( [ I<EPOCH> ] ):
 Returns the moon age for the specified I<EPOCH>.
 Defaults to the current time (NOW) if I<EPOCH> is omitted.
 alias: moon_age_i().
@@ -6635,7 +6660,7 @@ If you wish to view past information, please change the reference date:
 
 =item C<local2epoch>
 
-local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
+local2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ):
 Returns the local time in seconds since the epoch.
 alias: l2e().
 
@@ -6644,7 +6669,7 @@ alias: l2e().
 
 =item C<gmt2epoch>
 
-gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ).
+gmt2epoch( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ):
 Returns the GMT time in seconds since the epoch.
 alias: g2e().
 
@@ -6653,7 +6678,7 @@ alias: g2e().
 
 =item C<epoch2local>
 
-epoch2local( I<EPOCH> ).
+epoch2local( I<EPOCH> ):
 Returns the local time.
 ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
 alias: e2l().
@@ -6663,7 +6688,7 @@ alias: e2l().
 
 =item C<epoch2gmt>
 
-epoch2gmt( I<EPOCH> ).
+epoch2gmt( I<EPOCH> ):
 Returns the GMT time.
 ( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
 alias: e2g().
@@ -6673,7 +6698,7 @@ alias: e2g().
 
 =item C<sec2dhms>
 
-sec2dhms( I<SECOND> [, I<DECIMAL_PLACES> ] ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+sec2dhms( I<SECOND> [, I<DECIMAL_PLACES> ] ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ):
 Rounding the number if I<DECIMAL_PLACES> is specified.
 alias: s2d.
 
@@ -6682,7 +6707,7 @@ alias: s2d.
 
 =item C<dhms2sec>
 
-dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<SECOND> ).
+dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<SECOND> ):
 alias: d2s.
 
   $ c 'dhms2sec( 4, 03, 02, 01 )'
@@ -6690,7 +6715,7 @@ alias: d2s.
 
 =item C<dhms2dhms>
 
-dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) -->Convert-to--> ( I<D>, I<H>, I<M>, I<S> ).
+dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) -->Convert-to--> ( I<D>, I<H>, I<M>, I<S> ):
 Returns the normalized value.
 alias: d2d().
 
@@ -6699,7 +6724,7 @@ alias: d2d().
 
 =item C<laptimer>
 
-laptimer( I<LAPS> ).
+laptimer( I<LAPS> ):
 Each time you press Enter,
 the split time is measured and the time taken to measure I<LAPS> is returned.
 If I<LAPS> is set to a negative value, the split time is not output.
@@ -6720,7 +6745,7 @@ The time for 3 laps was measured:
 
 =item C<timer>
 
-timer( I<SECOND> ).
+timer( I<SECOND> ):
 If you specify a value less than 31536000 (365 days x 86400 seconds) for I<SECOND>,
 the countdown will begin and end when it reaches zero.
 If you specify a value greater than this,
@@ -6761,7 +6786,7 @@ Usage example:
 
 =item C<bpm>
 
-bpm( I<COUNT>, I<SECOND> ).
+bpm( I<COUNT>, I<SECOND> ):
 Specify the number of beats as I<COUNT> and the elapsed time as I<SECOND> to calculate the BPM.
 
   $ c 'bpm( 4, sw() )'
@@ -6798,7 +6823,7 @@ The measured time is displayed on the screen.
 
 =item C<tachymeter>
 
-tachymeter( I<SECOND> ).
+tachymeter( I<SECOND> ):
 Returns the number of units of work that can be completed per hour,
 where I<SECOND> is the number of seconds required to complete one unit of work.
 Same as ratio_scaling( I<SECOND>, 1, 3600 ).
@@ -6813,7 +6838,7 @@ Measure the time for a 1km section and calculate the speed:
 
 =item C<telemeter>
 
-telemeter( I<SECOND> [, I<TEMPERATURE> ] ).
+telemeter( I<SECOND> [, I<TEMPERATURE> ] ):
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in meters.
 If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -6827,7 +6852,7 @@ Same as telemeter_m().
 
 =item C<telemeter_m>
 
-telemeter_m( I<SECOND> [, I<TEMPERATURE> ] ).
+telemeter_m( I<SECOND> [, I<TEMPERATURE> ] ):
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in meters.
 If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -6838,7 +6863,7 @@ Same as telemeter().
 
 =item C<telemeter_km>
 
-telemeter_km( I<SECOND> [, I<TEMPERATURE> ] ).
+telemeter_km( I<SECOND> [, I<TEMPERATURE> ] ):
 Measures distance using the difference in the speed of light and sound.
 Returns the distance equivalent to I<SECOND> in kilometers.
 If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius.
@@ -6855,66 +6880,66 @@ Same as telemeter_m() / 1000.
 
 =item C<rad2deg>
 
-rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
+rad2deg( I<RADIANS> [, I<RADIANS>..] ) -> ( I<DEGREES> [, I<DEGREES>..] ):
 
   $ c 'rad2deg( 2.50620553940126 )'
   143.595
 
 =item C<deg2rad>
 
-deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+deg2rad( I<DEGREES> [, I<DEGREES>..] ) -> ( I<RADIANS> [, I<RADIANS>..] ):
 
   $ c 'deg2rad( 143.595 )'
   2.5062055394
 
 =item C<dms2rad>
 
-dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ).
+dms2rad( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<RADIANS> [, I<RADIANS>..] ):
 
   $ c 'dms2rad( 143, 35, 42.0000000000002 )'
   2.5062055394
 
 =item C<dms2deg>
 
-dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ).
+dms2deg( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEGREES> [, I<DEGREES>..] ):
 
   $ c 'dms2deg( 143, 35, 42.0000000000002 )'
   143.595
 
 =item C<deg2dms>
 
-deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+deg2dms( I<DEGREES> [, I<DEGREES>..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ):
 
   $ c 'deg2dms( 143.595 )'
   ( 143, 35, 42 )
 
 =item C<dms2dms>
 
-dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ).
+dms2dms( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ) -> ( I<DEG>, I<MIN>, I<SEC> [, I<DEG>, I<MIN>, I<SEC> ..] ):
 
   $ c 'dms2dms( 143, 35.7, 0 )'
   ( 143, 35, 42 )
 
 =item C<sin>
 
-sin( I<RADIANS> ).
+sin( I<RADIANS> ):
 Returns the sine of I<RADIANS>.
 [Perl Native]
 
 =item C<cos>
 
-cos( I<RADIANS> ).
+cos( I<RADIANS> ):
 Returns the cosine of I<RADIANS>.
 [Perl Native]
 
 =item C<tan>
 
-tan( I<RADIANS> ).
+tan( I<RADIANS> ):
 Returns the tangent of I<RADIANS>.
 
 =item C<asin>
 
-asin( I<RATIO> ).
+asin( I<RATIO> ):
 The arcus (also known as the inverse) functions of the sine.
 
   $ c 'rad2deg( asin( 1 / 2 ) )'
@@ -6922,7 +6947,7 @@ The arcus (also known as the inverse) functions of the sine.
 
 =item C<acos>
 
-acos( I<RATIO> ).
+acos( I<RATIO> ):
 The arcus (also known as the inverse) functions of the cosine.
 
   $ c 'rad2deg( acos( 1 / 2 ) )'
@@ -6930,7 +6955,7 @@ The arcus (also known as the inverse) functions of the cosine.
 
 =item C<atan>
 
-atan( I<RATIO> ).
+atan( I<RATIO> ):
 The arcus (also known as the inverse) functions of the tangent.
 
   $ c 'rad2deg( atan( 1 / 1 ) )'
@@ -6938,7 +6963,7 @@ The arcus (also known as the inverse) functions of the tangent.
 
 =item C<atan2>
 
-atan2( I<Y>, I<X> ).
+atan2( I<Y>, I<X> ):
 The principal value of the arc tangent of I<Y> / I<X>.
 [Perl Native]
 
@@ -6947,7 +6972,7 @@ The principal value of the arc tangent of I<Y> / I<X>.
 
 =item C<hypot>
 
-hypot( I<X>, I<Y> ).
+hypot( I<X>, I<Y> ):
 Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very large or very small arguments.
 [POSIX]
 
@@ -6956,7 +6981,7 @@ Equivalent to "sqrt( I<X> * I<X> + I<Y> * I<Y> )" except more stable on very lar
 
 =item C<angle_deg>
 
-angle_deg( I<X>, I<Y> [, I<IS_AZIMUTH> ] ).
+angle_deg( I<X>, I<Y> [, I<IS_AZIMUTH> ] ):
 Returns the straight line distance from (0,0) to (I<X>,I<Y>).
 Returns the standard mathematical angle (0 degrees = east, counterclockwise).
 If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise).
@@ -6966,7 +6991,7 @@ If I<IS_AZIMUTH> is set to true, returns the angle (0 degrees = north, clockwise
 
 =item C<dist_between_points>
 
-dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+dist_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or dist_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ):
 Returns the straight-line distance from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
 alias: dist().
 
@@ -6978,7 +7003,7 @@ alias: dist().
 
 =item C<midpt_between_points>
 
-midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ).
+midpt_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> ) or midpt_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> ):
 Returns the coordinates of the midpoint between (I<X1>,I<Y1>) and (I<X2>,I<Y2>), or (I<X1>,I<Y1>,I<Z1>) and (I<X2>,I<Y2>,I<Z2>).
 alias: midpt().
 
@@ -6990,7 +7015,7 @@ alias: midpt().
 
 =item C<angle_between_points>
 
-angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_AZIMUTH> ] ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_AZIMUTH> ] ).
+angle_between_points( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_AZIMUTH> ] ) or angle_between_points( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_AZIMUTH> ] ):
 Returns the angle from (I<X1>,I<Y1>) to (I<X2>,I<Y2>) or the horizontal and vertical angles from (I<X1>,I<Y1>,I<Z1>) to (I<X2>,I<Y2>,I<Z2>).
 Angles are in degrees.
 Returns the standard mathematical angle (0 degrees = East, counter-clockwise).
@@ -7014,7 +7039,7 @@ I<IS_AZIMUTH> is set to true
 =item C<vector_angle>
 
 vector_angle( I<X1>, I<Y1>, I<X2>, I<Y2> [, I<IS_RADIAN> ] ) or
-vector_angle( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_RADIAN> ] ).
+vector_angle( I<X1>, I<Y1>, I<Z1>, I<X2>, I<Y2>, I<Z2> [, I<IS_RADIAN> ] ):
 Returns the angle between two vectors as viewed from the origin.
 Angles are in degrees.
 If I<IS_RADIAN> is set, it returns radians instead of degrees.
@@ -7052,7 +7077,7 @@ alias: va(), angular_distance(), ang_dist().
 
 =item C<geo2xyz>
 
-geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ).
+geo2xyz( I<LAT_RAD>, I<LON_RAD> [, I<HEIGHT_M> ] ):
 Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth.
 If I<HEIGHT_M> is omitted, the calculation is performed assuming an elevation of 0 m.
 alias: g2xyz().
@@ -7067,7 +7092,7 @@ Calculate the straight-line distance from the epicenter to the observation point
 
 =item C<geo_radius>
 
-geo_radius( I<LAT> ).
+geo_radius( I<LAT> ):
 Given a latitude (in radians),
 returns the distance from the center of the Earth to its surface (in meters).
 
@@ -7078,7 +7103,7 @@ What is the radius of the equator (0 degrees latitude)?
 
 =item C<radius_of_lat>
 
-radius_of_lat( I<LAT> ).
+radius_of_lat( I<LAT> ):
 Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 Radius of the parallel at 45 degrees latitude (distance of 1 radian):
@@ -7088,7 +7113,7 @@ Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
 =item C<geo_distance_m>
 
-geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Calculates and returns the distance (in meters) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 alias: gd_m().
@@ -7100,7 +7125,7 @@ alias: gd_m().
 
 =item C<geo_distance_km>
 
-geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Calculates and returns the distance (in kilometers) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 Same as geo_distance_m() / 1000.
@@ -7113,7 +7138,7 @@ alias: gd_km().
 
 =item C<geo_azimuth>
 
-geo_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the geographic azimuth (bearing) in degrees from I<A> to I<B>.
 Note: 0 degrees is North, 90 degrees is East (clockwise).
 Input: Latitude/Longitude in radians.
@@ -7126,7 +7151,7 @@ alias: gazm().
 
 =item C<geo_dist_m_and_azimuth>
 
-geo_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the distance (in meters) and bearing (in degrees) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 North is 0 degrees.
@@ -7140,7 +7165,7 @@ alias: gd_m_azm().
 
 =item C<geo_dist_km_and_azimuth>
 
-geo_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 North is 0 degrees.
@@ -7154,7 +7179,7 @@ alias: gd_km_azm().
 
 =item C<geo_rl_distance_m>
 
-geo_rl_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_rl_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Calculates and returns the rhumbnail distance (in meters) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 alias: gd_rl_m().
@@ -7167,7 +7192,7 @@ alias: gd_rl_m().
 
 =item C<geo_rl_distance_km>
 
-geo_rl_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_rl_distance_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Calculates and returns the rhumbnail distance (in kilometers) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 alias: gd_rl_km().
@@ -7180,7 +7205,7 @@ alias: gd_rl_km().
 
 =item C<geo_rl_azimuth>
 
-geo_rl_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_rl_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the azimuth (heading) in degrees of the rhumbnail from I<A> to I<B>.
 Note: 0 degrees is North, 90 degrees is East (clockwise).
 Input: Latitude/Longitude in radians.
@@ -7194,7 +7219,7 @@ alias: gazm_rl().
 
 =item C<geo_rl_dist_m_and_azimuth>
 
-geo_rl_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_rl_dist_m_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the rhumbnail distance (in meters) and bearing (in degrees) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 North is 0 degrees.
@@ -7208,7 +7233,7 @@ alias: gd_rl_m_azm().
 
 =item C<geo_rl_dist_km_and_azimuth>
 
-geo_rl_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_rl_dist_km_and_azimuth( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 North is 0 degrees.
@@ -7222,7 +7247,7 @@ alias: gd_rl_km_azm().
 
 =item C<geo_all_m>
 
-geo_all_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_all_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
 and the distance and azimuth (bearing) of the rhumb line, in degrees.
 Distances are in meters and azimuth in degrees.
@@ -7236,7 +7261,7 @@ Latitude and longitude must be specified in radians.
 
 =item C<geo_all_km>
 
-geo_all_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ).
+geo_all_km( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
 Returns the distance and azimuth (bearing) of the great circle (shortest distance) from I<A> to I<B>,
 and the distance and azimuth (bearing) of the rhumb line, in degrees.
 Distances are in kilometers and azimuth in degrees.
@@ -7386,7 +7411,7 @@ alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キロ
 
 =item C<paper_size>
 
-paper_size( I<SIZE> [, I<TYPE> ] ).
+paper_size( I<SIZE> [, I<TYPE> ] ):
 Returns the following information in this order:
 length of short side, length of long side (in mm).
 SIZE is a non-negative integer.

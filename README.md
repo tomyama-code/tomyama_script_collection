@@ -103,7 +103,8 @@ chmod +x /usr/local/bin/fill
 ## テスト
 
 このリポジトリには簡単なテストが含まれています。
-Perl モジュール `Test::More`, `Test::Command` などが必要です。
+基本的には Perl のコアモジュール（ `Test::More` など ）のみを使っています。
+テストだけではなくカバレッジを計測する場合は、`Devel::Cover` も必要です。
 
 ```sh
 make check

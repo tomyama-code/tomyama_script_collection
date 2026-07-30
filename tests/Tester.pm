@@ -1,10 +1,10 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ################################################################################
 
-use strict;
-use warnings;
+use strict;                     # first released with perl 5
+use warnings;                   # first released with perl v5.6.0
 
 use Exporter 'import';          # first released with perl 5
 our @EXPORT = qw(capture dies equal t_like
@@ -43,6 +43,7 @@ use Cwd 'getcwd';               # first released with perl 5
 #    die( "EXIT_CODE: $code\n" );    # exit の代わりに die を投げる
 #};
 #
+## テストケースの中でexitしたい場合は &POSIX::_exit( 0 ); を使うこと
 ## --------------------------------------------------------
 
 my %phrase;

@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.86] - 2026-07-31
+### Changed
+- `c` [1.04.201]:
+  - Added an optional COUNT argument. Enabled the generation of multiple random numbers.
+    - rand( RAND_MAX [, COUNT ] ):
+      - Returns a list of COUNT random floating-point numbers greater than or equal to 0 and less than RAND_MAX.
+
 ## [0.2.85] - 2026-07-30
 ### Added
 - `c` [1.04.199]:
