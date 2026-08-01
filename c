@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.201 $
+## - $Revision: 4.203 $
 ##
 ## - Script Structure
 ##   - main
@@ -189,7 +189,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.201 $};
+    my $rev = q{$Revision: 4.203 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -3824,7 +3824,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!([a-z]+)\s*\(!$1(!go;    # アルファベットと括弧（始）の間の空白は無視
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
-    $expr =~ s/(?<=\d),(?=\d{3}\b)//go; # 桁区切りカンマの除去
+    $expr =~ s/(?<=\d),(?=\d{3}\b)/_/go; # 桁区切りカンマの除去
     $expr =~ s!\bsakubou\b! 29.530588853 !go;   # 朔望: 平均朔望月
     $expr =~ s!\bchijiku\b! 23.436 !go;         # 地球の地軸の傾き
     ## alias
@@ -4185,10 +4185,11 @@ sub GetToken( \$ )
         }elsif( &IsTokenUserConstant( $ref_expr, \%{ $self->{CONSTANTS} } ) ){
             # nothing to do.
         ## オペランド
-        }elsif( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+)!!o ) ||
-            ( $$ref_expr =~ s!^([\-\+])(\d+\.?\d*)!!o ) ){
+        }elsif( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
+            ( $$ref_expr =~ s!^([\-\+])(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?)!!o ) ){
             $operator = $1;
             my $operand_raw = $2;
+            $operand_raw =~ s!_!!go;
             $operand = $operand_raw;
             my $el_d = undef;
             my $bHex = 0;
@@ -4205,9 +4206,10 @@ sub GetToken( \$ )
             $self->unshift( $el_d );
             $ret_obj = $el_d;
 
-        }elsif( ( $$ref_expr =~ s!^(0x[\da-f]+)!!o ) ||
-                ( $$ref_expr =~ s!^(\d+\.?\d*)!!o ) ){
+        }elsif( ( $$ref_expr =~ s!^(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
+                ( $$ref_expr =~ s!^(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?)!!o ) ){
             $operand = $1;
+            $operand =~ s!_!!go;
             my $el_d = undef;
             my $bHex = 0;
             if( $operand =~ m!^0x!o ){
@@ -4269,10 +4271,10 @@ sub GetToken( \$ )
             my $fns = join( ', ', &TableProvider::GetFunctionsList() );
             my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
             $info .= $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
-            $info .= $self->GenMsg( 'info', qq{User Defined:\n} );
-            for my $ud( $self->GetConstants() ){
-                $info .= $self->GenMsg( 'info', $ud . "\n" );
-            }
+            #$info .= $self->GenMsg( 'info', qq{User Defined:\n} );
+            #for my $ud( $self->GetConstants() ){
+            #    $info .= $self->GenMsg( 'info', $ud . "\n" );
+            #}
             $self->Die( qq{"$$ref_expr": Could not interpret.\n$info} );
         }
     }

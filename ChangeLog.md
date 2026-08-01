@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.2.87] - 2026-08-01
+### Changed
+- `c` [1.04.203]:
+    - Enabled the use of "_" between numbers.
+
 ## [0.2.86] - 2026-07-31
 ### Changed
 - `c` [1.04.201]:

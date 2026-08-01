@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.33 $
+## - $Revision: 1.34 $
 ################################################################################
 
 use strict;
@@ -247,13 +247,113 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_like( qr/^c: evaluator: error: "\+": Operand missing\.\n/ );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{1_2=} );
+        $res = $c->formula( qq{1_2 + 2_1=} );
     } );
-    $t->exit_isnt( 0, qq{./c '1_2='} );
-    $t->has_exception();
+    $t->exit_is( 0, qq{./c '1_2 + 2_1='} );
+    $t->has_no_exception( qq{桁区切り文字【_】を許容} );
+    equal( $res, 33 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1_2 + _21} );
+    } );
+    $t->exit_isnt( 0, qq{./c '1_2 + _21'} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
     $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
     $t->stdout_is( qq{} );
-    $t->stderr_like( qr/^c: lexer: error: "_2=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/^c: lexer: error: "_21=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1_2 + 21_} );
+    } );
+    $t->exit_isnt( 0, qq{./c '1_2 + 21_'} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "_=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0.1_2 + 0.2_1=} );
+    } );
+    $t->exit_is( 0, qq{./c '0.1_2 + 0.2_1='} );
+    $t->has_no_exception( qq{桁区切り文字【_】を許容} );
+    equal( $res, 0.33 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0.1_2 + 0._21} );
+    } );
+    $t->exit_isnt( 0, qq{./c '0.1_2 + 0._21'} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "_21=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0.1_2 + 0.21_} );
+    } );
+    $t->exit_isnt( 0, qq{./c '0.1_2 + 0.21_'} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "_=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{123_456.7_8_9 + 987_654.3_2_1=} );
+    } );
+    $t->exit_is( 0, qq{./c '123_456.7_8_9 + 987_654.3_2_1='} );
+    $t->has_no_exception( qq{桁区切り文字【_】を許容} );
+    equal( $res, 1111111.11 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{123_456. + 654_321.=} );
+    } );
+    $t->exit_is( 0, qq{./c '123_456. + 654_321.='} );
+    $t->has_no_exception( qq{ドットで終わる数値を許容} );
+    equal( $res, 777777 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0x12_34_cd_ef | 0xedcb_3210=} );
+    } );
+    $t->exit_is( 0, qq{./c '0x12_34_cd_ef | 0xedcb_3210='} );
+    $t->has_no_exception( qq{桁区切り文字【_】を許容} );
+    equal( $res, 4294967295 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0x12_34_cd_ef | 0x_edcb3210=} );
+    } );
+    $t->exit_isnt( 0, qq{./c '0x12_34_cd_ef | 0x_edcb3210='} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "x_edcb3210=": Could not interpret\.\n/ );
+    $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
+    $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0x12_34_cd_ef | 0xedcb3210_=} );
+    } );
+    $t->exit_isnt( 0, qq{./c '0x12_34_cd_ef | 0xedcb3210_='} );
+    $t->has_exception( qq{桁区切り文字【_】の場所が不正} );
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: lexer: error: "_=": Could not interpret\.\n/ );
     $t->stderr_like( qr/\nc: lexer: info: Supported operators: / );
     $t->stderr_like( qr/\nc: lexer: info: Supported functions: / );
 
