@@ -490,7 +490,7 @@ Calculates distance and direction simultaneously.
              $Madagascar_coord, $Galapagos_Islands_coord
            )
          )"
-    ( 14905.6045069, 250.110014395 )  # Dist: 14906 km, Brg: 250 degrees (WSW)
+    ( 14905.6045069, 250.110014395 )  # Dist: 14_906 km, Brg: 250 degrees (WSW)
     $
 
 The **c** script was created with the following in mind:
@@ -929,6 +929,11 @@ The **c** script was created with the following in mind:
     Returns the power of _A_ to which _B_ is raised.
 
         $ c 'pow_inv( 8, 2 )'
+        3
+
+    The following expression is also equivalent:
+
+        $ c 'log( 8 ) / log( 2 )'
         3
 
 ## List & Sequence Operations
@@ -1494,7 +1499,7 @@ The **c** script was created with the following in mind:
         <-- Enter key
         2025-11-25 01:53:17
         stopwatch() = 7.9051628112793 sec.
-        2692.8937117      # 2692.89 m
+        2692.8937117      # 2_692.89 meters
 
 - `telemeter_m`
 
@@ -1505,7 +1510,7 @@ The **c** script was created with the following in mind:
     Same as telemeter().
 
         $ c 'telemeter_m( 8 )'
-        2725.2  # meters
+        2725.2  # 2_725.2 meters
 
 - `telemeter_km`
 
@@ -1737,7 +1742,7 @@ The **c** script was created with the following in mind:
     What is the radius of the equator (0 degrees latitude)?
 
         $ c 'geo_radius( deg2rad( 0 ) )'
-        6378137   # 6,378,137 m
+        6378137   # 6_378_137 meters
 
 - `radius_of_lat`
 
@@ -1747,24 +1752,24 @@ The **c** script was created with the following in mind:
     Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
         $ c 'radius_of_lat( deg2rad( 45 ) )'
-        4517590.87885     # 4,517,590.88 m
+        4517590.87885     # 4_517_590.88 meters
 
 - `geo_distance_m`
 
     geo\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Calculates and returns the distance (in meters) from _A_ to _B_.
+    Returns the great-circle (shortest path) distance (in meters) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_m().
 
         $ TOKYO_ST='35.68129, 139.76706'
         $ OSAKA_ST='34.70248, 135.49595'
         $ c "geo_distance_m( deg2rad( $TOKYO_ST, $OSAKA_ST ) )"
-        403822.719846     # 403,822.72 m
+        403822.719846     # 403_822.72 meters
 
 - `geo_distance_km`
 
     geo\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Calculates and returns the distance (in kilometers) from _A_ to _B_.
+    Returns the great-circle (shortest path) distance (in kilometers) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     Same as geo\_distance\_m() / 1000.
     alias: gd\_km().
@@ -1777,7 +1782,7 @@ The **c** script was created with the following in mind:
 - `geo_azimuth`
 
     geo\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the geographic azimuth (bearing) in degrees from _A_ to _B_.
+    Returns the azimuth (in degrees) of the great-circle (shortest path) from _A_ to _B_.
     Note: 0 degrees is North, 90 degrees is East (clockwise).
     Input: Latitude/Longitude in radians.
     alias: gazm().
@@ -1790,7 +1795,7 @@ The **c** script was created with the following in mind:
 - `geo_dist_m_and_azimuth`
 
     geo\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the distance (in meters) and bearing (in degrees) from _A_ to _B_.
+    Returns the great-circle (shortest path) distance (in meters) and azimuth (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_m\_azm().
@@ -1799,12 +1804,12 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913341.859625, 257.157936196 )  # 913,341.86 m ; 257 degrees
+        ( 913341.859625, 257.157936196 )  # 913_341.86 meters ; 257 degrees
 
 - `geo_dist_km_and_azimuth`
 
     geo\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
+    Returns the great-circle (shortest path) distance (in kilometers) and azimuth (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_km\_azm().
@@ -1818,7 +1823,7 @@ The **c** script was created with the following in mind:
 - `geo_rl_distance_m`
 
     geo\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Calculates and returns the rhumbnail distance (in meters) from _A_ to _B_.
+    Returns the rhumb line distance (in meters) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_rl\_m().
 
@@ -1826,12 +1831,12 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        913686.10938  # 913,686.11 m
+        913686.10938  # 913_686.11 meters
 
 - `geo_rl_distance_km`
 
     geo\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Calculates and returns the rhumbnail distance (in kilometers) from _A_ to _B_.
+    Returns the rhumb line distance (in kilometers) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     alias: gd\_rl\_km().
 
@@ -1844,7 +1849,7 @@ The **c** script was created with the following in mind:
 - `geo_rl_azimuth`
 
     geo\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the azimuth (heading) in degrees of the rhumbnail from _A_ to _B_.
+    Returns the azimuth (in degrees) of the rhumb line from _A_ to _B_.
     Note: 0 degrees is North, 90 degrees is East (clockwise).
     Input: Latitude/Longitude in radians.
     alias: gazm\_rl().
@@ -1858,7 +1863,7 @@ The **c** script was created with the following in mind:
 - `geo_rl_dist_m_and_azimuth`
 
     geo\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the rhumbnail distance (in meters) and bearing (in degrees) from _A_ to _B_.
+    Returns the rhumb line distance (in meters) and azimuth (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_rl\_m\_azm().
@@ -1867,12 +1872,12 @@ The **c** script was created with the following in mind:
                deg2rad( 35.68129, 139.76706 ),
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
-        ( 913686.10938, 254.394179317 )   # 913,686.11 m, 254 degrees
+        ( 913686.10938, 254.394179317 )   # 913_686.11 meters, 254 degrees
 
 - `geo_rl_dist_km_and_azimuth`
 
     geo\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the rhumbnail distance (in kilometers) and bearing (in degrees) from _A_ to _B_.
+    Returns the rhumb line distance (in kilometers) and azimuth (in degrees) from _A_ to _B_.
     Latitude and longitude must be specified in radians.
     North is 0 degrees.
     alias: gd\_rl\_km\_azm().
@@ -1886,8 +1891,7 @@ The **c** script was created with the following in mind:
 - `geo_all_m`
 
     geo\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
-    and the distance and azimuth (bearing) of the rhumb line, in degrees.
+    Returns the great-circle (shortest path) distance and azimuth from _A_ to _B_, as well as the rhumb line distance and azimuth.
     Distances are in meters and azimuth in degrees.
     Latitude and longitude must be specified in radians.
 
@@ -1900,8 +1904,7 @@ The **c** script was created with the following in mind:
 - `geo_all_km`
 
     geo\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
-    Returns the distance and azimuth (bearing) of the great circle (shortest distance) from _A_ to _B_,
-    and the distance and azimuth (bearing) of the rhumb line, in degrees.
+    Returns the great-circle (shortest path) distance and azimuth from _A_ to _B_, as well as the rhumb line distance and azimuth.
     Distances are in kilometers and azimuth in degrees.
     Latitude and longitude must be specified in radians.
 
@@ -1910,6 +1913,147 @@ The **c** script was created with the following in mind:
                dms2rad( 33, 27, 56, 130, 10, 32 )
              )'
         ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
+
+- `moon_distance_m`
+
+    moon\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_distance_m( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        877530.462324     # 877_530.46 meters
+
+- `moon_distance_km`
+
+    moon\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance (in kilometers) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    Same as moon\_distance\_m() / 1000.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        877.530462324     # 877.53 km
+
+- `moon_azimuth`
+
+    moon\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the azimuth (in degrees) of the great-circle (shortest path) from _A_ to _B_.
+    Note: 0 degrees is North, 90 degrees is East (clockwise).
+    Input: Latitude/Longitude in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        82.7979964281     # 83 degrees
+
+- `moon_dist_m_and_azimuth`
+
+    moon\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance (in meters) and azimuth (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_dist_m_and_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877530.462324, 82.7979964281 )  # 877_530.46 meters ; 83 degrees
+
+- `moon_dist_km_and_azimuth`
+
+    moon\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance (in kilometers) and azimuth (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_dist_km_and_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877.530462324, 82.7979964281 )  # 877.53 km ; 83 degrees
+
+- `moon_rl_distance_m`
+
+    moon\_rl\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the rhumb line distance (in meters) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_rl_distance_m( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        877535.786021     # 877_535.79 meters
+
+- `moon_rl_distance_km`
+
+    moon\_rl\_distance\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the rhumb line distance (in kilometers) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_rl_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        877.535786021     # 877.54 km
+
+- `moon_rl_azimuth`
+
+    moon\_rl\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the azimuth (in degrees) of the rhumb line from _A_ to _B_.
+    Note: 0 degrees is North, 90 degrees is East (clockwise).
+    Input: Latitude/Longitude in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_rl_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        82.3105720616     # 82 degrees
+
+- `moon_rl_dist_m_and_azimuth`
+
+    moon\_rl\_dist\_m\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the rhumb line distance (in meters) and azimuth (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_rl_dist_m_and_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877535.786021, 82.3105720616 )  # 877_535.79 meters, 82 degrees
+
+- `moon_rl_dist_km_and_azimuth`
+
+    moon\_rl\_dist\_km\_and\_azimuth( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the rhumb line distance (in kilometers) and azimuth (in degrees) from _A_ to _B_.
+    Latitude and longitude must be specified in radians.
+    North is 0 degrees.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_rl_dist_km_and_azimuth( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877.535786021, 82.3105720616 )  # 877.54 km, 82 degrees
+
+- `moon_all_m`
+
+    moon\_all\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance and azimuth from _A_ to _B_, as well as the rhumb line distance and azimuth.
+    Distances are in meters and azimuth in degrees.
+    Latitude and longitude must be specified in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_all_m( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877530.462324, 82.7979964281, 877535.786021, 82.3105720616 )
+
+- `moon_all_km`
+
+    moon\_all\_km( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
+    Returns the great-circle (shortest path) distance and azimuth from _A_ to _B_, as well as the rhumb line distance and azimuth.
+    Distances are in kilometers and azimuth in degrees.
+    Latitude and longitude must be specified in radians.
+
+        $ Mosting_A='-3.21, -5.21'
+        $ Apollo_11_Landing_Site='0.67, 23.47'
+        $ c "moon_all_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
+        ( 877.530462324, 82.7979964281, 877.535786021, 82.3105720616 )
 
 ## Unit Conversion
 
@@ -1928,7 +2072,7 @@ The **c** script was created with the following in mind:
     Length and distance conversion.
     alias: メートル→里(), メートル２里().
 
-        $ c 'meter2ri( 4000 )'
+        $ c 'meter2ri( 4_000 )'
         1.01851851852
 
 - `mile2meter`
@@ -1946,7 +2090,7 @@ The **c** script was created with the following in mind:
     Length and distance conversion.
     alias: メートル→マイル(), メートル２マイル().
 
-        $ c 'meter2mile( 2000 )'
+        $ c 'meter2mile( 2_000 )'
         1.24274238447
 
 - `nautical_mile2meter`
@@ -1964,7 +2108,7 @@ The **c** script was created with the following in mind:
     Length and distance conversion.
     alias: メートル→海里(), メートル２海里().
 
-        $ c 'meter2nautical_mile( 2000 )'
+        $ c 'meter2nautical_mile( 2_000 )'
         1.07991360691
 
 - `inch2mm`

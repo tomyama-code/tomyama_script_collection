@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.34 $
+## - $Revision: 1.35 $
 ################################################################################
 
 use strict;
@@ -1804,6 +1804,130 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
+    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_rl_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_rl_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_rl_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_rl_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_rl_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_rl_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( $res, 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_rl_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_rl_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
+    equal( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_rl_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_rl_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_all_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_all_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{epoch2local( 1763999942 )} );

@@ -7,10 +7,30 @@
 ### Changed
 - xxx
 
+## [0.2.88] - 2026-08-02
+### Added
+- `c` [1.04.206]:
+  - Added a function to measure the month.
+    - great-circle (shortest path)
+      - moon_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Returns distance (in meters) from A to B.
+      - moon_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) from A to B.
+      - moon_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the azimuth (in degrees) of the from A to B.
+      - moon_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in meters) and azimuth (in degrees) from A to B.
+      - moon_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) and azimuth (in degrees) from A to B.
+    - rhumb line
+      - moon_rl_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in meters) from A to B.
+      - moon_rl_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) from A to B.
+      - moon_rl_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the azimuth (in degrees) from A to B.
+      - moon_rl_dist_m_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in meters) and azimuth (in degrees) from A to B.
+      - moon_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) and azimuth (in degrees) from A to B.
+    - great-circle (shortest path) and rhumb line
+      - moon_all_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in meters) and azimuth (in degrees) from A to B.
+      - moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) and azimuth (in degrees) from A to B.
+
 ## [0.2.87] - 2026-08-01
 ### Changed
 - `c` [1.04.203]:
-    - Enabled the use of "_" between numbers.
+  - Enabled the use of "_" between numbers.
 
 ## [0.2.86] - 2026-07-31
 ### Changed
