@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.35 $
+## - $Revision: 1.37 $
 ################################################################################
 
 use strict;
@@ -73,13 +73,25 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{rand( 6, 5, 4 )} );
+#        $res = $c->formula( qq{moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'rand( 6, 5, 4 )'} );
-#    $t->has_exception();
-#    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+#    $t->exit_is( 0, qq{./c 'moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )'} );
+#    $t->has_no_exception();
+#    equal( scalar( @{ $res } ), 3, qq{Neper Crater の緯度・経度を XYZ座標 に変換} );
+#    equal( ${ $res }[ 0 ], 161430.008143, qq{X == 161430.008143} );
+#    equal( ${ $res }[ 1 ], 1707751.10493, qq{Y == 1707751.10493} );
+#    equal( ${ $res }[ 2 ], 255740.414968, qq{Z == 255740.414968} );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: rand: \$arg_counter="3": The number of operands is incorrect\./ );
+#    $t->stderr_is( qq{} );
+#
+#    $t = tests::Tester->run_blk( sub{
+#        $res = $c->formula( qq{moon_radius_of_lat_circle( deg2rad( 45 ) )} );
+#    } );
+#    $t->exit_is( 0, qq{./c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'} );
+#    $t->has_no_exception();
+#    equal( $res, 1229767.38396, qq{月の45度の緯線の半径 = 1_229_767.38396 meters} );
+#    $t->stdout_is( qq{} );
+#    $t->stderr_is( qq{} );
 #
 #};
 #done_testing();
@@ -1529,7 +1541,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{radius_of_lat( deg2rad( $deg_Tokyo_St_Lat ) ) / 1000 =} );
+        $res = $c->formula( qq{geo_radius_of_lat_circle( deg2rad( $deg_Tokyo_St_Lat ) ) / 1000 =} );
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
@@ -1804,6 +1816,27 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 3, qq{Neper Crater の緯度・経度を XYZ座標 に変換} );
+    equal( ${ $res }[ 0 ], 161430.008143, qq{X == 161430.008143} );
+    equal( ${ $res }[ 1 ], 1707751.10493, qq{Y == 1707751.10493} );
+    equal( ${ $res }[ 2 ], 255740.414968, qq{Z == 255740.414968} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_radius_of_lat_circle( deg2rad( 45 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'} );
+    $t->has_no_exception();
+    equal( $res, 1229767.38396, qq{月の45度の緯線の半径 = 1_229_767.38396 meters} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{moon_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
@@ -5472,7 +5505,7 @@ subtest qq{Require ./c} => sub {
         $t->exit_is( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
         $t->has_no_exception();
         $t->stdout_is( qq{( 0, 0, 48, 45.8 )\n} );
-        $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
+        $t->stderr_like( qr/\nC \-\- The Flat\-Text Calculator \(Perl Script\)\n/ );
 
         $t = tests::Tester->run_blk( sub{
             $status = &pl_main( '--banner', 'paper_size( 4 )' );
@@ -5480,7 +5513,7 @@ subtest qq{Require ./c} => sub {
         $t->exit_is( 0, qq{./c --banner 'paper_size( 4 )'} );
         $t->has_no_exception();
         $t->stdout_is( qq{( 210, 297 )\n} );
-        $t->stderr_like( qr/\nC \- The Flat\-Text Calculator \(Perl Script\)\n/ );
+        $t->stderr_like( qr/\nC \-\- The Flat\-Text Calculator \(Perl Script\)\n/ );
 
     };
 

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.206 $
+## - $Revision: 4.208 $
 ##
 ## - Script Structure
 ##   - main
@@ -185,11 +185,12 @@ sub GetVersion()
     my( $minor, $revision ) = split( /\./, $rev );
     my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
 
+    ## ex) 1.04.207
     return $version;
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.206 $};
+    my $rev = q{$Revision: 4.208 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -199,9 +200,10 @@ sub PrintBannerMsg()
     my $self = shift( @_ );
     my $banner_msg = '' .
         qq{--------------------------------------------------\n} .
-        uc( $self->{APPCONFIG}->{APPNAME} ) . qq{ - The Flat-Text Calculator (Perl Script)\n} .
+        uc( $self->{APPCONFIG}->{APPNAME} ) . qq{ -- The Flat-Text Calculator (Perl Script)\n} .
         qq{- Turn your formulas into reusable data.\n} .
-        qq{- https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/$self->{APPCONFIG}->{APPNAME}.md\n} .
+        qq{- Version: } . &GetVersion() . "\n" .
+        qq{- Document: https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/$self->{APPCONFIG}->{APPNAME}.md\n} .
         qq{--------------------------------------------------\n};
     print STDERR ( $banner_msg );
 }
@@ -623,14 +625,14 @@ use constant STD_GRAVITATIONAL_ACCELERATION => 9.80665;
 ## WGS84 楕円体パラメータ（GPS・世界標準）
 # 定義の起点: 赤道半径(a) = 6378137, 逆扁平率(1/f) = 298.257223563
 # 注意: GRS80とは1/fの定義が極微細に異なるため、e^2も異なる。
-use constant WGS84_EQUATORIAL_RADIUS_M   => 6378137;
-use constant WGS84_POLAR_RADIUS_M        => 6356752.314245179;      # b = a(1-f)
+use constant WGS84_EQUATORIAL_RADIUS_M   => 6_378_137;
+use constant WGS84_POLAR_RADIUS_M        => 6_356_752.314245179;      # b = a(1-f)
 use constant WGS84_RECIPROCAL_FLATTENING => 298.257223563;          # 逆扁平率
 use constant WGS84_FLATTENING => 1.0 / WGS84_RECIPROCAL_FLATTENING; # 扁平率
 use constant WGS84_POW_E                 => 0.006694379990141316;   # 離心率の二乗: e^2 = 2f - f^2
 
-use constant MOON_EQUATORIAL_RADIUS_M   => 1738100;
-use constant MOON_POLAR_RADIUS_M        => 1735993.21212;           # b = a(1-f)
+use constant MOON_EQUATORIAL_RADIUS_M   => 1_738_100;
+use constant MOON_POLAR_RADIUS_M        => 1_735_993.21212;           # b = a(1-f)
 use constant MOON_RECIPROCAL_FLATTENING => 825;                     # 逆扁平率
 use constant MOON_FLATTENING => 1.0 / MOON_RECIPROCAL_FLATTENING;   # 扁平率
 use constant MOON_POW_E                 => 0.00242277318640955;     # 離心率の二乗: e^2 = 2f - f^2
@@ -1164,7 +1166,7 @@ use constant {
     H_VANG => qq{vector_angle( X1, Y1, X2, Y2 [, IS_RADIAN ] ) or vector_angle( X1, Y1, Z1, X2, Y2, Z2 [, IS_RADIAN ] ): Returns the angle between two vectors as viewed from the origin. Angles are in degrees. If IS_RADIAN is set, it returns radians instead of degrees. alias: va(), angular_distance(), ang_dist().},
     H_GXYZ => qq{geo2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ): Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Earth. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m. alias: g2xyz().},
     H_GERA => qq{geo_radius( LAT ): Given a latitude (in radians), returns the distance from the center of the Earth to its surface (in meters).},
-    H_LATC => qq{radius_of_lat( LAT ): Given a latitude (in radians), returns the radius of that parallel (in meters).},
+    H_GRAC => qq{geo_radius_of_lat_circle( LAT ): Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_GDIM => qq{geo_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance (in meters) from A to B. Latitude and longitude must be specified in radians. alias: gd_m().},
     H_GDKM => qq{geo_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as geo_distance_m() / 1000. alias: gd_km().},
     H_GAZM => qq{geo_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the azimuth (in degrees) of the great-circle (shortest path) from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians. alias: gazm().},
@@ -1177,6 +1179,8 @@ use constant {
     H_GRKA => qq{geo_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the rhumb line distance (in kilometers) and azimuth (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees. alias: gd_rl_km_azm().},
     H_GALM => qq{geo_all_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_GALK => qq{geo_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
+    H_MXYZ => qq{moon2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ): Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Moon. If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m.},
+    H_MRAC => qq{moon_radius_of_lat_circle( LAT ): Given a latitude (in radians), returns the radius of that parallel (in meters).},
     H_MDIM => qq{moon_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance (in meters) from A to B. Latitude and longitude must be specified in radians.},
     H_MDKM => qq{moon_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance (in kilometers) from A to B. Latitude and longitude must be specified in radians. Same as moon_distance_m() / 1000.},
     H_MAZM => qq{moon_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the azimuth (in degrees) of the great-circle (shortest path) from A to B. Note: 0 degrees is North, 90 degrees is East (clockwise). Input: Latitude/Longitude in radians.},
@@ -1319,7 +1323,7 @@ use constant {
     'vector_angle'                => [ 1890, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
     'geo2xyz'                     => [ 1900, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
     'geo_radius'                  => [ 1910, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'radius_of_lat'               => [ 1920, T_FUNCTION, F_GIS_,     1, H_LATC, sub{ &radius_of_latitude_circle( $_[ 0 ] ) } ],
+    'geo_radius_of_lat_circle'    => [ 1920, T_FUNCTION, F_GIS_,     1, H_GRAC, sub{ &geo_radius_of_lat_circle( $_[ 0 ] ) } ],
     'geo_distance_m'              => [ 1930, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
     'geo_distance_km'             => [ 1940, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
     'geo_azimuth'                 => [ 1950, T_FUNCTION, F_GIS_,     4, H_GAZM, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
@@ -1332,6 +1336,8 @@ use constant {
     'geo_rl_dist_km_and_azimuth'  => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_all_m'                   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_all_km'                  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon2xyz'                    => [ 2045, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
+    'moon_radius_of_lat_circle'   => [ 2047, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
     'moon_distance_m'             => [ 2050, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
     'moon_distance_km'            => [ 2060, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
     'moon_azimuth'                => [ 2070, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
@@ -3126,12 +3132,20 @@ sub vector_angle( $$$$;$$$ )
 
 sub geo2xyz( $$;$ )
 {
-    my( $lat, $lon, $h ) = @_;
+    return &gis2xyz( \%wgs84_param, @_ );
+}
+sub moon2xyz( $$;$ )
+{
+    return &gis2xyz( \%moon_param, @_ );
+}
+sub gis2xyz( \%$$;$ )
+{
+    my( $ref_param, $lat, $lon, $h ) = @_;
     $h //= 0; # 高度が省略された場合は0メートルとする
 
     # 赤道半径と離心率の二乗
-    my $a   = WGS84_EQUATORIAL_RADIUS_M;
-    my $e2  = WGS84_POW_E;
+    my $a   = ${ $ref_param }{EQUATORIAL_RADIUS_M};
+    my $e2  = ${ $ref_param }{POW_E};
 
     # 緯度からその場所の「卯酉線曲率半径 (N)」を計算
     my $sin_lat = &CORE::sin( $lat );
@@ -3222,22 +3236,25 @@ sub geocentric_radius( $ )
 # === 任意の緯度における緯線の半径を計算する関数 ===
 # 引数: 緯度（ラジアン）
 # 戻り値: 緯線の半径 (メートル)
-sub radius_of_latitude_circle( $ )
+sub geo_radius_of_lat_circle( $ )
 {
+    return &gis_radius_of_lat_circle( \%wgs84_param, @_ );
+}
+sub moon_radius_of_lat_circle( $ )
+{
+    return &gis_radius_of_lat_circle( \%moon_param, @_ );
+}
+sub gis_radius_of_lat_circle( \%$ )
+{
+    my $ref_param = shift( @_ );
     my $latitude_rad = shift( @_ );
 
     my $sin_lat = &CORE::sin( $latitude_rad );
     my $cos_lat = &CORE::cos( $latitude_rad );
 
-    # これは、動径 R とは異なり、極軸からの距離 r = x座標 に相当します。
-    # GRS80楕円体における緯円の半径を求めるには、媒介変数表示から導出される式が必要です。
-    # ここでは、簡略化のため、動径Rにcos(lat)を掛けるのではなく、正確な楕円体のx座標を求めます。
-    # 楕円体の媒介変数表示 x = a * cos(phi) / sqrt(1 + e^2 * sin^2(phi) / cos^2(phi)) ... は複雑です。
-    # 緯円の半径は、その地点の卯酉線曲率半径Nとcos(phi)の積 N * cos(phi) で求めるのが標準的です。
-
     # 卯酉線曲率半径 N を計算
-    my $W = sqrt( 1 - WGS84_POW_E * $sin_lat ** 2 );
-    my $N = WGS84_EQUATORIAL_RADIUS_M / $W;
+    my $W = sqrt( 1 - ${ $ref_param }{POW_E} * $sin_lat ** 2 );
+    my $N = ${ $ref_param }{EQUATORIAL_RADIUS_M} / $W;
 
     my $r = $N * $cos_lat;
 
@@ -5587,17 +5604,22 @@ Arctic Circle Latitude (90 - Tilt):
 
 =head2 FUNCTIONS
 
-fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime, prime_factorize,
-get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr, min, max, shuffle, sample, first,
-head, tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each, simplify_ratio, normalize_ratio, linspace, linstep,
-mul_growth, gen_fibo_seq, is_leap, age, moon_age, moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
-atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle, geo2xyz,
-geo_radius, radius_of_lat, geo_distance_m, geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth,
-geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m,
-geo_all_km, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch,
-pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper_size
+fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio_scaling, is_prime,
+prime_factorize, get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr,
+min, max, shuffle, sample, first, head, tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each,
+simplify_ratio, normalize_ratio, linspace, linstep, mul_growth, gen_fibo_seq, is_leap, age, moon_age,
+moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
+telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle,
+geo2xyz, geo_radius, geo_radius_of_lat_circle, geo_distance_m, geo_distance_km, geo_azimuth,
+geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth,
+geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, moon2xyz,
+moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
+moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
+moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper_size
 
 =head1 OPTIONS
 
@@ -7241,7 +7263,16 @@ Calculate the straight-line distance from the epicenter to the observation point
          geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
          geo2xyz( deg2rad( 35.68129, 139.76706 ) )
        ) / 1000'
-  72.7492079698   ## 72.75 km
+  72.7492079698     # 72.75 km
+
+Polar radii of the Earth and the Moon:
+
+  $ c 'tail( geo2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+  6356.75231425     # 6_356.75 km
+  $ c 'tail( moon2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+  1735.99321212     # 1_735.99 km
+  $ c 'normalize_ratio( 6_356.752_314_25, 1_735.993_212_12 )'
+  ( 3.66173800097, 1 )
 
 =item C<geo_radius>
 
@@ -7254,15 +7285,24 @@ What is the radius of the equator (0 degrees latitude)?
   $ c 'geo_radius( deg2rad( 0 ) )'
   6378137   # 6_378_137 meters
 
-=item C<radius_of_lat>
+=item C<geo_radius_of_lat_circle>
 
-radius_of_lat( I<LAT> ):
+geo_radius_of_lat_circle( I<LAT> ):
 Given a latitude (in radians), returns the radius of that parallel (in meters).
 
 Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
-  $ c 'radius_of_lat( deg2rad( 45 ) )'
+  $ c 'geo_radius_of_lat_circle( deg2rad( 45 ) )'
   4517590.87885     # 4_517_590.88 meters
+
+Equatorial radii of the Earth and the Moon:
+
+  $ c 'geo_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+  6378.137          # 6_378.137 km
+  $ c 'moon_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+  1738.1            # 1_738.1 km
+  $ c 'normalize_ratio( 6_378.137, 1_738.1 )'
+  ( 3.66960301479, 1 )
 
 =item C<geo_distance_m>
 
@@ -7424,6 +7464,50 @@ Latitude and longitude must be specified in radians.
        )'
   ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
+=item C<moon2xyz>
+
+moon2xyz( LAT_RAD, LON_RAD [, HEIGHT_M ] ):
+Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Moon.
+If HEIGHT_M is omitted, the calculation is performed assuming an elevation of 0 m.
+
+The shortest path passing straight through the Moon:
+
+  $ Mosting_A='-3.21, -5.21'    # H: -4_818 m
+  $ Neper_Crater='8.5, 84.6'    # H: -3_731 m
+  $ c "dist_between_points(
+         moon2xyz( deg2rad( $Mosting_A )   , -4_818 ),
+         moon2xyz( deg2rad( $Neper_Crater ), -3_731 )
+       ) / 1000"
+  2458.03869564     # 2_458.04 km
+
+Polar radii of the Earth and the Moon:
+
+  $ c 'tail( geo2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+  6356.75231425     # 6_356.75 km
+  $ c 'tail( moon2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+  1735.99321212     # 1_735.99 km
+  $ c 'normalize_ratio( 6_356.752_314_25, 1_735.993_212_12 )'
+  ( 3.66173800097, 1 )
+
+=item C<moon_radius_of_lat_circle>
+
+moon_radius_of_lat_circle( I<LAT> ):
+Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+  $ c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'
+  1229767.38396     # 1_229_767.38 meters
+
+Equatorial radii of the Earth and the Moon:
+
+  $ c 'geo_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+  6378.137          # 6_378.137 km
+  $ c 'moon_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+  1738.1            # 1_738.1 km
+  $ c 'normalize_ratio( 6_378.137, 1_738.1 )'
+  ( 3.66960301479, 1 )
+
 =item C<moon_distance_m>
 
 moon_distance_m( I<A_LAT>, I<A_LON>, I<B_LAT>, I<B_LON> ):
@@ -7443,9 +7527,9 @@ Latitude and longitude must be specified in radians.
 Same as moon_distance_m() / 1000.
 
   $ Mosting_A='-3.21, -5.21'
-  $ Apollo_11_Landing_Site='0.67, 23.47'
-  $ c "moon_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-  877.530462324     # 877.53 km
+  $ Neper_Crater='8.5, 84.6'
+  $ c "moon_distance_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+  2738.80230514     # 2_738.80 km
 
 =item C<moon_azimuth>
 
@@ -7501,9 +7585,9 @@ Returns the rhumb line distance (in kilometers) from I<A> to I<B>.
 Latitude and longitude must be specified in radians.
 
   $ Mosting_A='-3.21, -5.21'
-  $ Apollo_11_Landing_Site='0.67, 23.47'
-  $ c "moon_rl_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-  877.535786021     # 877.54 km
+  $ Neper_Crater='8.5, 84.6'
+  $ c "moon_rl_distance_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+  2739.80677647     # 2_739.81 km
 
 =item C<moon_rl_azimuth>
 
@@ -7561,9 +7645,9 @@ Distances are in kilometers and azimuth in degrees.
 Latitude and longitude must be specified in radians.
 
   $ Mosting_A='-3.21, -5.21'
-  $ Apollo_11_Landing_Site='0.67, 23.47'
-  $ c "moon_all_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-  ( 877.530462324, 82.7979964281, 877.535786021, 82.3105720616 )
+  $ Neper_Crater='8.5, 84.6'
+  $ c "moon_all_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+  ( 2738.80230514, 81.51876383, 2739.80677647, 82.5683456648 )
 
 =back
 

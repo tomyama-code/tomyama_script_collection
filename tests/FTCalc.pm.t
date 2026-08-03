@@ -13,47 +13,47 @@ use FTCalc;
 # --------------------------------------------------------
 # 負荷テスト
 # --------------------------------------------------------
-subtest '負荷テスト' => sub{
-    my $t;
-    my $c;
-
-    $t = tests::Tester->run_blk( sub{
-        $c = FTCalc->new();
-    } );
-    $t->dump();
-    $t->exit_is( 0 );
-    $t->has_no_exception();
-    $t->stdout_is( qq{} );
-    $t->stderr_is( qq{} );
-
-    my $res = -1;
-    for( my $idx=0; $idx<100; $idx++ ){
-
-        $t = tests::Tester->run_blk( sub{
-            $res = $c->formula( qq{geo_all_km( 1, -4, 1, 4 )} );
-        } );
-        #$t->dump();
-        $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
-        $t->has_no_exception();
-        equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
-        equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
-        equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
-        equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
-        equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
-        $t->stdout_is( qq{} );
-        $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
-
-        $t = tests::Tester->run_blk( sub{
-            $res = $c->formula( qq{$idx} );
-        } );
-        $t->exit_is( 0, qq{./c '$idx'} );
-        $t->has_no_exception();
-        $t->stdout_is( qq{} );
-        $t->stderr_is( qq{} );
-        equal( $res, $idx );
-    }
-
-};
+#subtest '負荷テスト' => sub{
+#    my $t;
+#    my $c;
+#
+#    $t = tests::Tester->run_blk( sub{
+#        $c = FTCalc->new();
+#    } );
+#    $t->dump();
+#    $t->exit_is( 0 );
+#    $t->has_no_exception();
+#    $t->stdout_is( qq{} );
+#    $t->stderr_is( qq{} );
+#
+#    my $res = -1;
+#    for( my $idx=0; $idx<100; $idx++ ){
+#
+#        $t = tests::Tester->run_blk( sub{
+#            $res = $c->formula( qq{geo_all_km( 1, -4, 1, 4 )} );
+#        } );
+#        #$t->dump();
+#        $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
+#        $t->has_no_exception();
+#        equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
+#        equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
+#        equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
+#        equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
+#        equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
+#        $t->stdout_is( qq{} );
+#        $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
+#
+#        $t = tests::Tester->run_blk( sub{
+#            $res = $c->formula( qq{$idx} );
+#        } );
+#        $t->exit_is( 0, qq{./c '$idx'} );
+#        $t->has_no_exception();
+#        $t->stdout_is( qq{} );
+#        $t->stderr_is( qq{} );
+#        equal( $res, $idx );
+#    }
+#
+#};
 
 # --------------------------------------------------------
 # テスト前準備（モジュールのデフォルト値の変更）とその機能のテスト

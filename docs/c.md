@@ -115,17 +115,22 @@ $ c \[_OPTIONS..._\] _EXPRESSIONS_
 
 ## FUNCTIONS
 
-fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime, prime\_factorize,
-get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr, min, max, shuffle, sample, first,
-head, tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each, simplify\_ratio, normalize\_ratio, linspace, linstep,
-mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age, moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch,
-epoch2local, epoch2gmt, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
-telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos,
-atan, atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle, geo2xyz,
-geo\_radius, radius\_of\_lat, geo\_distance\_m, geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth,
-geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m,
-geo\_all\_km, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch,
-pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper\_size
+fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ratio\_scaling, is\_prime,
+prime\_factorize, get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr,
+min, max, shuffle, sample, first, head, tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each,
+simplify\_ratio, normalize\_ratio, linspace, linstep, mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age,
+moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
+dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
+telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
+atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle,
+geo2xyz, geo\_radius, geo\_radius\_of\_lat\_circle, geo\_distance\_m, geo\_distance\_km, geo\_azimuth,
+geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth,
+geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, moon2xyz,
+moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
+moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
+moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, ri2meter, meter2ri,
+mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper\_size
 
 # OPTIONS
 
@@ -1731,7 +1736,16 @@ The **c** script was created with the following in mind:
                geo2xyz( deg2rad( 35.6, 139.0 ), -20 * 1000 ),
                geo2xyz( deg2rad( 35.68129, 139.76706 ) )
              ) / 1000'
-        72.7492079698   ## 72.75 km
+        72.7492079698     # 72.75 km
+
+    Polar radii of the Earth and the Moon:
+
+        $ c 'tail( geo2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+        6356.75231425     # 6_356.75 km
+        $ c 'tail( moon2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+        1735.99321212     # 1_735.99 km
+        $ c 'normalize_ratio( 6_356.752_314_25, 1_735.993_212_12 )'
+        ( 3.66173800097, 1 )
 
 - `geo_radius`
 
@@ -1744,15 +1758,24 @@ The **c** script was created with the following in mind:
         $ c 'geo_radius( deg2rad( 0 ) )'
         6378137   # 6_378_137 meters
 
-- `radius_of_lat`
+- `geo_radius_of_lat_circle`
 
-    radius\_of\_lat( _LAT_ ):
+    geo\_radius\_of\_lat\_circle( _LAT_ ):
     Given a latitude (in radians), returns the radius of that parallel (in meters).
 
     Radius of the parallel at 45 degrees latitude (distance of 1 radian):
 
-        $ c 'radius_of_lat( deg2rad( 45 ) )'
+        $ c 'geo_radius_of_lat_circle( deg2rad( 45 ) )'
         4517590.87885     # 4_517_590.88 meters
+
+    Equatorial radii of the Earth and the Moon:
+
+        $ c 'geo_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+        6378.137          # 6_378.137 km
+        $ c 'moon_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+        1738.1            # 1_738.1 km
+        $ c 'normalize_ratio( 6_378.137, 1_738.1 )'
+        ( 3.66960301479, 1 )
 
 - `geo_distance_m`
 
@@ -1914,6 +1937,50 @@ The **c** script was created with the following in mind:
              )'
         ( 913.341859625, 257.157936196, 913.68610938, 254.394179317 )
 
+- `moon2xyz`
+
+    moon2xyz( LAT\_RAD, LON\_RAD \[, HEIGHT\_M \] ):
+    Returns 3D Cartesian coordinates (in meters) with the origin at the center of the Moon.
+    If HEIGHT\_M is omitted, the calculation is performed assuming an elevation of 0 m.
+
+    The shortest path passing straight through the Moon:
+
+        $ Mosting_A='-3.21, -5.21'    # H: -4_818 m
+        $ Neper_Crater='8.5, 84.6'    # H: -3_731 m
+        $ c "dist_between_points(
+               moon2xyz( deg2rad( $Mosting_A )   , -4_818 ),
+               moon2xyz( deg2rad( $Neper_Crater ), -3_731 )
+             ) / 1000"
+        2458.03869564     # 2_458.04 km
+
+    Polar radii of the Earth and the Moon:
+
+        $ c 'tail( geo2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+        6356.75231425     # 6_356.75 km
+        $ c 'tail( moon2xyz( deg2rad( 90, 0 ), 0 ), 1 ) / 1000'
+        1735.99321212     # 1_735.99 km
+        $ c 'normalize_ratio( 6_356.752_314_25, 1_735.993_212_12 )'
+        ( 3.66173800097, 1 )
+
+- `moon_radius_of_lat_circle`
+
+    moon\_radius\_of\_lat\_circle( _LAT_ ):
+    Given a latitude (in radians), returns the radius of that parallel (in meters).
+
+    Radius of the parallel at 45 degrees latitude (distance of 1 radian):
+
+        $ c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'
+        1229767.38396     # 1_229_767.38 meters
+
+    Equatorial radii of the Earth and the Moon:
+
+        $ c 'geo_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+        6378.137          # 6_378.137 km
+        $ c 'moon_radius_of_lat_circle( deg2rad( 0 ) ) / 1000'
+        1738.1            # 1_738.1 km
+        $ c 'normalize_ratio( 6_378.137, 1_738.1 )'
+        ( 3.66960301479, 1 )
+
 - `moon_distance_m`
 
     moon\_distance\_m( _A\_LAT_, _A\_LON_, _B\_LAT_, _B\_LON_ ):
@@ -1933,9 +2000,9 @@ The **c** script was created with the following in mind:
     Same as moon\_distance\_m() / 1000.
 
         $ Mosting_A='-3.21, -5.21'
-        $ Apollo_11_Landing_Site='0.67, 23.47'
-        $ c "moon_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-        877.530462324     # 877.53 km
+        $ Neper_Crater='8.5, 84.6'
+        $ c "moon_distance_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+        2738.80230514     # 2_738.80 km
 
 - `moon_azimuth`
 
@@ -1991,9 +2058,9 @@ The **c** script was created with the following in mind:
     Latitude and longitude must be specified in radians.
 
         $ Mosting_A='-3.21, -5.21'
-        $ Apollo_11_Landing_Site='0.67, 23.47'
-        $ c "moon_rl_distance_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-        877.535786021     # 877.54 km
+        $ Neper_Crater='8.5, 84.6'
+        $ c "moon_rl_distance_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+        2739.80677647     # 2_739.81 km
 
 - `moon_rl_azimuth`
 
@@ -2051,9 +2118,9 @@ The **c** script was created with the following in mind:
     Latitude and longitude must be specified in radians.
 
         $ Mosting_A='-3.21, -5.21'
-        $ Apollo_11_Landing_Site='0.67, 23.47'
-        $ c "moon_all_km( deg2rad( $Mosting_A, $Apollo_11_Landing_Site ) )"
-        ( 877.530462324, 82.7979964281, 877.535786021, 82.3105720616 )
+        $ Neper_Crater='8.5, 84.6'
+        $ c "moon_all_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
+        ( 2738.80230514, 81.51876383, 2739.80677647, 82.5683456648 )
 
 ## Unit Conversion
 

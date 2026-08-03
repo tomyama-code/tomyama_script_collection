@@ -7,10 +7,23 @@
 ### Changed
 - xxx
 
+## [0.2.89] - 2026-08-03
+### Changed
+- `c` [1.04.208]:
+  - Added the version number to the banner message.
+  - Renamed function
+    - radius_of_lat() -> geo_radius_of_lat_circle()
+
+### Added
+- `c` [1.04.208]:
+  - Added a function to measure the moon.
+    - moon2xyz()
+    - moon_radius_of_lat_circle()
+
 ## [0.2.88] - 2026-08-02
 ### Added
 - `c` [1.04.206]:
-  - Added a function to measure the month.
+  - Added a function to measure the moon.
     - great-circle (shortest path)
       - moon_distance_m( A_LAT, A_LON, B_LAT, B_LON ): Returns distance (in meters) from A to B.
       - moon_distance_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the distance (in kilometers) from A to B.
