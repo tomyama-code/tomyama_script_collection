@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.2.90] - 2026-08-04
+### Changed
+- `c` [1.05.002]:
+  - Changed the specification for outputting Reverse Polish Notation.
+    - Output now occurs only when the `--rpn` or `--debug` option switch is specified.
+- `fill` [1.01.009]:
+  - Added the --force-color option switch.
+
 ## [0.2.89] - 2026-08-03
 ### Changed
 - `c` [1.04.208]:

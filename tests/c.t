@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.37 $
+## - $Revision: 1.38 $
 ################################################################################
 
 use strict;
@@ -5271,7 +5271,7 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n    RPN: '# # 10 rand # 10 rand # 10 rand # 10 rand # 10 rand min'\n/ );
+        $t->stdout_like( qr/\n Result: \d\.\d+\n$/ );
         $t->stderr_is( qq{} );
 
         ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
@@ -5336,7 +5336,7 @@ subtest qq{Require ./c} => sub {
         $t->exit_is( 0, qq{./c -d '-20-3*2(1+sqrt(4))='} );
         $t->has_no_exception();
         $t->stdout_like( qr/^dbg: arg="\-d", \@val=1\n/ );
-        $t->stdout_like( qr/\nRemain RPN: \-20 3 2\n/ );
+        $t->stdout_like( qr/\nevaluator: Remain RPN: \-20 3 2\n/ );
         $t->stdout_like( qr/\n Result: \-38\n/ );
         $t->stderr_is( qq{} );
 
@@ -5427,7 +5427,7 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' -r} );
         $t->has_no_exception();
-        $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
+        $t->stdout_is( qq{    RPN: '10 -3 * -5 * -4 2 / +'\n148\n} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -5435,7 +5435,7 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn} );
         $t->has_no_exception();
-        $t->stdout_is( qq{10 -3 * -5 * -4 2 / +\n} );
+        $t->stdout_is( qq{    RPN: '10 -3 * -5 * -4 2 / +'\n148\n} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -5443,9 +5443,8 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn --verbose} );
         $t->has_no_exception();
-        $t->stdout_like( qr/^Remain RPN: 10\n/ );
-        $t->stdout_like( qr/\nRemain RPN: 150 \-4 2\n/ );
-        $t->stdout_like( qr/\n10 \-3 \* \-5 \* \-4 2 \/ \+\n/ );
+        $t->stdout_like( qr/^10 \* \-3 = \-30\n/ );
+        $t->stdout_like( qr/\n    RPN: '10 \-3 \* \-5 \* \-4 2 \/ \+'\n/ );
         $t->stderr_is( qq{} );
 
     };

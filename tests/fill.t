@@ -1,4 +1,8 @@
 #!/usr/bin/env perl
+################################################################################
+## - $Revision: 1.2 $
+################################################################################
+
 use strict;
 use warnings;
 
@@ -11,200 +15,484 @@ my %phrase = &tests::Tester::get_phrase();
 my $apppath = $phrase{apppath};
 my $proj_root = $phrase{proj_root};
 
-subtest qq{debug mode} => sub{
-    my $t;
+subtest qq{In-Proc Test} => sub{
 
-    $t = tests::Tester->run_cmd( "./fill -d -1 123" );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
+    require './fill';
 
-    $t = tests::Tester->run_cmd( "./fill --debug -1 123" );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -dh -1 123" );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $t->stdout_like( qr/usage: fill /, "usage output" );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    ## テストは通せるがキャプチャできないのでSTDOUTの評価ができない。その為やる意味が無い。
-##    $t = tests::Tester->run_cmd( "./fill -1 '123-%%01:1%%' >/proc/self/fd/1" );
-#    $t = tests::Tester->run_cmd( "./fill -1 '123-%%01:1%%' >/dev/pty1" );
-#    $t->exit_is( 0, "exit status is 0" );
-#    $t->stdout_is( qq{}, qq{Capture not possible} );
-#    $t->stderr_is( qq{}, "stderr is silent" );
-#    undef( $t );
-    $t = tests::Tester->run_cmd( "./fill --test-force-tty -2 a- 1:1 -b " );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_is( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-};
-
-subtest qq{"Usage" test} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( "./fill" );
-    $t->exit_isnt( 0, "Treat it as an error." );
-    $t->stdout_is( "", "Does not output anything." );
-    $t->stderr_like( qr/fill: An argument must be specified./, "usage output" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -h" );
-    $t->exit_is( 0, "Do not treat it as an error." );
-    $t->stdout_like( qr/^usage: fill /, "usage output" );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill --help" );
-    $t->exit_is( 0, "Do not treat it as an error." );
-    $t->stdout_like( qr/^usage: fill /, "usage output" );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -h 123" );
-    $t->exit_is( 0, "Do not treat it as an error." );
-    $t->stdout_like( qr/^usage: fill /, qq{Only "help" is displayed.} );
-    $t->stdout_unlike( qr/123/, qq{Arguments are ignored when displaying "help".} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-};
-
-subtest qq{"-v", "--version" option} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./fill --version} );
-    $t->exit_is( 0, qq{./fill --version} );
-    $t->stdout_like( qr/^Version: \d/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent} );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill -v} );
-    $t->exit_is( 0, qq{./fill -v} );
-    $t->stdout_like( qr/^Version: \d/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent} );
-    undef( $t );
-
-};
-
-subtest qq{Counter format} => sub{
-    subtest qq{Counter format: counter} => sub{
+    subtest qq{"-d", "--debug" option} => sub{
         my $t;
+        my $status;
 
-        $t = tests::Tester->run_cmd( "./fill 1:1" );
-        $t->exit_is( 0, "exit status is 0" );
-        $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "basic test" );
-        $t->stderr_is( "", "stderr is silent" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-d', '-1', '123' );
+        } );
+        ok( $status == 0, qq{./fill -d -1 123} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^dbg: ARGV : /, qq{"dPrint()", "dPrintf()" function} );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill 01:1" );
-        $t->exit_is( 0, "exit status is 0" );
-        $t->stdout_is( "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n", "basic test" );
-        $t->stderr_is( "", "stderr is silent" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--debug', '-1', '123' );
+        } );
+        ok( $status == 0, qq{./fill --debug -1 123} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^dbg: ARGV : /, qq{"dPrint()", "dPrintf()" function} );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill -1:-1" );
-        $t->exit_is( 0, "exit status is 0" );
-        $t->stdout_is( "-1\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n-10\n", "basic test" );
-        $t->stderr_is( "", "stderr is silent" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-dh', '-1', '123' );
+        } );
+        ok( $status == 0, qq{./fill -dh -1 123} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+        $t->stdout_like( qr/usage: fill /, "usage output" );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill -01:-1" );
-        $t->exit_is( 0, "exit status is 0" );
-        $t->stdout_is( "-01\n-02\n-03\n-04\n-05\n-06\n-07\n-08\n-09\n-10\n", "basic test" );
-        $t->stderr_is( "", "stderr is silent" );
-        undef( $t );
     };
 
-    subtest qq{Counter format: step} => sub{
+    subtest qq{"--force-color" option} => sub{
         my $t;
+        my $status;
 
-        $t = tests::Tester->run_cmd( "./fill -3 001:1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "001\n002\n003\n", qq{Basic test for step value.} );
-        $t->stderr_is( qq{}, "stderr is silent" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--force-color', '-2', 'a-', '1:1', '-b' );
+        } );
+        ok( $status == 0, qq{./fill --force-color -2 a- 1:1 -b} );
+        $t->has_no_exception();
+        equal( $status, 0 );
+        $t->stdout_is( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill -3 001:0" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "001\n001\n001\n", qq{Allow step "0".} );
-        $t->stderr_is( qq{}, "stderr is silent" );
-        undef( $t );
-
-        $t = tests::Tester->run_cmd( "./fill -3 010:-1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "010\n009\n008\n", qq{Negative step values ​​are allowed.} );
-        $t->stderr_is( qq{}, "stderr is silent" );
-        undef( $t );
     };
 
-    subtest qq{Counter format: General: "0" Boundary Test} => sub{
+    subtest qq{"-h", "--help" option, "Usage"} => sub{
         my $t;
+        my $status;
 
-        $t = tests::Tester->run_cmd( "./fill -5 002:-1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "002\n001\n000\n-01\n-02\n", qq{Allows sign changes.} );
-        $t->stderr_is( qq{fill: "0:-1": The sign changes across 0.\n}, "Show warning" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main();
+        } );
+        ok( $status != 0, qq{./fill} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{}, qq{Does not output anything.} );
+        $t->stderr_like( qr/fill: An argument must be specified./, qq{usage output} );
 
-        $t = tests::Tester->run_cmd( "./fill -3 002:-1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "002\n001\n000\n", qq{Allows sign changes.} );
-        $t->stderr_is( qq{}, "stderr is silent" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-h' );
+        } );
+        ok( $status == 0, qq{./fill -h} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^usage: fill /, qq{usage output} );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill -5 -02:1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "-02\n-01\n000\n001\n002\n", qq{Allows sign changes.} );
-        $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--help' );
+        } );
+        ok( $status == 0, qq{./fill --help} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^usage: fill /, qq{usage output} );
+        $t->stderr_is( qq{} );
 
-        $t = tests::Tester->run_cmd( "./fill -3 -02:1" );
-        $t->exit_is( 0, "Always terminates normally." );
-        $t->stdout_is( "-02\n-01\n000\n", qq{Allows sign changes.} );
-        $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
-        undef( $t );
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-h', '123' );
+        } );
+        ok( $status == 0, qq{./fill -h 123} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^usage: fill /, qq{Only "help" is displayed.} );
+        $t->stdout_unlike( qr/123/, qq{Arguments are ignored when displaying "help".} );
+        $t->stderr_is( qq{} );
+
     };
+
+    subtest qq{"-v", "--version" option} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '--version' );
+        } );
+        ok( $status == 0, qq{./fill --version} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Version: \d/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-v' );
+        } );
+        ok( $status == 0, qq{./fill -v} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/^Version: \d/ );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{Counter} => sub{
+
+        subtest qq{format: counter} => sub{
+            my $t;
+            my $status;
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '1:1' );
+            } );
+            ok( $status == 0, qq{./fill 1:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "basic test" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '01:1' );
+            } );
+            ok( $status == 0, qq{./fill 01:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n", "basic test" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-1:-1' );
+            } );
+            ok( $status == 0, qq{./fill -1:-1} );
+            $t->has_no_exception();
+            $t->stdout_is( "-1\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n-10\n", "basic test" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-01:-1' );
+            } );
+            ok( $status == 0, qq{./fill -01:-1} );
+            $t->has_no_exception();
+            $t->stdout_is( "-01\n-02\n-03\n-04\n-05\n-06\n-07\n-08\n-09\n-10\n", "basic test" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-5', '002:-1' );
+            } );
+            ok( $status == 0, qq{./fill -5 002:-1} );
+            $t->has_no_exception();
+            $t->stdout_is( "002\n001\n000\n-01\n-02\n", qq{Allows sign changes.} );
+            $t->stderr_is( qq{fill: "0:-1": The sign changes across 0.\n}, "Show warning" );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '002:-1' );
+            } );
+            ok( $status == 0, qq{./fill -3 002:-1} );
+            $t->has_no_exception();
+            $t->stdout_is( "002\n001\n000\n", qq{Allows sign changes.} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-5', '-02:1' );
+            } );
+            ok( $status == 0, qq{./fill -5 -02:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "-02\n-01\n000\n001\n002\n", qq{Allows sign changes.} );
+            $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '-02:1' );
+            } );
+            ok( $status == 0, qq{./fill -3 -02:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "-02\n-01\n000\n", qq{Allows sign changes.} );
+            $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
+
+        };
+
+        subtest qq{format: step} => sub{
+            my $t;
+            my $status;
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '001:1' );
+            } );
+            ok( $status == 0, qq{./fill -3 001:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "001\n002\n003\n", qq{Basic test for step value.} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '001:0' );
+            } );
+            ok( $status == 0, qq{./fill -3 001:0} );
+            $t->has_no_exception();
+            $t->stdout_is( "001\n001\n001\n", qq{Allow step "0".} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '010:-1' );
+            } );
+            ok( $status == 0, qq{./fill -3 010:-1} );
+            $t->has_no_exception();
+            $t->stdout_is( "010\n009\n008\n", qq{Negative step values ​​are allowed.} );
+            $t->stderr_is( qq{} );
+
+        };
+
+        subtest qq{"-N" option switch} => sub{
+            my $t;
+            my $status;
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-3', '10:2' );
+            } );
+            ok( $status == 0, qq{./fill -3 10:2} );
+            $t->has_no_exception();
+            $t->stdout_is( "10\n12\n14\n", qq{"-N" option switch} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-9', '1:1' );
+            } );
+            ok( $status == 0, qq{./fill -9 1:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n", "Single digit counter" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-10', '1:1' );
+            } );
+            ok( $status == 0, qq{./fill -10 1:1} );
+            $t->has_no_exception();
+            $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "double-digit counter" );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-10d3', '1:1' );
+            } );
+            ok( $status == 0, qq{./fill -10d3 1:1} );
+            $t->has_no_exception();
+            $t->stdout_like( qr/1\n2\n3\n$/, "Use the last specified value." );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = &pl_main( '-0', '-' );
+            } );
+            ok( $status == 0, qq{./fill -0 -} );
+            $t->has_no_exception();
+            $t->stdout_is( "", qq{"-0" is also allowed} );
+            $t->stderr_is( qq{} );
+
+        };
+
+    };
+
+    subtest qq{"-w" option switch} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-2', '-w', '1', '1:1' );
+        } );
+        ok( $status == 0, qq{./fill -2 -w 1 1:1} );
+        $t->has_no_exception();
+        $t->stdout_is( "1\n2\n", qq{"-w" <N>} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-2', '-w', '1:1' );
+        } );
+        ok( $status == 0, qq{./fill -2 -w 1:1} );
+        $t->has_no_exception();
+        $t->stdout_is( "1\n2\n", qq{"-w"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-w10d', '10:10' );
+        } );
+        ok( $status == 0, qq{./fill -w10d 10:10} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+        $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-dw10', '10:10' );
+        } );
+        ok( $status == 0, qq{./fill -dw10 10:10} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+        $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-2', '1:1', '-w' );
+        } );
+        ok( $status == 0, qq{./fill -2 1:1 -w} );
+        $t->has_no_exception();
+        $t->stdout_is( "1\n2\n", qq{"-w" <none>} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-dw', '-180', '179:-1' );
+        } );
+        ok( $status == 0, qq{./fill -dw -180 179:-1} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+        $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-dw2', '-90', '178:-2' );
+        } );
+        ok( $status == 0, qq{./fill -dw2 -90 178:-2} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::cycle = 90\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n004\n002\n000$/, qq{Counting down to 0} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-wd', '-180', '179:-1' );
+        } );
+        ok( $status == 0, qq{./fill -wd -180 179:-1} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+        $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-w20d50', '0980:-20' );
+        } );
+        ok( $status == 0, qq{./fill -w20d50 0980:-20} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::cycle = 50\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n\$main::wait_sec = 20\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n0040\n0020\n0000$/, qq{Counting down to 0} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-d', '-5w2', '2:2' );
+        } );
+        ok( $status == 0, qq{./fill -d -5w2 2:2} );
+        $t->has_no_exception();
+        $t->stdout_like( qr/\n\$main::cycle = 5\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n6\n8\n10$/, qq{Counting up to 10} );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{Replacing data from STDIN} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-' );
+        } );
+        ok( $status == 0, qq{./fill -} );
+        $t->has_no_exception();
+        $t->stdout_is( "-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n", "10 lines of output" );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', 'mv "%%-%%" "newname_%%01:1%%.txt"' );
+        } );
+        ok( $status == 0, qq{./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{mv "%%-%%" "newname_01.txt"\nmv "%%-%%" "newname_02.txt"\nmv "%%-%%" "newname_03.txt"\n}, qq{Output as "%%-%%".} );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{Control characters} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\n', '11:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\n' 11:1} );
+        $t->has_no_exception( qq{"\\n" is support (New Line)} );
+        $t->stdout_is( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\t', '21:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\t' 21:1} );
+        $t->has_no_exception( qq{"\\t" is support (Tab)} );
+        $t->stdout_is( "1\t21\n2\t22\n3\t23\n", qq{Supports "\\t"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\r', '31:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\r' 31:1} );
+        $t->has_no_exception( qq{"\\r" is NOT support (Carriage Return)} );
+        $t->stdout_is( "1\\r31\n2\\r32\n3\\r33\n", qq{"\\r" is not support} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\f', '41:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\f' 41:1} );
+        $t->has_no_exception( qq{"\\f" is NOT support (Form Feed)} );
+        $t->stdout_is( "1\\f41\n2\\f42\n3\\f43\n", qq{"\\f" is not support} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\a ', '51:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\a ' 51:1} );
+        $t->has_no_exception( qq{"\\a" is support (Alarm)} );
+        $t->stdout_is( "1\a 51\n2\a 52\n3\a 53\n", qq{Supports "\\a"} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '1:1', '\e', '61:1' );
+        } );
+        ok( $status == 0, qq{./fill -3 1:1 '\e' 61:1} );
+        $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
+        $t->stdout_is( "1\\e61\n2\\e62\n3\\e63\n", qq{"\\e" is not support} );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{Escaping the "%" symbol} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', 'usage rate: %%0:1%%%.' );
+        } );
+        ok( $status == 0, qq{./fill -3 'usage rate: %%0:1%%%.'} );
+        $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
+        $t->stdout_is( "usage rate: 0%.\nusage rate: 1%.\nusage rate: 2%.\n", qq{Escaping the "%" symbol} );
+        $t->stderr_is( qq{} );
+
+    };
+
+    subtest qq{complicated} => sub{
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-d3', '-%%1:1%%%%-%%-', '-', '-%%10:-1%%%%01:1%%' );
+        } );
+        ok( $status == 0, qq{./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
+        $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
+        $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
+        $t->stdout_like( qr/-1%%-%%---1001\n-2%%-%%---0902\n-3%%-%%---0803\n/, qq{Escaping the "%" symbol} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '-3', '%d%%1:3%%%d' );
+        } );
+        ok( $status == 0, qq{./fill -3 '%d%%1:3%%%d'} );
+        $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
+        $t->stdout_is( "%d1%d\n%d4%d\n%d7%d\n", qq{Don't be fooled by "%d"} );
+        $t->stderr_is( qq{} );
+
+    };
+
 };
+#done_testing();
+#exit( 0 );
 
 subtest qq{"-N" option switch} => sub{
     my $t;
-
-    $t = tests::Tester->run_cmd( "./fill -3 10:2" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "10\n12\n14\n", qq{"-N" option switch} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -9 1:1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n", "Single digit counter" );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -10 1:1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n", "double-digit counter" );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -10d3 1:1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/1\n2\n3\n$/, "Use the last specified value." );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -0 -" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "", qq{"-0" is also allowed} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( "echo 123 | ./fill -2 -" );
     $t->exit_is( 0, "Always terminates normally." );
@@ -225,82 +513,6 @@ subtest qq{"-N" option switch} => sub{
     undef( $t );
 };
 
-subtest qq{"-w" option switch} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( "./fill -2 -w 1 1:1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "1\n2\n", qq{"-w" <N>} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -2 -w 1:1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "1\n2\n", qq{"-w"} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -w10d 10:10" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
-    $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -dw10 10:10" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
-    $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -2 1:1 -w" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_is( "1\n2\n", qq{"-w" <none>} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -dw -180 179:-1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
-    $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -dw2 -90 178:-2" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::cycle = 90\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n004\n002\n000$/, qq{Counting down to 0} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -wd -180 179:-1" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
-    $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -w20d50 0980:-20" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::cycle = 50\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n\$main::wait_sec = 20\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n0040\n0020\n0000$/, qq{Counting down to 0} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( "./fill -d -5w2 2:2" );
-    $t->exit_is( 0, "Always terminates normally." );
-    $t->stdout_like( qr/\n\$main::cycle = 5\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
-    $t->stdout_like( qr/\n6\n8\n10$/, qq{Counting up to 10} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
-};
-
 subtest qq{Replacing data from STDIN} => sub{
     my $t;
 
@@ -310,11 +522,6 @@ subtest qq{Replacing data from STDIN} => sub{
     $t->stderr_is( "", "stderr is silent" );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( "./fill -" );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_is( "-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n", "10 lines of output" );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{$apppath/prt 'a.txt\nb.txt\nc.txt' | ./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
     $t->exit_is( 0, "exit status is 0" );
@@ -322,11 +529,6 @@ subtest qq{Replacing data from STDIN} => sub{
     $t->stderr_is( "", "stderr is silent" );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_is( qq{mv "%%-%%" "newname_01.txt"\nmv "%%-%%" "newname_02.txt"\nmv "%%-%%" "newname_03.txt"\n}, qq{Output as "%%-%%".} );
-    $t->stderr_is( "", "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '1>i<N>p<U>t<9' | ./fill 8 - 2 -d} );
     $t->exit_is( 0, "Internal Special Tokens" );
@@ -350,54 +552,8 @@ subtest qq{Replacing data from STDIN} => sub{
     undef( $t );
 };
 
-subtest qq{Control characters} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\n' 11:1} );
-    $t->exit_is( 0, qq{"\\n" is support (New Line)} );
-    $t->stdout_is( "1\n11\n2\n12\n3\n13\n", qq{Supports "\\n"} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\t' 21:1} );
-    $t->exit_is( 0, qq{"\\t" is support (Tab)} );
-    $t->stdout_is( "1\t21\n2\t22\n3\t23\n", qq{Supports "\\t"} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\r' 31:1} );
-    $t->exit_is( 0, qq{"\\r" is NOT support (Carriage Return)} );
-    $t->stdout_is( "1\\r31\n2\\r32\n3\\r33\n", qq{"\\r" is not support} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\f' 41:1} );
-    $t->exit_is( 0, qq{"\\f" is NOT support (Form Feed)} );
-    $t->stdout_is( "1\\f41\n2\\f42\n3\\f43\n", qq{"\\f" is not support} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\a ' 51:1} );
-    $t->exit_is( 0, qq{"\\a" is support (Alarm)} );
-    $t->stdout_is( "1\a 51\n2\a 52\n3\a 53\n", qq{Supports "\\a"} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./fill } . q{-3 1:1 '\e' 61:1} );
-    $t->exit_is( 0, qq{"\\e" is NOT support (Escape)} );
-    $t->stdout_is( "1\\e61\n2\\e62\n3\\e63\n", qq{"\\e" is not support} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
-};
-
 subtest qq{Escaping the "%" symbol} => sub{
     my $t;
-
-    $t = tests::Tester->run_cmd( qq{./fill -3 'usage rate: %%0:1%%%.'} );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_is( "usage rate: 0%.\nusage rate: 1%.\nusage rate: 2%.\n", qq{Escaping the "%" symbol} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{$apppath/prt "123\n456" | ./fill 01:1 '-%%-%%-%%-' 101:1} );
     $t->exit_is( 0, "exit status is 0" );
@@ -531,12 +687,6 @@ subtest qq{<<GSUB<..%..>GSUB>>} => sub{
 subtest qq{complicated} => sub{
     my $t;
 
-    $t = tests::Tester->run_cmd( qq{./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_like( qr/dbg:/, qq{"dPrint()", "dPrintf()" function} );
-    $t->stdout_like( qr/-1%%-%%---1001\n-2%%-%%---0902\n-3%%-%%---0803\n/, qq{Escaping the "%" symbol} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{$apppath/prt "123\n456" | ./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
     $t->exit_is( 0, "exit status is 0" );
@@ -545,11 +695,6 @@ subtest qq{complicated} => sub{
     $t->stderr_like( qr/^fill: STDIN=2, specified_cycle=3: /, "Show warning" );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{./fill -3 '%d%%1:3%%%d'} );
-    $t->exit_is( 0, "exit status is 0" );
-    $t->stdout_is( "%d1%d\n%d4%d\n%d7%d\n", qq{Don't be fooled by "%d"} );
-    $t->stderr_is( qq{}, "stderr is silent" );
-    undef( $t );
 
     $t = tests::Tester->run_cmd( qq{cat "$proj_root/fill" | ./fill 0001:1 ' ' -} );
     $t->exit_is( 0, "A file containing special tokens." );

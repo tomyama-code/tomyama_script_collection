@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 4.208 $
+## - $Revision: 5.2 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 4.208 $};
+    my $rev = q{$Revision: 5.2 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1336,35 +1336,35 @@ use constant {
     'geo_rl_dist_km_and_azimuth'  => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_all_m'                   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'geo_all_km'                  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon2xyz'                    => [ 2045, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
-    'moon_radius_of_lat_circle'   => [ 2047, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
-    'moon_distance_m'             => [ 2050, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
-    'moon_distance_km'            => [ 2060, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
-    'moon_azimuth'                => [ 2070, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_m_and_azimuth'     => [ 2080, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ &moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_km_and_azimuth'    => [ 2090, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ &moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_m'          => [ 2100, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ &moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_km'         => [ 2110, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ &moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_azimuth'             => [ 2120, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ &moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_m_and_azimuth'  => [ 2130, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ &moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_km_and_azimuth' => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_m'                  => [ 2150, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_km'                 => [ 2160, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'ri2meter'                    => [ 2170, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2180, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2190, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2200, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2210, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2220, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2230, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2240, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2250, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2260, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2270, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2280, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2290, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2300, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'paper_size'                  => [ 2310, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'moon2xyz'                    => [ 2050, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
+    'moon_radius_of_lat_circle'   => [ 2060, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
+    'moon_distance_m'             => [ 2070, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
+    'moon_distance_km'            => [ 2080, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
+    'moon_azimuth'                => [ 2090, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_m_and_azimuth'     => [ 2100, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ &moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_km_and_azimuth'    => [ 2110, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ &moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_m'          => [ 2120, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ &moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_km'         => [ 2130, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ &moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_azimuth'             => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ &moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_m_and_azimuth'  => [ 2150, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ &moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_km_and_azimuth' => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_m'                  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'ri2meter'                    => [ 2190, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2200, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2210, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2220, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2230, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2240, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2250, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2260, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2270, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2280, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2290, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2300, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'paper_size'                  => [ 2330, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -4883,10 +4883,7 @@ sub Input( $ )
     }
 
     unshift( @{ $self->{TOKENS} }, @tokens );
-    if( ( $self->{APPCONFIG}->GetBVerboseOutput() ) &&
-        ( $self->{APPCONFIG}->GetBRpn() || $self->{APPCONFIG}->GetDebug() ) ){
-        print( 'Remain RPN: ' . $self->GetTokens() . "\n" );
-    }
+    $self->dPrint( 'Remain RPN: ' . $self->GetTokens() . "\n" );
 
     return scalar( @{ $self->{TOKENS} } );
 }
@@ -5222,15 +5219,15 @@ sub Calculate( $ )
 
     if( $self->{APPCONFIG}->GetBVerboseOutput() ){
         print( qq{Formula: '} . $self->Lexer->GetFormula() . qq{'\n} );
+    }
+    if( $self->{APPCONFIG}->GetBRpn() || $self->{APPCONFIG}->GetDebug() ){
         print( qq{    RPN: '} . $self->Evaluator->GetRpn() . qq{'\n} );
     }
-
-    if( $self->{APPCONFIG}->GetBRpn() ){
-        print( $self->Evaluator->GetRpn() . "\n" );
-    }elsif( $self->{APPCONFIG}->GetBVerboseOutput() ){
-        print( qq{ Result: } . $self->Evaluator->ResultPrint() . "\n" );
+    my $res_val = $self->Evaluator->ResultPrint();
+    if( $self->{APPCONFIG}->GetBVerboseOutput() ){
+        print( qq{ Result: $res_val\n} );
     }else{
-        print( $self->Evaluator->ResultPrint() . "\n" );
+        print( "$res_val\n" );
     }
 
     # 現在の出力を強制フラッシュ
@@ -5408,7 +5405,7 @@ sub init_script()
     ##############
 
     my $exec_file = $0;
-    $exec_file =~ s!tests/.*$!c!;
+    $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
     my $apppath = &File::Basename::dirname( $exec_file );
     my $appname = &File::Basename::basename( $exec_file );
     my $debug = 0;

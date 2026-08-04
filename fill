@@ -2,7 +2,7 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -16,8 +16,8 @@ use strict ;
 use warnings;
 use File::Basename qw(dirname basename);
 
-
-exit( &pl_main( @ARGV ) );
+# uncoverable branch false
+exit( &pl_main( @ARGV ) ) unless caller();
 
 
 ##########
@@ -39,7 +39,7 @@ sub pl_main()
     &parse_arg( @_ );
 
     &value_print();
-    exit( $main::exit_code ) if( ! $main::bContinue );
+    return $main::exit_code if( ! $main::bContinue );
 
     if( $main::debug && $main::wait_sec != 0 ){
         $main::wait_sec = 0;
@@ -173,9 +173,12 @@ sub pl_main()
 ## Revision: 1.3
 sub init_script()
 {
+    my $exec_file = $0;
+    $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
+
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $0 );
-    $main::appname = &File::Basename::basename( $0 );
+    $main::apppath = &File::Basename::dirname( $exec_file );
+    $main::appname = &File::Basename::basename( $exec_file );
     $main::debug = 0;
     $main::bContinue = -1;
     $main::exit_code = -1;
@@ -186,7 +189,7 @@ sub init_script()
     @main::counter = ();
     @main::step = ();
     ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
-    $main::bIsStdoutATty = -t STDOUT;
+    $main::bUseAnsiEscSeqColor = -t STDOUT;
     $main::bIsStdinATty = -t STDIN;
     $main::stdinLineNums = -1;
     ##############
@@ -204,7 +207,7 @@ sub value_print()
               qq{\$main::wait_sec = %d\n} .
               qq{\$main::prt_fmt = "%s"\n} .
               qq{\$main::counter_len = %d\n} .
-              qq{\$main::bIsStdoutATty = %d\n} .
+              qq{\$main::bUseAnsiEscSeqColor = %d\n} .
               qq{\$main::bIsStdinATty  = %d\n} .
               qq{\$main::stdinLineNums = %d\n},
         $main::apppath,
@@ -216,7 +219,7 @@ sub value_print()
         $main::wait_sec,
         $main::prt_fmt,
         $main::counter_len,
-        $main::bIsStdoutATty,
+        $main::bUseAnsiEscSeqColor,
         $main::bIsStdinATty,
         $main::stdinLineNums );
 }
@@ -247,8 +250,8 @@ sub parse_arg()
         ## デバッグモードOn
         if( $myparam eq '-d' || $myparam eq '--debug' ){
             $main::debug = 1;
-        }elsif( $myparam eq '--test-force-tty' ){
-            $main::bIsStdoutATty = 1;
+        }elsif( $myparam eq '--force-color' ){
+            $main::bUseAnsiEscSeqColor = 1;
         }elsif( $myparam eq '-h' || $myparam eq '--help' ){
             &usage( 0 );
             $main::exit_code = 0;
@@ -346,7 +349,7 @@ sub getFmt( $$ )
     }
     $prt_fmt = '{' . $prt_fmt . $seq . '}';
     ## 強調表示
-    if( $main::bIsStdoutATty ){
+    if( $main::bUseAnsiEscSeqColor ){
         $prt_fmt = "\033[1m" . $prt_fmt . "\033[0m";
     }
 
@@ -471,7 +474,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.8 $};
+    my $rev = q{$Revision: 1.9 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
