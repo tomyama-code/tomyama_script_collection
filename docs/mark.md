@@ -150,11 +150,11 @@ Other more basic references
 
 # AUTHOR
 
-2006-2025, tomyama
+2006-2026, tomyama
 
 # LICENSE
 
-Copyright (c) 2006-2025, tomyama
+Copyright (c) 2006-2026, tomyama
 
 All rights reserved.
 

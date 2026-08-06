@@ -187,7 +187,6 @@ Using the _-v_ or _--verbose_ option will display the intermediate calculations 
     123.456 * 2 = 246.912
     123397 + 246.912 = 123643.912
     Formula: '123456 - 59 + 123.456 * 2 ='
-        RPN: '123456 59 - 123.456 2 * +'
      Result: 123643.912
 
 You can also specify calculation formulas written in UTF-8.
@@ -202,7 +201,6 @@ please use the _-v_ or _--verbose_ option switch.
     2 * 3.14159265358979 = 6.28318530717958
     6.28318530717958 * 10 = 62.8318530717958
     Formula: '2 * 3.14159265358979 * 10 ='    <--- HERE
-        RPN: '2 3.14159265358979 * 10 *'
      Result: 62.8318530718
 
 Several functions are also available.
@@ -226,7 +224,6 @@ Alternative Method
     prod( 4, 3, 2, 1 ) = 24
     360 / 24 = 15
     Formula: 'prod( linstep( 6, -1, 4 ) ) / prod( linstep( 4, -1, 4 ) ) ='
-        RPN: '# # 6 -1 4 linstep prod # # 4 -1 4 linstep prod /'
      Result: 15
 
 If you specify the operands in hexadecimal or use bitwise operators,
@@ -302,14 +299,12 @@ Example of running with the _-v_ or _--verbose_ option:
     10 ** -6 = 1e-06
     0.22 * 1e-06 = 2.2e-07
     Formula: '0.22 * 10 ** ( -6 ) ='
-        RPN: '0.22 10 -6 ** *'
      Result: 0.00000022 [ = 2.2e-07 ]
     <-- INPUT FROM KEYBOARD
 
     sqrt(2)=    <-- INPUT FROM KEYBOARD
     sqrt( 2 ) = 1.4142135623731
     Formula: 'sqrt( 2 ) ='
-        RPN: '# 2 sqrt'
      Result: 1.41421356237
     ^D    <-- INPUT FROM KEYBOARD
 
@@ -1248,7 +1243,6 @@ The **c** script was created with the following in mind:
           ..................
         moon_age( 2025, 12, 5 ) = 14.7
         Formula: 'moon_age( head( epoch2local( 1764935943 ), 3 ) ) ='
-            RPN: '# # # 1764935943 epoch2local 3 head moon_age'
          Result: 14.7
 
 - `moon_age_instant`
@@ -1279,7 +1273,6 @@ The **c** script was created with the following in mind:
           ....................
         moon_age_instant( ) = 7.38265767671229
         Formula: 'moon_age_instant( ) ='
-            RPN: '# moon_age_instant'
          Result: 7.38265767671
 
     Moon age at 12:00:

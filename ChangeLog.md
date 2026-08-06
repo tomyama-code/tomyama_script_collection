@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.2.91] - 2026-08-06
+### Changed
+- Changed the mechanism to execute tests in-process.
+  - `mark` [1.02.009]
+  - `tests/mark.t` [1.2]
+- `c` [1.05.003]: Minor edits to the document.
+
 ## [0.2.90] - 2026-08-04
 ### Changed
 - `c` [1.05.002]:
@@ -14,6 +21,8 @@
     - Output now occurs only when the `--rpn` or `--debug` option switch is specified.
 - `fill` [1.01.009]:
   - Added the --force-color option switch.
+- Changed the mechanism to execute tests in-process.
+  - `tests/fill.t` [1.2]
 
 ## [0.2.89] - 2026-08-03
 ### Changed
