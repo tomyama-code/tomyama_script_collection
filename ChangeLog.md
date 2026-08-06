@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.3.1] - 2026-08-07
+### Changed
+- Changed the mechanism to execute tests in-process.
+  - `domsort` [1.01.008]
+  - `tests/domsort.t` [1.3]
+- `tests/Tester.pm` [1.10]
+  - Added the get_stdout() method.
+
 ## [0.2.91] - 2026-08-06
 ### Changed
 - Changed the mechanism to execute tests in-process.

@@ -91,7 +91,7 @@ For details, please refer to [cl.md](cl.md).
 Sort by domain or IP address hierarchy.
 
 - Version: 1
-- $Revision: 1.7 $
+- $Revision: 1.8 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -226,7 +226,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.85 $
+- $Revision: 2.86 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

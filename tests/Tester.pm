@@ -1,6 +1,6 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.9 $
+## - $Revision: 1.10 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -209,6 +209,12 @@ sub dump( $ )
     printf( qq{exception="%s"\n},
         ( defined( $self->{exception} ) ? $self->{exception} : 'undef' )
     );
+}
+
+sub get_stdout( $ )
+{
+    my( $self ) = @_;
+    return $self->{stdout};
 }
 
 #sub ok( $;$ )
