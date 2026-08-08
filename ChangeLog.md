@@ -7,6 +7,21 @@
 ### Changed
 - xxx
 
+## [0.3.2] - 2026-08-08
+### Added
+- `c` [1.05.008]:
+  - Added a unit conversion function.
+    - kPa( KILO_PASCAL [, TARGET_UNIT ] )
+    - kgf_cm2( KGF_CM2 [, TARGET_UNIT ] )
+    - PSI( PSI [, TARGET_UNIT ] )
+    - bar( BAR [, TARGET_UNIT ] )
+    - au2km( AU ) --Convert-to--> KILOMETER
+    - km2au( KILOMETER ) --Convert-to--> AU
+
+### Changed
+- `c` [1.05.008]:
+  - Merged the mechanism for replacing constants such as SAKUBOU and CHIJIKU into the user-defined constant mechanism.
+
 ## [0.3.1] - 2026-08-07
 ### Changed
 - Changed the mechanism to execute tests in-process.

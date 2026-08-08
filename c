@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.3 $
+## - $Revision: 5.8 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.3 $};
+    my $rev = q{$Revision: 5.8 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -585,9 +585,10 @@ use constant SAKUBOU => 29.530588853;
 
 ## 単位換算係数 Unit Conversion Factor
 ## 長さ
-use constant UCFACTOR_RI            => 3927.2727272727; # 3_927.27 meters
-use constant UCFACTOR_MILE          => 1609.344; # 1_609.34 meters
-use constant UCFACTOR_NAUTICAL_MILE => 1852; # 1_852 meters, 1海里は、緯度の 1 分の距離
+use constant UCFACTOR_AU            => 149_597_870.700;     # kilometers
+use constant UCFACTOR_RI            => 3_927.2727272727;    # meters
+use constant UCFACTOR_MILE          => 1_609.344;   # meters
+use constant UCFACTOR_NAUTICAL_MILE => 1_852;       # meters, 1海里は、緯度の 1 分の距離
     # 緯度1分の定義は「子午線の曲率」に基づくため、厳密には場所によって以下の通り変化します：
     # - 赤道付近: 約 1843 m（地球のカーブが急なため、1分あたりの距離は短い）
     # - 極地付近: 約 1862 m（地球のカーブが緩やかなため、1分あたりの距離は長い）
@@ -608,8 +609,8 @@ use constant UCFACTOR_NAUTICAL_MILE => 1852; # 1_852 meters, 1海里は、緯度
 use constant UCFACTOR_INCH => 25.4; # 25.4 mm
 
 ## 重さ
-use constant UCFACTOR_POUND => 453.59237; # 453.59 grams
-use constant UCFACTOR_OUNCE => 28.349523125; # 28.35 grams
+use constant UCFACTOR_POUND => 453.59237;       # 453.59 grams
+use constant UCFACTOR_OUNCE => 28.349523125;    # 28.35 grams
 
 ## 国際標準の標準重力加速度
 use constant STD_GRAVITATIONAL_ACCELERATION => 9.80665;
@@ -1127,14 +1128,14 @@ use constant {
     H_AGE_ => qq{age( BIRTHDAY_EPOCH [, REF_DATE_EPOCH ] ): Returns a list of ( age, days ). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_AOMN => qq{moon_age( Y, m, d ): Returns the moon age at "noon (12:00)" on the specified local date. Returns the value rounded to the first decimal place. Maximum deviation of about 2 days.},
     H_AOMI => qq{moon_age_instant( [ EPOCH ] ): Returns the moon age for the specified EPOCH. Defaults to the current time (NOW) if EPOCH is omitted. alias: moon_age_i().},
-    H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH. Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
+    H_GMAE => qq{get_next_moon_age_epoch( MOON_AGE [, REF_DATE_EPOCH ] ) --Convert-to--> EPOCH: Returns the next future UNIX timestamp corresponding to the specified moon age. The range that can be specified for MOON_AGE is 0 <= MOON_AGE < SAKUBOU (29.530588853). If REF_DATE_EPOCH is omitted, NOW is used.},
     H_L2EP => qq{local2epoch( Y, m, d [, H, M, S ] ): Returns the local time in seconds since the epoch. alias: l2e().},
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ): Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ): Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
     H_EP2G => qq{epoch2gmt( EPOCH ): Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
     H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
-    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> ( SECOND ): alias: d2s().},
-    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) -->Convert-to--> ( D, H, M, S ): Returns the normalized value. alias: d2d().},
+    H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> SECOND: alias: d2s().},
+    H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Returns the normalized value. alias: d2d().},
     H_LPTM => qq{laptimer( LAPS ): Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
     H_TIMR => qq{timer( SECOND ): If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
     H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
@@ -1193,20 +1194,26 @@ use constant {
     H_MRKA => qq{moon_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the rhumb line distance (in kilometers) and azimuth (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees.},
     H_MALM => qq{moon_all_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_MALK => qq{moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
-    H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER. Length and distance conversion. alias: 里→メートル(), 里２メートル().},
-    H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI. Length and distance conversion. alias: メートル→里(), メートル２里().},
-    H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER. Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
-    H_M2MI => qq{meter2mile( METER ) --Convert-to--> MILE. Length and distance conversion. alias: メートル→マイル(), メートル２マイル().},
-    H_NM2M => qq{nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER. Length and distance conversion. alias: 海里→メートル(), 海里２メートル().},
-    H_M2NM => qq{meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE. Length and distance conversion. alias: メートル→海里(), メートル２海里().},
-    H_I2MM => qq{inch2mm( INCH ) --Convert-to--> MM. Length and distance conversion.},
-    H_MM2I => qq{mm2inch( MM ) --Convert-to--> INCH. Length and distance conversion.},
-    H_LB2G => qq{pound2gram( POUND ) --Convert-to--> GRAM. Weight conversion. alias: ポンド→グラム(), ポンド２グラム().},
-    H_G2LB => qq{gram2pound( GRAM ) --Convert-to--> POUND. Weight conversion. alias: グラム→ポンド(), グラム２ポンド().},
-    H_OZ2G => qq{ounce2gram( OUNCE ) -->Convert-to--> GRAM. Weight conversion. alias: オンス→グラム(), オンス２グラム().},
-    H_G2OZ => qq{gram2ounce( GRAM ) -->Convert-to--> OUNCE. Weight conversion. alias: グラム→オンス(), グラム２オンス().},
-    H_KG2N => qq{kgf2newton( KGF ) -->Convert-to--> NEWTON. Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
-    H_N2KG => qq{newton2kgf( NEWTON ) -->Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
+    H_AU2K => qq{au2km( AU ) --Convert-to--> KILOMETER: Convert astronomical units to kilometers.},
+    H_K2AU => qq{km2au( KILOMETER ) --Convert-to--> AU: Convert kilometers to astronomical units.},
+    H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER: Length and distance conversion. alias: 里→メートル(), 里２メートル().},
+    H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI: Length and distance conversion. alias: メートル→里(), メートル２里().},
+    H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER: Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
+    H_M2MI => qq{meter2mile( METER ) --Convert-to--> MILE: Length and distance conversion. alias: メートル→マイル(), メートル２マイル().},
+    H_NM2M => qq{nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER: Length and distance conversion. alias: 海里→メートル(), 海里２メートル().},
+    H_M2NM => qq{meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE: Length and distance conversion. alias: メートル→海里(), メートル２海里().},
+    H_I2MM => qq{inch2mm( INCH ) --Convert-to--> MM: Length and distance conversion.},
+    H_MM2I => qq{mm2inch( MM ) --Convert-to--> INCH: Length and distance conversion.},
+    H_LB2G => qq{pound2gram( POUND ) --Convert-to--> GRAM: Weight conversion. alias: ポンド→グラム(), ポンド２グラム().},
+    H_G2LB => qq{gram2pound( GRAM ) --Convert-to--> POUND: Weight conversion. alias: グラム→ポンド(), グラム２ポンド().},
+    H_OZ2G => qq{ounce2gram( OUNCE ) --Convert-to--> GRAM: Weight conversion. alias: オンス→グラム(), オンス２グラム().},
+    H_G2OZ => qq{gram2ounce( GRAM ) --Convert-to--> OUNCE: Weight conversion. alias: グラム→オンス(), グラム２オンス().},
+    H_KG2N => qq{kgf2newton( KGF ) --Convert-to--> NEWTON: Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
+    H_N2KG => qq{newton2kgf( NEWTON ) --Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
+    H_KPAS => qq{kPa( KILO_PASCAL [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to KILO_PASCAL. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_KGC2 => qq{kgf_cm2( KGF_CM2 [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to KGF_CM2. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_PD2I => qq{PSI( PSI [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to PSI. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_BAR_ => qq{bar( BAR [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to BAR. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_PASZ => qq{paper_size( SIZE [, TYPE ] ): Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
 };
 
@@ -1350,21 +1357,27 @@ use constant {
     'moon_rl_dist_km_and_azimuth' => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_m'                  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'ri2meter'                    => [ 2190, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2200, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2210, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2220, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2230, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2240, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2250, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2260, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2270, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2280, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2290, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2300, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'paper_size'                  => [ 2330, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'au2km'                       => [ 2190, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
+    'km2au'                       => [ 2200, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
+    'ri2meter'                    => [ 2210, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2220, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2230, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2240, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2250, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2260, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2270, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2280, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2290, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2300, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2330, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'kpa'                         => [ 2350, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
+    'kgf_cm2'                     => [ 2360, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_cm2( @_ ) } ],
+    'psi'                         => [ 2370, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
+    'bar'                         => [ 2380, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
+    'paper_size'                  => [ 2390, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -3710,6 +3723,22 @@ sub moon_all_km( $$$$ )
 
 ## Unit Conversion
 
+## 長さ変換: AU→キロメートル[km]
+sub au2km( $ )
+{
+    my $au = shift( @_ );
+    my $km = $au * UCFACTOR_AU;
+    return $km;
+}
+
+## 長さ変換: キロメートル[km]→AU
+sub km2au( $ )
+{
+    my $km = shift( @_ );
+    my $au = $km / UCFACTOR_AU;
+    return $au;
+}
+
 ## 長さ変換: 里→メートル[m]
 sub ri2meter( $ )
 {
@@ -3820,6 +3849,76 @@ sub newton2kgf( $ )
     my $newton = shift( @_ );
     my $kgf = $newton / STD_GRAVITATIONAL_ACCELERATION;
     return $kgf;
+}
+
+## 空気圧の変換
+
+sub kPa_to( $$ )
+{
+    my( $kpa, $target_unit ) = @_;
+    my $kgf = $kpa * 0.0101972;
+    my $psi = $kpa * 0.145038;
+    my $bar = $kpa * 0.01;
+    my @air_pressure_units = ( $kpa, $kgf, $psi, $bar );
+
+    if( defined( $target_unit ) ){
+        my( $pkg, $filename, $line, $subr ) = caller( 1 );
+        #print( qq{\$pkg="$pkg", \$filename="$filename", \$line="$line", \$subr="$subr"\n} );
+        $subr =~ s!^${pkg}::!!;
+
+        if( !( 0 <= $target_unit && $target_unit < scalar( @air_pressure_units ) ) ){
+            die( qq{$subr(): \$target_unit[=$target_unit] is out of range.\n} );
+        }
+        if( $target_unit != int( $target_unit ) ){
+            die( qq{$subr(): \$target_unit[=$target_unit] is a decimal number.\n} );
+        }
+
+        return $air_pressure_units[ $target_unit ];
+    }
+
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        print( qq{[Hint] Return list format: ( 0:kPa, 1:kgf/cm2, 2:PSI, 3:bar )\n} );
+    }
+    return @air_pressure_units;
+}
+
+sub kPa( $;$ )
+{
+    my( $kpa, $target_unit ) = @_;
+
+    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+
+    return @air_pressure_units;
+}
+
+sub kgf_cm2( $;$ )
+{
+    my( $kgf, $target_unit ) = @_;
+
+    my $kpa = $kgf / 0.0101972;
+    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+
+    return @air_pressure_units;
+}
+
+sub PSI( $;$ )
+{
+    my( $psi, $target_unit ) = @_;
+
+    my $kpa = $psi / 0.145038;
+    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+
+    return @air_pressure_units;
+}
+
+sub bar( $;$ )
+{
+    my( $bar, $target_unit ) = @_;
+
+    my $kpa = $bar / 0.01;
+    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+
+    return @air_pressure_units;
 }
 
 ## Utility
@@ -3988,8 +4087,6 @@ sub FormulaNormalizationOneLine( $ )
 #    $expr =~ tr!x!*!;                   # コメントアウト。16進数を使う事を優先
 #    $expr =~ s!(\d),(\d{3})!$1$2!go;    # 桁区切りカンマの除去
     $expr =~ s/(?<=\d),(?=\d{3}\b)/_/go; # 桁区切りカンマの除去
-    $expr =~ s!\bsakubou\b! 29.530588853 !go;   # 朔望: 平均朔望月
-    $expr =~ s!\bchijiku\b! 23.436 !go;         # 地球の地軸の傾き
     ## alias
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
@@ -4191,7 +4288,7 @@ sub new
     $self->{NAME} = $name;
     $self->{APPCONFIG} = shift( @_ );
     $self->SetLabel( 'lexer' );
-    $self->LoadUserRcFiles( \%{ $self->{CONSTANTS} } );
+    $self->LoadConstants( \%{ $self->{CONSTANTS} } );
     if( $self->{APPCONFIG}->GetBPrintUserDefined() ){
         $self->PrintUserDefined();
         die( "EXIT_CODE: 0\n" );
@@ -4207,7 +4304,7 @@ sub Reset( $ )
     @{ $self->{TOKENS} } = ();
 }
 
-sub LoadUserRcFiles( $\$ )
+sub LoadConstants( $\$ )
 {
     my $self = shift( @_ );
     my $ref_user_const = shift( @_ );
@@ -4217,6 +4314,15 @@ sub LoadUserRcFiles( $\$ )
     $self->dPrintf( qq{Delete $len constants.\n} );
     %{ $ref_user_const } = ();
 
+    # システム定義定数
+    ${ $ref_user_const }{sakubou} = 29.530588853;   # 朔望: 平均朔望月
+    ${ $ref_user_const }{chijiku} = 23.436;         # 地球の地軸の傾き
+    ${ $ref_user_const }{kpa}     = 0;
+    ${ $ref_user_const }{kgf_cm2} = 1;
+    ${ $ref_user_const }{psi}     = 2;
+    ${ $ref_user_const }{bar}     = 3;
+
+    # ユーザー定義定数
     my $rcFileName = ".c.rc";
     for my $dir( $self->{APPCONFIG}->{APPPATH}, $ENV{HOME} ){
         my $cfile = "$dir/$rcFileName";
@@ -4284,7 +4390,7 @@ sub PrintUserDefined()
     return;
 }
 
-sub IsTokenUserConstant( \$\$ )
+sub IsTokenConstant( \$\$ )
 {
     my $ref_str = shift( @_ );
     my $ref_user_const = shift( @_ );
@@ -4294,7 +4400,8 @@ sub IsTokenUserConstant( \$\$ )
         #print( qq{\$\$ref_str="$$ref_str", \$key="$key"\n} );
         if( exists( $$ref_user_const{$key} ) ){
             my $len = length( $key );
-            $$ref_str = $$ref_user_const{$key} . substr( $$ref_str, $len );
+            $$ref_str = $$ref_user_const{$key} . ' ' . substr( $$ref_str, $len );
+            #print STDERR ( qq{ref_str="$$ref_str"\n} );
             $bRet = 1;
         }
     }
@@ -4340,13 +4447,11 @@ sub GetToken( \$ )
         my $operand = 0;
 
         if( $$ref_expr =~ s!^_load_user_rc!!o ){
-            $self->LoadUserRcFiles( \%{ $self->{CONSTANTS} } );
+            $self->LoadConstants( \%{ $self->{CONSTANTS} } );
         }elsif( $$ref_expr =~ s!^_verbose!!o ){
             $self->{APPCONFIG}->SetBVerboseOutput( 1 );
         }elsif( $$ref_expr =~ s!^_no_verbose!!o ){
             $self->{APPCONFIG}->SetBVerboseOutput( 0 );
-        }elsif( &IsTokenUserConstant( $ref_expr, \%{ $self->{CONSTANTS} } ) ){
-            # nothing to do.
         ## オペランド
         }elsif( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
             ( $$ref_expr =~ s!^([\-\+])(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?)!!o ) ){
@@ -4428,6 +4533,9 @@ sub GetToken( \$ )
             }
             $self->unshift( $el_r );
             $ret_obj = $el_r;
+
+        }elsif( &IsTokenConstant( $ref_expr, \%{ $self->{CONSTANTS} } ) ){
+            # nothing to do.
 
         }else{
             my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -5614,9 +5722,9 @@ geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_dista
 geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, moon2xyz,
 moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
 moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
-moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, ri2meter, meter2ri,
-mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper_size
+moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, au2km, km2au, ri2meter,
+meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_cm2, psi, bar, paper_size
 
 =head1 OPTIONS
 
@@ -6798,7 +6906,7 @@ Moon age at 12:00:
 
 =item C<get_next_moon_age_epoch>
 
-get_next_moon_age_epoch( I<MOON_AGE> [, I<REF_DATE_EPOCH> ] ) --Convert-to--> I<EPOCH>.
+get_next_moon_age_epoch( I<MOON_AGE> [, I<REF_DATE_EPOCH> ] ) --Convert-to--> I<EPOCH>:
 Returns the next future UNIX timestamp corresponding to the specified moon age.
 The range that can be specified for I<MOON_AGE> is I<0 <= MOON_AGE < SAKUBOU (29.530588853)>.
 If I<REF_DATE_EPOCH> is omitted, I<NOW> is used.
@@ -6872,7 +6980,7 @@ alias: s2d.
 
 =item C<dhms2sec>
 
-dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> ( I<SECOND> ):
+dhms2sec( I<D> [, I<H>, I<M>, I<S> ] ) --Convert-to--> I<SECOND>:
 alias: d2s.
 
   $ c 'dhms2sec( 4, 03, 02, 01 )'
@@ -6880,7 +6988,7 @@ alias: d2s.
 
 =item C<dhms2dhms>
 
-dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) -->Convert-to--> ( I<D>, I<H>, I<M>, I<S> ):
+dhms2dhms( I<D> [, I<H>, I<M>, I<S>, I<DECIMAL_PLACES> ] ) --Convert-to--> ( I<D>, I<H>, I<M>, I<S> ):
 Returns the normalized value.
 alias: d2d().
 
@@ -7645,9 +7753,29 @@ Latitude and longitude must be specified in radians.
 
 =over 8
 
+=item C<au2km>
+
+au2km( AU ) --Convert-to--> KILOMETER:
+Convert astronomical units to kilometers.
+
+Convert the unit of Pluto's semi-major axis.:
+
+  $ c 'au2km( 39.445 )'
+  5900888009.76
+
+=item C<km2au>
+
+km2au( KILOMETER ) --Convert-to--> AU:
+Convert kilometers to astronomical units.
+
+Convert the unit of Jupiter's semi-major axis:
+
+  $ c 'km2au( 778_360_000 )'
+  5.20301523249
+
 =item C<ri2meter>
 
-ri2meter( I<RI> ) --Convert-to--> I<METER>.
+ri2meter( I<RI> ) --Convert-to--> I<METER>:
 Length and distance conversion.
 alias: 里→メートル(), 里２メートル().
 
@@ -7656,7 +7784,7 @@ alias: 里→メートル(), 里２メートル().
 
 =item C<meter2ri>
 
-meter2ri( I<METER> ) --Convert-to--> I<RI>.
+meter2ri( I<METER> ) --Convert-to--> I<RI>:
 Length and distance conversion.
 alias: メートル→里(), メートル２里().
 
@@ -7665,7 +7793,7 @@ alias: メートル→里(), メートル２里().
 
 =item C<mile2meter>
 
-mile2meter( I<MILE> ) --Convert-to--> I<METER>.
+mile2meter( I<MILE> ) --Convert-to--> I<METER>:
 Length and distance conversion.
 alias: マイル→メートル(), マイル２メートル().
 
@@ -7674,7 +7802,7 @@ alias: マイル→メートル(), マイル２メートル().
 
 =item C<meter2mile>
 
-meter2mile( I<METER> ) --Convert-to--> I<MILE>.
+meter2mile( I<METER> ) --Convert-to--> I<MILE>:
 Length and distance conversion.
 alias: メートル→マイル(), メートル２マイル().
 
@@ -7683,7 +7811,7 @@ alias: メートル→マイル(), メートル２マイル().
 
 =item C<nautical_mile2meter>
 
-nautical_mile2meter( I<NAUTICAL_MILE> ) --Convert-to--> I<METER>.
+nautical_mile2meter( I<NAUTICAL_MILE> ) --Convert-to--> I<METER>:
 Length and distance conversion.
 alias: 海里→メートル(), 海里２メートル().
 
@@ -7692,7 +7820,7 @@ alias: 海里→メートル(), 海里２メートル().
 
 =item C<meter2nautical_mile>
 
-meter2nautical_mile( I<METER> ) --Convert-to--> I<NAUTICAL_MILE>.
+meter2nautical_mile( I<METER> ) --Convert-to--> I<NAUTICAL_MILE>:
 Length and distance conversion.
 alias: メートル→海里(), メートル２海里().
 
@@ -7701,7 +7829,7 @@ alias: メートル→海里(), メートル２海里().
 
 =item C<inch2mm>
 
-inch2mm( I<INCH> ) --Convert-to--> I<MM>.
+inch2mm( I<INCH> ) --Convert-to--> I<MM>:
 Length and distance conversion.
 
   $ c 'inch2mm( 1 )'
@@ -7709,7 +7837,7 @@ Length and distance conversion.
 
 =item C<inch2mm>
 
-mm2inch( I<MM> ) --Convert-to--> I<INCH>.
+mm2inch( I<MM> ) --Convert-to--> I<INCH>:
 Length and distance conversion.
 
   $ c 'mm2inch( 12.7 )'
@@ -7717,7 +7845,7 @@ Length and distance conversion.
 
 =item C<pound2gram>
 
-pound2gram( I<POUND> ) --Convert-to--> I<GRAM>.
+pound2gram( I<POUND> ) --Convert-to--> I<GRAM>:
 Weight conversion.
 alias: ポンド→グラム(), ポンド２グラム().
 
@@ -7726,7 +7854,7 @@ alias: ポンド→グラム(), ポンド２グラム().
 
 =item C<gram2pound>
 
-gram2pound( I<GRAM> ) --Convert-to--> I<POUND>.
+gram2pound( I<GRAM> ) --Convert-to--> I<POUND>:
 Weight conversion.
 alias: グラム→ポンド(), グラム２ポンド().
 
@@ -7735,7 +7863,7 @@ alias: グラム→ポンド(), グラム２ポンド().
 
 =item C<ounce2gram>
 
-ounce2gram( I<OUNCE> ) -->Convert-to--> I<GRAM>.
+ounce2gram( I<OUNCE> ) --Convert-to--> I<GRAM>:
 Weight conversion.
 alias: オンス→グラム(), オンス２グラム().
 
@@ -7744,30 +7872,90 @@ alias: オンス→グラム(), オンス２グラム().
 
 =item C<gram2ounce>
 
-gram2ounce( I<GRAM> ) -->Convert-to--> I<OUNCE>.
+gram2ounce( I<GRAM> ) --Convert-to--> I<OUNCE>:
 Weight conversion.
 alias: グラム→オンス(), グラム２オンス().
 
   $ c 'gram2ounce( 30 )'
   1.05821885849
 
-=item C<newton2kgf>
+=item C<kgf2newton>
 
-kgf2newton( I<KGF> ) -->Convert-to--> I<NEWTON>.
+kgf2newton( I<KGF> ) --Convert-to--> I<NEWTON>:
 Conversion of force, weight, and torque.
 alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
 
   $ c 'kgf2newton( 6.5 )'
   63.743225
 
-=item C<kgf2newton>
+=item C<newton2kgf>
 
-newton2kgf( I<NEWTON> ) -->Convert-to--> I<KGF>.
+newton2kgf( I<NEWTON> ) --Convert-to--> I<KGF>:
 Conversion of force, weight, and torque.
 alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
 
   $ c 'newton2kgf( 64 )'
   6.52618376306
+
+=item C<kPa>
+
+kPa( I<KILO_PASCAL> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<KILO_PASCAL>.
+The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'kPa( 221 )'
+  ( 221, 2.2535812, 32.053398, 2.21 )
+
+Specify the unit:
+
+  $ c 'kPa( 221, kgf_cm2 )'
+  2.2535812
+
+=item C<kgf_cm2>
+
+kgf_cm2( I<KGF_CM2> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<KGF_CM2>.
+The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'kgf_cm2( 2.25 )'
+  ( 220.648805554, 2.25, 32.00246146, 2.20648805554 )
+
+Specify the unit:
+
+  $ c 'kgf_cm2( 2.25, PSI )'
+  32.00246146
+
+=item C<PSI>
+
+PSI( I<PSI> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<PSI>.
+The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'PSI( 32 )'
+  ( 220.631834416, 2.2498269419, 32, 2.20631834416 )
+
+Specify the unit:
+
+  $ c 'PSI( 32, bar )'
+  2.20631834416
+
+=item C<bar>
+
+bar( I<BAR> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<BAR>.
+The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'bar( 2.2 )'
+  ( 220, 2.243384, 31.90836, 2.2 )
+
+Specify the unit:
+
+  $ c 'bar( 2.2, kPa )'
+  220
 
 =back
 

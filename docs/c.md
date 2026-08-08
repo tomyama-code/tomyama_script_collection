@@ -128,9 +128,9 @@ geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, g
 geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, moon2xyz,
 moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
 moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
-moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, ri2meter, meter2ri,
-mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, paper\_size
+moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, au2km, km2au, ri2meter,
+meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_cm2, psi, bar, paper\_size
 
 # OPTIONS
 
@@ -1282,7 +1282,7 @@ The **c** script was created with the following in mind:
 
 - `get_next_moon_age_epoch`
 
-    get\_next\_moon\_age\_epoch( _MOON\_AGE_ \[, _REF\_DATE\_EPOCH_ \] ) --Convert-to--> _EPOCH_.
+    get\_next\_moon\_age\_epoch( _MOON\_AGE_ \[, _REF\_DATE\_EPOCH_ \] ) --Convert-to--> _EPOCH_:
     Returns the next future UNIX timestamp corresponding to the specified moon age.
     The range that can be specified for _MOON\_AGE_ is _0 <= MOON\_AGE < SAKUBOU (29.530588853)_.
     If _REF\_DATE\_EPOCH_ is omitted, _NOW_ is used.
@@ -1356,7 +1356,7 @@ The **c** script was created with the following in mind:
 
 - `dhms2sec`
 
-    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> ( _SECOND_ ):
+    dhms2sec( _D_ \[, _H_, _M_, _S_ \] ) --Convert-to--> _SECOND_:
     alias: d2s.
 
         $ c 'dhms2sec( 4, 03, 02, 01 )'
@@ -1364,7 +1364,7 @@ The **c** script was created with the following in mind:
 
 - `dhms2dhms`
 
-    dhms2dhms( _D_ \[, _H_, _M_, _S_, _DECIMAL\_PLACES_ \] ) -->Convert-to--> ( _D_, _H_, _M_, _S_ ):
+    dhms2dhms( _D_ \[, _H_, _M_, _S_, _DECIMAL\_PLACES_ \] ) --Convert-to--> ( _D_, _H_, _M_, _S_ ):
     Returns the normalized value.
     alias: d2d().
 
@@ -2117,9 +2117,29 @@ The **c** script was created with the following in mind:
 
 ## Unit Conversion
 
+- `au2km`
+
+    au2km( AU ) --Convert-to--> KILOMETER:
+    Convert astronomical units to kilometers.
+
+    Convert the unit of Pluto's semi-major axis.:
+
+        $ c 'au2km( 39.445 )'
+        5900888009.76
+
+- `km2au`
+
+    km2au( KILOMETER ) --Convert-to--> AU:
+    Convert kilometers to astronomical units.
+
+    Convert the unit of Jupiter's semi-major axis:
+
+        $ c 'km2au( 778_360_000 )'
+        5.20301523249
+
 - `ri2meter`
 
-    ri2meter( _RI_ ) --Convert-to--> _METER_.
+    ri2meter( _RI_ ) --Convert-to--> _METER_:
     Length and distance conversion.
     alias: 里→メートル(), 里２メートル().
 
@@ -2128,7 +2148,7 @@ The **c** script was created with the following in mind:
 
 - `meter2ri`
 
-    meter2ri( _METER_ ) --Convert-to--> _RI_.
+    meter2ri( _METER_ ) --Convert-to--> _RI_:
     Length and distance conversion.
     alias: メートル→里(), メートル２里().
 
@@ -2137,7 +2157,7 @@ The **c** script was created with the following in mind:
 
 - `mile2meter`
 
-    mile2meter( _MILE_ ) --Convert-to--> _METER_.
+    mile2meter( _MILE_ ) --Convert-to--> _METER_:
     Length and distance conversion.
     alias: マイル→メートル(), マイル２メートル().
 
@@ -2146,7 +2166,7 @@ The **c** script was created with the following in mind:
 
 - `meter2mile`
 
-    meter2mile( _METER_ ) --Convert-to--> _MILE_.
+    meter2mile( _METER_ ) --Convert-to--> _MILE_:
     Length and distance conversion.
     alias: メートル→マイル(), メートル２マイル().
 
@@ -2155,7 +2175,7 @@ The **c** script was created with the following in mind:
 
 - `nautical_mile2meter`
 
-    nautical\_mile2meter( _NAUTICAL\_MILE_ ) --Convert-to--> _METER_.
+    nautical\_mile2meter( _NAUTICAL\_MILE_ ) --Convert-to--> _METER_:
     Length and distance conversion.
     alias: 海里→メートル(), 海里２メートル().
 
@@ -2164,7 +2184,7 @@ The **c** script was created with the following in mind:
 
 - `meter2nautical_mile`
 
-    meter2nautical\_mile( _METER_ ) --Convert-to--> _NAUTICAL\_MILE_.
+    meter2nautical\_mile( _METER_ ) --Convert-to--> _NAUTICAL\_MILE_:
     Length and distance conversion.
     alias: メートル→海里(), メートル２海里().
 
@@ -2173,7 +2193,7 @@ The **c** script was created with the following in mind:
 
 - `inch2mm`
 
-    inch2mm( _INCH_ ) --Convert-to--> _MM_.
+    inch2mm( _INCH_ ) --Convert-to--> _MM_:
     Length and distance conversion.
 
         $ c 'inch2mm( 1 )'
@@ -2181,7 +2201,7 @@ The **c** script was created with the following in mind:
 
 - `inch2mm`
 
-    mm2inch( _MM_ ) --Convert-to--> _INCH_.
+    mm2inch( _MM_ ) --Convert-to--> _INCH_:
     Length and distance conversion.
 
         $ c 'mm2inch( 12.7 )'
@@ -2189,7 +2209,7 @@ The **c** script was created with the following in mind:
 
 - `pound2gram`
 
-    pound2gram( _POUND_ ) --Convert-to--> _GRAM_.
+    pound2gram( _POUND_ ) --Convert-to--> _GRAM_:
     Weight conversion.
     alias: ポンド→グラム(), ポンド２グラム().
 
@@ -2198,7 +2218,7 @@ The **c** script was created with the following in mind:
 
 - `gram2pound`
 
-    gram2pound( _GRAM_ ) --Convert-to--> _POUND_.
+    gram2pound( _GRAM_ ) --Convert-to--> _POUND_:
     Weight conversion.
     alias: グラム→ポンド(), グラム２ポンド().
 
@@ -2207,7 +2227,7 @@ The **c** script was created with the following in mind:
 
 - `ounce2gram`
 
-    ounce2gram( _OUNCE_ ) -->Convert-to--> _GRAM_.
+    ounce2gram( _OUNCE_ ) --Convert-to--> _GRAM_:
     Weight conversion.
     alias: オンス→グラム(), オンス２グラム().
 
@@ -2216,30 +2236,90 @@ The **c** script was created with the following in mind:
 
 - `gram2ounce`
 
-    gram2ounce( _GRAM_ ) -->Convert-to--> _OUNCE_.
+    gram2ounce( _GRAM_ ) --Convert-to--> _OUNCE_:
     Weight conversion.
     alias: グラム→オンス(), グラム２オンス().
 
         $ c 'gram2ounce( 30 )'
         1.05821885849
 
-- `newton2kgf`
+- `kgf2newton`
 
-    kgf2newton( _KGF_ ) -->Convert-to--> _NEWTON_.
+    kgf2newton( _KGF_ ) --Convert-to--> _NEWTON_:
     Conversion of force, weight, and torque.
     alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重２ニュートン(), キログラム２ニュートン().
 
         $ c 'kgf2newton( 6.5 )'
         63.743225
 
-- `kgf2newton`
+- `newton2kgf`
 
-    newton2kgf( _NEWTON_ ) -->Convert-to--> _KGF_.
+    newton2kgf( _NEWTON_ ) --Convert-to--> _KGF_:
     Conversion of force, weight, and torque.
     alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン２キログラム重(), ニュートン２キログラム().
 
         $ c 'newton2kgf( 64 )'
         6.52618376306
+
+- `kPa`
+
+    kPa( _KILO\_PASCAL_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _KILO\_PASCAL_.
+    The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'kPa( 221 )'
+        ( 221, 2.2535812, 32.053398, 2.21 )
+
+    Specify the unit:
+
+        $ c 'kPa( 221, kgf_cm2 )'
+        2.2535812
+
+- `kgf_cm2`
+
+    kgf\_cm2( _KGF\_CM2_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _KGF\_CM2_.
+    The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'kgf_cm2( 2.25 )'
+        ( 220.648805554, 2.25, 32.00246146, 2.20648805554 )
+
+    Specify the unit:
+
+        $ c 'kgf_cm2( 2.25, PSI )'
+        32.00246146
+
+- `PSI`
+
+    PSI( _PSI_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _PSI_.
+    The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'PSI( 32 )'
+        ( 220.631834416, 2.2498269419, 32, 2.20631834416 )
+
+    Specify the unit:
+
+        $ c 'PSI( 32, bar )'
+        2.20631834416
+
+- `bar`
+
+    bar( _BAR_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _BAR_.
+    The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'bar( 2.2 )'
+        ( 220, 2.243384, 31.90836, 2.2 )
+
+    Specify the unit:
+
+        $ c 'bar( 2.2, kPa )'
+        220
 
 ## Utility
 

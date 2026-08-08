@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.38 $
+## - $Revision: 1.41 $
 ################################################################################
 
 use strict;
@@ -73,24 +73,42 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )} );
+#        $res = $c->formula( qq{kPa( 221, -1 )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )'} );
+#    $t->exit_isnt( 0, qq{./c 'kPa( 221, -1 )'} );
+#    $t->has_exception();
+#    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+#    $t->stdout_is( qq{} );
+#    $t->stderr_like( qr/^c: evaluator: error: kPa\(\): \$target_unit\[=\-1\] is out of range\./ );
+#
+#    $t = tests::Tester->run_blk( sub{
+#        $res = $c->formula( qq{kPa( 221, 3.0 )} );
+#    } );
+#    $t->exit_is( 0, qq{./c 'kPa( 221, 3.0 )'} );
 #    $t->has_no_exception();
-#    equal( scalar( @{ $res } ), 3, qq{Neper Crater の緯度・経度を XYZ座標 に変換} );
-#    equal( ${ $res }[ 0 ], 161430.008143, qq{X == 161430.008143} );
-#    equal( ${ $res }[ 1 ], 1707751.10493, qq{Y == 1707751.10493} );
-#    equal( ${ $res }[ 2 ], 255740.414968, qq{Z == 255740.414968} );
+#    equal( $res, 2.21 );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
+#};
+#done_testing();
+#exit( 0 );
+#subtest qq{-v, --verbose} => sub{
+#
+#    require './c';
+#
+#    my $t;
+#    my $status;
+#
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{moon_radius_of_lat_circle( deg2rad( 45 ) )} );
+#        $status = &pl_main( 'kPa( 221 )', '--verbose' );
 #    } );
-#    $t->exit_is( 0, qq{./c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'} );
+#    $t->exit_is( 0, qq{./c 'kPa( 221 )' --verbose} );
 #    $t->has_no_exception();
-#    equal( $res, 1229767.38396, qq{月の45度の緯線の半径 = 1_229_767.38396 meters} );
-#    $t->stdout_is( qq{} );
+#    $t->stdout_is( qq{[Hint] Return list format: ( 0:kPa, 1:kgf/cm2, 2:PSI, 3:bar )\n} .
+#                   qq{kpa( 221 ) = ( 221, 2.2535812, 32.053398, 2.21 )\n} .
+#                   qq{Formula: 'kpa( 221 ) ='\n} .
+#                   qq{ Result: ( 221, 2.2535812, 32.053398, 2.21 )\n} );
 #    $t->stderr_is( qq{} );
 #
 #};
@@ -2445,6 +2463,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{au2km( 39.445 )} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    equal( $res, 5900888009.76, qq{au2km( 39.445 ) => 5900888009.76} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km2au( 778_360_000 )} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    equal( $res, 5.20301523249, qq{km2au( 778_360_000 ) => 5.20301523249} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ri2meter( 1 )} );
     } );
     $t->exit_is( 0 );
@@ -2567,6 +2603,112 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0 );
     $t->has_no_exception();
     equal( $res, 6.52618376306, qq{newton2kgf( 64 ) => 6.52618376306} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, -1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'kPa( 221, -1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: kPa\(\): \$target_unit\[=\-1\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, 4 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'kPa( 221, 4 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: kPa\(\): \$target_unit\[=4\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, 2.9 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'kPa( 221, 2.9 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: kPa\(\): \$target_unit\[=2\.9\] is a decimal number\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, 3.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kPa( 221, 3.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 2.21 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, kgf_cm2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kPa( 221, kgf_cm2 )'} );
+    $t->has_no_exception();
+    equal( $res, 2.2535812 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221, 0.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kPa( 221, 0.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 221 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kPa( 221 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kPa( 221 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{221 kPa を変換} );
+    equal( ${ $res }[ 0 ], 221        , qq{   kPa: 221} );
+    equal( ${ $res }[ 1 ],   2.2535812, qq{kg/cm2:   2.2535812} );
+    equal( ${ $res }[ 2 ],  32.053398 , qq{   PSI:  32.053398} );
+    equal( ${ $res }[ 3 ],   2.21     , qq{   bar:   2.21} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kgf_cm2( 2.25 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kgf_cm2( 2.25 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{2.25 kgf/cm2 を変換} );
+    equal( ${ $res }[ 0 ], 220.648805554  , qq{   kPa: 220.648805554} );
+    equal( ${ $res }[ 1 ],   2.25         , qq{kg/cm2:   2.25} );
+    equal( ${ $res }[ 2 ],  32.00246146   , qq{   PSI:  32.00246146} );
+    equal( ${ $res }[ 3 ],   2.20648805554, qq{   bar:   2.20648805554} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{PSI( 32 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'PSI( 32 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{32 PSI を変換} );
+    equal( ${ $res }[ 0 ], 220.631834416  , qq{   kPa: 220.631834416} );
+    equal( ${ $res }[ 1 ],   2.2498269419 , qq{kg/cm2:   2.2498269419} );
+    equal( ${ $res }[ 2 ],  32            , qq{   PSI:  32} );
+    equal( ${ $res }[ 3 ],   2.20631834416, qq{   bar:   2.20631834416} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{bar( 2.2 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'bar( 2.2 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{2.2 bar を変換} );
+    equal( ${ $res }[ 0 ], 220            , qq{   kPa: 220} );
+    equal( ${ $res }[ 1 ],   2.243384     , qq{kg/cm2:   2.243384} );
+    equal( ${ $res }[ 2 ],  31.90836      , qq{   PSI:  31.90836} );
+    equal( ${ $res }[ 3 ],   2.2          , qq{   bar:   2.2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5414,6 +5556,27 @@ subtest qq{Require ./c} => sub {
         $t->exit_is( 0, qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
         $t->has_no_exception();
         $t->stdout_like( qr/\n Result: \( 0\.00000022, \-0\.99999978 \) \[ = \( 2\.2e\-07, \-0\.99999978 \) \]\n/ );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'kPa( 221 )', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'kPa( 221 )' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{[Hint] Return list format: ( 0:kPa, 1:kgf/cm2, 2:PSI, 3:bar )\n} .
+                       qq{kpa( 221 ) = ( 221, 2.2535812, 32.053398, 2.21 )\n} .
+                       qq{Formula: 'kpa( 221 ) ='\n} .
+                       qq{ Result: ( 221, 2.2535812, 32.053398, 2.21 )\n} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'kgf_cm2( 2.25, 2 )', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'kgf_cm2( 2.25, 2 )' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{kgf_cm2( 2.25, 2 ) = 32.0024614600086\n} .
+                       qq{Formula: 'kgf_cm2( 2.25, 2 ) ='\n} .
+                       qq{ Result: 32.00246146\n} );
         $t->stderr_is( qq{} );
 
     };
