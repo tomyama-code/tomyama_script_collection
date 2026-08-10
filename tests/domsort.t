@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ################################################################################
 
 use strict;
@@ -85,9 +85,9 @@ subtest qq{In-Proc Test} => sub{
         } );
         $t->has_no_exception( qq{./domsort "$TFILE"} );
         ok( $status == 0 );
-        $stdout = $t->get_stdout();
-        $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{1\n10\n2\n3\n4\n5\n6\n7\n8\n9\n}, "Sort by number" );
+        # 結果を直接編集する方式
+        $t->{stdout} =~ s!^(\S+)\t.*$!$1!mgo;   # 第1フィールドだけ残す
+        $t->stdout_is( qq{1\n10\n2\n3\n4\n5\n6\n7\n8\n9\n}, "Sort by number" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -95,6 +95,7 @@ subtest qq{In-Proc Test} => sub{
         } );
         $t->has_no_exception( qq{./domsort -r "$TFILE"} );
         ok( $status == 0 );
+        # 評価用の変数を用意する方式
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
         equal( $stdout, qq{9\n8\n7\n6\n5\n4\n3\n2\n10\n1\n}, "Sort by number (reverse order)" );

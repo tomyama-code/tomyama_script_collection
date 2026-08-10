@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.41 $
+## - $Revision: 1.42 $
 ################################################################################
 
 use strict;
@@ -73,20 +73,20 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{kPa( 221, -1 )} );
+#        $res = $c->formula( qq{gis_mercator_y( deg2rad( 90.0 ) )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'kPa( 221, -1 )'} );
+#    $t->exit_isnt( 0, qq{./c 'gis_mercator_y( deg2rad( 90.0 ) )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: kPa\(\): \$target_unit\[=\-1\] is out of range\./ );
+#    $t->stderr_like( qr/^c: evaluator: error: gis_mercator_y\(\): \$lat_rad\[=1\.5707963267949\] is out of range\./ );
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{kPa( 221, 3.0 )} );
+#        $res = $c->formula( qq{gis_mercator_y( deg2rad( 89.9 ) )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'kPa( 221, 3.0 )'} );
+#    $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( 89.9 ) )'} );
 #    $t->has_no_exception();
-#    equal( $res, 2.21 );
+#    equal( $res, 7.04395898475 );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
@@ -1955,6 +1955,19 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（km）} );
+    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    equal( ${ $res }[ 2 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{moon_all_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
     } );
     $t->exit_is( 0, qq{./c 'moon_all_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
@@ -1968,17 +1981,76 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )} );
+        $res = $c->formula( qq{gis_mercator_y( deg2rad( 90.0 ) )} );
     } );
-    $t->exit_is( 0, qq{./c 'moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
+    $t->exit_isnt( 0, qq{./c 'gis_mercator_y( deg2rad( 90.0 ) )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gis_mercator_y\(\): \$lat_rad\[=1\.5707963267949\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_mercator_y( deg2rad( 89.9 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( 89.9 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    equal( $res, 7.04395898475 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_mercator_y( deg2rad( -89.9 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( -89.9 ) )'} );
+    $t->has_no_exception();
+    equal( $res, -7.04395898475 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_mercator_y( deg2rad( -90.0 ) )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gis_mercator_y( deg2rad( -90.0 ) )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gis_mercator_y\(\): \$lat_rad\[=\-1\.5707963267949\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_miller_y( deg2rad( 90.0 ) )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gis_miller_y( deg2rad( 90.0 ) )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gis_miller_y\(\): \$lat_rad\[=1\.5707963267949\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_miller_y( deg2rad( 89.9 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'gis_miller_y( deg2rad( 89.9 ) )'} );
+    $t->has_no_exception();
+    equal( $res, 2.29777663826 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_miller_y( deg2rad( -89.9 ) )} );
+    } );
+    $t->exit_is( 0, qq{./c 'gis_miller_y( deg2rad( -89.9 ) )'} );
+    $t->has_no_exception();
+    equal( $res, -2.29777663826 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gis_miller_y( deg2rad( -90.0 ) )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'gis_miller_y( deg2rad( -90.0 ) )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: gis_miller_y\(\): \$lat_rad\[=\-1\.5707963267949\] is out of range\./ );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{epoch2local( 1763999942 )} );

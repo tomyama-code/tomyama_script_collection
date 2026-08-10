@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.8 $
+## - $Revision: 5.9 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.8 $};
+    my $rev = q{$Revision: 5.9 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1194,6 +1194,8 @@ use constant {
     H_MRKA => qq{moon_rl_dist_km_and_azimuth( A_LAT, A_LON, B_LAT, B_LON ): Returns the rhumb line distance (in kilometers) and azimuth (in degrees) from A to B. Latitude and longitude must be specified in radians. North is 0 degrees.},
     H_MALM => qq{moon_all_m( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in meters and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_MALK => qq{moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
+    H_MCTY => qq{gis_mercator_y( LAT_RAD ): return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );},
+    H_MLRY => qq{gis_miller_y( LAT_RAD ): return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;},
     H_AU2K => qq{au2km( AU ) --Convert-to--> KILOMETER: Convert astronomical units to kilometers.},
     H_K2AU => qq{km2au( KILOMETER ) --Convert-to--> AU: Convert kilometers to astronomical units.},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER: Length and distance conversion. alias: 里→メートル(), 里２メートル().},
@@ -1357,6 +1359,8 @@ use constant {
     'moon_rl_dist_km_and_azimuth' => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_m'                  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'gis_mercator_y'              => [ 2185, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
+    'gis_miller_y'                => [ 2186, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
     'au2km'                       => [ 2190, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
     'km2au'                       => [ 2200, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
     'ri2meter'                    => [ 2210, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
@@ -2991,12 +2995,12 @@ sub DMS2DMS( $$$ )
 
 sub _C_TAN( $ )
 {
-    return sin( $_[0] ) / cos( $_[0] );
+    return &CORE::sin( $_[0] ) / &CORE::cos( $_[0] );
 }
 
 sub _C_ASIN( $ )
 {
-    return atan2( $_[0], sqrt( 1 - ( $_[0] ** 2 ) ) );
+    return &CORE::atan2( $_[0], &CORE::sqrt( 1 - ( $_[0] ** 2 ) ) );
 }
 
 sub _C_ACOS( $ )
@@ -3719,6 +3723,31 @@ sub moon_all_km( $$$$ )
     push( @ret_vals, &moon_rl_dist_km_and_azimuth( @_ ) );
 
     return @ret_vals;
+}
+
+sub gis_mercator_y_core( $ )
+{
+    my( $lat_rad ) = @_;
+    return &CORE::log( &_C_TAN( ( pi / 4 ) + ( $lat_rad / 2 ) ) )
+}
+
+sub gis_mercator_y( $ )
+{
+    my( $lat_rad ) = @_;
+    if( $lat_rad <= &DEG2RAD( -90 ) || &DEG2RAD( 90 ) <= $lat_rad ){
+        die( qq{gis_mercator_y(): \$lat_rad[=$lat_rad] is out of range.\n} );
+    }
+    return &gis_mercator_y_core( $lat_rad );
+}
+
+sub gis_miller_y( $ )
+{
+    my( $lat_rad ) = @_;
+    # 0.8倍する前に範囲チェックしておく
+    if( $lat_rad <= &DEG2RAD( -90 ) || &DEG2RAD( 90 ) <= $lat_rad ){
+        die( qq{gis_miller_y(): \$lat_rad[=$lat_rad] is out of range.\n} );
+    }
+    return &gis_mercator_y_core( $lat_rad * 0.8 ) * 1.25;
 }
 
 ## Unit Conversion
@@ -5722,9 +5751,10 @@ geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_dista
 geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, moon2xyz,
 moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
 moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
-moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, au2km, km2au, ri2meter,
-meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_cm2, psi, bar, paper_size
+moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, gis_mercator_y,
+gis_miller_y, au2km, km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
+meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, kpa, kgf_cm2, psi, bar, paper_size
 
 =head1 OPTIONS
 
@@ -6611,6 +6641,11 @@ An integer less than 16 in which only 2 bits are set to 1:
 
   $ c 'sum( sample( 0x1, 0x2, 0x4, 0x8, 2 ) )'
   9 [ = 0x9 ]
+
+Example of a simulation rolling a single 6-sided die:
+
+  $ c 'sample( linstep( 1, 1, 6 ), 1 )'
+  4
 
 =item C<first>
 
@@ -7746,6 +7781,36 @@ Latitude and longitude must be specified in radians.
   $ Neper_Crater='8.5, 84.6'
   $ c "moon_all_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
   ( 2738.80230514, 81.51876383, 2739.80677647, 82.5683456648 )
+
+=item C<gis_mercator_y>
+
+gis_mercator_y( LAT_RAD ):
+
+  return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );
+
+=item C<gis_miller_y>
+
+gis_miller_y( LAT_RAD ):
+
+  return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;
+
+Comparison Table of Vertical Distortion in Mercator and Miller Projections:
+
+  +---+----------------+----------------+
+  |LAT|gis_mercator_y()| gis_miller_y() |
+  +===+================+================+
+  | 89| 4.74134876036  | 2.24811062453  |
+  | 85| 3.13130133147  | 2.04742335316  |
+  | 80| 2.43624605372  | 1.83238541563  |
+  | 70| 1.73541516267  | 1.48131336315  |
+  | 60| 1.31695789692  | 1.19683358065  |
+  | 50| 1.01068318868  | 0.953637065083 |
+  | 40| 0.762909652067 | 0.737541116463 |
+  | 30| 0.549306144334 | 0.539618408433 |
+  | 20| 0.356378504724 | 0.353693164293 |
+  | 10| 0.175425829652 | 0.175102806472 |
+  | 00| 0              | 0              |
+  +---+----------------+----------------+
 
 =back
 

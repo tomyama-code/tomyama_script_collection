@@ -128,9 +128,10 @@ geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, g
 geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, moon2xyz,
 moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
 moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
-moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, au2km, km2au, ri2meter,
-meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_cm2, psi, bar, paper\_size
+moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, gis\_mercator\_y,
+gis\_miller\_y, au2km, km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
+meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, kpa, kgf\_cm2, psi, bar, paper\_size
 
 # OPTIONS
 
@@ -991,6 +992,11 @@ The **c** script was created with the following in mind:
 
         $ c 'sum( sample( 0x1, 0x2, 0x4, 0x8, 2 ) )'
         9 [ = 0x9 ]
+
+    Example of a simulation rolling a single 6-sided die:
+
+        $ c 'sample( linstep( 1, 1, 6 ), 1 )'
+        4
 
 - `first`
 
@@ -2114,6 +2120,36 @@ The **c** script was created with the following in mind:
         $ Neper_Crater='8.5, 84.6'
         $ c "moon_all_km( deg2rad( $Mosting_A, $Neper_Crater ) )"
         ( 2738.80230514, 81.51876383, 2739.80677647, 82.5683456648 )
+
+- `gis_mercator_y`
+
+    gis\_mercator\_y( LAT\_RAD ):
+
+        return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );
+
+- `gis_miller_y`
+
+    gis\_miller\_y( LAT\_RAD ):
+
+        return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;
+
+    Comparison Table of Vertical Distortion in Mercator and Miller Projections:
+
+        +---+----------------+----------------+
+        |LAT|gis_mercator_y()| gis_miller_y() |
+        +===+================+================+
+        | 89| 4.74134876036  | 2.24811062453  |
+        | 85| 3.13130133147  | 2.04742335316  |
+        | 80| 2.43624605372  | 1.83238541563  |
+        | 70| 1.73541516267  | 1.48131336315  |
+        | 60| 1.31695789692  | 1.19683358065  |
+        | 50| 1.01068318868  | 0.953637065083 |
+        | 40| 0.762909652067 | 0.737541116463 |
+        | 30| 0.549306144334 | 0.539618408433 |
+        | 20| 0.356378504724 | 0.353693164293 |
+        | 10| 0.175425829652 | 0.175102806472 |
+        | 00| 0              | 0              |
+        +---+----------------+----------------+
 
 ## Unit Conversion
 

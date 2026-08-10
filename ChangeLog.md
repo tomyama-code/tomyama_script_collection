@@ -7,6 +7,15 @@
 ### Changed
 - xxx
 
+## [0.3.3] - 2026-08-10
+### Added
+- `c` [1.05.009]:
+  - Added a GIS function.
+    - gis_mercator_y( LAT_RAD ):
+      - return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );
+    - gis_miller_y( LAT_RAD ):
+      - return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;
+
 ## [0.3.2] - 2026-08-08
 ### Added
 - `c` [1.05.008]:
