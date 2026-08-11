@@ -7,6 +7,22 @@
 ### Changed
 - xxx
 
+## [0.3.4] - 2026-08-12
+### Added
+- `c` [1.05.012]
+  - Added a function for velocity conversion.
+    - km_per_h( I<VALUE> [, I<TARGET_UNIT> ] )
+    - mph( I<VALUE> [, I<TARGET_UNIT> ] )
+    - kn( I<VALUE> [, I<TARGET_UNIT> ] )
+    - m_per_s( I<VALUE> [, I<TARGET_UNIT> ] )
+    - Mach( I<VALUE> [, I<TARGET_UNIT> ] )
+    - speed_of_light( I<VALUE> [, I<TARGET_UNIT> ] )
+
+### Changed
+- `c` [1.05.012]
+  - Rename function.
+    - kgf_cm2() -> kgf_per_cm2()
+
 ## [0.3.3] - 2026-08-10
 ### Added
 - `c` [1.05.009]:

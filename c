@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.9 $
+## - $Revision: 5.12 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.9 $};
+    my $rev = q{$Revision: 5.12 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -997,9 +997,7 @@ sub new
     bless( $self, $class );     # クラス名を関連付け
     $self->{NAME} = $name;
     $TableProvider::CAppConfig = shift( @_ );
-    if( !defined( $TableProvider::opf ) ){
-        $TableProvider::opf = OutputFunc->new( $TableProvider::CAppConfig, 'tbl_prvdr' );
-    }
+    $TableProvider::opf = OutputFunc->new( $TableProvider::CAppConfig, 'tbl_prvdr' );
     $self->Reset();
     if( $TableProvider::CAppConfig->GetBTest() ){
         my $opeIdx = &GetOperatorsInfo( '_', O_INDX );
@@ -1196,6 +1194,12 @@ use constant {
     H_MALK => qq{moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_MCTY => qq{gis_mercator_y( LAT_RAD ): return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );},
     H_MLRY => qq{gis_miller_y( LAT_RAD ): return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;},
+    H_KM_H => qq{km_per_h( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in km/h). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_MPH_ => qq{mph( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in mph). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_KNOT => qq{kn( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in nautical mile per hour). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_M_SC => qq{m_per_s( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in m/s). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_MACH => qq{Mach( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in Mach). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_SOFL => qq{speed_of_light( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (as a ratio of the speed of light). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_AU2K => qq{au2km( AU ) --Convert-to--> KILOMETER: Convert astronomical units to kilometers.},
     H_K2AU => qq{km2au( KILOMETER ) --Convert-to--> AU: Convert kilometers to astronomical units.},
     H_RI2M => qq{ri2meter( RI ) --Convert-to--> METER: Length and distance conversion. alias: 里→メートル(), 里２メートル().},
@@ -1212,10 +1216,10 @@ use constant {
     H_G2OZ => qq{gram2ounce( GRAM ) --Convert-to--> OUNCE: Weight conversion. alias: グラム→オンス(), グラム２オンス().},
     H_KG2N => qq{kgf2newton( KGF ) --Convert-to--> NEWTON: Conversion of force, weight, and torque. alias: kgf2n(), キログラム重→ニュートン(), キログラム→ニュートン(), キログラム重2ニュートン(), キログラム2ニュートン().},
     H_N2KG => qq{newton2kgf( NEWTON ) --Convert-to--> KGF. Conversion of force, weight, and torque. alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キログラム(), ニュートン2キログラム重(), ニュートン2キログラム().},
-    H_KPAS => qq{kPa( KILO_PASCAL [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to KILO_PASCAL. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
-    H_KGC2 => qq{kgf_cm2( KGF_CM2 [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to KGF_CM2. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
-    H_PD2I => qq{PSI( PSI [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to PSI. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
-    H_BAR_ => qq{bar( BAR [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to BAR. The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_KPAS => qq{kPa( VALUE [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to VALUE (in kilo pascal). The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_KGC2 => qq{kgf_per_cm2( VALUE [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to VALUE (in kgf/cm2). The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_PD2I => qq{PSI( VALUE [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to VALUE (in PSI). The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
+    H_BAR_ => qq{bar( VALUE [, TARGET_UNIT ] ): Returns a list of pressures in various units corresponding to VALUE (in bar). The list is ordered as ( kPa, kgf/cm2, PSI, bar ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_PASZ => qq{paper_size( SIZE [, TYPE ] ): Returns the following information in this order: length of short side, length of long side (in mm). SIZE is a non-negative integer. If TYPE is omitted or 0 is specified, it will be A size. If TYPE is specified as 1, it will be B size ( Japan's unique standards ).},
 };
 
@@ -1359,29 +1363,35 @@ use constant {
     'moon_rl_dist_km_and_azimuth' => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_m'                  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'gis_mercator_y'              => [ 2185, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
-    'gis_miller_y'                => [ 2186, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
-    'au2km'                       => [ 2190, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
-    'km2au'                       => [ 2200, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
-    'ri2meter'                    => [ 2210, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2220, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2230, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2240, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2250, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2260, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2270, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2280, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2290, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2300, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2330, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'kpa'                         => [ 2350, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
-    'kgf_cm2'                     => [ 2360, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_cm2( @_ ) } ],
-    'psi'                         => [ 2370, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
-    'bar'                         => [ 2380, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
-    'paper_size'                  => [ 2390, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'gis_mercator_y'              => [ 2190, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
+    'gis_miller_y'                => [ 2200, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
+    'km_per_h'                    => [ 2210, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
+    'mph'                         => [ 2220, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
+    'kn'                          => [ 2230, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
+    'm_per_s'                     => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
+    'mach'                        => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
+    'speed_of_light'              => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
+    'au2km'                       => [ 2270, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
+    'km2au'                       => [ 2280, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
+    'ri2meter'                    => [ 2290, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2300, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2330, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2340, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2350, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2360, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2370, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2380, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2390, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'kpa'                         => [ 2430, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
+    'kgf_per_cm2'                 => [ 2440, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
+    'psi'                         => [ 2450, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
+    'bar'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
+    'paper_size'                  => [ 2470, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -3752,6 +3762,87 @@ sub gis_miller_y( $ )
 
 ## Unit Conversion
 
+## 速度の変換
+
+sub km_h_to( $$ )
+{
+    my( $km_per_hour, $target_unit ) = @_;
+    my $mph     = $km_per_hour / 1.609344;
+    my $knot    = $km_per_hour / 1.852;
+    my $m_per_s = $km_per_hour / 3.600;
+    my $mach    = $km_per_hour / 1_191.6;
+    my $speed_of_light = $m_per_s / 299_792_458;
+    my @velocities = ( $km_per_hour, $mph, $knot, $m_per_s, $mach, $speed_of_light );
+
+    if( defined( $target_unit ) ){
+        my( $pkg, $filename, $line, $subr ) = caller( 1 );
+        #print( qq{\$pkg="$pkg", \$filename="$filename", \$line="$line", \$subr="$subr"\n} );
+        $subr =~ s!^${pkg}::!!;
+
+        if( !( 0 <= $target_unit && $target_unit < scalar( @velocities ) ) ){
+            die( qq{$subr(): \$target_unit[=$target_unit] is out of range.\n} );
+        }
+        if( $target_unit != int( $target_unit ) ){
+            die( qq{$subr(): \$target_unit[=$target_unit] is a decimal number.\n} );
+        }
+
+        return $velocities[ $target_unit ];
+    }
+
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        print( qq{[Hint] Return list format: ( 0:km/h, 1:mph, 2:kn, 3:m/s, 4:Mach, 5:speed_of_light )\n} );
+    }
+    return @velocities;
+}
+
+sub km_per_h( $ )
+{
+    my( $km_per_hour, $target_unit ) = @_;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
+sub mph( $ )
+{
+    my( $mph, $target_unit ) = @_;
+    my $km_per_hour = $mph * 1.609344;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
+sub kn( $ )
+{
+    my( $kn, $target_unit ) = @_;
+    my $km_per_hour = $kn * 1.852;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
+sub m_per_s( $ )
+{
+    my( $meter_per_second, $target_unit ) = @_;
+    my $km_per_hour = $meter_per_second * 3.600;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
+sub Mach( $ )
+{
+    my( $mach, $target_unit ) = @_;
+    my $km_per_hour = $mach * 1_191.6;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
+sub speed_of_light( $ )
+{
+    my( $speed_of_light, $target_unit ) = @_;
+    my $meter_per_second = $speed_of_light * 299_792_458;
+    my $km_per_hour = $meter_per_second * 3.600;
+    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    return @velocities;
+}
+
 ## 長さ変換: AU→キロメートル[km]
 sub au2km( $ )
 {
@@ -3920,7 +4011,7 @@ sub kPa( $;$ )
     return @air_pressure_units;
 }
 
-sub kgf_cm2( $;$ )
+sub kgf_per_cm2( $;$ )
 {
     my( $kgf, $target_unit ) = @_;
 
@@ -4346,10 +4437,16 @@ sub LoadConstants( $\$ )
     # システム定義定数
     ${ $ref_user_const }{sakubou} = 29.530588853;   # 朔望: 平均朔望月
     ${ $ref_user_const }{chijiku} = 23.436;         # 地球の地軸の傾き
-    ${ $ref_user_const }{kpa}     = 0;
-    ${ $ref_user_const }{kgf_cm2} = 1;
-    ${ $ref_user_const }{psi}     = 2;
-    ${ $ref_user_const }{bar}     = 3;
+    ${ $ref_user_const }{km_per_h}       = 0;
+    ${ $ref_user_const }{mph}            = 1;
+    ${ $ref_user_const }{kn}             = 2;
+    ${ $ref_user_const }{m_per_s}        = 3;
+    ${ $ref_user_const }{mach}           = 4;
+    ${ $ref_user_const }{speed_of_light} = 5;
+    ${ $ref_user_const }{kpa}         = 0;
+    ${ $ref_user_const }{kgf_per_cm2} = 1;
+    ${ $ref_user_const }{psi}         = 2;
+    ${ $ref_user_const }{bar}         = 3;
 
     # ユーザー定義定数
     my $rcFileName = ".c.rc";
@@ -5752,9 +5849,9 @@ geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, mo
 moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
 moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
 moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, gis_mercator_y,
-gis_miller_y, au2km, km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter,
-meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
-newton2kgf, kpa, kgf_cm2, psi, bar, paper_size
+gis_miller_y, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km, km2au, ri2meter, meter2ri, mile2meter,
+meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound,
+ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi, bar, paper_size
 
 =head1 OPTIONS
 
@@ -7784,15 +7881,39 @@ Latitude and longitude must be specified in radians.
 
 =item C<gis_mercator_y>
 
-gis_mercator_y( LAT_RAD ):
+gis_mercator_y( I<LAT_RAD> ):
+
+implementation:
 
   return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );
 
+How to use:
+
+  $ origin_y=1381
+  $ scale=477.292120625
+  $ lat=35
+  $ c "$origin_y + (
+         $scale * gis_mercator_y( deg2rad( $lat ) )
+       )"
+  1692.59375556
+
 =item C<gis_miller_y>
 
-gis_miller_y( LAT_RAD ):
+gis_miller_y( I<LAT_RAD> ):
+
+implementation:
 
   return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;
+
+How to use:
+
+  $ origin_y=1381
+  $ scale=477.292120625
+  $ lat=35
+  $ c "$origin_y + (
+         $scale * gis_miller_y( deg2rad( $lat ) )
+       )"
+  1684.91115578
 
 Comparison Table of Vertical Distortion in Mercator and Miller Projections:
 
@@ -7817,6 +7938,96 @@ Comparison Table of Vertical Distortion in Mercator and Miller Projections:
 =head2 Unit Conversion
 
 =over 8
+
+=item C<km_per_h>
+
+km_per_h( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (in km/h).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'km_per_h( 1 )'
+  ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 )
+
+Specify the unit:
+
+  $ c 'km_per_h( 1, mph )'
+  0.621371192237
+
+=item C<mph>
+
+mph( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (in mph).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'mph( 1 )'
+  ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.0000000015 )
+
+Specify the unit:
+
+  $ c 'mph( 1, kn )'
+  0.868976241901
+
+=item C<kn>
+
+kn( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (in nautical mile per hour).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'kn( 1 )'
+  ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.0000000017 )
+
+Specify the unit:
+
+  $ c 'kn( 1, m_per_s )'
+  0.514444444444
+
+=item C<m_per_s>
+
+m_per_s( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (in m/s).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'm_per_s( 1 )'
+  ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.0000000033 )
+
+Specify the unit:
+
+  $ c 'm_per_s( 1, mach )'
+  0.003021148036
+
+=item C<Mach>
+
+Mach( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (in Mach).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'Mach( 1 )'
+  ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011 )
+
+Specify the unit:
+
+  $ c 'Mach( 1, speed_of_light )'
+  0.0000011
+
+=item C<speed_of_light>
+
+speed_of_light( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of velocities in various units corresponding to I<VALUE> (as a ratio of the speed of light).
+The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
+
+  $ c 'speed_of_light( 1 )'
+  ( 1079252848.8, 670616629.384, 582749918.359, 299792458, 905717.39577, 1 )
+
+Specify the unit:
+
+  $ c 'speed_of_light( 1, km_per_h )'
+  1079252848.8
 
 =item C<au2km>
 
@@ -7964,8 +8175,8 @@ alias: n2kgf(), ニュートン→キログラム重(), ニュートン→キロ
 
 =item C<kPa>
 
-kPa( I<KILO_PASCAL> [, I<TARGET_UNIT> ] ):
-Returns a list of pressures in various units corresponding to I<KILO_PASCAL>.
+kPa( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<VALUE> (in kilo pascal).
 The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
@@ -7974,28 +8185,28 @@ If I<TARGET_UNIT> is specified, the function returns only the converted value fo
 
 Specify the unit:
 
-  $ c 'kPa( 221, kgf_cm2 )'
+  $ c 'kPa( 221, kgf_per_cm2 )'
   2.2535812
 
-=item C<kgf_cm2>
+=item C<kgf_per_cm2>
 
-kgf_cm2( I<KGF_CM2> [, I<TARGET_UNIT> ] ):
-Returns a list of pressures in various units corresponding to I<KGF_CM2>.
+kgf_per_cm2( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<VALUE> (in kgf/cm2).
 The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
-  $ c 'kgf_cm2( 2.25 )'
+  $ c 'kgf_per_cm2( 2.25 )'
   ( 220.648805554, 2.25, 32.00246146, 2.20648805554 )
 
 Specify the unit:
 
-  $ c 'kgf_cm2( 2.25, PSI )'
+  $ c 'kgf_per_cm2( 2.25, PSI )'
   32.00246146
 
 =item C<PSI>
 
-PSI( I<PSI> [, I<TARGET_UNIT> ] ):
-Returns a list of pressures in various units corresponding to I<PSI>.
+PSI( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<VALUE> (in PSI).
 The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
@@ -8009,8 +8220,8 @@ Specify the unit:
 
 =item C<bar>
 
-bar( I<BAR> [, I<TARGET_UNIT> ] ):
-Returns a list of pressures in various units corresponding to I<BAR>.
+bar( I<VALUE> [, I<TARGET_UNIT> ] ):
+Returns a list of pressures in various units corresponding to I<VALUE> (in bar).
 The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 

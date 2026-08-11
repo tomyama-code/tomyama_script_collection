@@ -129,9 +129,9 @@ geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, ge
 moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
 moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
 moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, gis\_mercator\_y,
-gis\_miller\_y, au2km, km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter,
-meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
-newton2kgf, kpa, kgf\_cm2, psi, bar, paper\_size
+gis\_miller\_y, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km, km2au, ri2meter, meter2ri, mile2meter,
+meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound,
+ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi, bar, paper\_size
 
 # OPTIONS
 
@@ -2123,15 +2123,39 @@ The **c** script was created with the following in mind:
 
 - `gis_mercator_y`
 
-    gis\_mercator\_y( LAT\_RAD ):
+    gis\_mercator\_y( _LAT\_RAD_ ):
+
+    implementation:
 
         return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );
 
+    How to use:
+
+        $ origin_y=1381
+        $ scale=477.292120625
+        $ lat=35
+        $ c "$origin_y + (
+               $scale * gis_mercator_y( deg2rad( $lat ) )
+             )"
+        1692.59375556
+
 - `gis_miller_y`
 
-    gis\_miller\_y( LAT\_RAD ):
+    gis\_miller\_y( _LAT\_RAD_ ):
+
+    implementation:
 
         return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;
+
+    How to use:
+
+        $ origin_y=1381
+        $ scale=477.292120625
+        $ lat=35
+        $ c "$origin_y + (
+               $scale * gis_miller_y( deg2rad( $lat ) )
+             )"
+        1684.91115578
 
     Comparison Table of Vertical Distortion in Mercator and Miller Projections:
 
@@ -2152,6 +2176,96 @@ The **c** script was created with the following in mind:
         +---+----------------+----------------+
 
 ## Unit Conversion
+
+- `km_per_h`
+
+    km\_per\_h( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (in km/h).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'km_per_h( 1 )'
+        ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 )
+
+    Specify the unit:
+
+        $ c 'km_per_h( 1, mph )'
+        0.621371192237
+
+- `mph`
+
+    mph( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (in mph).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'mph( 1 )'
+        ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.0000000015 )
+
+    Specify the unit:
+
+        $ c 'mph( 1, kn )'
+        0.868976241901
+
+- `kn`
+
+    kn( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (in nautical mile per hour).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'kn( 1 )'
+        ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.0000000017 )
+
+    Specify the unit:
+
+        $ c 'kn( 1, m_per_s )'
+        0.514444444444
+
+- `m_per_s`
+
+    m\_per\_s( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (in m/s).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'm_per_s( 1 )'
+        ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.0000000033 )
+
+    Specify the unit:
+
+        $ c 'm_per_s( 1, mach )'
+        0.003021148036
+
+- `Mach`
+
+    Mach( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (in Mach).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'Mach( 1 )'
+        ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011 )
+
+    Specify the unit:
+
+        $ c 'Mach( 1, speed_of_light )'
+        0.0000011
+
+- `speed_of_light`
+
+    speed\_of\_light( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of velocities in various units corresponding to _VALUE_ (as a ratio of the speed of light).
+    The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
+
+        $ c 'speed_of_light( 1 )'
+        ( 1079252848.8, 670616629.384, 582749918.359, 299792458, 905717.39577, 1 )
+
+    Specify the unit:
+
+        $ c 'speed_of_light( 1, km_per_h )'
+        1079252848.8
 
 - `au2km`
 
@@ -2299,8 +2413,8 @@ The **c** script was created with the following in mind:
 
 - `kPa`
 
-    kPa( _KILO\_PASCAL_ \[, _TARGET\_UNIT_ \] ):
-    Returns a list of pressures in various units corresponding to _KILO\_PASCAL_.
+    kPa( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _VALUE_ (in kilo pascal).
     The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
@@ -2309,28 +2423,28 @@ The **c** script was created with the following in mind:
 
     Specify the unit:
 
-        $ c 'kPa( 221, kgf_cm2 )'
+        $ c 'kPa( 221, kgf_per_cm2 )'
         2.2535812
 
-- `kgf_cm2`
+- `kgf_per_cm2`
 
-    kgf\_cm2( _KGF\_CM2_ \[, _TARGET\_UNIT_ \] ):
-    Returns a list of pressures in various units corresponding to _KGF\_CM2_.
+    kgf\_per\_cm2( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _VALUE_ (in kgf/cm2).
     The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
-        $ c 'kgf_cm2( 2.25 )'
+        $ c 'kgf_per_cm2( 2.25 )'
         ( 220.648805554, 2.25, 32.00246146, 2.20648805554 )
 
     Specify the unit:
 
-        $ c 'kgf_cm2( 2.25, PSI )'
+        $ c 'kgf_per_cm2( 2.25, PSI )'
         32.00246146
 
 - `PSI`
 
-    PSI( _PSI_ \[, _TARGET\_UNIT_ \] ):
-    Returns a list of pressures in various units corresponding to _PSI_.
+    PSI( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _VALUE_ (in PSI).
     The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
@@ -2344,8 +2458,8 @@ The **c** script was created with the following in mind:
 
 - `bar`
 
-    bar( _BAR_ \[, _TARGET\_UNIT_ \] ):
-    Returns a list of pressures in various units corresponding to _BAR_.
+    bar( _VALUE_ \[, _TARGET\_UNIT_ \] ):
+    Returns a list of pressures in various units corresponding to _VALUE_ (in bar).
     The list is ordered as ( kPa, kgf/cm2, PSI, bar ).
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 

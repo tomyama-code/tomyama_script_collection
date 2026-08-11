@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.42 $
+## - $Revision: 1.45 $
 ################################################################################
 
 use strict;
@@ -73,27 +73,33 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{gis_mercator_y( deg2rad( 90.0 ) )} );
+#        $res = $c->formula( qq{km_per_h( 1, -1 )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'gis_mercator_y( deg2rad( 90.0 ) )'} );
+#    $t->exit_isnt( 0, qq{./c 'km_per_h( 1, -1 )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: gis_mercator_y\(\): \$lat_rad\[=1\.5707963267949\] is out of range\./ );
+#    $t->stderr_like( qr/^c: evaluator: error: km_per_h\(\): \$target_unit\[=\-1\] is out of range\./ );
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{gis_mercator_y( deg2rad( 89.9 ) )} );
+#        $res = $c->formula( qq{speed_of_light( 1 )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( 89.9 ) )'} );
+#    $t->exit_is( 0, qq{./c 'speed_of_light( 1 )'} );
 #    $t->has_no_exception();
-#    equal( $res, 7.04395898475 );
+#    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
+#    equal( ${ $res }[ 0 ], 1079252848.8    , qq{ km/h: 1079252848.8} );
+#    equal( ${ $res }[ 1 ],  670616629.384  , qq{  mph:  670616629.384} );
+#    equal( ${ $res }[ 2 ],  582749918.359  , qq{   kn:  582749918.359} );
+#    equal( ${ $res }[ 3 ],  299792458      , qq{  m/s:  299792458} );
+#    equal( ${ $res }[ 4 ],     905717.39577, qq{ Mach:     905717.39577} );
+#    equal( ${ $res }[ 5 ],          1      , qq{  sol:          1} );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
 #};
 #done_testing();
 #exit( 0 );
-#subtest qq{-v, --verbose} => sub{
+#subtest qq{Script Structure} => sub{
 #
 #    require './c';
 #
@@ -101,14 +107,13 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $status;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = &pl_main( 'kPa( 221 )', '--verbose' );
+#        $status = &pl_main( 'mph( 1, kn )', '--verbose' );
 #    } );
-#    $t->exit_is( 0, qq{./c 'kPa( 221 )' --verbose} );
+#    $t->exit_is( 0, qq{./c 'mph( 1, kn )' --verbose} );
 #    $t->has_no_exception();
-#    $t->stdout_is( qq{[Hint] Return list format: ( 0:kPa, 1:kgf/cm2, 2:PSI, 3:bar )\n} .
-#                   qq{kpa( 221 ) = ( 221, 2.2535812, 32.053398, 2.21 )\n} .
-#                   qq{Formula: 'kpa( 221 ) ='\n} .
-#                   qq{ Result: ( 221, 2.2535812, 32.053398, 2.21 )\n} );
+#    $t->stdout_is( qq{mph( 1, 2 ) = 0.868976241900648\n} .
+#                   qq{Formula: 'mph( 1, 2 ) ='\n} .
+#                   qq{ Result: 0.868976241901\n}, qq{[Hint]行が表示されないこと} );
 #    $t->stderr_is( qq{} );
 #
 #};
@@ -1468,7 +1473,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0 );
     $t->has_no_exception();
     equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], '-0', qq{リストを受け取る} );
+    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
     equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
     equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
@@ -1504,7 +1509,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0 );
     $t->has_no_exception();
     equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], '-0', qq{リストを受け取る} );
+    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
     equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
     equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
@@ -1516,7 +1521,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0 );
     $t->has_no_exception();
     equal( scalar( @{ $res } ), 9, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], '-0', qq{リストを受け取る} );
+    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
     equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
     equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
     equal( ${ $res }[ 3 ], -69, qq{リストを受け取る} );
@@ -2535,6 +2540,150 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, -1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'km_per_h( 1, -1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: km_per_h\(\): \$target_unit\[=\-1\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, 6 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'km_per_h( 1, 6 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: km_per_h\(\): \$target_unit\[=6\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, 4.9 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'km_per_h( 1, 4.9 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: km_per_h\(\): \$target_unit\[=4\.9\] is a decimal number\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, 5.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'km_per_h( 1, 5.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 0.00000000093 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, mph )} );
+    } );
+    $t->exit_is( 0, qq{./c 'km_per_h( 1, mph )'} );
+    $t->has_no_exception();
+    equal( $res, 0.621371192237 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1, 0.0 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'km_per_h( 1, 0.0 )'} );
+    $t->has_no_exception();
+    equal( $res, 1 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{km_per_h( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'km_per_h( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 km/h を変換} );
+    equal( ${ $res }[ 0 ], 1             , qq{ km/h: 1} );
+    equal( ${ $res }[ 1 ], 0.621371192237, qq{  mph: 0.621371192237} );
+    equal( ${ $res }[ 2 ], 0.539956803456, qq{   kn: 0.539956803456} );
+    equal( ${ $res }[ 3 ], 0.277777777778, qq{  m/s: 0.277777777778} );
+    equal( ${ $res }[ 4 ], 0.000839207788, qq{ Mach: 0.000839207788} );
+    equal( ${ $res }[ 5 ], 0.00000000093 , qq{  sol: 0.00000000093} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mph( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'mph( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 mph を変換} );
+    equal( ${ $res }[ 0 ], 1.609344      , qq{ km/h: 1.609344} );
+    equal( ${ $res }[ 1 ], 1             , qq{  mph: 1} );
+    equal( ${ $res }[ 2 ], 0.868976241901, qq{   kn: 0.868976241901} );
+    equal( ${ $res }[ 3 ], 0.44704       , qq{  m/s: 0.44704} );
+    equal( ${ $res }[ 4 ], 0.001350574018, qq{ Mach: 0.001350574018} );
+    equal( ${ $res }[ 5 ], 0.0000000015  , qq{  sol: 0.0000000015} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{kn( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'kn( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 kn を変換} );
+    equal( ${ $res }[ 0 ], 1.852         , qq{ km/h: 1.852} );
+    equal( ${ $res }[ 1 ], 1.15077944802 , qq{  mph: 1.15077944802} );
+    equal( ${ $res }[ 2 ], 1             , qq{   kn: 1} );
+    equal( ${ $res }[ 3 ], 0.514444444444, qq{  m/s: 0.514444444444} );
+    equal( ${ $res }[ 4 ], 0.001554212823, qq{ Mach: 0.001554212823} );
+    equal( ${ $res }[ 5 ], 0.0000000017  , qq{  sol: 0.0000000017} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{m_per_s( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'm_per_s( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 m/s を変換} );
+    equal( ${ $res }[ 0 ], 3.6           , qq{ km/h: 3.6} );
+    equal( ${ $res }[ 1 ], 2.23693629205 , qq{  mph: 2.23693629205} );
+    equal( ${ $res }[ 2 ], 1.94384449244 , qq{   kn: 1.94384449244} );
+    equal( ${ $res }[ 3 ], 1             , qq{  m/s: 1} );
+    equal( ${ $res }[ 4 ], 0.003021148036, qq{ Mach: 0.003021148036} );
+    equal( ${ $res }[ 5 ], 0.0000000033  , qq{  sol: 0.0000000033} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{Mach( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'Mach( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
+    equal( ${ $res }[ 0 ], 1191.6        , qq{ km/h: 1191.6} );
+    equal( ${ $res }[ 1 ],  740.42591267 , qq{  mph:  740.42591267} );
+    equal( ${ $res }[ 2 ],  643.412526998, qq{   kn:  643.412526998} );
+    equal( ${ $res }[ 3 ],  331          , qq{  m/s:  331} );
+    equal( ${ $res }[ 4 ],    1          , qq{ Mach:    1} );
+    equal( ${ $res }[ 5 ],    0.0000011  , qq{  sol:    0.0000011} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{speed_of_light( 1 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'speed_of_light( 1 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
+    equal( ${ $res }[ 0 ], 1079252848.8    , qq{ km/h: 1079252848.8} );
+    equal( ${ $res }[ 1 ],  670616629.384  , qq{  mph:  670616629.384} );
+    equal( ${ $res }[ 2 ],  582749918.359  , qq{   kn:  582749918.359} );
+    equal( ${ $res }[ 3 ],  299792458      , qq{  m/s:  299792458} );
+    equal( ${ $res }[ 4 ],     905717.39577, qq{ Mach:     905717.39577} );
+    equal( ${ $res }[ 5 ],          1      , qq{  sol:          1} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{au2km( 39.445 )} );
     } );
     $t->exit_is( 0 );
@@ -2715,9 +2864,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{kPa( 221, kgf_cm2 )} );
+        $res = $c->formula( qq{kPa( 221, kgf_per_cm2 )} );
     } );
-    $t->exit_is( 0, qq{./c 'kPa( 221, kgf_cm2 )'} );
+    $t->exit_is( 0, qq{./c 'kPa( 221, kgf_per_cm2 )'} );
     $t->has_no_exception();
     equal( $res, 2.2535812 );
     $t->stdout_is( qq{} );
@@ -2746,9 +2895,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
-        $res = $c->formula( qq{kgf_cm2( 2.25 )} );
+        $res = $c->formula( qq{kgf_per_cm2( 2.25 )} );
     } );
-    $t->exit_is( 0, qq{./c 'kgf_cm2( 2.25 )'} );
+    $t->exit_is( 0, qq{./c 'kgf_per_cm2( 2.25 )'} );
     $t->has_no_exception();
     equal( scalar( @{ $res } ), 4, qq{2.25 kgf/cm2 を変換} );
     equal( ${ $res }[ 0 ], 220.648805554  , qq{   kPa: 220.648805554} );
@@ -5403,6 +5552,57 @@ subtest qq{Require ./c} => sub {
 
     require './c';
 
+    subtest qq{Script Structure} => sub{
+
+        my $t;
+        my $status;
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test', '-d' );
+        } );
+        $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
+        $t->has_no_exception();
+        ## OutputFunc
+        $t->stdout_like( qr/\nengine: \$help_of_unknown_operator="    \*\*\*\n/, 'OutputFunc' );
+        ## TableProvider
+        $t->stdout_like( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
+        $t->stdout_like( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
+        ## FormulaStack
+        $t->stdout_like( qr/Pop\(\): enmpy/, 'FormulaStack' );
+        $t->stdout_like( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
+        ## FormulaEvaluator
+        $t->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{RPN\} \} \) = 3\n/, 'FormulaEvaluator' );
+        $t->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{TOKENS\} \} \) = 2\n/, 'FormulaEvaluator' );
+        $t->stdout_like( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
+        $t->stdout_like( qr/\n Result: 100\n/, qq{result: 100} );
+        $t->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
+        $t->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
+        $t->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test' );
+        } );
+        $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
+        $t->has_no_exception();
+        ## OutputFunc
+        $t->stdout_unlike( qr/\nengine: \$help_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
+        ## TableProvider
+        $t->stdout_unlike( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
+        $t->stdout_unlike( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
+        ## FormulaStack
+        $t->stdout_unlike( qr/Pop\(\): enmpy/, 'FormulaStack' );
+        $t->stdout_unlike( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
+        ## FormulaEvaluator
+        $t->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::RPN \) = 3\n/, 'FormulaEvaluator' );
+        $t->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::Tokens \) = 2\n/, 'FormulaEvaluator' );
+        $t->stdout_unlike( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
+        $t->stdout_is( qq{100\n}, qq{result: 100} );
+        $t->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
+        $t->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
+        $t->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
+
+    };
+
     subtest qq{Tests requiring checks of option switches or STDOUT} => sub{
         my $t;
         my $status;
@@ -5631,6 +5831,27 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'km_per_h( 1 )', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'km_per_h( 1 )' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{[Hint] Return list format: ( 0:km/h, 1:mph, 2:kn, 3:m/s, 4:Mach, 5:speed_of_light )\n} .
+                       qq{km_per_h( 1 ) = ( 1, 0.621371192237334, 0.539956803455723, 0.277777777777778, 0.000839207787848271, 9.26566931105978e-10 )\n} .
+                       qq{Formula: 'km_per_h( 1 ) ='\n} .
+                       qq{ Result: ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 ) [ = ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 9.3e-10 ) ]\n} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'mph( 1, kn )', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'mph( 1, kn )' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{mph( 1, 2 ) = 0.868976241900648\n} .
+                       qq{Formula: 'mph( 1, 2 ) ='\n} .
+                       qq{ Result: 0.868976241901\n}, qq{[Hint]行が表示されないこと} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
             $status = &pl_main( 'kPa( 221 )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'kPa( 221 )' --verbose} );
@@ -5642,13 +5863,14 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'kgf_cm2( 2.25, 2 )', '--verbose' );
+            $status = &pl_main( 'kgf_per_cm2( 2.25, PSI )', '--verbose' );
         } );
-        $t->exit_is( 0, qq{./c 'kgf_cm2( 2.25, 2 )' --verbose} );
+        $t->exit_is( 0, qq{./c 'kgf_per_cm2( 2.25, PSI )' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{kgf_cm2( 2.25, 2 ) = 32.0024614600086\n} .
-                       qq{Formula: 'kgf_cm2( 2.25, 2 ) ='\n} .
-                       qq{ Result: 32.00246146\n} );
+        $t->stdout_unlike( qr/\[Hint\] Return list format: \( 0:kPa, 1:kgf\/cm2, 2:PSI, 3:bar \)\n/ );
+        $t->stdout_is( qq{kgf_per_cm2( 2.25, 2 ) = 32.0024614600086\n} .
+                       qq{Formula: 'kgf_per_cm2( 2.25, 2 ) ='\n} .
+                       qq{ Result: 32.00246146\n}, qq{[Hint]行が表示されないこと} );
         $t->stderr_is( qq{} );
 
     };
@@ -5752,8 +5974,6 @@ subtest qq{Require ./c} => sub {
     };
 
 };
-#done_testing();
-#exit( 0 );
 
 subtest qq{Normal (Ex-Proc Test)} => sub{
     my $t;
@@ -5772,7 +5992,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\n\n" | ./c 'laptimer( 2 )'} );
-    $t->exit_is( 0, qq{printf "\n\n" | ./c 'laptimer( 2 )'} );
+    $t->exit_is( 0, qq{printf "\\n\\n" | ./c 'laptimer( 2 )'} );
     $t->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r2\/2  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
@@ -5780,7 +6000,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\nq\n" | ./c 'laptimer( 10 )'} );
-    $t->exit_is( 0, qq{printf "\nq\n" | ./c 'laptimer( 10 )'} );
+    $t->exit_is( 0, qq{printf "\\nq\\n" | ./c 'laptimer( 10 )'} );
     $t->stdout_like( qr/^Lap    Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r 2\/10  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
@@ -5788,7 +6008,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\n\n\nq\n" | ./c 'laptimer( 10 )' --test-test-test} );
-    $t->exit_is( 0, qq{printf "\n\n\nq\n" | ./c 'laptimer( 10 )' --test-test-test} );
+    $t->exit_is( 0, qq{printf "\\n\\n\\nq\\n" | ./c 'laptimer( 10 )' --test-test-test} );
     $t->stdout_like( qr/^Lap    Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r 4\/10  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
@@ -5851,50 +6071,6 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
-};
-
-subtest qq{Script Structure} => sub{
-    my $t;
-
-    $t = tests::Tester->run_cmd( qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
-    $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
-    ## OutputFunc
-    $t->stdout_like( qr/\nengine: \$help_of_unknown_operator="    \*\*\*\n/, 'OutputFunc' );
-    ## TableProvider
-    $t->stdout_like( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
-    $t->stdout_like( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
-    ## FormulaStack
-    $t->stdout_like( qr/Pop\(\): enmpy/, 'FormulaStack' );
-    $t->stdout_like( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
-    ## FormulaEvaluator
-    $t->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{RPN\} \} \) = 3\n/, 'FormulaEvaluator' );
-    $t->stdout_like( qr/\nevaluator: scalar\( \@\{ \$self->\{TOKENS\} \} \) = 2\n/, 'FormulaEvaluator' );
-    $t->stdout_like( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
-    $t->stdout_like( qr/\n Result: 100\n/, qq{result: 100} );
-    $t->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
-    $t->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
-    $t->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
-    undef( $t );
-
-    $t = tests::Tester->run_cmd( qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
-    $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
-    ## OutputFunc
-    $t->stdout_unlike( qr/\nengine: \$help_unknown_operator="  \*\*\*\n/, 'OutputFunc' );
-    ## TableProvider
-    $t->stdout_unlike( qr/\ntbl_prvdr: test: \$opeIdx=""\n/, 'TableProvider' );
-    $t->stdout_unlike( qr/\ntbl_prvdr: test: \$bSentinel="0"\n/, 'TableProvider' );
-    ## FormulaStack
-    $t->stdout_unlike( qr/Pop\(\): enmpy/, 'FormulaStack' );
-    $t->stdout_unlike( qr/GetNewer\(\): enmpy/, 'FormulaStack' );
-    ## FormulaEvaluator
-    $t->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::RPN \) = 3\n/, 'FormulaEvaluator' );
-    $t->stdout_unlike( qr/\nevaluator: scalar\( \@FormulaEvaluator::Tokens \) = 2\n/, 'FormulaEvaluator' );
-    $t->stdout_unlike( qr/\nevaluator: GetUsage\(\) test: \$usage=""\n/, 'FormulaEvaluator' );
-    $t->stdout_is( qq{100\n}, qq{result: 100} );
-    $t->stderr_like( qr/^Use of uninitialized value \$opeIdx / );
-    $t->stderr_like( qr/\nc: evaluator: warn: There may be an error in the calculation formula\.\n/, 'FormulaEvaluator' );
-    $t->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
-    undef( $t );
 };
 
 subtest qq{aliases (In-Proc Test)} => sub{
@@ -6411,7 +6587,7 @@ subtest qq{aliases (Ex-Proc Test)} => sub{
     my $t;
 
     $t = tests::Tester->run_cmd( qq{printf "\n\n" | ./c 'lt( 2 )'} );
-    $t->exit_is( 0, qq{printf "\n\n" | ./c 'lt( 2 )'} );
+    $t->exit_is( 0, qq{printf "\\n\\n" | ./c 'lt( 2 )'} );
     $t->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r2\/2  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );

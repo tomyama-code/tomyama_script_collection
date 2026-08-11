@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.12 $
+## - $Revision: 1.13 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -299,7 +299,7 @@ sub formula( $$;$ )
     my $raw_result = '';
     my $turn_completed = 0;
     my $error_occurred = 0;
-    my @result_list;
+    my @result_list = ();
     while( !$turn_completed ){
         my @ready = $self->{selector}->can_read( $self->_getTimeout() );
 
@@ -354,7 +354,11 @@ sub formula( $$;$ )
                     if( $calc_result =~ m/^\(\s*(.*?)\s*\)$/o ){
                         my @list = split( /, /, $1 );
                         $turn_completed = 1;
-                        @result_list = @list;
+                        my $list_len = scalar( @list );
+                        for( my $idx=0; $idx<$list_len; $idx++ ){
+                            # 強制的に数値に
+                            $result_list[ $idx ] = $list[ $idx ] + 0;
+                        }
                     }
 
                     if( &Scalar::Util::looks_like_number( $calc_result ) ){

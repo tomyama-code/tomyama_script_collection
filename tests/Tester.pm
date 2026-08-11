@@ -1,6 +1,6 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.10 $
+## - $Revision: 1.11 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -147,7 +147,10 @@ sub run_cmd( $@ )
     #print( qq{\$cmd="$cmd"\n}, ;
 
     my( $package, $filename, $line ) = caller( 0 );
-    note( qq{$filename: $line: $cmd\n} );
+    #my $cmd_str = qq{\Q$cmd\E}; # 恐らく use utf8 が必要
+    my $cmd_str = $cmd;
+    $cmd_str =~ s/\n/\\n/go;
+    note( qq{$filename: $line: $cmd_str\n} );
 
     my $exit_code = 0;
     my( $stdout, $stderr ) = capture{
