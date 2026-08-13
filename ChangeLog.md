@@ -7,6 +7,12 @@
 ### Changed
 - xxx
 
+## [0.3.5] - 2026-08-14
+### Added
+- `c` [1.05.014]:
+  - Added a GIS function.
+    - the_solar_system( [ COLUMN, CELESTIAL_BODY ] ):
+
 ## [0.3.4] - 2026-08-12
 ### Added
 - `c` [1.05.012]

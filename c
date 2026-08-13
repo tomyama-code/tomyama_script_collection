@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.12 $
+## - $Revision: 5.14 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.12 $};
+    my $rev = q{$Revision: 5.14 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -578,7 +578,7 @@ use constant E_ACT => qw(
 );
 
 ## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
-use constant pi => 4 * atan2( 1, 1 );
+use constant pi => 4 * &CORE::atan2( 1, 1 );
 
 # 天文学における平均朔望月（月の満ち欠けの平均周期）
 use constant SAKUBOU => 29.530588853;
@@ -1194,6 +1194,7 @@ use constant {
     H_MALK => qq{moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_MCTY => qq{gis_mercator_y( LAT_RAD ): return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );},
     H_MLRY => qq{gis_miller_y( LAT_RAD ): return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;},
+    H_TSLS => qq{the_solar_system( [ COLUMN, CELESTIAL_BODY ] ): Returns data on celestial bodies in the solar system. If no arguments are given, it returns all data for Earth. In --verbose mode, you can view the available COLUMN and CELESTIAL_BODY.},
     H_KM_H => qq{km_per_h( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in km/h). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_MPH_ => qq{mph( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in mph). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_KNOT => qq{kn( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in nautical mile per hour). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
@@ -1365,6 +1366,7 @@ use constant {
     'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'gis_mercator_y'              => [ 2190, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
     'gis_miller_y'                => [ 2200, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
+    'the_solar_system'            => [ 2205, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
     'km_per_h'                    => [ 2210, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
     'mph'                         => [ 2220, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
     'kn'                          => [ 2230, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
@@ -1935,7 +1937,7 @@ sub _C_SQRT( @ )
 {
     my @ret_vals = ();
     for my $arg( @_ ){
-        push( @ret_vals, sqrt( $arg ) );
+        push( @ret_vals, &CORE::sqrt( $arg ) );
     }
     return @ret_vals;
 }
@@ -3015,12 +3017,12 @@ sub _C_ASIN( $ )
 
 sub _C_ACOS( $ )
 {
-    return atan2( sqrt( 1 - ( $_[0] ** 2 ) ), $_[0] );
+    return &CORE::atan2( &CORE::sqrt( 1 - ( $_[0] ** 2 ) ), $_[0] );
 }
 
 sub _C_ATAN( $ )
 {
-    return atan2( $_[0], 1 );
+    return &CORE::atan2( $_[0], 1 );
 }
 
 sub angle_deg( $$;$ )
@@ -3046,13 +3048,13 @@ sub dist_between_points( $$$$;$$ )
     my $ret_val = 0;
     if( $b3d ){
         my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
-        $ret_val = sqrt( ( ( $p2x - $p1x ) ** 2 ) +
-                         ( ( $p2y - $p1y ) ** 2 ) +
-                         ( ( $p2z - $p1z ) ** 2 ) );
+        $ret_val = &CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                                ( ( $p2y - $p1y ) ** 2 ) +
+                                ( ( $p2z - $p1z ) ** 2 ) );
     }else{
         my( $p1x, $p1y, $p2x, $p2y ) = @_;
-        $ret_val = sqrt( ( ( $p2x - $p1x ) ** 2 ) +
-                         ( ( $p2y - $p1y ) ** 2 ) );
+        $ret_val = &CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                                ( ( $p2y - $p1y ) ** 2 ) );
     }
 
     return $ret_val;
@@ -3147,8 +3149,8 @@ sub vector_angle( $$$$;$$$ )
 
     my $radian = &_C_ACOS(
                    ( $p1x * $p2x + $p1y * $p2y + $p1z * $p2z ) /
-                   sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
-                         ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
+                   &CORE::sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
+                                ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
                  );
 
     return $radian if( $is_radian );
@@ -3176,7 +3178,7 @@ sub gis2xyz( \%$$;$ )
 
     # 緯度からその場所の「卯酉線曲率半径 (N)」を計算
     my $sin_lat = &CORE::sin( $lat );
-    my $n = $a / sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
+    my $n = $a / &CORE::sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
 
     # 三角関数の計算値をキャッシュしておく
     my $cos_lat = &CORE::cos( $lat );
@@ -3255,7 +3257,7 @@ sub geocentric_radius( $ )
     # 正確な動径Rを求める公式
     my $numerator = ( WGS84_EQUATORIAL_RADIUS_M ** 2 * $cos_lat ) ** 2 + ( WGS84_POLAR_RADIUS_M ** 2 * $sin_lat ) ** 2;
     my $denominator = (WGS84_EQUATORIAL_RADIUS_M * $cos_lat ) ** 2 + ( WGS84_POLAR_RADIUS_M * $sin_lat ) ** 2;
-    my $R = sqrt( $numerator / $denominator );
+    my $R = &CORE::sqrt( $numerator / $denominator );
 
     return $R;
 }
@@ -3280,7 +3282,7 @@ sub gis_radius_of_lat_circle( \%$ )
     my $cos_lat = &CORE::cos( $latitude_rad );
 
     # 卯酉線曲率半径 N を計算
-    my $W = sqrt( 1 - ${ $ref_param }{POW_E} * $sin_lat ** 2 );
+    my $W = &CORE::sqrt( 1 - ${ $ref_param }{POW_E} * $sin_lat ** 2 );
     my $N = ${ $ref_param }{EQUATORIAL_RADIUS_M} / $W;
 
     my $r = $N * $cos_lat;
@@ -3370,7 +3372,7 @@ sub moon_azimuth( $$$$ )
 #    my $a = ( &CORE::sin( $dlat / 2 ) * &CORE::sin( $dlat / 2 ) ) +
 #            ( &CORE::cos( $latA_rad ) * &CORE::cos( $latB_rad ) *
 #              &CORE::sin( $dlon / 2 ) * &CORE::sin( $dlon / 2 ) );
-#    my $distance = 2 * &CORE::atan2( sqrt( $a ), sqrt( 1 - $a ) );
+#    my $distance = 2 * &CORE::atan2( &CORE::sqrt( $a ), &CORE::sqrt( 1 - $a ) );
 #
 #    # 地球の半径 (メートル)
 #    my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
@@ -3397,12 +3399,12 @@ sub moon_azimuth( $$$$ )
 #    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
 #    my $Rx = WGS84_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
 #    my $Ry = WGS84_POLAR_RADIUS_M;              # 短半径（極半径）
-#    my $W  = sqrt( 1 - ( ( WGS84_POW_E ) * ( &CORE::sin( $P ) ** 2 ) ) );
+#    my $W  = &CORE::sqrt( 1 - ( ( WGS84_POW_E ) * ( &CORE::sin( $P ) ** 2 ) ) );
 #    my $M = ( $Rx * ( 1 - ( WGS84_POW_E ) ) ) / # 子午線曲率半径
 #            ( $W ** 3 );
 #    my $N = $Rx / $W;                           # 卯酉線曲線半径
 #
-#    my $D = sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * &CORE::cos( $P ) ) ** 2 ) );
+#    my $D = &CORE::sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * &CORE::cos( $P ) ) ** 2 ) );
 #
 #    my $distance_m = $D;
 #
@@ -3463,7 +3465,7 @@ sub gis_great_circle_route_Vincenty( \%$$$$ )
         my $sin_lambda = &CORE::sin( $lambda );
         my $cos_lambda = &CORE::cos( $lambda );
 
-        $sin_sigma = sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
+        $sin_sigma = &CORE::sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
 
         # 対蹠点（真裏）などの特殊なケースでゼロ割を防ぐ
         if( $sin_sigma == 0 ){ return ( 0, 0 ); }
@@ -3570,8 +3572,8 @@ sub gis_rhumb_line( \%$$$$ )
 
     # 楕円体定数
     my $a = ${ $ref_param }{EQUATORIAL_RADIUS_M};
-    my $f = ${ $ref_param }{FLATTENING};    # 扁平率
-    my $e = sqrt( 2 * $f - $f * $f );       # 第一離心率 (約 0.081819191)
+    my $f = ${ $ref_param }{FLATTENING};        # 扁平率
+    my $e = &CORE::sqrt( 2 * $f - $f * $f );    # 第一離心率 (約 0.081819191)
     #printf( qq{\$f=$f, \$e=$e\n} );
 
     my $dlat = $latB_rad - $latA_rad;
@@ -3611,7 +3613,7 @@ sub gis_rhumb_line( \%$$$$ )
     if( abs( $dlat ) < 1e-11 ){
         # 【ケースA】完全な真東・真西（同緯度）の移動
         # この場合は南北移動がないため、平行圏曲率半径（卯酉線曲率半径×cos緯度）から直接算出
-        my $N = $a / sqrt( 1 - $e * $e * &CORE::sin( $latA_rad ) * &CORE::sin( $latA_rad ) );
+        my $N = $a / &CORE::sqrt( 1 - $e * $e * &CORE::sin( $latA_rad ) * &CORE::sin( $latA_rad ) );
         $distance_m = $N * &CORE::cos( $latA_rad ) * abs( $dlon );
     }else{
         # 【ケースB】南北の移動がある場合（日本から南極など、ほとんどのケース）
@@ -3758,6 +3760,86 @@ sub gis_miller_y( $ )
         die( qq{gis_miller_y(): \$lat_rad[=$lat_rad] is out of range.\n} );
     }
     return &gis_mercator_y_core( $lat_rad * 0.8 ) * 1.25;
+}
+
+##          半径（km）   質量（kg）             軌道傾斜角（度）        表面重力（m/s2）               衛星数（個）
+##                                                      軌道離心率               公転周期（地球を1年とする）
+##                                                              軌道長半径（au）          自転周期（日）
+%TableProvider::bodies_in_the_solar_system = (
+    0  => [ 695_700    , 1_989  * ( 10 ** 30 ),  undef, undef ,  undef, 274.0  ,   undef,   27.275   , undef ], # Sun      太陽
+    1  => [   2_439.7  , 3.3011 * ( 10 ** 23 ),  7.00 , 0.2056,  0.387,   3.70 ,   0.241,   58.65    ,   0   ], # Mercury  水星
+    2  => [   6_051.8  , 4.8675 * ( 10 ** 24 ),  3.39 , 0.0067,  0.723,   8.87 ,   0.615, -243.0187  ,   0   ], # Venus    金星
+    3  => [   6_378.137, 5.9723 * ( 10 ** 24 ),  0.00 , 0.0167,  1.000,   9.798,   1.000,    0.997271,   1   ], # Earth    地球
+    4  => [   3_396.2  , 6.4171 * ( 10 ** 23 ),  1.850, 0.0935,  1.524,   3.71 ,   1.881,    1.02595 ,   2   ], # Mars     火星
+    5  => [  71_492    , 1.8982 * ( 10 ** 27 ),  1.304, 0.0489,  5.204,  24.79 ,  11.862,    0.4135  , 115   ], # Jupiter  木星
+    6  => [  60_268    , 5.6834 * ( 10 ** 26 ),  2.485, 0.0565,  9.582,  10.44 ,  29.457,    0.4264  , 293   ], # Saturn   土星
+    7  => [  25_559    , 8.6813 * ( 10 ** 25 ),  0.774, 0.0457, 19.201,   8.87 ,  84.011,   -0.7181  ,  29   ], # Uranus   天王星
+    8  => [  24_764    , 1.0241 * ( 10 ** 26 ),  1.769, 0.0113, 30.047,  11.15 , 164.79 ,    0.6712  ,  16   ], # Neptune  海王星
+    9  => [   1_188.3  , 1.303  * ( 10 ** 22 ), 17.089, 0.2502, 39.445,   0.620, 247.74 ,   -6.3872  ,   5   ], # Pluto    冥王星(準惑星)
+    10 => [     476    , 9.393  * ( 10 ** 20 ), 10.594, 0.0755,  2.767,   0.28 ,   4.60 ,    0.3781  ,   0   ], # Ceres    ケレス(準惑星)
+    11 => [     816    , 4.006  * ( 10 ** 21 ), 28.206, 0.1899, 43.347,   0.401, 285.39 ,    0.1631  ,   2   ], # Haumea   ハウメア(準惑星)
+    12 => [     715    , 4.4    * ( 10 ** 21 ), 28.983, 0.1555, 45.675,   0.5  , 308.69 ,    7.771   ,   1   ], # Makemake マケマケ(準惑星)
+    13 => [   1_163    , 1.66   * ( 10 ** 22 ), 44.199, 0.4410, 67.664,   0.82 , 556.60 ,    1.08    ,   1   ], # Eris     エリス(準惑星)
+);
+##          radius       mass                   orbital_inclination_angle        orbital_period        number_of_satellites
+##                                                      orbital_eccentricity              rotation_period
+##                                                              orbit_semi_major_axis
+##                                                                      surface_gravity
+
+sub the_solar_system( ;$$ )
+{
+    my( $column, $celestial_body ) = @_;
+
+    if( defined( $celestial_body ) ){
+        if( !( 0 <= $celestial_body && $celestial_body < 14 ) ){
+            die( qq{the_solar_system(): \$celestial_body[=$celestial_body] is out of range.\n} );
+        }
+        if( $celestial_body != int( $celestial_body ) ){
+            die( qq{the_solar_system(): \$celestial_body[=$celestial_body] is a decimal number.\n} );
+        }
+    }else{
+        $celestial_body = 3;
+    }
+
+    if( defined( $column ) ){
+        if( !( 0 <= $column && $column < 9 ) ){
+            die( qq{the_solar_system(): \$column[=$column] is out of range.\n} );
+        }
+        if( $column != int( $column ) ){
+            die( qq{the_solar_system(): \$column[=$column] is a decimal number.\n} );
+        }
+
+        return $TableProvider::bodies_in_the_solar_system{$celestial_body}[ $column ];
+    }
+
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        print( qq{[Hint] Return list format: (\n} .
+               qq{  0: radius [km],\n} .
+               qq{  1: mass [kg],\n} .
+               qq{  2: orbital_inclination_angle [DEG],\n} .
+               qq{  3: orbital_eccentricity [0-1],\n} .
+               qq{  4: orbit_semi_major_axis [au],\n} .
+               qq{  5: surface_gravity [m/s2],\n} .
+               qq{  6: orbital_period,\n} .
+               qq{  7: rotation_period [day],\n} .
+               qq{  8: number_of_satellites )\n} .
+               qq{[Hint] Selectable celestial bodies: (\n} .
+               qq{  0: Sun,\n} .        # 太陽
+               qq{  1: Mercury,\n} .    # 水星
+               qq{  2: Venus,\n} .      # 金星
+               qq{  3: Earth (default),\n} .    # 地球
+               qq{  4: Mars,\n} .       # 火星
+               qq{  5: Jupiter,\n} .    # 木星
+               qq{  6: Saturn,\n} .     # 土星
+               qq{  7: Uranus,\n} .     # 天王星
+               qq{  8: Neptune,\n} .    # 海王星
+               qq{  9: Pluto,\n} .      # 冥王星(準惑星)
+               qq{ 10: Ceres,\n} .      # ケレス(準惑星)
+               qq{ 11: Haumea,\n} .     # ハウメア(準惑星)
+               qq{ 12: Makemake,\n} .   # マケマケ(準惑星)
+               qq{ 13: Eris )\n} );     # エリス(準惑星)
+    }
+    return @{ $TableProvider::bodies_in_the_solar_system{$celestial_body} };
 }
 
 ## Unit Conversion
@@ -4060,8 +4142,8 @@ sub paper_size( $$ )
     if( defined( $type ) && $type == 1 ){
         $paper_type = 'B';
         ## B判はA判の面積の1.5倍という思想。計算で出すなら以下のようになる。
-        ## $long_side  = &POSIX::floor( $long_side * sqrt( 1.5 ) );
-        ## $short_side = &POSIX::floor( $short_side * sqrt( 1.5 ) );
+        ## $long_side  = &POSIX::floor( $long_side * &CORE::sqrt( 1.5 ) );
+        ## $short_side = &POSIX::floor( $short_side * &CORE::sqrt( 1.5 ) );
         $long_side  = 1456;
         $short_side = 1030;
     }
@@ -4395,7 +4477,7 @@ use warnings;
 use base qq{OutputFunc};
 
 ## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
-use constant pi => 4 * atan2( 1, 1 );
+use constant pi => 4 * &CORE::atan2( 1, 1 );
 
 #use constant SHIFT_REG_LEN => 2;
 
@@ -4437,6 +4519,29 @@ sub LoadConstants( $\$ )
     # システム定義定数
     ${ $ref_user_const }{sakubou} = 29.530588853;   # 朔望: 平均朔望月
     ${ $ref_user_const }{chijiku} = 23.436;         # 地球の地軸の傾き
+    ${ $ref_user_const }{radius}                    = 0;    # 半径（km）
+    ${ $ref_user_const }{mass}                      = 1;    # 質量（kg）
+    ${ $ref_user_const }{orbital_inclination_angle} = 2;    # 軌道傾斜角（度）
+    ${ $ref_user_const }{orbital_eccentricity}      = 3;    # 軌道離心率
+    ${ $ref_user_const }{orbit_semi_major_axis}     = 4;    # 軌道長半径（au）
+    ${ $ref_user_const }{surface_gravity}           = 5;    # 表面重力（m/s2）
+    ${ $ref_user_const }{orbital_period}            = 6;    # 公転周期（地球を1年とする）
+    ${ $ref_user_const }{rotation_period}           = 7;    # 自転周期（日）
+    ${ $ref_user_const }{number_of_satellites}      = 8;    # 衛星数（個）
+    ${ $ref_user_const }{sun}      =  0;    # 太陽
+    ${ $ref_user_const }{mercury}  =  1;    # 水星
+    ${ $ref_user_const }{venus}    =  2;    # 金星
+    ${ $ref_user_const }{earth}    =  3;    # 地球
+    ${ $ref_user_const }{mars}     =  4;    # 火星
+    ${ $ref_user_const }{jupiter}  =  5;    # 木星
+    ${ $ref_user_const }{saturn}   =  6;    # 土星
+    ${ $ref_user_const }{uranus}   =  7;    # 天王星
+    ${ $ref_user_const }{neptune}  =  8;    # 海王星
+    ${ $ref_user_const }{pluto}    =  9;    # 冥王星(準惑星)
+    ${ $ref_user_const }{ceres}    = 10;    # ケレス(準惑星)
+    ${ $ref_user_const }{haumea}   = 11;    # ハウメア(準惑星)
+    ${ $ref_user_const }{makemake} = 12;    # マケマケ(準惑星)
+    ${ $ref_user_const }{eris}     = 13;    # エリス(準惑星)
     ${ $ref_user_const }{km_per_h}       = 0;
     ${ $ref_user_const }{mph}            = 1;
     ${ $ref_user_const }{kn}             = 2;
@@ -5849,9 +5954,9 @@ geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, mo
 moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
 moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
 moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, gis_mercator_y,
-gis_miller_y, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km, km2au, ri2meter, meter2ri, mile2meter,
-meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound,
-ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi, bar, paper_size
+gis_miller_y, the_solar_system, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km, km2au, ri2meter,
+meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi, bar, paper_size
 
 =head1 OPTIONS
 
@@ -7932,6 +8037,49 @@ Comparison Table of Vertical Distortion in Mercator and Miller Projections:
   | 10| 0.175425829652 | 0.175102806472 |
   | 00| 0              | 0              |
   +---+----------------+----------------+
+
+=item C<the_solar_system>
+
+the_solar_system( [ I<COLUMN>, I<CELESTIAL_BODY> ] ):
+Returns data on celestial bodies in the solar system.
+Both names (strings) and numbers (indexes) are acceptable for arguments.
+If no arguments are given, it returns all data for Earth.
+In I<--verbose> mode, you can view the available I<COLUMN> and I<CELESTIAL_BODY>.
+
+COLUMN: (Default: returns all columns)
+
+  0: radius [km]
+  1: mass [kg]
+  2: orbital_inclination_angle [DEG]
+  3: orbital_eccentricity
+  4: orbit_semi_major_axis [au]
+  5: surface_gravity [m/s2]
+  6: orbital_period
+  7: rotation_period [day]
+  8: number_of_satellites
+
+CELESTIAL_BODY: (Default: 3: Earth)
+
+   0: Sun
+   1: Mercury
+   2: Venus
+   3: Earth
+   4: Mars
+   5: Jupiter
+   6: Saturn
+   7: Uranus
+   8: Neptune
+   9: Pluto
+  10: Ceres
+  11: Haumea
+  12: Makemake
+  13: Eris
+
+Example: How many times the size (radius) of the Sun is Mercury's orbit distant from the Sun?:
+
+  $ c 'au2km( the_solar_system( orbit_semi_major_axis, Mercury ) ) /
+       the_solar_system( radius, Sun )'
+  83.2174442445
 
 =back
 

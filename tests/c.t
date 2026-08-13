@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.45 $
+## - $Revision: 1.48 $
 ################################################################################
 
 use strict;
@@ -73,32 +73,26 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{km_per_h( 1, -1 )} );
+#        $res = $c->formula( qq{the_solar_system( 1, -0.1 )} );
 #    } );
-#    $t->exit_isnt( 0, qq{./c 'km_per_h( 1, -1 )'} );
+#    $t->exit_isnt( 0, qq{./c 'the_solar_system( 1, -0.1 )'} );
 #    $t->has_exception();
 #    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
 #    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: km_per_h\(\): \$target_unit\[=\-1\] is out of range\./ );
+#    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=\-0\.1\] is out of range\./ );
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{speed_of_light( 1 )} );
+#        $res = $c->formula( qq{the_solar_system( number_of_satellites )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'speed_of_light( 1 )'} );
+#    $t->exit_is( 0, qq{./c 'the_solar_system( number_of_satellites )'} );
 #    $t->has_no_exception();
-#    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
-#    equal( ${ $res }[ 0 ], 1079252848.8    , qq{ km/h: 1079252848.8} );
-#    equal( ${ $res }[ 1 ],  670616629.384  , qq{  mph:  670616629.384} );
-#    equal( ${ $res }[ 2 ],  582749918.359  , qq{   kn:  582749918.359} );
-#    equal( ${ $res }[ 3 ],  299792458      , qq{  m/s:  299792458} );
-#    equal( ${ $res }[ 4 ],     905717.39577, qq{ Mach:     905717.39577} );
-#    equal( ${ $res }[ 5 ],          1      , qq{  sol:          1} );
+#    equal( $res, 1, qq{Earth has one satellite.} );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
 #};
 #done_testing();
-#exit( 0 );
+#exit( 0 );s
 #subtest qq{Script Structure} => sub{
 #
 #    require './c';
@@ -107,13 +101,50 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $status;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = &pl_main( 'mph( 1, kn )', '--verbose' );
+#        $status = &pl_main( 'the_solar_system()', '--verbose' );
 #    } );
-#    $t->exit_is( 0, qq{./c 'mph( 1, kn )' --verbose} );
+#    $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
 #    $t->has_no_exception();
-#    $t->stdout_is( qq{mph( 1, 2 ) = 0.868976241900648\n} .
-#                   qq{Formula: 'mph( 1, 2 ) ='\n} .
-#                   qq{ Result: 0.868976241901\n}, qq{[Hint]行が表示されないこと} );
+#    $t->stdout_is( qq{[Hint] Return list format: (\n} .
+#                   qq{  0: radius [km],\n} .
+#                   qq{  1: mass [kg],\n} .
+#                   qq{  2: orbital_inclination_angle [DEG],\n} .
+#                   qq{  3: orbital_eccentricity,\n} .
+#                   qq{  4: orbit_semi_major_axis [au],\n} .
+#                   qq{  5: surface_gravity [m/s2],\n} .
+#                   qq{  6: orbital_period,\n} .
+#                   qq{  7: rotation_period [day],\n} .
+#                   qq{  8: number_of_satellites )\n} .
+#                   qq{[Hint] Selectable celestial bodies: (\n} .
+#                   qq{  0: Sun,\n} .
+#                   qq{  1: Mercury,\n} .
+#                   qq{  2: Venus,\n} .
+#                   qq{  3: Earth (default),\n} .
+#                   qq{  4: Mars,\n} .
+#                   qq{  5: Jupiter,\n} .
+#                   qq{  6: Saturn,\n} .
+#                   qq{  7: Uranus,\n} .
+#                   qq{  8: Neptune,\n} .
+#                   qq{  9: Pluto,\n} .
+#                   qq{ 10: Ceres,\n} .
+#                   qq{ 11: Haumea,\n} .
+#                   qq{ 12: Makemake,\n} .
+#                   qq{ 13: Eris )\n} .
+#                   qq{the_solar_system(  ) = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 )\n} .
+#                   qq{Formula: 'the_solar_system( ) ='\n} .
+#                   qq{ Result: ( 6378.137, 5972299999999999636144128, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) [ = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) ]\n},
+#                   qq{[Hint]行が表示されること} );
+#    $t->stderr_is( qq{} );
+#
+#    $t = tests::Tester->run_blk( sub{
+#        $status = &pl_main( 'the_solar_system( radius )', '--verbose' );
+#    } );
+#    $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
+#    $t->has_no_exception();
+#    $t->stdout_is( qq{the_solar_system( 0 ) = 6378.137\n} .
+#                   qq{Formula: 'the_solar_system( 0 ) ='\n} .
+#                   qq{ Result: 6378.137\n},
+#                   qq{[Hint]行が表示されないこと} );
 #    $t->stderr_is( qq{} );
 #
 #};
@@ -2536,6 +2567,96 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 1 ], 0 );
     equal( ${ $res }[ 2 ], 48 );
     equal( ${ $res }[ 3 ], 45.7797882084 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 1, -0.1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( 1, -0.1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=\-0\.1\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 1, 14.0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( 1, 14.0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=14\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 1, 13.9 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( 1, 13.9 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=13\.9\] is a decimal number\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 1, Eris )} );
+    } );
+    $t->exit_is( 0, qq{./c 'the_solar_system( 1, Eris )'} );
+    $t->has_no_exception();
+    equal( $res, 16600000000000000000000 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( -0.1 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( -0.1 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$column\[=\-0\.1\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 9.0 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( 9.0 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$column\[=9\] is out of range\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( 8.9 )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( 8.9 )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$column\[=8\.9\] is a decimal number\./ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( number_of_satellites )} );
+    } );
+    $t->exit_is( 0, qq{./c 'the_solar_system( number_of_satellites )'} );
+    $t->has_no_exception();
+    equal( $res, 1, qq{Earth has one satellite.} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system()} );
+    } );
+    $t->exit_is( 0, qq{./c 'the_solar_system()'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 9, qq{デフォルトの天体（地球）のデータを参照} );
+    equal( ${ $res }[ 0 ],                      6378.137   , qq{radius: 6378.137} );
+    equal( ${ $res }[ 1 ], 5972299999999999636144128       , qq{mass: 5972299999999999636144128} );
+    equal( ${ $res }[ 2 ],                         0       , qq{orbital_inclination_angle: 0} );
+    equal( ${ $res }[ 3 ],                         0.0167  , qq{orbital_eccentricity: 0.0167} );
+    equal( ${ $res }[ 4 ],                         1       , qq{orbit_semi_major_axis: 1} );
+    equal( ${ $res }[ 5 ],                         9.798   , qq{surface_gravity: 9.798} );
+    equal( ${ $res }[ 6 ],                         1       , qq{orbital_period: 1} );
+    equal( ${ $res }[ 7 ],                         0.997271, qq{rotation_period: 0.997271} );
+    equal( ${ $res }[ 8 ],                         1       , qq{number_of_satellites: 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5831,6 +5952,53 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'the_solar_system()', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{[Hint] Return list format: (\n} .
+                       qq{  0: radius [km],\n} .
+                       qq{  1: mass [kg],\n} .
+                       qq{  2: orbital_inclination_angle [DEG],\n} .
+                       qq{  3: orbital_eccentricity [0-1],\n} .
+                       qq{  4: orbit_semi_major_axis [au],\n} .
+                       qq{  5: surface_gravity [m/s2],\n} .
+                       qq{  6: orbital_period,\n} .
+                       qq{  7: rotation_period [day],\n} .
+                       qq{  8: number_of_satellites )\n} .
+                       qq{[Hint] Selectable celestial bodies: (\n} .
+                       qq{  0: Sun,\n} .
+                       qq{  1: Mercury,\n} .
+                       qq{  2: Venus,\n} .
+                       qq{  3: Earth (default),\n} .
+                       qq{  4: Mars,\n} .
+                       qq{  5: Jupiter,\n} .
+                       qq{  6: Saturn,\n} .
+                       qq{  7: Uranus,\n} .
+                       qq{  8: Neptune,\n} .
+                       qq{  9: Pluto,\n} .
+                       qq{ 10: Ceres,\n} .
+                       qq{ 11: Haumea,\n} .
+                       qq{ 12: Makemake,\n} .
+                       qq{ 13: Eris )\n} .
+                       qq{the_solar_system(  ) = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 )\n} .
+                       qq{Formula: 'the_solar_system( ) ='\n} .
+                       qq{ Result: ( 6378.137, 5972299999999999636144128, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) [ = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) ]\n},
+                       qq{[Hint]行が表示されること} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = &pl_main( 'the_solar_system( radius )', '--verbose' );
+        } );
+        $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
+        $t->has_no_exception();
+        $t->stdout_is( qq{the_solar_system( 0 ) = 6378.137\n} .
+                       qq{Formula: 'the_solar_system( 0 ) ='\n} .
+                       qq{ Result: 6378.137\n},
+                       qq{[Hint]行が表示されないこと} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
             $status = &pl_main( 'km_per_h( 1 )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'km_per_h( 1 )' --verbose} );
@@ -6642,7 +6810,9 @@ subtest qq{-u, --user-defined} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
 
-    `rm -f .c.rc`;
+    #`rm -f .c.rc`;
+    # ！ &CORE::unlink だと呼び出せないので注意 ！
+    CORE::unlink( '.c.rc' );
 
     $t = tests::Tester->run_cmd( qq{./c -u} );
     $t->exit_is( 0, qq{./c -u} );
@@ -6661,7 +6831,10 @@ subtest qq{-u, --user-defined} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: lexer: error: "tokyo_st_coord, osaka_st_coord \)=": Could not interpret\.\n/ );
 
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.failed && mv .c.rc.failed .c.rc`;
+    # .c.rc.deploy
+    # .c.rc.duplicate
+    # .c.rc.failed
+    `gzip -dc tests/c.rc.tar.gz | tar xf - && mv -f .c.rc.failed .c.rc`;
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{_LOAD_USER_RC} );
@@ -6673,7 +6846,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/c: lexer: error: .*\/\.c\.rc: Failed to load user rc file: / );
 
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.duplicate && mv .c.rc.duplicate .c.rc`;
+    &CORE::rename( '.c.rc.duplicate', '.c.rc' );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{_VERBOSE} );
@@ -6687,7 +6860,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
 
-    `gzip -dc tests/c.rc.tar.gz | tar xf - .c.rc.deploy && mv .c.rc.deploy .c.rc`;
+    &CORE::rename( '.c.rc.deploy', '.c.rc' );
 
     $t = tests::Tester->run_cmd( qq{./c --user-defined} );
     $t->exit_is( 0, qq{./c --user-defined} );

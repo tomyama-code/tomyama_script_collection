@@ -129,9 +129,9 @@ geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, ge
 moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
 moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
 moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, gis\_mercator\_y,
-gis\_miller\_y, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km, km2au, ri2meter, meter2ri, mile2meter,
-meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound,
-ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi, bar, paper\_size
+gis\_miller\_y, the\_solar\_system, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km, km2au, ri2meter,
+meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
+gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi, bar, paper\_size
 
 # OPTIONS
 
@@ -2174,6 +2174,49 @@ The **c** script was created with the following in mind:
         | 10| 0.175425829652 | 0.175102806472 |
         | 00| 0              | 0              |
         +---+----------------+----------------+
+
+- `the_solar_system`
+
+    the\_solar\_system( \[ _COLUMN_, _CELESTIAL\_BODY_ \] ):
+    Returns data on celestial bodies in the solar system.
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
+    If no arguments are given, it returns all data for Earth.
+    In _--verbose_ mode, you can view the available _COLUMN_ and _CELESTIAL\_BODY_.
+
+    COLUMN: (Default: returns all columns)
+
+        0: radius [km]
+        1: mass [kg]
+        2: orbital_inclination_angle [DEG]
+        3: orbital_eccentricity
+        4: orbit_semi_major_axis [au]
+        5: surface_gravity [m/s2]
+        6: orbital_period
+        7: rotation_period [day]
+        8: number_of_satellites
+
+    CELESTIAL\_BODY: (Default: 3: Earth)
+
+         0: Sun
+         1: Mercury
+         2: Venus
+         3: Earth
+         4: Mars
+         5: Jupiter
+         6: Saturn
+         7: Uranus
+         8: Neptune
+         9: Pluto
+        10: Ceres
+        11: Haumea
+        12: Makemake
+        13: Eris
+
+    Example: How many times the size (radius) of the Sun is Mercury's orbit distant from the Sun?:
+
+        $ c 'au2km( the_solar_system( orbit_semi_major_axis, Mercury ) ) /
+             the_solar_system( radius, Sun )'
+        83.2174442445
 
 ## Unit Conversion
 
