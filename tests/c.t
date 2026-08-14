@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.48 $
+## - $Revision: 1.49 $
 ################################################################################
 
 use strict;
@@ -3758,6 +3758,15 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_like( qr/^c: evaluator: error: roundup\(\): \$argc=1: Insufficient arguments\.\n/, qq{Insufficient arguments.} );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{round( 192.168, 2.1 ) =} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'round( 192.168, 2.1 ) ='} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: round\(\): \$digit\[=2\.1\] is a decimal number\.\n/, qq{The argument is not an integer.} );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{rounddown( 192.168, 2 ) =} );
     } );
     $t->exit_is( 0 );
@@ -5756,7 +5765,7 @@ subtest qq{Require ./c} => sub {
         $t->exit_is( 0, qq{./c 'timer( 1 )'} );
         $t->has_no_exception();
         $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
-        $t->stdout_like( qr/\n\d+\.\d+\n/, qq{STDOUTの出力を確認した方が良いという考えからFTCalcを使わない方法でテスト} );
+        $t->stdout_like( qr/\n1\.\d+\n/, qq{STDOUTの出力を確認した方が良いという考えからFTCalcを使わない方法でテスト} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -6183,8 +6192,8 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stderr_like( qr/^c: warn: \d+: sysread\(\): /, qq{sysread()のエラー処理部分} );
     undef( $t );
 
-    $t = tests::Tester->run_cmd( qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1  ) )'} );
-    $t->exit_is( 0, qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1  ) )'} );
+    $t = tests::Tester->run_cmd( qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1 ), 1 )'} );
+    $t->exit_is( 0, qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1 ), 1 )'} );
     $t->stdout_like( qr/^2025\-01\-01 00:00:00\.000  TARGET\n/ );
     $t->stdout_like( qr/\n\d+\.\d+\n/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
@@ -6193,7 +6202,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'timer( 3 )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'timer( 3 )'} );
     $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
-    $t->stdout_like( qr/\n\-\d+\.\d+\n/ );
+    $t->stdout_like( qr/\n0\./ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 

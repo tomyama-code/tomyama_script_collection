@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.14 $
+## - $Revision: 5.19 $
 ##
 ## - Script Structure
 ##   - main
@@ -54,12 +54,12 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub Reset()
+sub Reset( $ )
 {
     my $self = shift( @_ );
 }
 
-sub SetLabel()
+sub SetLabel( $$ )
 {
     my $self = shift( @_ );
     $self->{LABEL} = shift( @_ );
@@ -82,7 +82,7 @@ sub PrintHelp( $ )
     return 0;
 }
 
-sub GetHelpMsg()
+sub GetHelpMsg( $ )
 {
     my $self = shift( @_ );
 
@@ -190,12 +190,12 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.14 $};
+    my $rev = q{$Revision: 5.19 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
 
-sub PrintBannerMsg()
+sub PrintBannerMsg( $ )
 {
     my $self = shift( @_ );
     my $banner_msg = '' .
@@ -212,7 +212,7 @@ sub PrintBannerMsg()
 # インストール時に C コンパイラが必要となる環境もある。
 # ビルド要件を増やしたくない場合にこのサブルーチンを使用するという前提。
 ## Revision: 1.4
-sub GetTermSize()
+sub GetTermSize( $ )
 {
     my $self = shift( @_ );
 
@@ -247,7 +247,7 @@ sub GetTermSize()
     return ( $width, $height );
 }
 
-sub FmtHelp( $ )
+sub FmtHelp( $$ )
 {
     my $trm_columns = shift( @_ );
     my $ope = shift( @_ );
@@ -295,7 +295,7 @@ sub FmtHelp( $ )
     return $fmt_text;
 }
 
-sub ArrayFitToDeviceWidth( $$ )
+sub ArrayFitToDeviceWidth( $$@ )
 {
     my $trm_columns = shift( @_ );
     my $indent_len = shift( @_ );
@@ -323,7 +323,7 @@ sub ArrayFitToDeviceWidth( $$ )
     return $fmt_text;
 }
 
-sub dPrint( @ )
+sub dPrint( $@ )
 {
     my $self = shift( @_ );
     if( $self->{APPCONFIG}->GetDebug() ){
@@ -332,7 +332,7 @@ sub dPrint( @ )
     }
 }
 
-sub dPrintf( @ )
+sub dPrintf( $@ )
 {
     my $self = shift( @_ );
     if( $self->{APPCONFIG}->GetDebug() ){
@@ -341,31 +341,31 @@ sub dPrintf( @ )
     }
 }
 
-sub Die()
+sub Die( $ )
 {
     my $self = shift( @_ );
     die( $self->GenErrMsg( @_ ) );
 }
 
-#sub errPrint()
+#sub errPrint( $@ )
 #{
 #    my $self = shift( @_ );
 #    warn( $self->GenErrMsg( @_ ) );
 #}
 
-sub GenErrMsg()
+sub GenErrMsg( $@ )
 {
     my $self = shift( @_ );
     return $self->GenMsg( 'error', @_ );
 }
 
-sub warnPrint()
+sub warnPrint( $@ )
 {
     my $self = shift( @_ );
     warn( $self->GenMsg( 'warn', @_ ) );
 }
 
-sub GenMsg()
+sub GenMsg( $$@ )
 {
     my $self = shift( @_ );
     my $level = shift( @_ );
@@ -425,7 +425,7 @@ sub NewOperator( $;$ )
     return FormulaToken->new( id=>-1, flags=>$flags, data=>$operator );
 }
 
-sub Copy( $ )
+sub Copy( $$ )
 {
     my $self = shift( @_ );
     my $value = shift( @_ );
@@ -454,25 +454,25 @@ sub data( $ )
     return $self->{data};
 }
 
-sub IsOperator()
+sub IsOperator( $ )
 {
     my $self = shift( @_ );
     return $self->flags & BIT_OPERATOR;
 }
 
-sub IsFunction()
+sub IsFunction( $ )
 {
     my $self = shift( @_ );
     return $self->flags & BIT_FUNCTION;
 }
 
-sub IsOperand()
+sub IsOperand( $ )
 {
     my $self = shift( @_ );
     return $self->flags & BIT_OPERAND;
 }
 
-sub IsHex()
+sub IsHex( $ )
 {
     my $self = shift( @_ );
     return $self->flags & BIT_HEX;
@@ -1009,13 +1009,13 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub Reset()
+sub Reset( $ )
 {
     my $self = shift( @_ );
 }
 
 ## このTableProviderはインスタンス経由ではメソッドを使わせない方針
-#sub opf()
+#sub opf( $ )
 #{
 #    my $self = shift( @_ );
 #    return $self->{OPF};
@@ -1134,9 +1134,9 @@ use constant {
     H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> SECOND: alias: d2s().},
     H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Returns the normalized value. alias: d2d().},
-    H_LPTM => qq{laptimer( LAPS ): Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
-    H_TIMR => qq{timer( SECOND ): If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin with that date and time as zero. In this case, the countup will continue without stopping at zero. In either mode, press Enter to end.},
-    H_STWC => qq{stopwatch(). Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
+    H_LPTM => qq{laptimer( LAPS ): Returns the elapsed time until stopping. Each time you press Enter, the split time is measured and the time taken to measure LAPS is returned. If LAPS is set to a negative value, the split time is not output. alias: lt().},
+    H_TIMR => qq{timer( SECOND [, KEEP_PAST_ZERO ] ): Returns the elapsed time until stopping. If you specify a value less than 31536000 (365 days x 86400 seconds) for SECOND, the countdown will begin and end when it reaches zero. If you specify a value greater than this, it will be recognized as an epoch second, and the countdown or countup will begin targeting that specific date and time. If you want to continue counting up after reaching zero, specify a non-zero value for KEEP_PAST_ZERO. In either mode, press Enter to end.},
+    H_STWC => qq{stopwatch(): Returns the elapsed time until stopping. Measures the time until the Enter key is pressed. The measured time is displayed on the screen. alias: sw().},
     H_BPMR => qq{bpm( COUNT, SECOND ): Specify the number of beats as COUNT and the elapsed time as SECOND to calculate the BPM.},
     H_BPM1 => qq{bpm15(). Once you have confirmed 15 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
     H_BPM3 => qq{bpm30(). Once you have confirmed 30 beats, press the Enter key. The BPM will be calculated from the elapsed time. The measured time is displayed on the screen.},
@@ -1144,15 +1144,15 @@ use constant {
     H_TLMR => qq{telemeter( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m().},
     H_TM_M => qq{telemeter_m( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in meters. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter().},
     H_TMKM => qq{telemeter_km( SECOND [, TEMPERATURE ] ): Measures distance using the difference in the speed of light and sound. Returns the distance equivalent to SECOND in kilometers. If TEMPERATURE is omitted, the calculation will be based on 15 degrees Celsius. Same as telemeter_m() / 1000.},
-    H_R2DG => qq{rad2deg( <RADIANS> [, <RADIANS>..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
-    H_D2RD => qq{deg2rad( <DEGREES> [, <DEGREES>..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
-    H_DM2R => qq{dms2rad( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <RADIANS> [, <RADIANS>..] ).},
-    H_DEGM => qq{dms2deg( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEGREES> [, <DEGREES>..] ).},
-    H_D2DM => qq{deg2dms( <DEGREES> [, <DEGREES>..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
-    H_DMDM => qq{dms2dms( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ) -> ( <DEG>, <MIN>, <SEC> [, <DEG>, <MIN>, <SEC> ..] ).},
-    H_SINE => qq{sin( <RADIANS> ): Returns the sine of <RADIANS>. [Perl Native]},
-    H_COSI => qq{cos( <RADIANS> ): Returns the cosine of <RADIANS>. [Perl Native]},
-    H_TANG => qq{tan( <RADIANS> ): Returns the tangent of <RADIANS>.},
+    H_R2DG => qq{rad2deg( RADIANS [, RADIANS..] ) -> ( DEGREES [, DEGREES..] ).},
+    H_D2RD => qq{deg2rad( DEGREES [, DEGREES..] ) -> ( RADIANS [, RADIANS..] ).},
+    H_DM2R => qq{dms2rad( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( RADIANS [, RADIANS..] ).},
+    H_DEGM => qq{dms2deg( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( DEGREES [, DEGREES..] ).},
+    H_D2DM => qq{deg2dms( DEGREES [, DEGREES..] ) -> ( DEG, MIN, SEC [, DEG, MIN, SEC ..] ).},
+    H_DMDM => qq{dms2dms( DEG, MIN, SEC [, DEG, MIN, SEC ..] ) -> ( DEG, MIN, SEC [, DEG, MIN, SEC ..] ).},
+    H_SINE => qq{sin( RADIANS ): Returns the sine of RADIANS. [Perl Native]},
+    H_COSI => qq{cos( RADIANS ): Returns the cosine of RADIANS. [Perl Native]},
+    H_TANG => qq{tan( RADIANS ): Returns the tangent of RADIANS.},
     H_ASIN => qq{asin( N ): The arcus (also known as the inverse) functions of the sine.},
     H_ACOS => qq{acos( N ): The arcus (also known as the inverse) functions of the cosine.},
     H_ATAN => qq{atan( N ): The arcus (also known as the inverse) functions of the tangent.},
@@ -1307,7 +1307,7 @@ use constant {
     'dhms2sec'                    => [ 1590, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
     'dhms2dhms'                   => [ 1600, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
     'laptimer'                    => [ 1610, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                       => [ 1620, T_FUNCTION, F_TIME,     1, H_TIMR, sub{ &timer( $_[ 0 ] ) } ],
+    'timer'                       => [ 1620, T_FUNCTION, F_TIME, '1-2', H_TIMR, sub{ &timer( @_ ) } ],
     'stopwatch'                   => [ 1630, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
     'bpm'                         => [ 1640, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
     'bpm15'                       => [ 1650, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
@@ -1408,7 +1408,7 @@ sub IsFunctionExists( $ )
     return &IsDefinitionExists( $operator, T_FUNCTION );
 }
 
-sub IsDefinitionExists( $ )
+sub IsDefinitionExists( $$ )
 {
     my $operator = $_[ 0 ];
     my $type = $_[ 1 ];
@@ -1458,7 +1458,7 @@ sub FilterOperatorsList( $ )
     return @array;
 }
 
-sub GetOperatorsList()
+sub GetOperatorsList( $ )
 {
     my( $category ) = @_;
     my @ope_lists = &FilterOperatorsList( T_OPERATOR );
@@ -1478,7 +1478,7 @@ sub GetOperatorsList()
     return @ope_lists;
 }
 
-sub GetFunctionsList()
+sub GetFunctionsList( $ )
 {
     my( $category ) = @_;
     my @fnc_lists = &FilterOperatorsList( T_FUNCTION );
@@ -1677,6 +1677,12 @@ sub round_rf( @ )
     my $rounding_factor = pop( @_ );
     my $digit = pop( @_ );
 
+    if( $digit != int( $digit ) ){
+        my( $pkg, $filename, $line, $subr ) = caller( 1 );
+        $subr =~ s!^${pkg}::!!;
+        die( qq{$subr(): \$digit[=$digit] is a decimal number.\n} );
+    }
+
     my @ret_vals = ();
     for my $value( @_ ){
         my $carry_factor = 10 ** $digit;
@@ -1700,7 +1706,7 @@ sub percentage( $$;$ )
     $decimal_places = shift( @_ ) if( defined( $_[ 0 ] ) );
     my $ret_value = $numerator * 100 / $denominator;
     if( defined( $decimal_places ) ){
-        $ret_value = ( &round( $ret_value, $decimal_places ) )[ 0 ];
+        $ret_value = ( &round_rf( $ret_value, $decimal_places, 0.5 ) )[ 0 ];
     }
     return $ret_value;
 }
@@ -1714,7 +1720,7 @@ sub ratio_scaling( $$$;$ )
     my $forecast_quantity = ( $number_of_targets *
         $observation_unit / $number_of_observations );
     if( defined( $decimal_places ) ){
-        $forecast_quantity = ( &round( $forecast_quantity, $decimal_places ) )[ 0 ];
+        $forecast_quantity = ( &round_rf( $forecast_quantity, $decimal_places, 0.5 ) )[ 0 ];
     }
     return $forecast_quantity;
 }
@@ -2227,7 +2233,7 @@ sub linspace( $$$;$ )
 
         # 第4引数 $decimal_places の桁で丸める
         if( defined( $decimal_places ) ){
-            $value = ( &round( $value, $decimal_places ) )[ 0 ];
+            $value = ( &round_rf( $value, $decimal_places, 0.5 ) )[ 0 ];
         }
 
         push( @ret_vals, $value );
@@ -2332,7 +2338,7 @@ sub is_leap( @ )
 sub age( $;$ )
 {
     my( $birthday_epoch, $ref_date_epoch ) = @_;
-    $ref_date_epoch = time() if( !defined( $ref_date_epoch ) );
+    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
 
     my $negFlag = 0;
     if( $birthday_epoch > $ref_date_epoch ){
@@ -2457,7 +2463,7 @@ sub moon_age_instant_raw( $ )
     my $epoch = shift( @_ );
 
     my( $sec, $min, $hour, $mday, $mon, $year ) = gmtime( $epoch );
-    my $y = $year + 1900;
+    my $y = $year + 1900;   # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
     my $m = $mon + 1;
 
     # 時・分・秒を日に換算
@@ -2570,8 +2576,7 @@ sub sec2dhms( $;$ )
     my $bNeg = ( $duration < 0 ? 1 : 0 );
     my $duration_abs = abs( $duration );
     if( defined( $decimal_places ) ){
-        my @dum = &round( $duration_abs, $decimal_places );
-        $duration_abs = $dum[ 0 ];
+        $duration_abs = ( &round_rf( $duration_abs, $decimal_places, 0.5 ) )[ 0 ];
         #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
     }
 
@@ -2679,11 +2684,11 @@ sub waitEnter( $;$ )
             }
         }
         $elapsed = abs( $elapsed );
-        my $days    = int( $elapsed / 86400 );
-        my $hours   = int( ( $elapsed % 86400 ) / 3600 );
-        my $mins    = int( ( $elapsed % 3600 ) / 60 );
-        my $secs    = int( $elapsed % 60 );
-        my $msecs   = int( ( $elapsed - int( $elapsed ) ) * 1000 );
+        my $days  = int(   $elapsed / 86400 );
+        my $hours = int( ( $elapsed % 86400 ) / 3600 );
+        my $mins  = int( ( $elapsed %  3600 ) /   60 );
+        my $secs  = int(   $elapsed %    60 );
+        my $msecs = int( ( $elapsed - int( $elapsed ) ) * 1000 );
 
         # \r で行頭に戻って上書き
         if( $days ){
@@ -2795,7 +2800,7 @@ sub laptimer( $ )
         my $lap_time = $lap - $lap_last;
         $lap_last = $lap;
         my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( int( $lap ) );
-        $year += 1900;
+        $year += 1900;  # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
         $month += 1;
         my @st = &msec2hms( $spl_time );
         my @lt = &msec2hms( $lap_time );
@@ -2822,20 +2827,21 @@ sub laptimer( $ )
     return $spl_time;
 }
 
-sub timer( $ )
+sub timer( $;$ )
 {
-    my $target = shift( @_ );
-    my $zero_time = $target;
+    my( $target, $b_continue_after_zero ) = @_;
 
-    my $b_continue_after_zero = 1;
+    my $start_time = &Time::HiRes::time();
+    my $zero_time = $target;
+    $b_continue_after_zero = 0 if( !defined( $b_continue_after_zero ) );
+
     # 31536000=86400*365
     if( $target < 31536000 ){           # 1971-01-01 00:00:00 より前なら
-        my $start_time = &Time::HiRes::time();
         $zero_time = $start_time + $target; # エポックにする
         $b_continue_after_zero = 0;         # ゼロに到達したら終了
     }
     my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $zero_time );
-    $year += 1900;
+    $year += 1900;  # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
     $month += 1;
     my $msec = ( $zero_time - int( $zero_time ) ) * 1000;;
     printf( qq{%04d-%02d-%02d %02d:%02d:%02d.%03d  TARGET\n},
@@ -2845,12 +2851,12 @@ sub timer( $ )
 
     my $end_time = &Time::HiRes::time();
     ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
-    $year += 1900;
+    $year += 1900;  # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
     $month += 1;
     $msec = ( $end_time - int( $end_time ) ) * 1000;
     printf( qq{\r%04d-%02d-%02d %02d:%02d:%02d.%03d\n},
         $year, $month, $mday, $hour, $minute, $sec, $msec );
-    my $elaps = $end_time - $zero_time;
+    my $elaps = $end_time - $start_time;
     return $elaps;
 }
 
@@ -4292,7 +4298,7 @@ sub FormulaNormalizationOneLine( $ )
     ## alias
     ## (?<!..): 否定的後読み
     ## (?!..) : 否定的先読み
-    $expr =~ s/(?<![a-z])now(?![a-z])/time/go;
+    #$expr =~ s/(?<![a-z])now(?![a-z])/time/go;
     $expr =~ s!\bang_dist\(! vector_angle(!go;
     $expr =~ s!\bangle\(! angle_between_points(!go;
     $expr =~ s!\bangular_distance\(! vector_angle(!go;
@@ -4490,7 +4496,7 @@ sub new
     $self->{NAME} = $name;
     $self->{APPCONFIG} = shift( @_ );
     $self->SetLabel( 'lexer' );
-    $self->LoadConstants( \%{ $self->{CONSTANTS} } );
+    $self->LoadConstants();
     if( $self->{APPCONFIG}->GetBPrintUserDefined() ){
         $self->PrintUserDefined();
         die( "EXIT_CODE: 0\n" );
@@ -4506,10 +4512,12 @@ sub Reset( $ )
     @{ $self->{TOKENS} } = ();
 }
 
-sub LoadConstants( $\$ )
+sub LoadConstants( $ )
 {
     my $self = shift( @_ );
-    my $ref_user_const = shift( @_ );
+    my $ref_user_const = \%{ $self->{CONSTANTS} };
+
+    my $now_epoch = &Time::HiRes::time();
 
     # ハッシュリファレンスの中身を空にする
     my $len = scalar( keys( %{ $ref_user_const } ) );
@@ -4517,6 +4525,8 @@ sub LoadConstants( $\$ )
     %{ $ref_user_const } = ();
 
     # システム定義定数
+    ${ $ref_user_const }{pi} = pi;
+    ${ $ref_user_const }{now} = $now_epoch;
     ${ $ref_user_const }{sakubou} = 29.530588853;   # 朔望: 平均朔望月
     ${ $ref_user_const }{chijiku} = 23.436;         # 地球の地軸の傾き
     ${ $ref_user_const }{radius}                    = 0;    # 半径（km）
@@ -4621,26 +4631,32 @@ sub PrintUserDefined()
     return;
 }
 
-sub IsTokenConstant( \$\$ )
+sub IsTokenConstant( $\$\$ )
 {
-    my $ref_str = shift( @_ );
-    my $ref_user_const = shift( @_ );
+    my( $self, $ref_str ) = @_;
+    my $ref_user_const = \%{ $self->{CONSTANTS} };
+
     my $bRet = 0;
-    if( $$ref_str =~ m!^([a-z_][a-z0-9_]+)(?=[^a-z])!o ){
-        my $key = $1;
-        #print( qq{\$\$ref_str="$$ref_str", \$key="$key"\n} );
-        if( exists( $$ref_user_const{$key} ) ){
+
+    for my $constant_name( keys( %{ $ref_user_const } ) ){
+        #print( qq{\$constant_name="$constant_name"\n} );
+        if( $$ref_str =~ m!^(${constant_name})(?=[^a-z])! ){
+            my $key = $1;
             my $len = length( $key );
-            $$ref_str = $$ref_user_const{$key} . ' ' . substr( $$ref_str, $len );
+            #print( qq{\$\$ref_str="$$ref_str", \$key="$key"\n} );
+            $$ref_str = ${ $ref_user_const }{ $key } . ' ' . substr( $$ref_str, $len );
             #print STDERR ( qq{ref_str="$$ref_str"\n} );
             $bRet = 1;
+            last;
         }
     }
+
     return $bRet;
 }
 
 sub IsTokenOperator( \$\$ )
 {
+    my $self = shift( @_ );
     my $ref_str = shift( @_ );
     my $ref_ope = shift( @_ );
     my $operator = '';
@@ -4663,7 +4679,7 @@ sub IsTokenOperator( \$\$ )
 }
 
 ## 式を分解してトークンを返す
-sub GetToken( \$ )
+sub GetToken( $\$ )
 {
     my $self = shift( @_ );
     my $ref_expr = shift( @_ );
@@ -4678,7 +4694,7 @@ sub GetToken( \$ )
         my $operand = 0;
 
         if( $$ref_expr =~ s!^_load_user_rc!!o ){
-            $self->LoadConstants( \%{ $self->{CONSTANTS} } );
+            $self->LoadConstants();
         }elsif( $$ref_expr =~ s!^_verbose!!o ){
             $self->{APPCONFIG}->SetBVerboseOutput( 1 );
         }elsif( $$ref_expr =~ s!^_no_verbose!!o ){
@@ -4723,16 +4739,6 @@ sub GetToken( \$ )
             $self->unshift( $el_d );
             $ret_obj = $el_d;
 
-        }elsif( $$ref_expr =~ s!^(pi|time)(?=[^a-z])!!o ){
-            $operand = eval( $1 );
-            my $el_d = &FormulaToken::NewOperand( $operand );
-            ## 必要であれば暗黙の乗算子を挿入
-            if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
-                return $ret_obj;
-            }
-            $self->unshift( $el_d );
-            $ret_obj = $el_d;
-
         ## オペレータ
         }elsif( $$ref_expr =~ s!^(([a-z0-9_]*)\()!!o ){
             $operator = $1;
@@ -4756,7 +4762,7 @@ sub GetToken( \$ )
             $ret_obj = $el_r;
 
         ## 先頭の半角スペースは除去されていて文字数ゼロでもない状態
-        }elsif( &IsTokenOperator( $ref_expr, \$operator ) ){
+        }elsif( $self->IsTokenOperator( $ref_expr, \$operator ) ){
             my $el_r = &FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
@@ -4765,8 +4771,9 @@ sub GetToken( \$ )
             $self->unshift( $el_r );
             $ret_obj = $el_r;
 
-        }elsif( &IsTokenConstant( $ref_expr, \%{ $self->{CONSTANTS} } ) ){
+        }elsif( $self->IsTokenConstant( $ref_expr ) ){
             # nothing to do.
+            # The implicit multiplication insertion process runs on the next turn.
 
         }else{
             my $ops = join( ' ', &TableProvider::GetOperatorsList() );
@@ -4791,7 +4798,7 @@ sub GetToken( \$ )
     return $ret_obj;
 }
 
-sub IsNeedInsert( $$$\$ )
+sub IsNeedInsert( $$$$\$ )
 {
     my $self = shift( @_ );
     my $operator = $_[ 0 ];
@@ -4843,7 +4850,7 @@ sub unshift( $$ )
     return;
 }
 
-sub GetFormula()
+sub GetFormula( $ )
 {
     my $self = shift( @_ );
     my @exprs = ();
@@ -4855,7 +4862,7 @@ sub GetFormula()
     return $expr;
 }
 
-sub GetHere()
+sub GetHere( $$ )
 {
     my $self = shift( @_ );
     my $id = shift( @_ );
@@ -4906,14 +4913,14 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub Reset()
+sub Reset( $ )
 {
     my $self = shift( @_ );
     @{ $self->{TOKENS} } = ();
 }
 
 ## 名前はPush()だが実際にはunshift()を使っている
-sub Push( $ )
+sub Push( $$ )
 {
     my $self = shift( @_ );
     my $item = shift( @_ );
@@ -4927,7 +4934,7 @@ sub Push( $ )
 }
 
 ## 名前はPop()だが実際にはshift()を使っている
-sub Pop()
+sub Pop( $$ )
 {
     my $self = shift( @_ );
     my $item = shift( @_ );
@@ -4947,7 +4954,7 @@ sub Pop()
     return $ret_item;
 }
 
-sub GetItems()
+sub GetItems( $ )
 {
     my $self = shift( @_ );
     my @stk = ();
@@ -4957,7 +4964,7 @@ sub GetItems()
     return join( ' ', @stk );
 }
 
-sub GetNewer()
+sub GetNewer( $$ )
 {
     my $self = shift( @_ );
     my $item = shift( @_ );
@@ -5017,7 +5024,7 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub Reset()
+sub Reset( $ )
 {
     my $self = shift( @_ );
     @{ $self->{RPN} } = ();     # 逐次計算しないで全てのトークンを残す配列
@@ -5026,7 +5033,7 @@ sub Reset()
     $self->RegisterClear();
 }
 
-sub RegisterClear()
+sub RegisterClear( $ )
 {
     my $self = shift( @_ );
     $self->{FORMULA} = '';      # 最後に計算した時の式
@@ -5034,7 +5041,7 @@ sub RegisterClear()
 }
 
 # 評価機に入力→必要に応じて計算を実行する
-sub Inputs( @ )
+sub Inputs( $@ )
 {
     my $self = shift( @_ );
     my @tokens = @_;
@@ -5054,7 +5061,7 @@ use constant {
 use constant C_CASES => qw(
     C_OPENUM C_FNCNUM C_FNCRAN C_FNCVAR C_FNCMLT
 );
-sub Input( $ )
+sub Input( $$ )
 {
     my $self = shift( @_ );
     my $token = $_[ 0 ];
@@ -5227,7 +5234,7 @@ sub Input( $ )
     return scalar( @{ $self->{TOKENS} } );
 }
 
-sub GetUsage( $ )
+sub GetUsage( $$ )
 {
     my $self = shift( @_ );
     my $op = shift( @_ );
@@ -5242,7 +5249,7 @@ sub GetUsage( $ )
     return $info;
 }
 
-sub GetRpn()
+sub GetRpn( $ )
 {
     my $self = shift( @_ );
     my @rpn_val = ();
@@ -5252,7 +5259,7 @@ sub GetRpn()
     return join( ' ', @rpn_val );
 }
 
-sub GetTokens()
+sub GetTokens( $ )
 {
     my $self = shift( @_ );
     my @rpn_val = ();
@@ -5262,13 +5269,13 @@ sub GetTokens()
     return join( ' ', @rpn_val );
 }
 
-sub GetRegister()
+sub GetRegister( $ )
 {
     my $self = shift( @_ );
     return $self->{REGISTER};
 }
 
-sub ResultPrint()
+sub ResultPrint( $ )
 {
     my $self = shift( @_ );
     my @reg_vals = ();
@@ -5347,7 +5354,7 @@ sub ResultPrint()
     return $self->{REGISTER};
 }
 
-sub NumberToString( $ )
+sub NumberToString( $\$ )
 {
     my $number = shift( @_ );
     my $ref_str = shift( @_ );
@@ -5375,7 +5382,7 @@ sub NumberToString( $ )
     return $bRet;
 }
 
-sub NumberToHex( $ )
+sub NumberToHex( $\$\$ )
 {
     my $number = shift( @_ );
     my $ref_hxa = shift( @_ );
@@ -5415,13 +5422,13 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 };
 
-sub GetFormula()
+sub GetFormula( $ )
 {
     my $self = shift( @_ );
     return $self->{LEXER}->GetFormula();
 }
 
-sub GetHere()
+sub GetHere( $$ )
 {
     my $self = shift( @_ );
     my $id = shift( @_ );
@@ -5461,7 +5468,7 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub Reset()
+sub Reset( $ )
 {
     my $self = shift( @_ );
     $self->{TBL_PROVIDER}->Reset();
@@ -5470,25 +5477,25 @@ sub Reset()
     $self->Evaluator->Reset();
 }
 
-sub Parser()
+sub Parser( $ )
 {
     my $self = shift( @_ );
     return $self->{PARSER};
 }
 
-sub Lexer()
+sub Lexer( $ )
 {
     my $self = shift( @_ );
     return $self->{LEXER};
 }
 
-sub Evaluator()
+sub Evaluator( $ )
 {
     my $self = shift( @_ );
     return $self->{EVALUATOR};
 }
 
-sub Run( @ )
+sub Run( $@ )
 {
     my $self = shift( @_ );
     my @exprs_raw = @_;
@@ -5531,7 +5538,7 @@ sub Run( @ )
     return $status;
 }
 
-sub Calculate( $ )
+sub Calculate( $$ )
 {
     my $self = shift( @_ );
     my $expr = shift( @_ );
@@ -5602,7 +5609,7 @@ sub new
     return $self;               # 無名ハッシュ参照を返す
 }
 
-sub SetDebug( $ )
+sub SetDebug( $$ )
 {
     my $self = shift( @_ );
     $self->{DEBUG} = shift( @_ );
@@ -5613,7 +5620,7 @@ sub GetDebug( $ )
     return $self->{DEBUG};
 }
 
-sub SetBTest( $ )
+sub SetBTest( $$ )
 {
     my $self = shift( @_ );
     $self->{B_TEST} = shift( @_ );
@@ -5623,7 +5630,7 @@ sub GetBTest( $ )
     my $self = shift( @_ );
     return $self->{B_TEST};
 }
-sub SetBTestTestTest( $ )
+sub SetBTestTestTest( $$ )
 {
     my $self = shift( @_ );
     $self->{B_TEST_TEST_TEST} = shift( @_ );
@@ -5635,7 +5642,7 @@ sub GetBTestTestTest( $ )
     return $retval;
 }
 
-sub SetBVerboseOutput( $ )
+sub SetBVerboseOutput( $$ )
 {
     my $self = shift( @_ );
     $self->{B_VERBOSEOUTPUT} = shift( @_ );
@@ -5646,7 +5653,7 @@ sub GetBVerboseOutput( $ )
     return $self->{B_VERBOSEOUTPUT};
 }
 
-sub SetBBanner( $ )
+sub SetBBanner( $$ )
 {
     my $self = shift( @_ );
     $self->{B_BANNER} = shift( @_ );
@@ -5657,7 +5664,7 @@ sub GetBBanner( $ )
     return $self->{B_BANNER};
 }
 
-sub SetBRpn( $ )
+sub SetBRpn( $$ )
 {
     my $self = shift( @_ );
     $self->{B_RPN} = shift( @_ );
@@ -5668,7 +5675,7 @@ sub GetBRpn( $ )
     return $self->{B_RPN};
 }
 
-sub SetBIsStdoutTty( $ )
+sub SetBIsStdoutTty( $$ )
 {
     my $self = shift( @_ );
     $self->{B_IS_STDOUT_TTY} = shift( @_ );
@@ -5679,7 +5686,7 @@ sub GetBIsStdoutTty( $ )
     return $self->{B_IS_STDOUT_TTY};
 }
 
-sub SetBPrintUserDefined( $ )
+sub SetBPrintUserDefined( $$ )
 {
     my $self = shift( @_ );
     $self->{B_PRINT_USER_DEFINED} = shift( @_ );
@@ -5766,7 +5773,7 @@ sub init_script()
 
 ##########
 ## 引数解析
-sub parse_arg()
+sub parse_arg( $@ )
 {
     my $conf = shift( @_ );
     my @val = @_;
@@ -7235,6 +7242,7 @@ alias: d2d().
 =item C<laptimer>
 
 laptimer( I<LAPS> ):
+Returns the elapsed time until stopping.
 Each time you press Enter,
 the split time is measured and the time taken to measure I<LAPS> is returned.
 If I<LAPS> is set to a negative value, the split time is not output.
@@ -7255,13 +7263,15 @@ The time for 3 laps was measured:
 
 =item C<timer>
 
-timer( I<SECOND> ):
-If you specify a value less than 31536000 (365 days x 86400 seconds) for I<SECOND>,
+timer( I<SECOND> [, I<KEEP_PAST_ZERO> ] ):
+Returns the elapsed time until stopping.
+If you specify a value less than 31536000 (365 days * 86400 seconds) for I<SECOND>,
 the countdown will begin and end when it reaches zero.
 If you specify a value greater than this,
 it will be recognized as an epoch second,
-and the countdown or countup will begin with that date and time as zero.
-In this case, the countup will continue without stopping at zero.
+and the countdown or countup will begin targeting that specific date and time.
+If you want to continue counting up after reaching zero,
+specify a non-zero value for I<KEEP_PAST_ZERO>.
 In either mode, press Enter to end.
 
 Specify the seconds in I<SECOND>:
@@ -7269,7 +7279,7 @@ Specify the seconds in I<SECOND>:
   $ c 'timer( 10 )'
   2025-12-27 06:02:58.002  TARGET
   2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
-  0.017200946808    # Number of seconds from the TARGET time
+  10.0028069019     # Returns the elapsed time until stopping.
 
 Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
 
@@ -7277,11 +7287,18 @@ Specify the epoch second in I<SECOND>: ( Dates before 1971 cannot be specified )
   2025-12-27 06:07:00.222  TARGET
   00:00:15.150    <-- Enter key
   2025-12-27 06:07:15.236
-  15.2361481189728      # Number of seconds from the TARGET time
+  2.30003809929     # Returns the elapsed time until stopping.
+
+Measurement of mission time based on the rocket's liftoff (launch) time:
+
+  # By setting KEEP_PAST_ZERO to 1,
+  # the count continues to increment as "T-plus" time after passing liftoff (zero).
+  $ c 'timer( local2epoch( 2026-08-11 04:23:31 ), 1 )'
 
 =item C<stopwatch>
 
-stopwatch().
+stopwatch():
+Returns the elapsed time until stopping.
 Measures the time until the Enter key is pressed.
 The measured time is displayed on the screen.
 alias: sw().

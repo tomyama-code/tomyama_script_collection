@@ -1380,6 +1380,7 @@ The **c** script was created with the following in mind:
 - `laptimer`
 
     laptimer( _LAPS_ ):
+    Returns the elapsed time until stopping.
     Each time you press Enter,
     the split time is measured and the time taken to measure _LAPS_ is returned.
     If _LAPS_ is set to a negative value, the split time is not output.
@@ -1400,13 +1401,15 @@ The **c** script was created with the following in mind:
 
 - `timer`
 
-    timer( _SECOND_ ):
-    If you specify a value less than 31536000 (365 days x 86400 seconds) for _SECOND_,
+    timer( _SECOND_ \[, _KEEP\_PAST\_ZERO_ \] ):
+    Returns the elapsed time until stopping.
+    If you specify a value less than 31536000 (365 days \* 86400 seconds) for _SECOND_,
     the countdown will begin and end when it reaches zero.
     If you specify a value greater than this,
     it will be recognized as an epoch second,
-    and the countdown or countup will begin with that date and time as zero.
-    In this case, the countup will continue without stopping at zero.
+    and the countdown or countup will begin targeting that specific date and time.
+    If you want to continue counting up after reaching zero,
+    specify a non-zero value for _KEEP\_PAST\_ZERO_.
     In either mode, press Enter to end.
 
     Specify the seconds in _SECOND_:
@@ -1414,7 +1417,7 @@ The **c** script was created with the following in mind:
         $ c 'timer( 10 )'
         2025-12-27 06:02:58.002  TARGET
         2025-12-27 06:02:58.017    <-- 10 seconds have passed or press Enter
-        0.017200946808    # Number of seconds from the TARGET time
+        10.0028069019     # Returns the elapsed time until stopping.
 
     Specify the epoch second in _SECOND_: ( Dates before 1971 cannot be specified )
 
@@ -1422,11 +1425,18 @@ The **c** script was created with the following in mind:
         2025-12-27 06:07:00.222  TARGET
         00:00:15.150    <-- Enter key
         2025-12-27 06:07:15.236
-        15.2361481189728      # Number of seconds from the TARGET time
+        2.30003809929     # Returns the elapsed time until stopping.
+
+    Measurement of mission time based on the rocket's liftoff (launch) time:
+
+        # By setting KEEP_PAST_ZERO to 1,
+        # the count continues to increment as "T-plus" time after passing liftoff (zero).
+        $ c 'timer( local2epoch( 2026-08-11 04:23:31 ), 1 )'
 
 - `stopwatch`
 
-    stopwatch().
+    stopwatch():
+    Returns the elapsed time until stopping.
     Measures the time until the Enter key is pressed.
     The measured time is displayed on the screen.
     alias: sw().
