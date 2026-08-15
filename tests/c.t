@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.49 $
+## - $Revision: 1.50 $
 ################################################################################
 
 use strict;
@@ -157,13 +157,13 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
 #    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
 #    $t->stdout_like( qr/\n  ...0:::::::::::...  Age: 29 \( rounded \)\n/ );
-#    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+#    $t->stderr_is( qq{} );
 #    undef( $t );
 #
 #    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
 #    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
 #    $t->stdout_like( qr/\n  ...::::::::::::...  Age: 0 \( rounded \)\n/ );
-#    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+#    $t->stderr_is( qq{} );
 #    undef( $t );
 #    ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
 #
@@ -2598,6 +2598,15 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=13\.9\] is a decimal number\./ );
 
     $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{the_solar_system( orbital_inclination_angle, Sun )} );
+    } );
+    $t->exit_isnt( 0, qq{./c 'the_solar_system( orbital_inclination_angle, Sun )'} );
+    $t->has_exception();
+    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
+    $t->stdout_is( qq{} );
+    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): The combination of \$column\[=2\] and \$celestial_body\[=0\] is undefined\./ );
+
+    $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{the_solar_system( 1, Eris )} );
     } );
     $t->exit_is( 0, qq{./c 'the_solar_system( 1, Eris )'} );
@@ -2740,7 +2749,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 2 ], 0.868976241901, qq{   kn: 0.868976241901} );
     equal( ${ $res }[ 3 ], 0.44704       , qq{  m/s: 0.44704} );
     equal( ${ $res }[ 4 ], 0.001350574018, qq{ Mach: 0.001350574018} );
-    equal( ${ $res }[ 5 ], 0.0000000015  , qq{  sol: 0.0000000015} );
+    equal( ${ $res }[ 5 ], 0.00000000149 , qq{  sol: 0.00000000149} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2755,7 +2764,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 2 ], 1             , qq{   kn: 1} );
     equal( ${ $res }[ 3 ], 0.514444444444, qq{  m/s: 0.514444444444} );
     equal( ${ $res }[ 4 ], 0.001554212823, qq{ Mach: 0.001554212823} );
-    equal( ${ $res }[ 5 ], 0.0000000017  , qq{  sol: 0.0000000017} );
+    equal( ${ $res }[ 5 ], 0.00000000172 , qq{  sol: 0.00000000172} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2770,7 +2779,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 2 ], 1.94384449244 , qq{   kn: 1.94384449244} );
     equal( ${ $res }[ 3 ], 1             , qq{  m/s: 1} );
     equal( ${ $res }[ 4 ], 0.003021148036, qq{ Mach: 0.003021148036} );
-    equal( ${ $res }[ 5 ], 0.0000000033  , qq{  sol: 0.0000000033} );
+    equal( ${ $res }[ 5 ], 0.00000000334 , qq{  sol: 0.00000000334} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2780,12 +2789,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0, qq{./c 'Mach( 1 )'} );
     $t->has_no_exception();
     equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
-    equal( ${ $res }[ 0 ], 1191.6        , qq{ km/h: 1191.6} );
-    equal( ${ $res }[ 1 ],  740.42591267 , qq{  mph:  740.42591267} );
-    equal( ${ $res }[ 2 ],  643.412526998, qq{   kn:  643.412526998} );
-    equal( ${ $res }[ 3 ],  331          , qq{  m/s:  331} );
-    equal( ${ $res }[ 4 ],    1          , qq{ Mach:    1} );
-    equal( ${ $res }[ 5 ],    0.0000011  , qq{  sol:    0.0000011} );
+    equal( ${ $res }[ 0 ], 1191.6         , qq{ km/h: 1191.6} );
+    equal( ${ $res }[ 1 ],  740.42591267  , qq{  mph:  740.42591267} );
+    equal( ${ $res }[ 2 ],  643.412526998 , qq{   kn:  643.412526998} );
+    equal( ${ $res }[ 3 ],  331           , qq{  m/s:  331} );
+    equal( ${ $res }[ 4 ],    1           , qq{ Mach:    1} );
+    equal( ${ $res }[ 5 ],    0.0000011041, qq{  sol:    0.0000011041} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5965,31 +5974,31 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{[Hint] Return list format: (\n} .
-                       qq{  0: radius [km],\n} .
-                       qq{  1: mass [kg],\n} .
-                       qq{  2: orbital_inclination_angle [DEG],\n} .
-                       qq{  3: orbital_eccentricity [0-1],\n} .
-                       qq{  4: orbit_semi_major_axis [au],\n} .
-                       qq{  5: surface_gravity [m/s2],\n} .
-                       qq{  6: orbital_period,\n} .
-                       qq{  7: rotation_period [day],\n} .
-                       qq{  8: number_of_satellites )\n} .
-                       qq{[Hint] Selectable celestial bodies: (\n} .
-                       qq{  0: Sun,\n} .
-                       qq{  1: Mercury,\n} .
-                       qq{  2: Venus,\n} .
-                       qq{  3: Earth (default),\n} .
-                       qq{  4: Mars,\n} .
-                       qq{  5: Jupiter,\n} .
-                       qq{  6: Saturn,\n} .
-                       qq{  7: Uranus,\n} .
-                       qq{  8: Neptune,\n} .
-                       qq{  9: Pluto,\n} .
-                       qq{ 10: Ceres,\n} .
-                       qq{ 11: Haumea,\n} .
-                       qq{ 12: Makemake,\n} .
-                       qq{ 13: Eris )\n} .
+        $t->stdout_is( qq{Return list and COLUMN: (Default: returns all columns)\n} .
+                       qq{  0: radius [km]\n} .
+                       qq{  1: mass [kg]\n} .
+                       qq{  2: orbital_inclination_angle [DEG]\n} .
+                       qq{  3: orbital_eccentricity [0-1]\n} .
+                       qq{  4: orbit_semi_major_axis [au]\n} .
+                       qq{  5: surface_gravity [m/s2]\n} .
+                       qq{  6: orbital_period\n} .
+                       qq{  7: rotation_period [day]\n} .
+                       qq{  8: number_of_satellites\n} .
+                       qq{CELESTIAL_BODY: (Default: 3: Earth)\n} .
+                       qq{  0: Sun\n} .
+                       qq{  1: Mercury\n} .
+                       qq{  2: Venus\n} .
+                       qq{  3: Earth\n} .
+                       qq{  4: Mars\n} .
+                       qq{  5: Jupiter\n} .
+                       qq{  6: Saturn\n} .
+                       qq{  7: Uranus\n} .
+                       qq{  8: Neptune\n} .
+                       qq{  9: Pluto\n} .
+                       qq{ 10: Ceres\n} .
+                       qq{ 11: Haumea\n} .
+                       qq{ 12: Makemake\n} .
+                       qq{ 13: Eris\n} .
                        qq{the_solar_system(  ) = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 )\n} .
                        qq{Formula: 'the_solar_system( ) ='\n} .
                        qq{ Result: ( 6378.137, 5972299999999999636144128, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) [ = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) ]\n},
@@ -6001,10 +6010,35 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{the_solar_system( 0 ) = 6378.137\n} .
+        $t->stdout_is( qq{Return list and COLUMN: (Default: returns all columns)\n} .
+                       qq{  0: radius [km]\n} .
+                       qq{  1: mass [kg]\n} .
+                       qq{  2: orbital_inclination_angle [DEG]\n} .
+                       qq{  3: orbital_eccentricity [0-1]\n} .
+                       qq{  4: orbit_semi_major_axis [au]\n} .
+                       qq{  5: surface_gravity [m/s2]\n} .
+                       qq{  6: orbital_period\n} .
+                       qq{  7: rotation_period [day]\n} .
+                       qq{  8: number_of_satellites\n} .
+                       qq{CELESTIAL_BODY: (Default: 3: Earth)\n} .
+                       qq{  0: Sun\n} .
+                       qq{  1: Mercury\n} .
+                       qq{  2: Venus\n} .
+                       qq{  3: Earth\n} .
+                       qq{  4: Mars\n} .
+                       qq{  5: Jupiter\n} .
+                       qq{  6: Saturn\n} .
+                       qq{  7: Uranus\n} .
+                       qq{  8: Neptune\n} .
+                       qq{  9: Pluto\n} .
+                       qq{ 10: Ceres\n} .
+                       qq{ 11: Haumea\n} .
+                       qq{ 12: Makemake\n} .
+                       qq{ 13: Eris\n} .
+                       qq{the_solar_system( 0 ) = 6378.137\n} .
                        qq{Formula: 'the_solar_system( 0 ) ='\n} .
                        qq{ Result: 6378.137\n},
-                       qq{[Hint]行が表示されないこと} );
+                       qq{[Hint]行が表示されること} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -6012,10 +6046,17 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'km_per_h( 1 )' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{[Hint] Return list format: ( 0:km/h, 1:mph, 2:kn, 3:m/s, 4:Mach, 5:speed_of_light )\n} .
+        $t->stdout_is( qq{Available Units:\n} .
+                       qq{  0:  km_per_h  km/h\n} .
+                       qq{  1:  mph       mph\n} .
+                       qq{  2:  kn        kn\n} .
+                       qq{  3:  m_per_s   m/s\n} .
+                       qq{  4:  Mach      Mach\n} .
+                       qq{  5:  sol       speed_of_light\n} .
                        qq{km_per_h( 1 ) = ( 1, 0.621371192237334, 0.539956803455723, 0.277777777777778, 0.000839207787848271, 9.26566931105978e-10 )\n} .
                        qq{Formula: 'km_per_h( 1 ) ='\n} .
-                       qq{ Result: ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 ) [ = ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 9.3e-10 ) ]\n} );
+                       qq{ Result: ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 ) [ = ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 9.3e-10 ) ]\n},
+                       qq{[Hint]行が表示されること} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -6023,9 +6064,16 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'mph( 1, kn )' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{mph( 1, 2 ) = 0.868976241900648\n} .
+        $t->stdout_is( qq{Available Units:\n} .
+                       qq{  0:  km_per_h  km/h\n} .
+                       qq{  1:  mph       mph\n} .
+                       qq{  2:  kn        kn\n} .
+                       qq{  3:  m_per_s   m/s\n} .
+                       qq{  4:  Mach      Mach\n} .
+                       qq{  5:  sol       speed_of_light\n} .
+                       qq{mph( 1, 2 ) = 0.868976241900648\n} .
                        qq{Formula: 'mph( 1, 2 ) ='\n} .
-                       qq{ Result: 0.868976241901\n}, qq{[Hint]行が表示されないこと} );
+                       qq{ Result: 0.868976241901\n}, qq{[Hint]行が表示されること} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -6158,14 +6206,14 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t = tests::Tester->run_cmd( qq{echo | ./c} );
     $t->exit_is( 0, qq{echo | ./c} );
     $t->stdout_is( qq{\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'laptimer( 1 )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'laptimer( 1 )'} );
     $t->stdout_like( qr/^Elaps         Date\-Time\n/ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\n\n" | ./c 'laptimer( 2 )'} );
@@ -6173,7 +6221,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r2\/2  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\nq\n" | ./c 'laptimer( 10 )'} );
@@ -6181,7 +6229,7 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/^Lap    Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r 2\/10  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{printf "\n\n\nq\n" | ./c 'laptimer( 10 )' --test-test-test} );
@@ -6196,56 +6244,56 @@ subtest qq{Normal (Ex-Proc Test)} => sub{
     $t->exit_is( 0, qq{echo '' | ./c 'timer( local2epoch( 2025, 1, 1 ), 1 )'} );
     $t->stdout_like( qr/^2025\-01\-01 00:00:00\.000  TARGET\n/ );
     $t->stdout_like( qr/\n\d+\.\d+\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'timer( 3 )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'timer( 3 )'} );
     $t->stdout_like( qr/^20\d{2}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  TARGET\n/ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'stopwatch()'} );
     $t->exit_is( 0, qq{echo '' | ./c 'stopwatch()'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'bpm( 10, stopwatch() )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'bpm( 10, stopwatch() )'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'bpm15()'} );
     $t->exit_is( 0, qq{echo '' | ./c 'bpm15()'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'bpm30()'} );
     $t->exit_is( 0, qq{echo '' | ./c 'bpm30()'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'tachymeter( stopwatch() )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'tachymeter( stopwatch() )'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'telemeter( stopwatch() )'} );
     $t->exit_is( 0, qq{echo '' | ./c 'telemeter( stopwatch() )'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n\d+(?:\.\d+)?$/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
 };
@@ -6768,14 +6816,14 @@ subtest qq{aliases (Ex-Proc Test)} => sub{
     $t->stdout_like( qr/^Lap  Split\-Time    Lap\-Time      Date\-Time\n/ );
     $t->stdout_like( qr/\r2\/2  00:00:00\./ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '' | ./c 'sw()'} );
     $t->exit_is( 0, qq{echo '' | ./c 'sw()'} );
     $t->stdout_like( qr/\nstopwatch\(\) = \d/ );
     $t->stdout_like( qr/\n0\./ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
 };
@@ -6787,21 +6835,21 @@ subtest qq{-h, --help} => sub{
     $t->exit_is( 0, qq{PATH="./tests:\$PATH" ./c --test-test --help} );
     $t->stdout_like( qr/^Usage: c / );
     $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{COLUMNS="70" LINES="30" ./c --help} );
     $t->exit_is( 0, qq{COLUMNS="70" LINES="30" ./c --help} );
     $t->stdout_like( qr/^Usage: c /, qq{Specified character width.} );
     $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{env -u COLUMNS -u LINES ./c --help} );
     $t->exit_is( 0, qq{env -u COLUMNS -u LINES ./c --help} );
     $t->stdout_like( qr/^Usage: c / );
     $t->stdout_like( qr/\n    =     Equals sign. In \*c\* script, it has the meaning of terminating the\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 };
 
@@ -6817,7 +6865,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->has_no_exception();
     equal( $res, 403.822719846 );
     $t->stdout_is( qq{} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
 
     #`rm -f .c.rc`;
     # ！ &CORE::unlink だと呼び出せないので注意 ！
@@ -6827,7 +6875,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->exit_is( 0, qq{./c -u} );
     $t->stdout_like( qr/^=== User Defined ===\n/ );
     $t->stdout_like( qr/\n====================\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_blk( sub{
@@ -6875,7 +6923,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->exit_is( 0, qq{./c --user-defined} );
     $t->stdout_like( qr/^=== User Defined ===\n/ );
     $t->stdout_like( qr/\n====================\n/ );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_blk( sub{
@@ -6886,7 +6934,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->has_no_exception();
     equal( $res, 403.822719846 );
     $t->stdout_is( qq{} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
 
 };
 
@@ -6896,12 +6944,12 @@ subtest qq{STDIN} => sub{
     $t = tests::Tester->run_cmd( qq{echo '１２３，４５６－５９ ＋ １２３．４５６＊２＝' | ./c} );
     $t->exit_is( 0, qq{echo '１２３，４５６－５９ ＋ １２３．４５６＊２＝' | ./c} );
     $t->stdout_is( qq{123643.912\n} );
-    $t->stderr_is( qq{}, qq{STDERR is silent.} );
+    $t->stderr_is( qq{} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '123 2(=' | ./c} );
     $t->exit_isnt( 0, qq{echo '123 2(=' | ./c} );
-    $t->stdout_is( qq{}, qq{STDOUT is silent.} );
+    $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: parser: error: The position of the "\)" is incorrect\.\n/ );
     undef( $t );
 };

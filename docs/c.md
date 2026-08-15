@@ -2193,19 +2193,19 @@ The **c** script was created with the following in mind:
     If no arguments are given, it returns all data for Earth.
     In _--verbose_ mode, you can view the available _COLUMN_ and _CELESTIAL\_BODY_.
 
-    COLUMN: (Default: returns all columns)
+    _COLUMN_: (Default: returns all columns)
 
         0: radius [km]
         1: mass [kg]
         2: orbital_inclination_angle [DEG]
-        3: orbital_eccentricity
+        3: orbital_eccentricity [0-1]
         4: orbit_semi_major_axis [au]
         5: surface_gravity [m/s2]
         6: orbital_period
         7: rotation_period [day]
         8: number_of_satellites
 
-    CELESTIAL\_BODY: (Default: 3: Earth)
+    _CELESTIAL\_BODY_: (Default: 3: Earth)
 
          0: Sun
          1: Mercury
@@ -2235,6 +2235,7 @@ The **c** script was created with the following in mind:
     km\_per\_h( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (in km/h).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'km_per_h( 1 )'
@@ -2250,10 +2251,11 @@ The **c** script was created with the following in mind:
     mph( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (in mph).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'mph( 1 )'
-        ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.0000000015 )
+        ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.00000000149 )
 
     Specify the unit:
 
@@ -2265,10 +2267,11 @@ The **c** script was created with the following in mind:
     kn( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (in nautical mile per hour).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'kn( 1 )'
-        ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.0000000017 )
+        ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.00000000172 )
 
     Specify the unit:
 
@@ -2280,10 +2283,11 @@ The **c** script was created with the following in mind:
     m\_per\_s( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (in m/s).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'm_per_s( 1 )'
-        ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.0000000033 )
+        ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.00000000334 )
 
     Specify the unit:
 
@@ -2295,21 +2299,23 @@ The **c** script was created with the following in mind:
     Mach( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (in Mach).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'Mach( 1 )'
-        ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011 )
+        ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011041 )
 
     Specify the unit:
 
-        $ c 'Mach( 1, speed_of_light )'
-        0.0000011
+        $ c 'Mach( 1, sol )'
+        0.0000011041
 
 - `speed_of_light`
 
     speed\_of\_light( _VALUE_ \[, _TARGET\_UNIT_ \] ):
     Returns a list of velocities in various units corresponding to _VALUE_ (as a ratio of the speed of light).
     The list is ordered as ( km/h, mph, kn, m/s, Mach, speed\_of\_light ).
+    Both names (strings) and numbers (indexes) are acceptable for arguments.
     If _TARGET\_UNIT_ is specified, the function returns only the converted value for that unit.
 
         $ c 'speed_of_light( 1 )'

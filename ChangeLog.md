@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.3.7] - 2026-08-16
+### Changed
+- `c` [1.05.020]
+  - Modified the specification for `NumberToString()`.
+    - Improved precision when converting to scientific notation.
+- Updated `the_solar_system()` and `km_h_to()` to display tooltips even when returning a scalar value.
+
 ## [0.3.6] - 2026-08-15
 ### Added
 - `c` [1.05.019]: Cleaning up the code.

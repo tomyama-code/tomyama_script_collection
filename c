@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.19 $
+## - $Revision: 5.20 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.19 $};
+    my $rev = q{$Revision: 5.20 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1366,34 +1366,34 @@ use constant {
     'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'gis_mercator_y'              => [ 2190, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
     'gis_miller_y'                => [ 2200, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
-    'the_solar_system'            => [ 2205, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
-    'km_per_h'                    => [ 2210, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
-    'mph'                         => [ 2220, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
-    'kn'                          => [ 2230, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
-    'm_per_s'                     => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
-    'mach'                        => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
-    'speed_of_light'              => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
-    'au2km'                       => [ 2270, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
-    'km2au'                       => [ 2280, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
-    'ri2meter'                    => [ 2290, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2300, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2310, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2330, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2340, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2350, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2360, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2370, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2380, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2390, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'kpa'                         => [ 2430, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
-    'kgf_per_cm2'                 => [ 2440, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
-    'psi'                         => [ 2450, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
-    'bar'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
-    'paper_size'                  => [ 2470, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'the_solar_system'            => [ 2210, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
+    'km_per_h'                    => [ 2220, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
+    'mph'                         => [ 2230, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
+    'kn'                          => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
+    'm_per_s'                     => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
+    'mach'                        => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
+    'speed_of_light'              => [ 2270, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
+    'au2km'                       => [ 2280, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
+    'km2au'                       => [ 2290, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
+    'ri2meter'                    => [ 2300, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2310, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2340, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2360, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2370, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2380, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2390, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2430, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'kpa'                         => [ 2440, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
+    'kgf_per_cm2'                 => [ 2450, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
+    'psi'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
+    'bar'                         => [ 2470, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
+    'paper_size'                  => [ 2480, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -3768,29 +3768,30 @@ sub gis_miller_y( $ )
     return &gis_mercator_y_core( $lat_rad * 0.8 ) * 1.25;
 }
 
-##          半径（km）   質量（kg）             軌道傾斜角（度）        表面重力（m/s2）               衛星数（個）
-##                                                      軌道離心率               公転周期（地球を1年とする）
-##                                                              軌道長半径（au）          自転周期（日）
+## https://ja.wikipedia.org/wiki/%E5%A4%AA%E9%99%BD%E7%B3%BB#%E4%B8%BB%E3%81%AA%E5%A4%A9%E4%BD%93%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF
+##          半径（km）   質量（kg）  軌道傾斜角（度）        表面重力（m/s2）               衛星数（個）
+##                                           軌道離心率               公転周期（地球を1年とする）
+##                                                   軌道長半径（au）          自転周期（日）
 %TableProvider::bodies_in_the_solar_system = (
-    0  => [ 695_700    , 1_989  * ( 10 ** 30 ),  undef, undef ,  undef, 274.0  ,   undef,   27.275   , undef ], # Sun      太陽
-    1  => [   2_439.7  , 3.3011 * ( 10 ** 23 ),  7.00 , 0.2056,  0.387,   3.70 ,   0.241,   58.65    ,   0   ], # Mercury  水星
-    2  => [   6_051.8  , 4.8675 * ( 10 ** 24 ),  3.39 , 0.0067,  0.723,   8.87 ,   0.615, -243.0187  ,   0   ], # Venus    金星
-    3  => [   6_378.137, 5.9723 * ( 10 ** 24 ),  0.00 , 0.0167,  1.000,   9.798,   1.000,    0.997271,   1   ], # Earth    地球
-    4  => [   3_396.2  , 6.4171 * ( 10 ** 23 ),  1.850, 0.0935,  1.524,   3.71 ,   1.881,    1.02595 ,   2   ], # Mars     火星
-    5  => [  71_492    , 1.8982 * ( 10 ** 27 ),  1.304, 0.0489,  5.204,  24.79 ,  11.862,    0.4135  , 115   ], # Jupiter  木星
-    6  => [  60_268    , 5.6834 * ( 10 ** 26 ),  2.485, 0.0565,  9.582,  10.44 ,  29.457,    0.4264  , 293   ], # Saturn   土星
-    7  => [  25_559    , 8.6813 * ( 10 ** 25 ),  0.774, 0.0457, 19.201,   8.87 ,  84.011,   -0.7181  ,  29   ], # Uranus   天王星
-    8  => [  24_764    , 1.0241 * ( 10 ** 26 ),  1.769, 0.0113, 30.047,  11.15 , 164.79 ,    0.6712  ,  16   ], # Neptune  海王星
-    9  => [   1_188.3  , 1.303  * ( 10 ** 22 ), 17.089, 0.2502, 39.445,   0.620, 247.74 ,   -6.3872  ,   5   ], # Pluto    冥王星(準惑星)
-    10 => [     476    , 9.393  * ( 10 ** 20 ), 10.594, 0.0755,  2.767,   0.28 ,   4.60 ,    0.3781  ,   0   ], # Ceres    ケレス(準惑星)
-    11 => [     816    , 4.006  * ( 10 ** 21 ), 28.206, 0.1899, 43.347,   0.401, 285.39 ,    0.1631  ,   2   ], # Haumea   ハウメア(準惑星)
-    12 => [     715    , 4.4    * ( 10 ** 21 ), 28.983, 0.1555, 45.675,   0.5  , 308.69 ,    7.771   ,   1   ], # Makemake マケマケ(準惑星)
-    13 => [   1_163    , 1.66   * ( 10 ** 22 ), 44.199, 0.4410, 67.664,   0.82 , 556.60 ,    1.08    ,   1   ], # Eris     エリス(準惑星)
+    0  => [ 695_700    , 1_9890e+30, undef , undef , undef , 274.0  , undef  ,   27.275   , undef ], # Sun      太陽
+    1  => [   2_439.7  , 3.3011e+23,  7.00 , 0.2056,  0.387,   3.70 ,   0.241,   58.65    ,   0   ], # Mercury  水星
+    2  => [   6_051.8  , 4.8675e+24,  3.39 , 0.0067,  0.723,   8.87 ,   0.615, -243.0187  ,   0   ], # Venus    金星
+    3  => [   6_378.137, 5.9723e+24,  0.00 , 0.0167,  1.000,   9.798,   1.000,    0.997271,   1   ], # Earth    地球
+    4  => [   3_396.2  , 6.4171e+23,  1.850, 0.0935,  1.524,   3.71 ,   1.881,    1.02595 ,   2   ], # Mars     火星
+    5  => [  71_492    , 1.8982e+27,  1.304, 0.0489,  5.204,  24.79 ,  11.862,    0.4135  , 115   ], # Jupiter  木星
+    6  => [  60_268    , 5.6834e+26,  2.485, 0.0565,  9.582,  10.44 ,  29.457,    0.4264  , 293   ], # Saturn   土星
+    7  => [  25_559    , 8.6813e+25,  0.774, 0.0457, 19.201,   8.87 ,  84.011,   -0.7181  ,  29   ], # Uranus   天王星
+    8  => [  24_764    , 1.0241e+26,  1.769, 0.0113, 30.047,  11.15 , 164.79 ,    0.6712  ,  16   ], # Neptune  海王星
+    9  => [   1_188.3  , 1.3030e+22, 17.089, 0.2502, 39.445,   0.620, 247.74 ,   -6.3872  ,   5   ], # Pluto    冥王星(準惑星)
+    10 => [     476    , 9.3930e+20, 10.594, 0.0755,  2.767,   0.28 ,   4.60 ,    0.3781  ,   0   ], # Ceres    ケレス(準惑星)
+    11 => [     816    , 4.0060e+21, 28.206, 0.1899, 43.347,   0.401, 285.39 ,    0.1631  ,   2   ], # Haumea   ハウメア(準惑星)
+    12 => [     715    , 4.4000e+21, 28.983, 0.1555, 45.675,   0.5  , 308.69 ,    7.771   ,   1   ], # Makemake マケマケ(準惑星)
+    13 => [   1_163    , 1.6600e+22, 44.199, 0.4410, 67.664,   0.82 , 556.60 ,    1.08    ,   1   ], # Eris     エリス(準惑星)
 );
-##          radius       mass                   orbital_inclination_angle        orbital_period        number_of_satellites
-##                                                      orbital_eccentricity              rotation_period
-##                                                              orbit_semi_major_axis
-##                                                                      surface_gravity
+##          radius       mass        orbital_inclination_angle        orbital_period        number_of_satellites
+##                                           orbital_eccentricity              rotation_period
+##                                                   orbit_semi_major_axis
+##                                                           surface_gravity
 
 sub the_solar_system( ;$$ )
 {
@@ -3807,6 +3808,34 @@ sub the_solar_system( ;$$ )
         $celestial_body = 3;
     }
 
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        print( qq{Return list and COLUMN: (Default: returns all columns)\n} .
+               qq{  0: radius [km]\n} .
+               qq{  1: mass [kg]\n} .
+               qq{  2: orbital_inclination_angle [DEG]\n} .
+               qq{  3: orbital_eccentricity [0-1]\n} .
+               qq{  4: orbit_semi_major_axis [au]\n} .
+               qq{  5: surface_gravity [m/s2]\n} .
+               qq{  6: orbital_period\n} .
+               qq{  7: rotation_period [day]\n} .
+               qq{  8: number_of_satellites\n} .
+               qq{CELESTIAL_BODY: (Default: 3: Earth)\n} .
+               qq{  0: Sun\n} .         # 太陽
+               qq{  1: Mercury\n} .     # 水星
+               qq{  2: Venus\n} .       # 金星
+               qq{  3: Earth\n} .       # 地球
+               qq{  4: Mars\n} .        # 火星
+               qq{  5: Jupiter\n} .     # 木星
+               qq{  6: Saturn\n} .      # 土星
+               qq{  7: Uranus\n} .      # 天王星
+               qq{  8: Neptune\n} .     # 海王星
+               qq{  9: Pluto\n} .       # 冥王星(準惑星)
+               qq{ 10: Ceres\n} .       # ケレス(準惑星)
+               qq{ 11: Haumea\n} .      # ハウメア(準惑星)
+               qq{ 12: Makemake\n} .    # マケマケ(準惑星)
+               qq{ 13: Eris\n} );       # エリス(準惑星)
+    }
+
     if( defined( $column ) ){
         if( !( 0 <= $column && $column < 9 ) ){
             die( qq{the_solar_system(): \$column[=$column] is out of range.\n} );
@@ -3815,36 +3844,12 @@ sub the_solar_system( ;$$ )
             die( qq{the_solar_system(): \$column[=$column] is a decimal number.\n} );
         }
 
+        if( !defined( $TableProvider::bodies_in_the_solar_system{$celestial_body}[ $column ] ) ){
+            die( qq{the_solar_system(): The combination of \$column[=$column] and \$celestial_body[=$celestial_body] is undefined.\n} );
+        }
         return $TableProvider::bodies_in_the_solar_system{$celestial_body}[ $column ];
     }
 
-    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
-        print( qq{[Hint] Return list format: (\n} .
-               qq{  0: radius [km],\n} .
-               qq{  1: mass [kg],\n} .
-               qq{  2: orbital_inclination_angle [DEG],\n} .
-               qq{  3: orbital_eccentricity [0-1],\n} .
-               qq{  4: orbit_semi_major_axis [au],\n} .
-               qq{  5: surface_gravity [m/s2],\n} .
-               qq{  6: orbital_period,\n} .
-               qq{  7: rotation_period [day],\n} .
-               qq{  8: number_of_satellites )\n} .
-               qq{[Hint] Selectable celestial bodies: (\n} .
-               qq{  0: Sun,\n} .        # 太陽
-               qq{  1: Mercury,\n} .    # 水星
-               qq{  2: Venus,\n} .      # 金星
-               qq{  3: Earth (default),\n} .    # 地球
-               qq{  4: Mars,\n} .       # 火星
-               qq{  5: Jupiter,\n} .    # 木星
-               qq{  6: Saturn,\n} .     # 土星
-               qq{  7: Uranus,\n} .     # 天王星
-               qq{  8: Neptune,\n} .    # 海王星
-               qq{  9: Pluto,\n} .      # 冥王星(準惑星)
-               qq{ 10: Ceres,\n} .      # ケレス(準惑星)
-               qq{ 11: Haumea,\n} .     # ハウメア(準惑星)
-               qq{ 12: Makemake,\n} .   # マケマケ(準惑星)
-               qq{ 13: Eris )\n} );     # エリス(準惑星)
-    }
     return @{ $TableProvider::bodies_in_the_solar_system{$celestial_body} };
 }
 
@@ -3862,6 +3867,16 @@ sub km_h_to( $$ )
     my $speed_of_light = $m_per_s / 299_792_458;
     my @velocities = ( $km_per_hour, $mph, $knot, $m_per_s, $mach, $speed_of_light );
 
+    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
+        print( qq{Available Units:\n} .
+               qq{  0:  km_per_h  km/h\n} .
+               qq{  1:  mph       mph\n} .
+               qq{  2:  kn        kn\n} .
+               qq{  3:  m_per_s   m/s\n} .
+               qq{  4:  Mach      Mach\n} .
+               qq{  5:  sol       speed_of_light\n} );
+    }
+
     if( defined( $target_unit ) ){
         my( $pkg, $filename, $line, $subr ) = caller( 1 );
         #print( qq{\$pkg="$pkg", \$filename="$filename", \$line="$line", \$subr="$subr"\n} );
@@ -3877,9 +3892,6 @@ sub km_h_to( $$ )
         return $velocities[ $target_unit ];
     }
 
-    if( $TableProvider::CAppConfig->GetBVerboseOutput() ){
-        print( qq{[Hint] Return list format: ( 0:km/h, 1:mph, 2:kn, 3:m/s, 4:Mach, 5:speed_of_light )\n} );
-    }
     return @velocities;
 }
 
@@ -4552,12 +4564,12 @@ sub LoadConstants( $ )
     ${ $ref_user_const }{haumea}   = 11;    # ハウメア(準惑星)
     ${ $ref_user_const }{makemake} = 12;    # マケマケ(準惑星)
     ${ $ref_user_const }{eris}     = 13;    # エリス(準惑星)
-    ${ $ref_user_const }{km_per_h}       = 0;
-    ${ $ref_user_const }{mph}            = 1;
-    ${ $ref_user_const }{kn}             = 2;
-    ${ $ref_user_const }{m_per_s}        = 3;
-    ${ $ref_user_const }{mach}           = 4;
-    ${ $ref_user_const }{speed_of_light} = 5;
+    ${ $ref_user_const }{km_per_h} = 0; # km/h
+    ${ $ref_user_const }{mph}      = 1; # mph
+    ${ $ref_user_const }{kn}       = 2; # knot
+    ${ $ref_user_const }{m_per_s}  = 3; # m/s
+    ${ $ref_user_const }{mach}     = 4; # Mach
+    ${ $ref_user_const }{sol}      = 5; # speed_of_light
     ${ $ref_user_const }{kpa}         = 0;
     ${ $ref_user_const }{kgf_per_cm2} = 1;
     ${ $ref_user_const }{psi}         = 2;
@@ -5356,27 +5368,29 @@ sub ResultPrint( $ )
 
 sub NumberToString( $\$ )
 {
-    my $number = shift( @_ );
-    my $ref_str = shift( @_ );
+    my( $number, $ref_str ) = @_;
 
-    $$ref_str = $number;
     my $bRet = 0;
 
+    $$ref_str = "$number";
+    my $safety_margin = 10;
+
+    ## 「科学的表記法（Scientific Notation）」や「浮動小数点リテラル」
     ## ex) 2.2e-07 -> 0.00000022
-    if( $number =~ m/e\-(\d+)$/ ){
-        my $width = $1 + 1;
-#        $self->dPrint( qq{\$width="$width"\n} );
-        $$ref_str = sprintf( qq{%.${width}f}, $number );
+    if( $$ref_str =~ m/e\-(\d+)$/o ){
+        # 小数点以下の必要桁数を計算（指数の値 + 安全マージン）
+        my $digits = $1 + $safety_margin;
+        $$ref_str = sprintf( qq{%.*f}, $digits, $number );
+#        $self->dPrint( qq{\$digits="$digits" -> "$$ref_str"\n} );
+        $$ref_str =~ s/\.?0+$//;    # 末尾の余分な0をカット
         $bRet = 1;
     ## ex) 1.59226291813144e+15 -> 1592262918131443.25
-    }elsif( $number =~ m/e\+(\d+)$/ ){
-        my $width = 20;
-        $$ref_str = sprintf( qq{%.${width}f}, $number );
-#        $self->dPrint( qq{\$width="$width" -> "$$ref_str"\n} );
-        $$ref_str =~ s!\.?0+$!!o;
+    }elsif( $$ref_str =~ m/e\+\d+$/o ){
+        my $digits = $safety_margin;
+        $$ref_str = sprintf( qq{%.*f}, $digits, $number );
+#        $self->dPrint( qq{\$digits="$digits" -> "$$ref_str"\n} );
+        $$ref_str =~ s/\.?0+$//;    # 末尾の余分な0をカット
         $bRet = 1;
-    }else{
-        $$ref_str = sprintf( qq{%s}, $number );
     }
 
     return $bRet;
@@ -8063,19 +8077,19 @@ Both names (strings) and numbers (indexes) are acceptable for arguments.
 If no arguments are given, it returns all data for Earth.
 In I<--verbose> mode, you can view the available I<COLUMN> and I<CELESTIAL_BODY>.
 
-COLUMN: (Default: returns all columns)
+I<COLUMN>: (Default: returns all columns)
 
   0: radius [km]
   1: mass [kg]
   2: orbital_inclination_angle [DEG]
-  3: orbital_eccentricity
+  3: orbital_eccentricity [0-1]
   4: orbit_semi_major_axis [au]
   5: surface_gravity [m/s2]
   6: orbital_period
   7: rotation_period [day]
   8: number_of_satellites
 
-CELESTIAL_BODY: (Default: 3: Earth)
+I<CELESTIAL_BODY>: (Default: 3: Earth)
 
    0: Sun
    1: Mercury
@@ -8109,6 +8123,7 @@ Example: How many times the size (radius) of the Sun is Mercury's orbit distant 
 km_per_h( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (in km/h).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'km_per_h( 1 )'
@@ -8124,10 +8139,11 @@ Specify the unit:
 mph( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (in mph).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'mph( 1 )'
-  ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.0000000015 )
+  ( 1.609344, 1, 0.868976241901, 0.44704, 0.001350574018, 0.00000000149 )
 
 Specify the unit:
 
@@ -8139,10 +8155,11 @@ Specify the unit:
 kn( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (in nautical mile per hour).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'kn( 1 )'
-  ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.0000000017 )
+  ( 1.852, 1.15077944802, 1, 0.514444444444, 0.001554212823, 0.00000000172 )
 
 Specify the unit:
 
@@ -8154,10 +8171,11 @@ Specify the unit:
 m_per_s( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (in m/s).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'm_per_s( 1 )'
-  ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.0000000033 )
+  ( 3.6, 2.23693629205, 1.94384449244, 1, 0.003021148036, 0.00000000334 )
 
 Specify the unit:
 
@@ -8169,21 +8187,23 @@ Specify the unit:
 Mach( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (in Mach).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'Mach( 1 )'
-  ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011 )
+  ( 1191.6, 740.42591267, 643.412526998, 331, 1, 0.0000011041 )
 
 Specify the unit:
 
-  $ c 'Mach( 1, speed_of_light )'
-  0.0000011
+  $ c 'Mach( 1, sol )'
+  0.0000011041
 
 =item C<speed_of_light>
 
 speed_of_light( I<VALUE> [, I<TARGET_UNIT> ] ):
 Returns a list of velocities in various units corresponding to I<VALUE> (as a ratio of the speed of light).
 The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ).
+Both names (strings) and numbers (indexes) are acceptable for arguments.
 If I<TARGET_UNIT> is specified, the function returns only the converted value for that unit.
 
   $ c 'speed_of_light( 1 )'
