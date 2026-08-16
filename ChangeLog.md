@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.3.8] - 2026-08-17
+### Changed
+- `c` [1.05.022]:
+  - Modified GetToken().
+    - Added support for scientific notation for operands.
+      - '1.2e-3' => '0.0012'
+
 ## [0.3.7] - 2026-08-16
 ### Changed
 - `c` [1.05.020]

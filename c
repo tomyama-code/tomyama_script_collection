@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.20 $
+## - $Revision: 5.22 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.20 $};
+    my $rev = q{$Revision: 5.22 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -4712,30 +4712,16 @@ sub GetToken( $\$ )
         }elsif( $$ref_expr =~ s!^_no_verbose!!o ){
             $self->{APPCONFIG}->SetBVerboseOutput( 0 );
         ## オペランド
-        }elsif( ( $$ref_expr =~ s!^([\-\+])(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
-            ( $$ref_expr =~ s!^([\-\+])(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?)!!o ) ){
-            $operator = $1;
-            my $operand_raw = $2;
-            $operand_raw =~ s!_!!go;
-            $operand = $operand_raw;
-            my $el_d = undef;
-            my $bHex = 0;
-            if( $operand =~ m!^0x!o ){
-                $operand = hex( $operand );
-                $bHex = 1;
+        }elsif( ( $$ref_expr =~ s!^([\-\+])?(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
+                ( $$ref_expr =~ s!^([\-\+])?(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?(?:[eE][\-\+]?\d+)?)!!o ) ){
+            my $bSigned = 0;
+            if( defined( $1 ) ){
+                $bSigned = 1;
+                $operator = $1;
             }
-            $el_d = &FormulaToken::NewOperand( "$operator$operand", $bHex );
-
-            ## オペレータとオペランドの間にスペースを付加して式を組み立てなおす
-            if( $self->IsNeedInsert( $operator, $el_d, " $operand_raw $$ref_expr", $ref_expr ) ){
-                return $ret_obj;
-            }
-            $self->unshift( $el_d );
-            $ret_obj = $el_d;
-
-        }elsif( ( $$ref_expr =~ s!^(0x[\da-f]+(?:_[\da-f]+)*(?:\.(?:[\da-f]+(?:_[\da-f]+)*)?)?)!!o ) ||
-                ( $$ref_expr =~ s!^(\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?)!!o ) ){
-            $operand = $1;
+            my $operand_str = $2;
+            $operand_str =~ s!_!!go;
+            $operand = $operand_str;
             $operand =~ s!_!!go;
             my $el_d = undef;
             my $bHex = 0;
@@ -4743,11 +4729,23 @@ sub GetToken( $\$ )
                 $operand = hex( $operand );
                 $bHex = 1;
             }
-            $el_d = &FormulaToken::NewOperand( $operand, $bHex );
-            ## 必要であれば暗黙の乗算子を挿入
-            if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
-                return $ret_obj;
+
+            if( $bSigned ){
+                $el_d = &FormulaToken::NewOperand( "$operator$operand", $bHex );
+
+                ## オペレータとオペランドの間にスペースを付加して式を組み立てなおす
+                if( $self->IsNeedInsert( $operator, $el_d, " $operand_str $$ref_expr", $ref_expr ) ){
+                    return $ret_obj;
+                }
+            }else{
+                $el_d = &FormulaToken::NewOperand( $operand, $bHex );
+
+                ## 必要であれば暗黙の乗算子を挿入
+                if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
+                    return $ret_obj;
+                }
             }
+
             $self->unshift( $el_d );
             $ret_obj = $el_d;
 
@@ -5375,7 +5373,7 @@ sub NumberToString( $\$ )
     $$ref_str = "$number";
     my $safety_margin = 10;
 
-    ## 「科学的表記法（Scientific Notation）」や「浮動小数点リテラル」
+    ## 「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」
     ## ex) 2.2e-07 -> 0.00000022
     if( $$ref_str =~ m/e\-(\d+)$/o ){
         # 小数点以下の必要桁数を計算（指数の値 + 安全マージン）

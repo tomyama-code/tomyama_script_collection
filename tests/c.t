@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.50 $
+## - $Revision: 1.52 $
 ################################################################################
 
 use strict;
@@ -548,7 +548,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{3+0xf*2=} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, qq{./c '3+0xf*2='} );
     $t->has_no_exception();
     equal( $res, 33, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 33 \[ = 0x21 \]\n}, qq{複雑な書式をそのまま出力していること} );
@@ -800,6 +800,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: evaluator: error: Division by zero: Illegal modulus operand\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{0.0e0+9.876_543_21e+10+1.0e+0} );
+    } );
+    $t->exit_is( 0, qq{./c '0.0e0+9.876_543_21e+10+1.0e+0'} );
+    $t->has_no_exception( qq{「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」} );
+    equal( $res, 98765432101, qq{Result: 98765432101} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{1.2e-0+1.234_567e-3+8.9e-10} );
+    } );
+    $t->exit_is( 0, qq{./c '1.2e-0+1.234_567e-3+8.9e-10'} );
+    $t->has_no_exception( qq{「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」} );
+    equal( $res, 1.20123456789, qq{Result: 1.20123456789} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{ＳＱＲＴ(1920**2+1080**2)=} );
