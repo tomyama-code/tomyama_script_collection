@@ -7,6 +7,18 @@
 ### Changed
 - xxx
 
+## [0.3.9] - 2026-08-18
+### Added
+- `c` [1.05.024]
+  - Added functions:
+    - local2gmt()
+    - gmt2local()
+
+### Changed
+- `c` [1.05.024]
+  - Modified the "-" operator to function not only as a binary operator but also as a sign indicating positive or negative values ​​(unary operator).
+    - "-pi" => "-3.14159265359"
+
 ## [0.3.8] - 2026-08-17
 ### Changed
 - `c` [1.05.022]:

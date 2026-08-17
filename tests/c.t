@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.52 $
+## - $Revision: 1.54 $
 ################################################################################
 
 use strict;
@@ -311,6 +311,96 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: evaluator: error: "\+": Operand missing\.\n/ );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{-pi} );
+    } );
+    $t->exit_is( 0, qq{./c '-pi'} );
+    $t->has_no_exception( qq{単項演算子 NEG + 定数} );
+    equal( $res, -3.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{+pi} );
+    } );
+    $t->exit_is( 0, qq{./c '+pi'} );
+    $t->has_no_exception( qq{単項演算子 POS + 定数} );
+    equal( $res, 3.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{3--pi} );
+    } );
+    $t->exit_is( 0, qq{./c '3--pi'} );
+    $t->has_no_exception( qq{式の途中で、単項演算子 NEG + 定数 （注意：デクリメントではない！）} );
+    equal( $res, 6.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{3++pi} );
+    } );
+    $t->exit_is( 0, qq{./c '3++pi'} );
+    $t->has_no_exception( qq{式の途中で、単項演算子 POS + 定数 （注意：インクリメントではない！）} );
+    equal( $res, 6.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{3-pi} );
+    } );
+    $t->exit_is( 0, qq{./c '3-pi'} );
+    $t->has_no_exception( qq{二項演算子の引き算} );
+    equal( $res, -0.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{3+pi} );
+    } );
+    $t->exit_is( 0, qq{./c '3+pi'} );
+    $t->has_no_exception( qq{二項演算子の足し算} );
+    equal( $res, 6.14159265359 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{5 * - abs(3)} );
+    } );
+    $t->exit_is( 0, qq{./c '5 * - abs(3)'} );
+    $t->has_no_exception( qq{単項演算子 NEG + 関数} );
+    equal( $res, -15 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{5 * + abs(3)} );
+    } );
+    $t->exit_is( 0, qq{./c '5 * + abs(3)'} );
+    $t->has_no_exception( qq{単項演算子 POS + 関数} );
+    equal( $res, 15 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{-(3)} );
+    } );
+    $t->exit_is( 0, qq{./c '-(3)'} );
+    $t->has_no_exception( qq{単項演算子 NEG + 括弧} );
+    equal( $res, -3 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{+(3)} );
+    } );
+    $t->exit_is( 0, qq{./c '+(3)'} );
+    $t->has_no_exception( qq{単項演算子 POS + 括弧} );
+    equal( $res, 3 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{1_2 + 2_1=} );
@@ -2132,6 +2222,34 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 3 ], 15 );
     equal( ${ $res }[ 4 ], 59 );
     equal( ${ $res }[ 5 ], 2 );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{local2gmt( 2026/08/15 19:54:51 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'local2gmt( 2026/08/15 19:54:51 )'\n} );
+    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    equal( ${ $res }[ 0 ], 2026, qq{2026 年} );
+    equal( ${ $res }[ 1 ],    8, qq{08 月} );
+    equal( ${ $res }[ 2 ],   15, qq{15 日} );
+    equal( ${ $res }[ 3 ],   10, qq{10 時 (+0[UTC])} );
+    equal( ${ $res }[ 4 ],   54, qq{54 分} );
+    equal( ${ $res }[ 5 ],   51, qq{51 秒} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{gmt2local( 2026-08-15 10:54:51 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'gmt2local( 2026-08-15 10:54:51 )'\n} );
+    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    equal( ${ $res }[ 0 ], 2026, qq{2026 年} );
+    equal( ${ $res }[ 1 ],    8, qq{08 月} );
+    equal( ${ $res }[ 2 ],   15, qq{15 日} );
+    equal( ${ $res }[ 3 ],   19, qq{19 時 (+9[JST])} );
+    equal( ${ $res }[ 4 ],   54, qq{54 分} );
+    equal( ${ $res }[ 5 ],   51, qq{51 秒} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

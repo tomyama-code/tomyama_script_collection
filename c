@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.22 $
+## - $Revision: 5.24 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.22 $};
+    my $rev = q{$Revision: 5.24 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1028,26 +1028,29 @@ sub GetPriorityOrderBetweenTokens( $$ )
 #    print( qq{bef: \$last="$last", \$curr="$curr"\n} );
 
     my @token_precedence_table = (
-        # '+'     '-'     '*'     '/'     '%'     '**'    '|'     '&'     '^'     '<<'    '>>'    '~'     'fn('   '('     ','     ')'     '='     OPERAND END
-        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
-        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 '-'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 '*'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 '/'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '%'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '**'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '|'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '&'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '^'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '<<'
-        [ E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 10 '>>'
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 11 '~'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 12 'fn('
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 13 '('
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 14 ','
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 15 ')'
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 16 '='
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 17 OPERAND
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 18 BEGIN
+        # 行 = 左（スタックの末尾），列 = 右（処理中のトークン）
+        # '+'     'POS'   '-'     'NEG'   '*'     '/'     '%'     '**'    '|'     '&'     '^'     '<<'    '>>'    '~'     'fn('   '('     ','     ')'     '='     OPERAND END
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 'POS'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 '-'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 'NEG'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '*'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '/'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '%'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '**'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '|'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '&'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 10 '^'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 11 '<<'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 12 '>>'
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 13 '~'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 14 'fn('
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 15 '('
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 16 ','
+        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 17 ')'
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 18 '='
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 19 OPERAND
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 20 BEGIN
     );
 
     my $numLast = &TableProvider::GetTokenTblIdx( $last );
@@ -1131,6 +1134,8 @@ use constant {
     H_G2EP => qq{gmt2epoch( Y, m, d [, H, M, S ] ): Returns the GMT time in seconds since the epoch. alias: g2e().},
     H_EP2L => qq{epoch2local( EPOCH ): Returns the local time. ( Y, m, d, H, M, S ). alias: e2l().},
     H_EP2G => qq{epoch2gmt( EPOCH ): Returns the GMT time. ( Y, m, d, H, M, S ). e2g().},
+    H_L2GM => qq{local2gmt( Y, m, d [, H, M, S ] ): Returns the GMT time. ( Y, m, d, H, M, S ).},
+    H_GM2L => qq{gmt2local( Y, m, d [, H, M, S ] ): Returns the local time. ( Y, m, d, H, M, S ).},
     H_SHMS => qq{sec2dhms( SECOND [, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Rounding the number if DECIMAL_PLACES is specified. alias: s2d},
     H_HMSS => qq{dhms2sec( D [, H, M, S ] ) --Convert-to--> SECOND: alias: d2s().},
     H_DHMS => qq{dhms2dhms( D [, H, M, S, DECIMAL_PLACES ] ) --Convert-to--> ( D, H, M, S ): Returns the normalized value. alias: d2d().},
@@ -1226,26 +1231,28 @@ use constant {
 
 %TableProvider::operators = (
     '+'                           => [    0, T_OPERATOR, O_ARIT,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    '-'                           => [    1, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    '*'                           => [    2, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'                           => [    3, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'                           => [    4, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'                          => [    5, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'                           => [    6, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'                           => [    7, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'                           => [    8, T_OPERATOR, O_BITW,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '<<'                          => [    9, T_OPERATOR, O_BITW,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
-    '>>'                          => [   10, T_OPERATOR, O_BITW,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
-    '~'                           => [   11, T_OPERATOR, O_BITW,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('                         => [   12, T_OTHER   , F_UCLS,    -1, undef  ],
-    '('                           => [   13, T_OPERATOR, O_SYTX,     2, H_BBEG ],
-    ','                           => [   14, T_OPERATOR, O_SYTX,    -1, H_COMA ],
-    ')'                           => [   15, T_OPERATOR, O_SYTX,     2, H_BEND ],
-    '='                           => [   16, T_OPERATOR, O_TERM,     1, H_EQUA ],
-    'OPERAND'                     => [   17, T_OTHER   , F_UCLS,     0, undef  ],
-    'BEGIN'                       => [   18, T_OTHER   , F_UCLS,     0, undef  ],
-    '#'                           => [   19, T_SENTINEL, F_UCLS,    -1, undef  ],
-    'testfunc'                    => [   20, T_OTHER   , F_UCLS,     1, undef  ],
+    'POS'                         => [    1, T_OPERATOR, O_ARIT,     1, undef , sub{ $_[ 0 ] } ],
+    '-'                           => [    2, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    'NEG'                         => [    3, T_OPERATOR, O_ARIT,     1, undef , sub{ 0 - $_[ 0 ] } ],
+    '*'                           => [    4, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'                           => [    5, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'                           => [    6, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'                          => [    7, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'                           => [    8, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'                           => [    9, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'                           => [   10, T_OPERATOR, O_BITW,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '<<'                          => [   11, T_OPERATOR, O_BITW,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'                          => [   12, T_OPERATOR, O_BITW,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'                           => [   13, T_OPERATOR, O_BITW,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('                         => [   14, T_OTHER   , F_UCLS,    -1, undef  ],
+    '('                           => [   15, T_OPERATOR, O_SYTX,     2, H_BBEG ],
+    ','                           => [   16, T_OPERATOR, O_SYTX,    -1, H_COMA ],
+    ')'                           => [   17, T_OPERATOR, O_SYTX,     2, H_BEND ],
+    '='                           => [   18, T_OPERATOR, O_TERM,     1, H_EQUA ],
+    'OPERAND'                     => [   19, T_OTHER   , F_UCLS,     0, undef  ],
+    'BEGIN'                       => [   20, T_OTHER   , F_UCLS,     0, undef  ],
+    '#'                           => [   21, T_SENTINEL, F_UCLS,    -1, undef  ],
+    'testfunc'                    => [   22, T_OTHER   , F_UCLS,     1, undef  ],
     'fmod'                        => [ 1010, T_FUNCTION, F_MATH,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
     'math_mod'                    => [ 1020, T_FUNCTION, F_MATH,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
     'abs'                         => [ 1030, T_FUNCTION, F_MATH,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
@@ -1303,97 +1310,99 @@ use constant {
     'gmt2epoch'                   => [ 1550, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
     'epoch2local'                 => [ 1560, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
     'epoch2gmt'                   => [ 1570, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'sec2dhms'                    => [ 1580, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                    => [ 1590, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                   => [ 1600, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'laptimer'                    => [ 1610, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                       => [ 1620, T_FUNCTION, F_TIME, '1-2', H_TIMR, sub{ &timer( @_ ) } ],
-    'stopwatch'                   => [ 1630, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                         => [ 1640, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                       => [ 1650, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                       => [ 1660, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                  => [ 1670, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                   => [ 1680, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                 => [ 1690, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'                => [ 1700, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
-    'rad2deg'                     => [ 1710, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
-    'deg2rad'                     => [ 1720, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
-    'dms2rad'                     => [ 1730, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'                     => [ 1740, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'                     => [ 1750, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'                     => [ 1760, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                         => [ 1770, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
-    'cos'                         => [ 1780, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
-    'tan'                         => [ 1790, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
-    'asin'                        => [ 1800, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
-    'acos'                        => [ 1810, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
-    'atan'                        => [ 1820, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
-    'atan2'                       => [ 1830, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                       => [ 1840, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'                   => [ 1850, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
-    'dist_between_points'         => [ 1860, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points'        => [ 1870, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points'        => [ 1880, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'                => [ 1890, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                     => [ 1900, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                  => [ 1910, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'geo_radius_of_lat_circle'    => [ 1920, T_FUNCTION, F_GIS_,     1, H_GRAC, sub{ &geo_radius_of_lat_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'              => [ 1930, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'             => [ 1940, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                 => [ 1950, T_FUNCTION, F_GIS_,     4, H_GAZM, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'      => [ 1960, T_FUNCTION, F_GIS_,     4, H_GDAM, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'     => [ 1970, T_FUNCTION, F_GIS_,     4, H_GDAK, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'           => [ 1980, T_FUNCTION, F_GIS_,     4, H_GRDM, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'          => [ 1990, T_FUNCTION, F_GIS_,     4, H_GRDK, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'              => [ 2000, T_FUNCTION, F_GIS_,     4, H_GRAZ, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'   => [ 2010, T_FUNCTION, F_GIS_,     4, H_GRMA, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth'  => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon2xyz'                    => [ 2050, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
-    'moon_radius_of_lat_circle'   => [ 2060, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
-    'moon_distance_m'             => [ 2070, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
-    'moon_distance_km'            => [ 2080, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
-    'moon_azimuth'                => [ 2090, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_m_and_azimuth'     => [ 2100, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ &moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_km_and_azimuth'    => [ 2110, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ &moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_m'          => [ 2120, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ &moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_km'         => [ 2130, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ &moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_azimuth'             => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ &moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_m_and_azimuth'  => [ 2150, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ &moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_km_and_azimuth' => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_m'                  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_km'                 => [ 2180, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'gis_mercator_y'              => [ 2190, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
-    'gis_miller_y'                => [ 2200, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
-    'the_solar_system'            => [ 2210, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
-    'km_per_h'                    => [ 2220, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
-    'mph'                         => [ 2230, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
-    'kn'                          => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
-    'm_per_s'                     => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
-    'mach'                        => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
-    'speed_of_light'              => [ 2270, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
-    'au2km'                       => [ 2280, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
-    'km2au'                       => [ 2290, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
-    'ri2meter'                    => [ 2300, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2310, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2320, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2340, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2360, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2370, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2380, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2390, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2430, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'kpa'                         => [ 2440, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
-    'kgf_per_cm2'                 => [ 2450, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
-    'psi'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
-    'bar'                         => [ 2470, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
-    'paper_size'                  => [ 2480, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'local2gmt'                   => [ 1580, T_FUNCTION, F_TIME, '3-6', H_L2GM, sub{ &local2gmt( @_ ) } ],
+    'gmt2local'                   => [ 1590, T_FUNCTION, F_TIME, '3-6', H_GM2L, sub{ &gmt2local( @_ ) } ],
+    'sec2dhms'                    => [ 1600, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
+    'dhms2sec'                    => [ 1610, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
+    'dhms2dhms'                   => [ 1620, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
+    'laptimer'                    => [ 1630, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
+    'timer'                       => [ 1640, T_FUNCTION, F_TIME, '1-2', H_TIMR, sub{ &timer( @_ ) } ],
+    'stopwatch'                   => [ 1650, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
+    'bpm'                         => [ 1660, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                       => [ 1670, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
+    'bpm30'                       => [ 1680, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
+    'tachymeter'                  => [ 1690, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                   => [ 1700, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
+    'telemeter_m'                 => [ 1710, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
+    'telemeter_km'                => [ 1720, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
+    'rad2deg'                     => [ 1730, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
+    'deg2rad'                     => [ 1740, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
+    'dms2rad'                     => [ 1750, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
+    'dms2deg'                     => [ 1760, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
+    'deg2dms'                     => [ 1770, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
+    'dms2dms'                     => [ 1780, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
+    'sin'                         => [ 1790, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
+    'cos'                         => [ 1800, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
+    'tan'                         => [ 1810, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
+    'asin'                        => [ 1820, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
+    'acos'                        => [ 1830, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
+    'atan'                        => [ 1840, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
+    'atan2'                       => [ 1850, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                       => [ 1860, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'                   => [ 1870, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
+    'dist_between_points'         => [ 1880, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
+    'midpt_between_points'        => [ 1890, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
+    'angle_between_points'        => [ 1900, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
+    'vector_angle'                => [ 1910, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
+    'geo2xyz'                     => [ 1920, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
+    'geo_radius'                  => [ 1930, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
+    'geo_radius_of_lat_circle'    => [ 1940, T_FUNCTION, F_GIS_,     1, H_GRAC, sub{ &geo_radius_of_lat_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'              => [ 1950, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
+    'geo_distance_km'             => [ 1960, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
+    'geo_azimuth'                 => [ 1970, T_FUNCTION, F_GIS_,     4, H_GAZM, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'      => [ 1980, T_FUNCTION, F_GIS_,     4, H_GDAM, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'     => [ 1990, T_FUNCTION, F_GIS_,     4, H_GDAK, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'           => [ 2000, T_FUNCTION, F_GIS_,     4, H_GRDM, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'          => [ 2010, T_FUNCTION, F_GIS_,     4, H_GRDK, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'              => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRAZ, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GRMA, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth'  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                   => [ 2050, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                  => [ 2060, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon2xyz'                    => [ 2070, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
+    'moon_radius_of_lat_circle'   => [ 2080, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
+    'moon_distance_m'             => [ 2090, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
+    'moon_distance_km'            => [ 2100, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
+    'moon_azimuth'                => [ 2110, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_m_and_azimuth'     => [ 2120, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ &moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_km_and_azimuth'    => [ 2130, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ &moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_m'          => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ &moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_km'         => [ 2150, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ &moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_azimuth'             => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ &moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_m_and_azimuth'  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ &moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_km_and_azimuth' => [ 2180, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_m'                  => [ 2190, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_km'                 => [ 2200, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'gis_mercator_y'              => [ 2210, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
+    'gis_miller_y'                => [ 2220, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
+    'the_solar_system'            => [ 2230, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
+    'km_per_h'                    => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
+    'mph'                         => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
+    'kn'                          => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
+    'm_per_s'                     => [ 2270, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
+    'mach'                        => [ 2280, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
+    'speed_of_light'              => [ 2290, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
+    'au2km'                       => [ 2300, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
+    'km2au'                       => [ 2310, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
+    'ri2meter'                    => [ 2320, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2360, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2370, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2380, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2390, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2430, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2440, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2450, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
+    'kpa'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
+    'kgf_per_cm2'                 => [ 2470, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
+    'psi'                         => [ 2480, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
+    'bar'                         => [ 2490, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
+    'paper_size'                  => [ 2500, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
@@ -1452,7 +1461,9 @@ sub FilterOperatorsList( $ )
     my @array = ();
     for my $f( &GetAllOperatorsList() ){
         if( $TableProvider::operators{ $f }[ O_TYPE ] & $filter ){
-            push( @array, $f );
+            if( defined( $TableProvider::operators{ $f }[ O_HELP ] ) ){
+                push( @array, $f );
+            }
         }
     }
     return @array;
@@ -2566,6 +2577,16 @@ sub epoch2gmt( $ )
     $year += 1900; # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
     $month += 1;
     return ( $year, $month, $mday, $hour, $minute, $sec );
+}
+
+sub local2gmt( $$$;$$$ )
+{
+    return &epoch2gmt( &local2epoch( @_ ) );
+}
+
+sub gmt2local( $$$;$$$ )
+{
+    return &epoch2local( &gmt2epoch( @_ ) );
 }
 
 sub sec2dhms( $;$ )
@@ -4773,6 +4794,26 @@ sub GetToken( $\$ )
 
         ## 先頭の半角スペースは除去されていて文字数ゼロでもない状態
         }elsif( $self->IsTokenOperator( $ref_expr, \$operator ) ){
+            if( $operator eq '+' || $operator eq '-' ){
+                my $bReplace = 0;
+                if( !defined( ${ $self->{TOKENS} }[ 0 ] ) ){
+                    $bReplace = 1;
+                }else{
+                    my $last_token = ${ $self->{TOKENS} }[ 0 ];
+                    #print( "curr_operator=" . $operator . ": IsOperand()=" . $last_token->IsOperand() . ", " . "last_token: id=" . $last_token->id . ", " . "data=" . $last_token->data . "\n" );
+                    if( !( $last_token->IsOperand() ) && ( $last_token->data ne ')' ) ){
+                        $bReplace = 1;
+                    }
+                }
+
+                if( $bReplace ){
+                    if( $operator eq '+' ){
+                        $operator = 'POS';
+                    }else{
+                        $operator = 'NEG';
+                    }
+                }
+            }
             my $el_r = &FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
@@ -5963,19 +6004,20 @@ fmod, math_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, ra
 prime_factorize, get_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow_inv, ncr,
 min, max, shuffle, sample, first, head, tail, slice, uniq, sum, prod, avg, add_each, mul_each, div_each,
 simplify_ratio, normalize_ratio, linspace, linstep, mul_growth, gen_fibo_seq, is_leap, age, moon_age,
-moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter_m,
-telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle_deg, dist_between_points, midpt_between_points, angle_between_points, vector_angle,
-geo2xyz, geo_radius, geo_radius_of_lat_circle, geo_distance_m, geo_distance_km, geo_azimuth,
-geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m, geo_rl_distance_km, geo_rl_azimuth,
-geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m, geo_all_km, moon2xyz,
-moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth, moon_dist_m_and_azimuth,
-moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km, moon_rl_azimuth,
-moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km, gis_mercator_y,
-gis_miller_y, the_solar_system, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km, km2au, ri2meter,
-meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi, bar, paper_size
+moon_age_instant, get_next_moon_age_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, local2gmt,
+gmt2local, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter_m, telemeter_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan,
+asin, acos, atan, atan2, hypot, angle_deg, dist_between_points, midpt_between_points,
+angle_between_points, vector_angle, geo2xyz, geo_radius, geo_radius_of_lat_circle, geo_distance_m,
+geo_distance_km, geo_azimuth, geo_dist_m_and_azimuth, geo_dist_km_and_azimuth, geo_rl_distance_m,
+geo_rl_distance_km, geo_rl_azimuth, geo_rl_dist_m_and_azimuth, geo_rl_dist_km_and_azimuth, geo_all_m,
+geo_all_km, moon2xyz, moon_radius_of_lat_circle, moon_distance_m, moon_distance_km, moon_azimuth,
+moon_dist_m_and_azimuth, moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km,
+moon_rl_azimuth, moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km,
+gis_mercator_y, gis_miller_y, the_solar_system, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km,
+km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm,
+mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi,
+bar, paper_size
 
 =head1 OPTIONS
 
@@ -7224,6 +7266,24 @@ alias: e2g().
 
   $ c 'epoch2gmt( 1735756850 )'
   ( 2025, 1, 1, 18, 40, 50 )    # 2025-01-01 18:40:50 GMT
+
+=item C<local2gmt>
+
+local2gmt( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ):
+Returns the GMT time.
+( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+  $ c 'local2gmt( 2026/08/15 19:54:51 )'
+  ( 2026, 8, 15, 10, 54, 51 )
+
+=item C<gmt2local>
+
+gmt2local( I<Y>, I<m>, I<d> [, I<H>, I<M>, I<S> ] ):
+Returns the local time.
+( I<Y>, I<m>, I<d>, I<H>, I<M>, I<S> ).
+
+  $ c 'gmt2local( 2026-08-15 10:54:51 )'
+  ( 2026, 8, 15, 19, 54, 51 )
 
 =item C<sec2dhms>
 

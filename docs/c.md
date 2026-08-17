@@ -119,19 +119,20 @@ fmod, math\_mod, abs, int, floor, ceil, rounddown, round, roundup, percentage, r
 prime\_factorize, get\_prime, gcd, lcm, rand, exp, exp2, exp10, log, log2, log10, sqrt, pow, pow\_inv, ncr,
 min, max, shuffle, sample, first, head, tail, slice, uniq, sum, prod, avg, add\_each, mul\_each, div\_each,
 simplify\_ratio, normalize\_ratio, linspace, linstep, mul\_growth, gen\_fibo\_seq, is\_leap, age, moon\_age,
-moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, sec2dhms,
-dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter, telemeter, telemeter\_m,
-telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan, asin, acos, atan,
-atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points, angle\_between\_points, vector\_angle,
-geo2xyz, geo\_radius, geo\_radius\_of\_lat\_circle, geo\_distance\_m, geo\_distance\_km, geo\_azimuth,
-geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m, geo\_rl\_distance\_km, geo\_rl\_azimuth,
-geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m, geo\_all\_km, moon2xyz,
-moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth, moon\_dist\_m\_and\_azimuth,
-moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km, moon\_rl\_azimuth,
-moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km, gis\_mercator\_y,
-gis\_miller\_y, the\_solar\_system, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km, km2au, ri2meter,
-meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm, mm2inch, pound2gram,
-gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi, bar, paper\_size
+moon\_age\_instant, get\_next\_moon\_age\_epoch, local2epoch, gmt2epoch, epoch2local, epoch2gmt, local2gmt,
+gmt2local, sec2dhms, dhms2sec, dhms2dhms, laptimer, timer, stopwatch, bpm, bpm15, bpm30, tachymeter,
+telemeter, telemeter\_m, telemeter\_km, rad2deg, deg2rad, dms2rad, dms2deg, deg2dms, dms2dms, sin, cos, tan,
+asin, acos, atan, atan2, hypot, angle\_deg, dist\_between\_points, midpt\_between\_points,
+angle\_between\_points, vector\_angle, geo2xyz, geo\_radius, geo\_radius\_of\_lat\_circle, geo\_distance\_m,
+geo\_distance\_km, geo\_azimuth, geo\_dist\_m\_and\_azimuth, geo\_dist\_km\_and\_azimuth, geo\_rl\_distance\_m,
+geo\_rl\_distance\_km, geo\_rl\_azimuth, geo\_rl\_dist\_m\_and\_azimuth, geo\_rl\_dist\_km\_and\_azimuth, geo\_all\_m,
+geo\_all\_km, moon2xyz, moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_distance\_km, moon\_azimuth,
+moon\_dist\_m\_and\_azimuth, moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km,
+moon\_rl\_azimuth, moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km,
+gis\_mercator\_y, gis\_miller\_y, the\_solar\_system, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km,
+km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm,
+mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi,
+bar, paper\_size
 
 # OPTIONS
 
@@ -1350,6 +1351,24 @@ The **c** script was created with the following in mind:
 
         $ c 'epoch2gmt( 1735756850 )'
         ( 2025, 1, 1, 18, 40, 50 )    # 2025-01-01 18:40:50 GMT
+
+- `local2gmt`
+
+    local2gmt( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ):
+    Returns the GMT time.
+    ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+        $ c 'local2gmt( 2026/08/15 19:54:51 )'
+        ( 2026, 8, 15, 10, 54, 51 )
+
+- `gmt2local`
+
+    gmt2local( _Y_, _m_, _d_ \[, _H_, _M_, _S_ \] ):
+    Returns the local time.
+    ( _Y_, _m_, _d_, _H_, _M_, _S_ ).
+
+        $ c 'gmt2local( 2026-08-15 10:54:51 )'
+        ( 2026, 8, 15, 19, 54, 51 )
 
 - `sec2dhms`
 
