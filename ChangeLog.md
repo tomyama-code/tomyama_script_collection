@@ -7,6 +7,14 @@
 ### Changed
 - xxx
 
+## [0.3.10] - 2026-08-19
+### Changed
+- `c` [1.05.026]:
+  - Removed the use of `Pos` when processing `+` as a unary operator.
+  - Modified the `the_solar_system()` function to accept multiple celestial bodies.
+  - Enabled the specification of '0-' (indicating no upper limit) in the `O_ARGC` column of `%TableProvider::operators`.
+    - While existing variable-argument (VA) definitions also lack an upper limit, their lower limit is fixed at 1; consequently, a notation allowing the specification of a lower limit became necessary.
+
 ## [0.3.9] - 2026-08-18
 ### Added
 - `c` [1.05.024]

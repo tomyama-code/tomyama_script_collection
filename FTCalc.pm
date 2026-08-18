@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.13 $
+## - $Revision: 1.14 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -254,8 +254,8 @@ Produces no output by passing 0 (clearing all flags), regardless of the verbose 
 If a calculation that returns a list is evaluated in a scalar context, a reference to the list is returned.
 
   my $ref_results = $c->formula( qq{dhms2dhms( 0, 3, 45, 12 + 666 )} );
-  print( q{resuts: }, join( ', ', @$ref_results ), "\n" );
-  # resuts: 0, 3, 56, 18
+  print( q{results: }, join( ', ', @$ref_results ), "\n" );
+  # results: 0, 3, 56, 18
 
 Please refer to L<the c script documentation|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md> for information on the types of calculation formulas you can write.
 
@@ -460,7 +460,7 @@ sub get_default_value()
 
 =over 4
 
-=item C<set_default_value( %DEFAULT-VALUES )>
+=item C<set_default_value( %DEFAULT_VALUES )>
 
 Sets the default values ​​for the module.
 Specify a hash where the setting names serve as keys.

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.54 $
+## - $Revision: 1.56 $
 ################################################################################
 
 use strict;
@@ -82,17 +82,27 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=\-0\.1\] is out of range\./ );
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{the_solar_system( number_of_satellites )} );
+#        $res = $c->formula( qq{mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'the_solar_system( number_of_satellites )'} );
+#    $t->exit_is( 0, qq{./c 'mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )'} );
 #    $t->has_no_exception();
-#    equal( $res, 1, qq{Earth has one satellite.} );
+#    equal( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
+#    equal( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
+#    equal( ${ $res }[ 1 ],   205, qq{水星  :   205} );
+#    equal( ${ $res }[ 2 ],   509, qq{金星  :   509} );
+#    equal( ${ $res }[ 3 ],   537, qq{地球  :   537} );
+#    equal( ${ $res }[ 4 ],   286, qq{火星  :   286} );
+#    equal( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
+#    equal( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
+#    equal( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
+#    equal( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
+#    equal( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
 #};
 #done_testing();
-#exit( 0 );s
+#exit( 0 );
 #subtest qq{Script Structure} => sub{
 #
 #    require './c';
@@ -316,7 +326,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{-pi} );
     } );
     $t->exit_is( 0, qq{./c '-pi'} );
-    $t->has_no_exception( qq{単項演算子 NEG + 定数} );
+    $t->has_no_exception( qq{単項演算子 Neg + 定数} );
     equal( $res, -3.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -325,7 +335,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{+pi} );
     } );
     $t->exit_is( 0, qq{./c '+pi'} );
-    $t->has_no_exception( qq{単項演算子 POS + 定数} );
+    $t->has_no_exception( qq{単項演算子 Pos + 定数} );
     equal( $res, 3.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -334,7 +344,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{3--pi} );
     } );
     $t->exit_is( 0, qq{./c '3--pi'} );
-    $t->has_no_exception( qq{式の途中で、単項演算子 NEG + 定数 （注意：デクリメントではない！）} );
+    $t->has_no_exception( qq{式の途中で、単項演算子 Neg + 定数 （注意：デクリメントではない！）} );
     equal( $res, 6.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -343,7 +353,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{3++pi} );
     } );
     $t->exit_is( 0, qq{./c '3++pi'} );
-    $t->has_no_exception( qq{式の途中で、単項演算子 POS + 定数 （注意：インクリメントではない！）} );
+    $t->has_no_exception( qq{式の途中で、単項演算子 Pos + 定数 （注意：インクリメントではない！）} );
     equal( $res, 6.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -370,7 +380,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{5 * - abs(3)} );
     } );
     $t->exit_is( 0, qq{./c '5 * - abs(3)'} );
-    $t->has_no_exception( qq{単項演算子 NEG + 関数} );
+    $t->has_no_exception( qq{単項演算子 Neg + 関数} );
     equal( $res, -15 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -379,7 +389,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{5 * + abs(3)} );
     } );
     $t->exit_is( 0, qq{./c '5 * + abs(3)'} );
-    $t->has_no_exception( qq{単項演算子 POS + 関数} );
+    $t->has_no_exception( qq{単項演算子 Pos + 関数} );
     equal( $res, 15 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -388,7 +398,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{-(3)} );
     } );
     $t->exit_is( 0, qq{./c '-(3)'} );
-    $t->has_no_exception( qq{単項演算子 NEG + 括弧} );
+    $t->has_no_exception( qq{単項演算子 Neg + 括弧} );
     equal( $res, -3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -397,7 +407,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{+(3)} );
     } );
     $t->exit_is( 0, qq{./c '+(3)'} );
-    $t->has_no_exception( qq{単項演算子 POS + 括弧} );
+    $t->has_no_exception( qq{単項演算子 Pos + 括弧} );
     equal( $res, 3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
@@ -2802,6 +2812,25 @@ subtest qq{Normal (In-Proc Test)} => sub{
     equal( ${ $res }[ 6 ],                         1       , qq{orbital_period: 1} );
     equal( ${ $res }[ 7 ],                         0.997271, qq{rotation_period: 0.997271} );
     equal( ${ $res }[ 8 ],                         1       , qq{number_of_satellites: 1} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )} );
+    } );
+    $t->exit_is( 0, qq{./c 'mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )'} );
+    $t->has_no_exception();
+    equal( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
+    equal( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
+    equal( ${ $res }[ 1 ],   205, qq{水星  :   205} );
+    equal( ${ $res }[ 2 ],   509, qq{金星  :   509} );
+    equal( ${ $res }[ 3 ],   537, qq{地球  :   537} );
+    equal( ${ $res }[ 4 ],   286, qq{火星  :   286} );
+    equal( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
+    equal( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
+    equal( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
+    equal( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
+    equal( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.24 $
+## - $Revision: 5.26 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.24 $};
+    my $rev = q{$Revision: 5.26 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -562,7 +562,7 @@ use constant {
 };
 
 use constant {
-    VA => -2,
+    VA => -2,   # 引数の数: 下限=1, 上限=無し
 };
 
 use constant{
@@ -1029,28 +1029,27 @@ sub GetPriorityOrderBetweenTokens( $$ )
 
     my @token_precedence_table = (
         # 行 = 左（スタックの末尾），列 = 右（処理中のトークン）
-        # '+'     'POS'   '-'     'NEG'   '*'     '/'     '%'     '**'    '|'     '&'     '^'     '<<'    '>>'    '~'     'fn('   '('     ','     ')'     '='     OPERAND END
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 'POS'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 '-'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 'NEG'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '*'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '/'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '%'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '**'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '|'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '&'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 10 '^'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 11 '<<'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 12 '>>'
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 13 '~'
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 14 'fn('
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 15 '('
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 16 ','
-        [ E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 17 ')'
-        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 18 '='
-        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 19 OPERAND
-        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 20 BEGIN
+        # '+'     '-'     'Neg'   '*'     '/'     '%'     '**'    '|'     '&'     '^'     '<<'    '>>'    '~'     'fn('   '('     ','     ')'     '='     OPERAND END
+        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  0 '+'
+        [ E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  1 '-'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  2 'Neg'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  3 '*'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  4 '/'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  5 '%'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  6 '**'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  7 '|'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  8 '&'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ##  9 '^'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 10 '<<'
+        [ E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 11 '>>'
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_RIGH, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_LEFT ], ## 12 '~'
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_FUNC, E_LEFT, E_RIGH, E_UNKN ], ## 13 'fn('
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_IGNR, E_REMV, E_LEFT, E_RIGH, E_UNKN ], ## 14 '('
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 15 ','
+        [ E_LEFT, E_LEFT, E_RIGH, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_RIGH, E_UNKN, E_UNKN, E_IGNR, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 16 ')'
+        [ E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN, E_UNKN ], ## 17 '='
+        [ E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_UNKN, E_LEFT, E_LEFT, E_LEFT, E_UNKN, E_LEFT ], ## 18 OPERAND
+        [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 19 BEGIN
     );
 
     my $numLast = &TableProvider::GetTokenTblIdx( $last );
@@ -1199,7 +1198,7 @@ use constant {
     H_MALK => qq{moon_all_km( A_LAT, A_LON, B_LAT, B_LON ): Returns the great-circle (shortest path) distance and azimuth from A to B, as well as the rhumb line distance and azimuth. Distances are in kilometers and azimuth in degrees. Latitude and longitude must be specified in radians.},
     H_MCTY => qq{gis_mercator_y( LAT_RAD ): return log( tan( ( pi / 4 ) + ( LAT_RAD / 2 ) ) );},
     H_MLRY => qq{gis_miller_y( LAT_RAD ): return gis_mercator_y( LAT_RAD * 0.8 ) * 1.25;},
-    H_TSLS => qq{the_solar_system( [ COLUMN, CELESTIAL_BODY ] ): Returns data on celestial bodies in the solar system. If no arguments are given, it returns all data for Earth. In --verbose mode, you can view the available COLUMN and CELESTIAL_BODY.},
+    H_TSLS => qq{the_solar_system( [ COLUMN, CELESTIAL_BODY, .. ] ): Returns data on celestial bodies in the solar system. If no arguments are given, it returns all data for Earth. In --verbose mode, you can view the available COLUMN and CELESTIAL_BODY.},
     H_KM_H => qq{km_per_h( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in km/h). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_MPH_ => qq{mph( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in mph). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
     H_KNOT => qq{kn( VALUE [, TARGET_UNIT ] ): Returns a list of velocities in various units corresponding to VALUE (in nautical mile per hour). The list is ordered as ( km/h, mph, kn, m/s, Mach, speed_of_light ). If TARGET_UNIT is specified, the function returns only the converted value for that unit.},
@@ -1231,28 +1230,27 @@ use constant {
 
 %TableProvider::operators = (
     '+'                           => [    0, T_OPERATOR, O_ARIT,     2, H_PLUS, sub{ $_[ 0 ] + $_[ 1 ] } ],
-    'POS'                         => [    1, T_OPERATOR, O_ARIT,     1, undef , sub{ $_[ 0 ] } ],
-    '-'                           => [    2, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
-    'NEG'                         => [    3, T_OPERATOR, O_ARIT,     1, undef , sub{ 0 - $_[ 0 ] } ],
-    '*'                           => [    4, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'                           => [    5, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'                           => [    6, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    '**'                          => [    7, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    '|'                           => [    8, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
-    '&'                           => [    9, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
-    '^'                           => [   10, T_OPERATOR, O_BITW,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
-    '<<'                          => [   11, T_OPERATOR, O_BITW,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
-    '>>'                          => [   12, T_OPERATOR, O_BITW,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
-    '~'                           => [   13, T_OPERATOR, O_BITW,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
-    'fn('                         => [   14, T_OTHER   , F_UCLS,    -1, undef  ],
-    '('                           => [   15, T_OPERATOR, O_SYTX,     2, H_BBEG ],
-    ','                           => [   16, T_OPERATOR, O_SYTX,    -1, H_COMA ],
-    ')'                           => [   17, T_OPERATOR, O_SYTX,     2, H_BEND ],
-    '='                           => [   18, T_OPERATOR, O_TERM,     1, H_EQUA ],
-    'OPERAND'                     => [   19, T_OTHER   , F_UCLS,     0, undef  ],
-    'BEGIN'                       => [   20, T_OTHER   , F_UCLS,     0, undef  ],
-    '#'                           => [   21, T_SENTINEL, F_UCLS,    -1, undef  ],
-    'testfunc'                    => [   22, T_OTHER   , F_UCLS,     1, undef  ],
+    '-'                           => [    1, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
+    'Neg'                         => [    2, T_OPERATOR, O_ARIT,     1, undef , sub{ 0 - $_[ 0 ] } ],
+    '*'                           => [    3, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
+    '/'                           => [    4, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'                           => [    5, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '**'                          => [    6, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
+    '|'                           => [    7, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
+    '&'                           => [    8, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
+    '^'                           => [    9, T_OPERATOR, O_BITW,     2, H_BWEO, sub{ $_[ 0 ] ^ $_[ 1 ] } ],
+    '<<'                          => [   10, T_OPERATOR, O_BITW,     2, H_SHTL, sub{ $_[ 0 ] << $_[ 1 ] } ],
+    '>>'                          => [   11, T_OPERATOR, O_BITW,     2, H_SHTR, sub{ $_[ 0 ] >> $_[ 1 ] } ],
+    '~'                           => [   12, T_OPERATOR, O_BITW,     1, H_BWIV, sub{ ~( $_[ 0 ] ) } ],
+    'fn('                         => [   13, T_OTHER   , F_UCLS,    -1, undef  ],
+    '('                           => [   14, T_OPERATOR, O_SYTX,     2, H_BBEG ],
+    ','                           => [   15, T_OPERATOR, O_SYTX,    -1, H_COMA ],
+    ')'                           => [   16, T_OPERATOR, O_SYTX,     2, H_BEND ],
+    '='                           => [   17, T_OPERATOR, O_TERM,     1, H_EQUA ],
+    'OPERAND'                     => [   18, T_OTHER   , F_UCLS,     0, undef  ],
+    'BEGIN'                       => [   19, T_OTHER   , F_UCLS,     0, undef  ],
+    '#'                           => [   20, T_SENTINEL, F_UCLS,    -1, undef  ],
+    'testfunc'                    => [   21, T_OTHER   , F_UCLS,     1, undef  ],
     'fmod'                        => [ 1010, T_FUNCTION, F_MATH,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
     'math_mod'                    => [ 1020, T_FUNCTION, F_MATH,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
     'abs'                         => [ 1030, T_FUNCTION, F_MATH,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
@@ -1375,7 +1373,7 @@ use constant {
     'moon_all_km'                 => [ 2200, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
     'gis_mercator_y'              => [ 2210, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
     'gis_miller_y'                => [ 2220, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
-    'the_solar_system'            => [ 2230, T_FUNCTION, F_GIS_, '0-2', H_TSLS, sub{ &the_solar_system( @_ ) } ],
+    'the_solar_system'            => [ 2230, T_FUNCTION, F_GIS_,  '0-', H_TSLS, sub{ &the_solar_system( @_ ) } ],
     'km_per_h'                    => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
     'mph'                         => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
     'kn'                          => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
@@ -3814,7 +3812,7 @@ sub gis_miller_y( $ )
 ##                                                   orbit_semi_major_axis
 ##                                                           surface_gravity
 
-sub the_solar_system( ;$$ )
+sub the_solar_system_core( ;$$ )
 {
     my( $column, $celestial_body ) = @_;
 
@@ -3872,6 +3870,22 @@ sub the_solar_system( ;$$ )
     }
 
     return @{ $TableProvider::bodies_in_the_solar_system{$celestial_body} };
+}
+
+sub the_solar_system( ;$@ )
+{
+    my $column = shift( @_ );
+
+    my @results = ();
+    for my $celestial_body( @_ ){
+        push( @results, &the_solar_system_core( $column, $celestial_body ) );
+    }
+
+    if( scalar( @results ) == 0 ){
+        push( @results, &the_solar_system_core( $column ) );
+    }
+
+    return @results;
 }
 
 ## Unit Conversion
@@ -4770,7 +4784,7 @@ sub GetToken( $\$ )
             $self->unshift( $el_d );
             $ret_obj = $el_d;
 
-        ## オペレータ
+        ## オペレータ分類：関数（Function）
         }elsif( $$ref_expr =~ s!^(([a-z0-9_]*)\()!!o ){
             $operator = $1;
             my $funcname = $2;
@@ -4792,28 +4806,35 @@ sub GetToken( $\$ )
             $self->unshift( $el_r );
             $ret_obj = $el_r;
 
+        ## オペレータ分類：記号（Symbolic Operator）
         ## 先頭の半角スペースは除去されていて文字数ゼロでもない状態
         }elsif( $self->IsTokenOperator( $ref_expr, \$operator ) ){
+
+            # Unary operator?
             if( $operator eq '+' || $operator eq '-' ){
-                my $bReplace = 0;
+                my $is_unary_operator = 0;  # 0なら通常通り二項演算子として処理
+
                 if( !defined( ${ $self->{TOKENS} }[ 0 ] ) ){
-                    $bReplace = 1;
+                    $is_unary_operator = 1; # 例: 式の先頭にある「-」
                 }else{
                     my $last_token = ${ $self->{TOKENS} }[ 0 ];
                     #print( "curr_operator=" . $operator . ": IsOperand()=" . $last_token->IsOperand() . ", " . "last_token: id=" . $last_token->id . ", " . "data=" . $last_token->data . "\n" );
+
+                    # 直前が演算子なら、単項演算子（例: 3--pi）※ただし「)」の直後は引き算
                     if( !( $last_token->IsOperand() ) && ( $last_token->data ne ')' ) ){
-                        $bReplace = 1;
+                        $is_unary_operator = 1;
                     }
                 }
 
-                if( $bReplace ){
-                    if( $operator eq '+' ){
-                        $operator = 'POS';
+                if( $is_unary_operator ){
+                    if( $operator eq '-' ){
+                        $operator = 'Neg';  # 単項演算子として処理
                     }else{
-                        $operator = 'NEG';
+                        return undef;       # 計算は不要なので単に演算子だけを消費
                     }
                 }
             }
+
             my $el_r = &FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
@@ -5157,6 +5178,12 @@ sub Input( $$ )
             $need_argc = TableProvider::VA;
             $argc_min = $1;
             $argc_max = $2;
+            $check_len = $argc_max + 1;
+        }elsif( $argc =~ m/^(\d+)\-$/o ){
+            $case = C_FNCRAN;
+            $need_argc = TableProvider::VA;
+            $argc_min = $1;
+            $argc_max = $tokens_len - 1;
             $check_len = $argc_max + 1;
         }elsif( $argc == TableProvider::VA ){
             $case = C_FNCVAR;
@@ -8129,7 +8156,7 @@ Comparison Table of Vertical Distortion in Mercator and Miller Projections:
 
 =item C<the_solar_system>
 
-the_solar_system( [ I<COLUMN>, I<CELESTIAL_BODY> ] ):
+the_solar_system( [ I<COLUMN>, I<CELESTIAL_BODY>, .. ] ):
 Returns data on celestial bodies in the solar system.
 Both names (strings) and numbers (indexes) are acceptable for arguments.
 If no arguments are given, it returns all data for Earth.
@@ -8164,11 +8191,46 @@ I<CELESTIAL_BODY>: (Default: 3: Earth)
   12: Makemake
   13: Eris
 
-Example: How many times the size (radius) of the Sun is Mercury's orbit distant from the Sun?:
+How many suns would fit in the distance from Mercury to the Sun?:
 
   $ c 'au2km( the_solar_system( orbit_semi_major_axis, Mercury ) ) /
-       the_solar_system( radius, Sun )'
-  83.2174442445
+       ( the_solar_system( radius, Sun ) * 2 )'
+  41.6087221223
+
+
+Mercury's perihelion distance (distance of closest approach to the Sun) [km]:
+
+  $ c 'au2km(
+         the_solar_system( orbit_semi_major_axis, Mercury ) *
+         ( 1 - the_solar_system( orbital_eccentricity, Mercury ) )
+       )'
+  45991292.2633
+
+Mercury's aphelion distance (greatest distance from the Sun) [km]:
+
+  $ c 'au2km(
+         the_solar_system( orbit_semi_major_axis, Mercury ) *
+         ( 1 + the_solar_system( orbital_eccentricity, Mercury ) )
+       )'
+  69797459.6585
+
+Size ratios of major celestial bodies in the solar system:
+( Ratios calculated relative to the smallest body, scaled to 100 )
+
+  $ c 'mul_each( round( normalize_ratio(
+         the_solar_system( radius,
+           Sun,
+           Mercury,
+           Venus,
+           Earth,
+           Mars,
+           Jupiter,
+           Saturn,
+           Uranus,
+           Neptune,
+           Pluto )
+       ), 2 ), 100 )'
+  ( 58546, 205, 509, 537, 286, 6016, 5072, 2151, 2084, 100 )
 
 =back
 

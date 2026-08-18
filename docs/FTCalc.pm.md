@@ -88,8 +88,8 @@ A module that provides an API for manipulating the calculation script "c".
     If a calculation that returns a list is evaluated in a scalar context, a reference to the list is returned.
 
         my $ref_results = $c->formula( qq{dhms2dhms( 0, 3, 45, 12 + 666 )} );
-        print( q{resuts: }, join( ', ', @$ref_results ), "\n" );
-        # resuts: 0, 3, 56, 18
+        print( q{results: }, join( ', ', @$ref_results ), "\n" );
+        # results: 0, 3, 56, 18
 
     Please refer to [the c script documentation](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md) for information on the types of calculation formulas you can write.
 
@@ -106,7 +106,7 @@ A module that provides an API for manipulating the calculation script "c".
         printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
         printf( qq{def_formula_os is 0x%02X\n}, $def_val{def_formula_os} );   # def_formula_os is 0x31
 
-- `set_default_value( %DEFAULT-VALUES )`
+- `set_default_value( %DEFAULT_VALUES )`
 
     Sets the default values ​​for the module.
     Specify a hash where the setting names serve as keys.

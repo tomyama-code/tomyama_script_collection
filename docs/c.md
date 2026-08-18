@@ -2206,7 +2206,7 @@ The **c** script was created with the following in mind:
 
 - `the_solar_system`
 
-    the\_solar\_system( \[ _COLUMN_, _CELESTIAL\_BODY_ \] ):
+    the\_solar\_system( \[ _COLUMN_, _CELESTIAL\_BODY_, .. \] ):
     Returns data on celestial bodies in the solar system.
     Both names (strings) and numbers (indexes) are acceptable for arguments.
     If no arguments are given, it returns all data for Earth.
@@ -2241,11 +2241,45 @@ The **c** script was created with the following in mind:
         12: Makemake
         13: Eris
 
-    Example: How many times the size (radius) of the Sun is Mercury's orbit distant from the Sun?:
+    How many suns would fit in the distance from Mercury to the Sun?:
 
         $ c 'au2km( the_solar_system( orbit_semi_major_axis, Mercury ) ) /
-             the_solar_system( radius, Sun )'
-        83.2174442445
+             ( the_solar_system( radius, Sun ) * 2 )'
+        41.6087221223
+
+    Mercury's perihelion distance (distance of closest approach to the Sun) \[km\]:
+
+        $ c 'au2km(
+               the_solar_system( orbit_semi_major_axis, Mercury ) *
+               ( 1 - the_solar_system( orbital_eccentricity, Mercury ) )
+             )'
+        45991292.2633
+
+    Mercury's aphelion distance (greatest distance from the Sun) \[km\]:
+
+        $ c 'au2km(
+               the_solar_system( orbit_semi_major_axis, Mercury ) *
+               ( 1 + the_solar_system( orbital_eccentricity, Mercury ) )
+             )'
+        69797459.6585
+
+    Size ratios of major celestial bodies in the solar system:
+    ( Ratios calculated relative to the smallest body, scaled to 100 )
+
+        $ c 'mul_each( round( normalize_ratio(
+               the_solar_system( radius,
+                 Sun,
+                 Mercury,
+                 Venus,
+                 Earth,
+                 Mars,
+                 Jupiter,
+                 Saturn,
+                 Uranus,
+                 Neptune,
+                 Pluto )
+             ), 2 ), 100 )'
+        ( 58546, 205, 509, 537, 286, 6016, 5072, 2151, 2084, 100 )
 
 ## Unit Conversion
 
