@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.3.11] - 2026-08-24
+### Added
+- Added a script.
+  - `timezone_id` [1.01.001]: List IANA timezone IDs.
+
 ## [0.3.10] - 2026-08-19
 ### Changed
 - `c` [1.05.026]:

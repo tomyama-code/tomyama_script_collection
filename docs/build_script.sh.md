@@ -3,7 +3,7 @@
 * * *
 # NAME
 
-     build_script.sh - manual page for build_script.sh 1.4)
+     build_script.sh - manual page for build_script.sh 1.5)
 
 # DESCRIPTION
 
@@ -14,7 +14,7 @@
 
      See Also - docs/Developer_Manual.md
 
-(Revision: 1.4)                                    7月 2026                                BUILD_SCRIPT.SH(1)
+(Revision: 1.5)                                    8月 2026                                BUILD_SCRIPT.SH(1)
 
 * * *
 - See '[README.md](../README.md)' for installation instructions.

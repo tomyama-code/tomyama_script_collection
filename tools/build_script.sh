@@ -5,7 +5,7 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.4 $
+## - $Revision: 1.5 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -88,6 +88,10 @@ sh_main()
             gzip -dc "$distribution_archive" | tar tvf -
 
             mv -f "$distribution_archive" ..
+
+            echo "-----"
+            echo "How to obtain a list of files targeted for archiving:"
+            echo "  \$ make echo-distfiles"
         else
             echo "$0: $distribution_archive: archive not found" 1>&2
         fi

@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.13 $
+- $Revision: 1.14 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -161,6 +161,24 @@ All rights reserved.
 
 For details, please refer to [mark.md](mark.md).
 
+### timezone_id
+
+List IANA timezone IDs.
+
+- $Revision: 1.1 $
+- Note: This uses bundled IANA data instead of the host system's timezone data.
+
+- Author: 2026, tomyama
+- Intended primarily for personal use, but BSD license permits redistribution.
+
+BSD 2-Clause License:
+Copyright (c) 2026, tomyama
+All rights reserved.
+
+![Image of the timezone_id command execution](img/timezone_id.jpg)
+
+For details, please refer to [timezone_id.md](timezone_id.md).
+
 ### tsc_bin_path.pl
 
 Prints the installation path or project root directory.
@@ -188,7 +206,7 @@ A script that describes the build steps
 - A script describing the build steps in an environment
   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.4 $
+- $Revision: 1.5 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -226,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.95 $
+- $Revision: 2.96 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

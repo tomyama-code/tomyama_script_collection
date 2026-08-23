@@ -61,6 +61,12 @@
 - [POD](docs/mark.md) \[ Plain Old Documentation \]
 - blog:『[検索にマッチした行の前後を表示する](https://tomyama.hatenablog.jp/entry/2022/09/29/235346)』
 
+### timezone_id -- タイムゾーンのIDを表示する
+
+![Image of the timezone_id command execution](docs/img/timezone_id.jpg)
+
+- [POD](docs/timezone_id.md) \[ Plain Old Documentation \]
+
 * * *
 
 ## インストール方法

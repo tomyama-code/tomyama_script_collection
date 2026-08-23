@@ -1,0 +1,599 @@
+SDT	DST	SDT	DST	IANA TZ id	Embedded comments	Notes	Lat	Lon	Country Code	Country Name
+−12:00	−12:00	-12	-12	Etc/GMT+12		Sign is intentionally inverted. See the Etc area description.	0	-180		
+−11:00	−11:00	-11	-11	Etc/GMT+11		Sign is intentionally inverted. See the Etc area description.	0	-165		
+−11:00	−11:00	-11	-11	Pacific/Niue			-19.05444	-169.86723	NU	Niue
+−11:00	−11:00	SST	SST	Pacific/Pago_Pago	Midway		-14.27322	-170.70303	AS; UM	American Samoa; United States Minor Outlying Islands
+−11:00	−11:00	SST	SST	US/Samoa		Link to Pacific/Pago_Pago	-13.75902	-172.10462	AS	American Samoa
+−11:00	−11:00	SST	SST	Pacific/Samoa		Link to Pacific/Pago_Pago	-13.75902	-172.10462	AS	American Samoa
+−11:00	−11:00	SST	SST	Pacific/Midway	Midway Islands	Link to Pacific/Pago_Pago	28.20721	-177.37349	UM	United States Minor Outlying Islands
+−10:00	−10:00	-10	-10	Etc/GMT+10		Sign is intentionally inverted. See the Etc area description.	0	-150		
+−10:00	−10:00	HST	HST	Pacific/Honolulu	Hawaii		21.30988	-157.85814	US	United States of America
+−10:00	−10:00	HST	HST	US/Hawaii		Link to Pacific/Honolulu	19.89868	-155.66585	US	United States of America
+−10:00	−10:00	HST	HST	Pacific/Johnston		Link to Pacific/Honolulu	21.30988	-157.85814	UM	United States Minor Outlying Islands
+−10:00	−10:00	HST	HST	HST		Link to Pacific/Honolulu	21.30988	-157.85814		
+−10:00	−10:00	-10	-10	Pacific/Rarotonga			-21.22923	-159.77634	CK	Cook Islands
+−10:00	−10:00	-10	-10	Pacific/Tahiti	Society Islands		-17.65091	-149.42604	PF	French Polynesia
+−10:00	−09:00	HST	HDT	America/Adak	Alaska – western Aleutians		51.76158	-176.62174	US	United States of America
+−10:00	−09:00	HST	HDT	US/Aleutian		Link to America/Adak	54.83193	-165.8947	US	United States of America
+−10:00	−09:00	HST	HDT	America/Atka		Link to America/Adak	52.16214	-174.34463	US	United States of America
+−09:30	−09:30	-930	-930	Pacific/Marquesas	Marquesas Islands		-9.78121	-139.08171	PF	French Polynesia
+−09:00	−09:00	-9	-9	Etc/GMT+9		Sign is intentionally inverted. See the Etc area description.	0	-135		
+−09:00	−09:00	-9	-9	Pacific/Gambier	Gambier Islands		-23.10965	-134.97434	PF	French Polynesia
+−09:00	−08:00	AKST	AKDT	America/Anchorage	Alaska (most areas)		61.21757	-149.89967	US	United States of America
+−09:00	−08:00	AKST	AKDT	US/Alaska		Link to America/Anchorage	63.58875	-154.49306	US	United States of America
+−09:00	−08:00	AKST	AKDT	America/Juneau	Alaska – Juneau area		58.30049	-134.42013	US	United States of America
+−09:00	−08:00	AKST	AKDT	America/Metlakatla	Alaska – Annette Island		55.12878	-131.57448	US	United States of America
+−09:00	−08:00	AKST	AKDT	America/Nome	Alaska (west)		64.50059	-165.40864	US	United States of America
+−09:00	−08:00	AKST	AKDT	America/Sitka	Alaska – Sitka area		57.05321	-135.33455	US	United States of America
+−09:00	−08:00	AKST	AKDT	America/Yakutat	Alaska – Yakutat		59.54533	-139.72684	US	United States of America
+−08:00	−08:00	-8	-8	Etc/GMT+8		Sign is intentionally inverted. See the Etc area description.	0	-120		
+−08:00	−08:00	-8	-8	Pacific/Pitcairn			-24.37675	-128.32423	PN	Pitcairn
+−08:00	−07:00	PST	PDT	America/Los_Angeles	Pacific		34.0549	-118.24264	US	United States of America
+−08:00	−07:00	PST	PDT	US/Pacific		Link to America/Los_Angeles	34.0549	-118.24264	US	United States of America
+−08:00	−07:00	PST	PDT	PST8PDT		Link to America/Los_Angeles	34.0549	-118.24264		
+−08:00	−07:00	PST	PDT	America/Tijuana	Baja California		32.53319	-117.01927	MX	Mexico
+−08:00	−07:00	PST	PDT	Mexico/BajaNorte		Link to America/Tijuana	31.86138	-116.62351	MX	Mexico
+−08:00	−07:00	PST	PDT	America/Ensenada		Link to America/Tijuana	31.8557	-116.60573	MX	Mexico
+−08:00	−07:00	PST	PDT	America/Santa_Isabel		Link to America/Tijuana	28.343	-106.3664	MX	Mexico
+−07:00	−07:00	-7	-7	Etc/GMT+7		Sign is intentionally inverted. See the Etc area description.	0	-105		
+−07:00	−07:00	MST	MST	America/Dawson_Creek	MST – BC (Dawson Cr, Ft St John)		55.75962	-120.23766	CA	Canada
+−07:00	−07:00	MST	MST	America/Dawson	MST – Yukon (west)		44.9309	-96.05459	CA	Canada
+−07:00	−07:00	MST	MST	America/Fort_Nelson	MST – BC (Ft Nelson)		58.80501	-122.69723	CA	Canada
+−07:00	−07:00	MST	MST	America/Hermosillo	Sonora		29.07296	-110.95591	MX	Mexico
+−07:00	−07:00	MST	MST	America/Mazatlan	Baja California Sur, Nayarit (most areas), Sinaloa		23.24941	-106.41114	MX	Mexico
+−07:00	−07:00	MST	MST	Mexico/BajaSur		Link to America/Mazatlan	26.04444	-111.66607	MX	Mexico
+−07:00	−07:00	MST	MST	America/Phoenix	MST – AZ (most areas), Creston BC		33.44829	-112.07254	US; CA	United States of America; Canada
+−07:00	−07:00	MST	MST	MST		Link to America/Phoenix	33.44829	-112.07254		
+−07:00	−07:00	MST	MST	US/Arizona		Link to America/Phoenix	34.04892	-111.09373	US	United States of America
+−07:00	−07:00	MST	MST	America/Creston	MST – BC (Creston)	Link to America/Phoenix	49.29043	-122.75375	CA	Canada
+−07:00	−07:00	MST	PDT	America/Vancouver	MST – BC (most areas)		49.28272	-123.12073	CA	Canada
+−07:00	−07:00	MST	PDT	Canada/Pacific		Link to America/Vancouver	49.28272	-123.12073	CA	Canada
+−07:00	−07:00	MST	MST	America/Whitehorse	MST – Yukon (east)		60.71971	-135.05227	CA	Canada
+−07:00	−07:00	MST	MST	Canada/Yukon		Link to America/Whitehorse	64.28232	-135	CA	Canada
+−07:00	−06:00	MST	MDT	America/Boise	Mountain – ID (south), OR (east)		43.61501	-116.20231	US	United States of America
+−07:00	−06:00	MST	MDT	America/Cambridge_Bay	Mountain – NU (west)		69.11686	-105.05968	CA	Canada
+−07:00	−06:00	MST	MDT	America/Ciudad_Juarez	Chihuahua (US border – west)		31.69036	-106.42454	MX	Mexico
+−07:00	−06:00	MST	MDT	America/Denver	Mountain (most areas)		39.73923	-104.99025	US	United States of America
+−07:00	−06:00	MST	MDT	MST7MDT		Link to America/Denver	39.73923	-104.99025		
+−07:00	−06:00	MST	MDT	Navajo		Link to America/Denver	39.73923	-104.99025	US	United States of America
+−07:00	−06:00	MST	MDT	US/Mountain		Link to America/Denver	39.73923	-104.99025	US	United States of America
+−07:00	−06:00	MST	MDT	America/Shiprock		Link to America/Denver	36.68666	-108.83643	US	United States of America
+−07:00	−06:00	MST	MDT	America/Inuvik	Mountain – NT (west)		68.35936	-133.72944	CA	Canada
+−06:00	−06:00	-6	-6	Etc/GMT+6		Sign is intentionally inverted. See the Etc area description.	0	-90		
+−06:00	−06:00	CST	CST	America/Bahia_Banderas	Bahía de Banderas		20.80748	-105.24808	MX	Mexico
+−06:00	−06:00	CST	CST	America/Belize			17.18987	-88.49765	BZ	Belize
+−06:00	−06:00	CST	CST	America/Chihuahua	Chihuahua (most areas)		28.64337	-106.05879	MX	Mexico
+−06:00	−06:00	CST	CST	America/Costa_Rica			9.74891	-83.75342	CR	Costa Rica
+−06:00	−06:00	CST	MDT	America/Edmonton	CST – AB, BC(E), NT(E), SK(W)		53.54616	-113.49373	CA	Canada
+−06:00	−06:00	CST	MDT	Canada/Mountain		Link to America/Edmonton	53.54616	-113.49373	CA	Canada
+−06:00	−06:00	CST	MDT	America/Yellowknife		Link to America/Edmonton	62.45397	-114.37178	CA	Canada
+−06:00	−06:00	CST	CST	America/El_Salvador			13.79418	-88.89653	SV	El Salvador
+−06:00	−06:00	-6	-6	Pacific/Galapagos	Galápagos Islands		-0.3831	-90.42333	EC	Ecuador
+−06:00	−06:00	CST	CST	America/Guatemala			15.78347	-90.23075	GT	Guatemala
+−06:00	−06:00	CST	CST	America/Managua			12.11499	-86.23617	NI	Nicaragua
+−06:00	−06:00	CST	CST	America/Merida	Campeche, Yucatán		20.96737	-89.59258	MX	Mexico
+−06:00	−06:00	CST	CST	America/Mexico_City	Central Mexico		19.4326	-99.1332	MX	Mexico
+−06:00	−06:00	CST	CST	Mexico/General		Link to America/Mexico_City	19.4326	-99.1332	MX	Mexico
+−06:00	−06:00	CST	CST	America/Monterrey	Durango; Coahuila, Nuevo León, Tamaulipas (most areas)		25.68661	-100.31611	MX	Mexico
+−06:00	−06:00	CST	CST	America/Regina	CST – SK (most areas)		50.44521	-104.61889	CA	Canada
+−06:00	−06:00	CST	CST	Canada/Saskatchewan		Link to America/Regina	52.93991	-106.45086	CA	Canada
+−06:00	−06:00	CST	CST	America/Swift_Current	CST – SK (midwest)		50.28506	-107.79717	CA	Canada
+−06:00	−06:00	CST	CST	America/Tegucigalpa			14.06071	-87.18245	HN	Honduras
+−06:00	−05:00	CST	CDT	America/North_Dakota/Beulah	Central – ND (Mercer)		47.26334	-101.77794	US	United States of America
+−06:00	−05:00	CST	CDT	America/North_Dakota/Center	Central – ND (Oliver)		47.11638	-101.29959	US	United States of America
+−06:00	−05:00	CST	CDT	America/Chicago	Central (most areas)		41.88324	-87.63238	US	United States of America
+−06:00	−05:00	CST	CDT	CST6CDT		Link to America/Chicago	41.88324	-87.63238		
+−06:00	−05:00	CST	CDT	US/Central		Link to America/Chicago	41.88324	-87.63238	US	United States of America
+−06:00	−05:00	-6	-5	Pacific/Easter	Easter Island		-27.11272	-109.34968	CL	Chile
+−06:00	−05:00	-6	-5	Chile/EasterIsland		Link to Pacific/Easter	-27.11272	-109.34968	CL	Chile
+−06:00	−05:00	CST	CDT	America/Indiana/Knox	Central – IN (Starke)		41.29395	-86.62069	US	United States of America
+−06:00	−05:00	CST	CDT	US/Indiana-Starke		Link to America/Indiana/Knox	41.27156	-86.62079	US	United States of America
+−06:00	−05:00	CST	CDT	America/Knox_IN		Link to America/Indiana/Knox	41.29395	-86.62069	US	United States of America
+−06:00	−05:00	CST	CDT	America/Matamoros	Coahuila, Nuevo León, Tamaulipas (US border)		25.86902	-97.50273	MX	Mexico
+−06:00	−05:00	CST	CDT	America/Menominee	Central – MI (Wisconsin border)		45.10776	-87.61427	US	United States of America
+−06:00	−05:00	CST	CDT	America/North_Dakota/New_Salem	Central – ND (Morton rural)		42.50405	-72.33362	US	United States of America
+−06:00	−05:00	CST	CDT	America/Ojinaga	Chihuahua (US border – east)		29.54588	-104.40829	MX	Mexico
+−06:00	−05:00	CST	CDT	America/Rankin_Inlet	Central – NU (central)		62.80837	-92.08528	CA	Canada
+−06:00	−05:00	CST	CDT	America/Resolute	Central – NU (Resolute)		74.69729	-94.82972	CA	Canada
+−06:00	−05:00	CST	CDT	America/Indiana/Tell_City	Central – IN (Perry)		37.95144	-86.76776	US	United States of America
+−06:00	−05:00	CST	CDT	America/Winnipeg	Central – ON (west), Manitoba		49.89542	-97.13851	CA	Canada
+−06:00	−05:00	CST	CDT	Canada/Central		Link to America/Winnipeg	49.89542	-97.13851	CA	Canada
+−06:00	−05:00	CST	CDT	America/Rainy_River		Link to America/Winnipeg	48.7222	-94.56843	CA	Canada
+−05:00	−05:00	-5	-5	Etc/GMT+5		Sign is intentionally inverted. See the Etc area description.	0	-75		
+−05:00	−05:00	-5	-5	America/Bogota			4.71098	-74.07209	CO	Colombia
+−05:00	−05:00	EST	EST	America/Cancun	Quintana Roo		21.1619	-86.85152	MX	Mexico
+−05:00	−05:00	-5	-5	America/Eirunepe	Amazonas (west)		-6.66237	-69.86743	BR	Brazil
+−05:00	−05:00	-5	-5	America/Guayaquil	Ecuador (mainland)		-2.18913	-79.8899	EC	Ecuador
+−05:00	−05:00	EST	EST	America/Jamaica			18.10958	-77.2975	JM	Jamaica
+−05:00	−05:00	EST	EST	Jamaica		Link to America/Jamaica	18.10958	-77.2975	JM	Jamaica
+−05:00	−05:00	-5	-5	America/Lima			-12.04668	-77.04308	PE	Peru
+−05:00	−05:00	EST	EST	America/Panama	EST – ON (Atikokan), NU (Coral H)		8.53798	-80.78212	PA; CA; KY	Panama; Canada; Cayman Islands
+−05:00	−05:00	EST	EST	EST		Link to America/Panama	8.53798	-80.78212		
+−05:00	−05:00	EST	EST	America/Atikokan	EST – ON (Atikokan), NU (Coral H)	Link to America/Panama	48.75751	-91.62183	CA	Canada
+−05:00	−05:00	EST	EST	America/Cayman		Link to America/Panama	19.3133	-81.2546	KY	Cayman Islands
+−05:00	−05:00	EST	EST	America/Coral_Harbour		Link to America/Panama	64.13883	-83.16989	CA	Canada
+−05:00	−05:00	-5	-5	America/Rio_Branco	Acre		-9.97402	-67.80981	BR	Brazil
+−05:00	−05:00	-5	-5	Brazil/Acre		Link to America/Rio_Branco	-9.02379	-70.81199	BR	Brazil
+−05:00	−05:00	-5	-5	America/Porto_Acre		Link to America/Rio_Branco	-9.59363	-67.5411	BR	Brazil
+−05:00	−04:00	EST	EDT	America/Detroit	Eastern – MI (most areas)		42.32971	-83.04245	US	United States of America
+−05:00	−04:00	EST	EDT	US/Michigan		Link to America/Detroit	44.31484	-85.60236	US	United States of America
+−05:00	−04:00	EST	EDT	America/Grand_Turk			21.46745	-71.13891	TC	Turks and Caicos Islands
+−05:00	−04:00	CST	CDT	America/Havana			23.13386	-82.35856	CU	Cuba
+−05:00	−04:00	CST	CDT	Cuba		Link to America/Havana	21.52175	-77.78116	CU	Cuba
+−05:00	−04:00	EST	EDT	America/Indiana/Indianapolis	Eastern – IN (most areas)		39.76909	-86.15801	US	United States of America
+−05:00	−04:00	EST	EDT	US/East-Indiana		Link to America/Indiana/Indianapolis	39.76909	-86.15801	US	United States of America
+−05:00	−04:00	EST	EDT	America/Indianapolis		Link to America/Indiana/Indianapolis	39.76909	-86.15801	US	United States of America
+−05:00	−04:00	EST	EDT	America/Fort_Wayne		Link to America/Indiana/Indianapolis	41.07947	-85.13629	US	United States of America
+−05:00	−04:00	EST	EDT	America/Iqaluit	Eastern – NU (most areas)		63.74669	-68.51696	CA	Canada
+−05:00	−04:00	EST	EDT	America/Pangnirtung		Link to America/Iqaluit	66.14655	-65.70121	CA	Canada
+−05:00	−04:00	EST	EDT	America/Kentucky/Louisville	Eastern – KY (Louisville area)		38.24686	-85.76637	US	United States of America
+−05:00	−04:00	EST	EDT	America/Louisville		Link to America/Kentucky/Louisville	38.24686	-85.76637	US	United States of America
+−05:00	−04:00	EST	EDT	America/Indiana/Marengo	Eastern – IN (Crawford)		38.37421	-86.34401	US	United States of America
+−05:00	−04:00	EST	EDT	America/Kentucky/Monticello	Eastern – KY (Wayne)		41.65564	-74.68932	US	United States of America
+−05:00	−04:00	EST	EDT	America/New_York	Eastern (most areas)		40.71277	-74.00597	US	United States of America
+−05:00	−04:00	EST	EDT	EST5EDT		Link to America/New_York	40.71277	-74.00597		
+−05:00	−04:00	EST	EDT	US/Eastern		Link to America/New_York	40.71277	-74.00597	US	United States of America
+−05:00	−04:00	EST	EDT	America/Indiana/Petersburg	Eastern – IN (Pike)		38.49199	-87.27862	US	United States of America
+−05:00	−04:00	EST	EDT	America/Port-au-Prince			18.53638	-72.34654	HT	Haiti
+−05:00	−04:00	EST	EDT	America/Toronto	Eastern – ON & QC (most areas)		43.65482	-79.38844	CA; BS	Canada; Bahamas
+−05:00	−04:00	EST	EDT	Canada/Eastern		Link to America/Toronto	43.65482	-79.38844	CA	Canada
+−05:00	−04:00	EST	EDT	America/Nassau		Link to America/Toronto	25.04433	-77.35036	BS	Bahamas
+−05:00	−04:00	EST	EDT	America/Montreal		Link to America/Toronto	45.50188	-73.56739	CA	Canada
+−05:00	−04:00	EST	EDT	America/Nipigon		Link to America/Toronto	49.0125	-88.26327	CA	Canada
+−05:00	−04:00	EST	EDT	America/Thunder_Bay		Link to America/Toronto	48.38089	-89.24777	CA	Canada
+−05:00	−04:00	EST	EDT	America/Indiana/Vevay	Eastern – IN (Switzerland)		38.74768	-85.06713	US	United States of America
+−05:00	−04:00	EST	EDT	America/Indiana/Vincennes	Eastern – IN (Da, Du, K, Mn)		38.67726	-87.52863	US	United States of America
+−05:00	−04:00	EST	EDT	America/Indiana/Winamac	Eastern – IN (Pulaski)		41.05134	-86.6029	US	United States of America
+−04:00	−04:00	-4	-4	Etc/GMT+4		Sign is intentionally inverted. See the Etc area description.	0	-60		
+−04:00	−04:00	AST	AST	America/Barbados			13.19388	-59.54319	BB	Barbados
+−04:00	−04:00	-4	-4	America/Boa_Vista	Roraima		2.82063	-60.67375	BR	Brazil
+−04:00	−04:00	-4	-4	America/Campo_Grande	Mato Grosso do Sul		-20.46485	-54.62184	BR	Brazil
+−04:00	−04:00	-4	-4	America/Caracas			10.5017	-66.9111	VE	Bolivarian Republic of Venezuela
+−04:00	−04:00	-4	-4	America/Cuiaba	Mato Grosso		-15.59541	-56.09259	BR	Brazil
+−04:00	−04:00	-4	-4	America/Guyana			4.86041	-58.93018	GY	Guyana
+−04:00	−04:00	-4	-4	America/La_Paz			-16.49435	-68.1212	BO	Plurinational State of Bolivia
+−04:00	−04:00	-4	-4	America/Manaus	Amazonas (east)		-3.11902	-60.02173	BR	Brazil
+−04:00	−04:00	-4	-4	Brazil/West		Link to America/Manaus	-3.11902	-60.02173	BR	Brazil
+−04:00	−04:00	AST	AST	America/Martinique			14.64152	-61.02417	MQ	Martinique
+−04:00	−04:00	-4	-4	America/Porto_Velho	Rondônia		-8.76355	-63.89717	BR	Brazil
+−04:00	−04:00	AST	AST	America/Puerto_Rico	AST – QC (Lower North Shore)		18.22083	-66.59014	PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI	Puerto Rico; Antigua and Barbuda; Canada; Anguilla; Aruba; Saint Barthélemy; Bonaire, Sint Eustatius and Saba; Curaçao; Dominica; Grenada; Guadeloupe; Saint Kitts and Nevis; Saint Lucia; Saint Martin (French part); Montserrat; Sint Maarten (Dutch part); Trinidad and Tobago; Saint Vincent and the Grenadines; Virgin Islands (British); Virgin Islands (U.S.)
+−04:00	−04:00	AST	AST	America/Virgin		Link to America/Puerto_Rico	18.33576	-64.89633	VI	Virgin Islands (U.S.)
+−04:00	−04:00	AST	AST	America/Anguilla		Link to America/Puerto_Rico	18.22055	-63.06861	AI	Anguilla
+−04:00	−04:00	AST	AST	America/Antigua		Link to America/Puerto_Rico	17.07465	-61.81752	AG	Antigua and Barbuda
+−04:00	−04:00	AST	AST	America/Aruba		Link to America/Puerto_Rico	12.52111	-69.96833	AW	Aruba
+−04:00	−04:00	AST	AST	America/Blanc-Sablon	AST – QC (Lower North Shore)	Link to America/Puerto_Rico	51.42644	-57.13131	CA	Canada
+−04:00	−04:00	AST	AST	America/Curacao		Link to America/Puerto_Rico	12.16957	-68.99002	CW	Curaçao
+−04:00	−04:00	AST	AST	America/Dominica		Link to America/Puerto_Rico	15.41499	-61.37097	DM	Dominica
+−04:00	−04:00	AST	AST	America/Grenada		Link to America/Puerto_Rico	12.1165	-61.67899	GD	Grenada
+−04:00	−04:00	AST	AST	America/Guadeloupe		Link to America/Puerto_Rico	16.265	-61.55099	GP	Guadeloupe
+−04:00	−04:00	AST	AST	America/Kralendijk		Link to America/Puerto_Rico	12.1498	-68.27631	BQ	Bonaire, Sint Eustatius and Saba
+−04:00	−04:00	AST	AST	America/Lower_Princes		Link to America/Puerto_Rico	18.05134	-63.04713	SX	Sint Maarten (Dutch part)
+−04:00	−04:00	AST	AST	America/Marigot		Link to America/Puerto_Rico	18.06751	-63.08246	MF	Saint Martin (French part)
+−04:00	−04:00	AST	AST	America/Montserrat		Link to America/Puerto_Rico	16.74249	-62.18736	MS	Montserrat
+−04:00	−04:00	AST	AST	America/Port_of_Spain		Link to America/Puerto_Rico	10.65402	-61.50972	TT	Trinidad and Tobago
+−04:00	−04:00	AST	AST	America/St_Barthelemy		Link to America/Puerto_Rico	17.89999	-62.83333	BL	Saint Barthélemy
+−04:00	−04:00	AST	AST	America/St_Kitts		Link to America/Puerto_Rico	17.34337	-62.7559	KN	Saint Kitts and Nevis
+−04:00	−04:00	AST	AST	America/St_Lucia		Link to America/Puerto_Rico	13.90944	-60.97889	LC	Saint Lucia
+−04:00	−04:00	AST	AST	America/St_Thomas		Link to America/Puerto_Rico	18.33809	-64.89409	VI	Virgin Islands (U.S.)
+−04:00	−04:00	AST	AST	America/St_Vincent		Link to America/Puerto_Rico	12.9843	-61.28722	VC	Saint Vincent and the Grenadines
+−04:00	−04:00	AST	AST	America/Tortola		Link to America/Puerto_Rico	18.43347	-64.63327	VG	Virgin Islands (British)
+−04:00	−04:00	AST	AST	America/Santo_Domingo			18.46261	-69.93609	DO	Dominican Republic
+−04:00	−03:00	AST	ADT	Atlantic/Bermuda			32.3078	-64.7505	BM	Bermuda
+−04:00	−03:00	AST	ADT	America/Glace_Bay	Atlantic – NS (Cape Breton)		46.19691	-59.957	CA	Canada
+−04:00	−03:00	AST	ADT	America/Goose_Bay	Atlantic – Labrador (most areas)		53.30861	-60.37623	CA	Canada
+−04:00	−03:00	AST	ADT	America/Halifax	Atlantic – NS (most areas), PE		44.65086	-63.59232	CA	Canada
+−04:00	−03:00	AST	ADT	Canada/Atlantic		Link to America/Halifax	43.37822	-64.94051	CA	Canada
+−04:00	−03:00	AST	ADT	America/Moncton	Atlantic – New Brunswick		46.08781	-64.77823	CA	Canada
+−04:00	−03:00	-4	-3	America/Santiago	most of Chile		-33.44888	-70.66926	CL	Chile
+−04:00	−03:00	-4	-3	Chile/Continental		Link to America/Santiago	41.10032	-84.26633	CL	Chile
+−04:00	−03:00	AST	ADT	America/Thule	Thule/Pituffik		77.46704	-69.22848	GL	Greenland
+−03:30	−02:30	NST	NDT	America/St_Johns	Newfoundland, Labrador (SE)		47.5556	-52.74525	CA	Canada
+−03:30	−02:30	NST	NDT	Canada/Newfoundland		Link to America/St_Johns	54.27309	-61.73875	CA	Canada
+−03:00	−03:00	-3	-3	Etc/GMT+3		Sign is intentionally inverted. See the Etc area description.	0	-45		
+−03:00	−03:00	-3	-3	America/Araguaina	Tocantins		-7.19156	-48.20948	BR	Brazil
+−03:00	−03:00	-3	-3	America/Asuncion			-25.26373	-57.57592	PY	Paraguay
+−03:00	−03:00	-3	-3	America/Bahia	Bahia		-11.40987	-41.28085	BR	Brazil
+−03:00	−03:00	-3	-3	America/Belem	Pará (east), Amapá		-1.45634	-48.50129	BR	Brazil
+−03:00	−03:00	-3	-3	America/Argentina/Buenos_Aires	Buenos Aires (BA, CF)		-34.60367	-58.38212	AR	Argentina
+−03:00	−03:00	-3	-3	America/Buenos_Aires		Link to America/Argentina/Buenos_Aires	-34.60367	-58.38212	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/Catamarca	Catamarca (CT), Chubut (CH)		-28.46958	-65.77954	AR	Argentina
+−03:00	−03:00	-3	-3	America/Catamarca		Link to America/Argentina/Catamarca	-28.46958	-65.77954	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/ComodRivadavia		Link to America/Argentina/Catamarca	-34.69278	-58.33869	AR	Argentina
+−03:00	−03:00	-3	-3	America/Cayenne			4.93797	-52.33543	GF	French Guiana
+−03:00	−03:00	-3	-3	America/Argentina/Cordoba	most areas: CB, CC, CN, ER, FM, MN, SE, SF		-31.42008	-64.18877	AR	Argentina
+−03:00	−03:00	-3	-3	America/Cordoba		Link to America/Argentina/Cordoba	-31.42008	-64.18877	AR	Argentina
+−03:00	−03:00	-3	-3	America/Rosario		Link to America/Argentina/Cordoba	-32.9587	-60.69304	AR	Argentina
+−03:00	−03:00	-3	-3	America/Coyhaique	Aysén Region		-45.57298	-72.06789	CL	Chile
+−03:00	−03:00	-3	-3	America/Fortaleza	Brazil (northeast: MA, PI, CE, RN, PB)		-3.73272	-38.52701	BR	Brazil
+−03:00	−03:00	-3	-3	America/Argentina/Jujuy	Jujuy (JY)		-22.66332	-66.23671	AR	Argentina
+−03:00	−03:00	-3	-3	America/Jujuy		Link to America/Argentina/Jujuy	-22.66332	-66.23671	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/La_Rioja	La Rioja (LR)		-29.41345	-66.85645	AR	Argentina
+−03:00	−03:00	-3	-3	America/Maceio	Alagoas, Sergipe		-9.66604	-35.73521	BR	Brazil
+−03:00	−03:00	-3	-3	America/Argentina/Mendoza	Mendoza (MZ)		-32.88945	-68.84583	AR	Argentina
+−03:00	−03:00	-3	-3	America/Mendoza		Link to America/Argentina/Mendoza	-32.88945	-68.84583	AR	Argentina
+−03:00	−03:00	-3	-3	America/Montevideo			-34.9055	-56.18511	UY	Uruguay
+−03:00	−03:00	-3	-3	Antarctica/Palmer	Palmer	Chilean Antarctica Region	-64.77425	-64.05382	AQ	Antarctica
+−03:00	−03:00	-3	-3	America/Paramaribo			5.85203	-55.20382	SR	Suriname
+−03:00	−03:00	-3	-3	America/Punta_Arenas	Magallanes Region	Magallanes Region	-53.16337	-70.9077	CL	Chile
+−03:00	−03:00	-3	-3	America/Recife	Pernambuco		-8.05783	-34.88289	BR	Brazil
+−03:00	−03:00	-3	-3	America/Argentina/Rio_Gallegos	Santa Cruz (SC)		-51.62247	-69.21624	AR	Argentina
+−03:00	−03:00	-3	-3	Antarctica/Rothera	Rothera		-67.56824	-68.12415	AQ	Antarctica
+−03:00	−03:00	-3	-3	America/Argentina/Salta	Salta (SA, LP, NQ, RN)		-24.78212	-65.42319	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/San_Juan	San Juan (SJ)		-30.87245	-68.52471	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/San_Luis	San Luis (SL)		-33.30172	-66.33775	AR	Argentina
+−03:00	−03:00	-3	-3	America/Santarem	Pará (west)		-2.44069	-54.71361	BR	Brazil
+−03:00	−03:00	-3	-3	America/Sao_Paulo	Brazil (southeast: GO, DF, MG, ES, RJ, SP, PR, SC, RS)		-23.55577	-46.63955	BR	Brazil
+−03:00	−03:00	-3	-3	Brazil/East		Link to America/Sao_Paulo	-23.55577	-46.63955	BR	Brazil
+−03:00	−03:00	-3	-3	Atlantic/Stanley			-51.69275	-57.86196	FK	Falkland Islands (Malvinas)
+−03:00	−03:00	-3	-3	America/Argentina/Tucuman	Tucumán (TM)		-26.80828	-65.21759	AR	Argentina
+−03:00	−03:00	-3	-3	America/Argentina/Ushuaia	Tierra del Fuego (TF)		-54.80761	-68.30584	AR	Argentina
+−03:00	−02:00	-3	-2	America/Miquelon			47.04583	-56.32972	PM	Saint Pierre and Miquelon
+−02:00	−02:00	-2	-2	Etc/GMT+2		Sign is intentionally inverted. See the Etc area description.	0	-30		
+−02:00	−02:00	-2	-2	America/Noronha	Atlantic islands		-3.84479	-32.42689	BR	Brazil
+−02:00	−02:00	-2	-2	Brazil/DeNoronha		Link to America/Noronha	-3.84479	-32.42689	BR	Brazil
+−02:00	−02:00	-2	-2	Atlantic/South_Georgia			-54.41383	-36.58271	GS	South Georgia and the South Sandwich Islands
+−02:00	−01:00	-2	-1	America/Nuuk	most of Greenland		64.17432	-51.73727	GL	Greenland
+−02:00	−01:00	-2	-1	America/Godthab		Link to America/Nuuk	64.17432	-51.73727	GL	Greenland
+−02:00	−01:00	-2	-1	America/Scoresbysund	Scoresbysund/Ittoqqortoormiit		70.48556	-21.96287	GL	Greenland
+−01:00	−01:00	-1	-1	Etc/GMT+1		Sign is intentionally inverted. See the Etc area description.	0	-15		
+−01:00	−01:00	-1	-1	Atlantic/Cape_Verde			16.53879	-23.0418	CV	Cabo Verde
+−01:00	+00:00	-1	+0	Atlantic/Azores	Azores		37.74124	-25.67559	PT	Portugal
++00:00	+00:00	+0	+0	Factory			0	0		
++00:00	+00:00	GMT	GMT	Etc/GMT			0	0		
++00:00	+00:00	GMT	GMT	GMT		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	Etc/GMT+0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	Etc/GMT-0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	Etc/GMT0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	Etc/Greenwich		Link to Etc/GMT	51.49336	0.00982		
++00:00	+00:00	GMT	GMT	GMT+0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	GMT-0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	GMT0		Link to Etc/GMT	0	0		
++00:00	+00:00	GMT	GMT	Greenwich		Link to Etc/GMT	51.49336	0.00982		
++00:00	+00:00	UTC	UTC	Etc/UTC			0	0		
++00:00	+00:00	UTC	UTC	Etc/UCT		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	Etc/Universal		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	Etc/Zulu		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	UCT		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	UTC		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	Universal		Link to Etc/UTC	0	0		
++00:00	+00:00	UTC	UTC	Zulu		Link to Etc/UTC	0	0		
++00:00	+00:00	GMT	GMT	Africa/Abidjan			5.32522	-4.0196	CI; BF; GH; GM; GN; IS; ML; MR; SH; SL; SN; TG	Côte d'Ivoire; Burkina Faso; Ghana; Gambia; Guinea; Iceland; Mali; Mauritania; Saint Helena, Ascension and Tristan da Cunha; Sierra Leone; Senegal; Togo
++00:00	+00:00	GMT	GMT	Iceland		Link to Africa/Abidjan	64.96305	-19.02083	IS	Iceland
++00:00	+00:00	GMT	GMT	Africa/Accra		Link to Africa/Abidjan	5.55928	-0.19743	GH	Ghana
++00:00	+00:00	GMT	GMT	Africa/Bamako		Link to Africa/Abidjan	12.63916	-8.00254	ML	Mali
++00:00	+00:00	GMT	GMT	Africa/Banjul		Link to Africa/Abidjan	13.45437	-16.57531	GM	Gambia
++00:00	+00:00	GMT	GMT	Africa/Conakry		Link to Africa/Abidjan	9.50909	-13.71193	GN	Guinea
++00:00	+00:00	GMT	GMT	Africa/Dakar		Link to Africa/Abidjan	14.71667	-17.46768	SN	Senegal
++00:00	+00:00	GMT	GMT	Africa/Freetown		Link to Africa/Abidjan	8.48708	-13.23549	SL	Sierra Leone
++00:00	+00:00	GMT	GMT	Africa/Lome		Link to Africa/Abidjan	6.12955	1.21965	TG	Togo
++00:00	+00:00	GMT	GMT	Africa/Nouakchott		Link to Africa/Abidjan	18.07352	-15.95823	MR	Mauritania
++00:00	+00:00	GMT	GMT	Africa/Ouagadougou		Link to Africa/Abidjan	12.37142	-1.51966	BF	Burkina Faso
++00:00	+00:00	GMT	GMT	Atlantic/Reykjavik		Link to Africa/Abidjan	64.14698	-21.94075	IS	Iceland
++00:00	+00:00	GMT	GMT	Atlantic/St_Helena		Link to Africa/Abidjan	-15.95833	-5.70199	SH	Saint Helena, Ascension and Tristan da Cunha
++00:00	+00:00	GMT	GMT	Africa/Timbuktu		Link to Africa/Abidjan	16.77019	-3.00825	ML	Mali
++00:00	+00:00	GMT	GMT	Africa/Bissau			11.86321	-15.58432	GW	Guinea-Bissau
++00:00	+00:00	GMT	GMT	America/Danmarkshavn	National Park (east coast)		76.77215	-18.67873	GL	Greenland
++00:00	+00:00	GMT	GMT	Africa/Monrovia			6.3156	-10.80736	LR	Liberia
++00:00	+00:00	GMT	GMT	Africa/Sao_Tome			0.18636	6.61308	ST	Sao Tome and Principe
++00:00	+01:00	WET	WEST	Atlantic/Canary	Canary Islands		28.29156	-16.62913	ES	Spain
++00:00	+01:00	GMT	IST	Europe/Dublin		As per legislation, Irish Standard Time is UTC+01[3] and winter time is UTC.[4] Winter time is encoded in the DB as negative 1 hour of daylight saving.	53.3498	-6.2603	IE	Ireland
++00:00	+01:00	GMT	IST	Eire		Link to Europe/Dublin	53.41291	-8.24389	IE	Ireland
++00:00	+01:00	WET	WEST	Atlantic/Faroe			61.89263	-6.9118	FO	Faroe Islands
++00:00	+01:00	WET	WEST	Atlantic/Faeroe		Link to Atlantic/Faroe	61.89263	-6.9118	FO	Faroe Islands
++00:00	+01:00	WET	WEST	Europe/Lisbon	Portugal (mainland)		38.72225	-9.13933	PT	Portugal
++00:00	+01:00	WET	WEST	Portugal		Link to Europe/Lisbon	39.39987	-8.22445	PT	Portugal
++00:00	+01:00	WET	WEST	WET		Link to Europe/Lisbon	46.20218	1.26438		
++00:00	+01:00	GMT	BST	Europe/London			51.50721	-0.12758	GB; GG; IM; JE	United Kingdom of Great Britain and Northern Ireland; Guernsey; Isle of Man; Jersey
++00:00	+01:00	GMT	BST	GB		Link to Europe/London	55.37805	-3.43597	GB	United Kingdom of Great Britain and Northern Ireland
++00:00	+01:00	GMT	BST	GB-Eire		Link to Europe/London	54.39548	-5.83993	GB	United Kingdom of Great Britain and Northern Ireland
++00:00	+01:00	GMT	BST	Europe/Guernsey		Link to Europe/London	49.44818	-2.58946	GG	Guernsey
++00:00	+01:00	GMT	BST	Europe/Isle_of_Man		Link to Europe/London	54.2361	-4.54805	IM	Isle of Man
++00:00	+01:00	GMT	BST	Europe/Jersey		Link to Europe/London	49.21377	-2.13576	JE	Jersey
++00:00	+01:00	GMT	BST	Europe/Belfast		Link to Europe/London	54.59728	-5.93012	GB	United Kingdom of Great Britain and Northern Ireland
++00:00	+01:00	WET	WEST	Atlantic/Madeira	Madeira Islands		32.7607	-16.95947	PT	Portugal
++00:00	+02:00	+0	+2	Antarctica/Troll	Troll	Previously used +01:00 for a brief period between standard and daylight time.[5]	-72.01138	2.535	AQ	Antarctica
++01:00	+01:00	+1	+1	Etc/GMT-1		Sign is intentionally inverted. See the Etc area description.	0	15		
++01:00	+01:00	CET	CET	Africa/Algiers			36.69972	3.05761	DZ	Algeria
++01:00	+01:00	+1	+1	Africa/Casablanca			33.57311	-7.58984	MA	Morocco
++01:00	+01:00	+1	+1	Africa/El_Aaiun			27.15003	-13.19907	EH	Western Sahara
++01:00	+01:00	WAT	WAT	Africa/Lagos	West Africa Time		6.61373	3.35525	NG; AO; BJ; CD; CF; CG; CM; GA; GQ; NE	Nigeria; Angola; Benin; Democratic Republic of the Congo; Central African Republic; Congo; Cameroon; Gabon; Equatorial Guinea; Niger
++01:00	+01:00	WAT	WAT	Africa/Bangui		Link to Africa/Lagos	4.36215	18.58277	CF	Central African Republic
++01:00	+01:00	WAT	WAT	Africa/Brazzaville		Link to Africa/Lagos	-4.27444	15.28128	CG	Congo
++01:00	+01:00	WAT	WAT	Africa/Douala		Link to Africa/Lagos	4.05105	9.76786	CM	Cameroon
++01:00	+01:00	WAT	WAT	Africa/Kinshasa	Dem. Rep. of Congo (west)	Link to Africa/Lagos	-4.30325	15.31052	CD	Democratic Republic of the Congo
++01:00	+01:00	WAT	WAT	Africa/Libreville		Link to Africa/Lagos	0.40779	9.44028	GA	Gabon
++01:00	+01:00	WAT	WAT	Africa/Luanda		Link to Africa/Lagos	-8.81465	13.23017	AO	Angola
++01:00	+01:00	WAT	WAT	Africa/Malabo		Link to Africa/Lagos	3.75496	8.78213	GQ	Equatorial Guinea
++01:00	+01:00	WAT	WAT	Africa/Niamey		Link to Africa/Lagos	13.51159	2.12538	NE	Niger
++01:00	+01:00	WAT	WAT	Africa/Porto-Novo		Link to Africa/Lagos	6.47862	2.62032	BJ	Benin
++01:00	+01:00	WAT	WAT	Africa/Ndjamena			12.11913	15.05028	TD	Chad
++01:00	+01:00	CET	CET	Africa/Tunis			33.88691	9.53749	TN	Tunisia
++01:00	+02:00	CET	CEST	Europe/Andorra			42.50628	1.5218	AD	Andorra
++01:00	+02:00	CET	CEST	Europe/Belgrade			44.81254	20.46123	RS; BA; HR; ME; MK; SI	Serbia; Bosnia and Herzegovina; Croatia; Montenegro; North Macedonia; Slovenia
++01:00	+02:00	CET	CEST	Europe/Ljubljana		Link to Europe/Belgrade	46.05694	14.50575	SI	Slovenia
++01:00	+02:00	CET	CEST	Europe/Podgorica		Link to Europe/Belgrade	42.43041	19.25936	ME	Montenegro
++01:00	+02:00	CET	CEST	Europe/Sarajevo		Link to Europe/Belgrade	43.85625	18.41307	BA	Bosnia and Herzegovina
++01:00	+02:00	CET	CEST	Europe/Skopje		Link to Europe/Belgrade	41.99812	21.42543	MK	North Macedonia
++01:00	+02:00	CET	CEST	Europe/Zagreb		Link to Europe/Belgrade	45.81501	15.98191	HR	Croatia
++01:00	+02:00	CET	CEST	Europe/Berlin	most of Germany	In 1945, the Trizone did not follow Berlin's switch to DST, see Time in Germany	52.52	13.40495	DE; DK; NO; SE; SJ	Germany; Denmark; Norway; Sweden; Svalbard and Jan Mayen
++01:00	+02:00	CET	CEST	Arctic/Longyearbyen		Link to Europe/Berlin	78.22532	15.62563	SJ	Svalbard and Jan Mayen
++01:00	+02:00	CET	CEST	Europe/Copenhagen		Link to Europe/Berlin	55.67609	12.56833	DK	Denmark
++01:00	+02:00	CET	CEST	Europe/Oslo		Link to Europe/Berlin	59.91217	10.73127	NO	Norway
++01:00	+02:00	CET	CEST	Europe/Stockholm		Link to Europe/Berlin	59.3327	18.06562	SE	Sweden
++01:00	+02:00	CET	CEST	Atlantic/Jan_Mayen		Link to Europe/Berlin	77.5536	23.67027	SJ	Svalbard and Jan Mayen
++01:00	+02:00	CET	CEST	Europe/Brussels			50.8477	4.3572	BE; LU; NL	Belgium; Luxembourg; Kingdom of the Netherlands
++01:00	+02:00	CET	CEST	CET		Link to Europe/Brussels	50.37847	14.97059		
++01:00	+02:00	CET	CEST	MET		Link to Europe/Brussels	50.37847	14.97059		
++01:00	+02:00	CET	CEST	Europe/Amsterdam		Link to Europe/Brussels	52.36757	4.90413	NL	Kingdom of the Netherlands
++01:00	+02:00	CET	CEST	Europe/Luxembourg		Link to Europe/Brussels	49.81527	6.12958	LU	Luxembourg
++01:00	+02:00	CET	CEST	Europe/Budapest			47.49791	19.04023	HU	Hungary
++01:00	+02:00	CET	CEST	Africa/Ceuta	Ceuta, Melilla		35.88938	-5.32134	ES	Spain
++01:00	+02:00	CET	CEST	Europe/Gibraltar			36.14075	-5.35358	GI	Gibraltar
++01:00	+02:00	CET	CEST	Europe/Madrid	Spain (mainland)		40.41672	-3.70329	ES	Spain
++01:00	+02:00	CET	CEST	Europe/Malta			35.93749	14.37541	MT	Malta
++01:00	+02:00	CET	CEST	Europe/Paris			48.85754	2.35137	FR; MC	France; Monaco
++01:00	+02:00	CET	CEST	Europe/Monaco		Link to Europe/Paris	43.73841	7.42461	MC	Monaco
++01:00	+02:00	CET	CEST	Europe/Prague			50.07553	14.4378	CZ; SK	Czechia; Slovakia
++01:00	+02:00	CET	CEST	Europe/Bratislava		Link to Europe/Prague	48.14777	17.10715	SK	Slovakia
++01:00	+02:00	CET	CEST	Europe/Rome			41.8967	12.4822	IT; SM; VA	Italy; San Marino; Holy See
++01:00	+02:00	CET	CEST	Europe/San_Marino		Link to Europe/Rome	43.93523	12.44676	SM	San Marino
++01:00	+02:00	CET	CEST	Europe/Vatican		Link to Europe/Rome	41.90291	12.45338	VA	Holy See
++01:00	+02:00	CET	CEST	Europe/Tirane			41.32754	19.81869	AL	Albania
++01:00	+02:00	CET	CEST	Europe/Vienna			48.20806	16.3713	AT	Austria
++01:00	+02:00	CET	CEST	Europe/Warsaw			52.22967	21.01222	PL	Poland
++01:00	+02:00	CET	CEST	Poland		Link to Europe/Warsaw	51.91943	19.14513	PL	Poland
++01:00	+02:00	CET	CEST	Europe/Zurich	Büsingen		47.37688	8.54169	CH; DE; LI	Switzerland; Germany; Liechtenstein
++01:00	+02:00	CET	CEST	Europe/Busingen	Busingen	Link to Europe/Zurich	47.69699	8.69041	DE	Germany
++01:00	+02:00	CET	CEST	Europe/Vaduz		Link to Europe/Zurich	47.14108	9.52107	LI	Liechtenstein
++02:00	+02:00	+2	+2	Etc/GMT-2		Sign is intentionally inverted. See the Etc area description.	0	30		
++02:00	+02:00	SAST	SAST	Africa/Johannesburg			-26.20564	28.03371	ZA; LS; SZ	South Africa; Lesotho; Eswatini
++02:00	+02:00	SAST	SAST	Africa/Maseru		Link to Africa/Johannesburg	-29.31507	27.48692	LS	Lesotho
++02:00	+02:00	SAST	SAST	Africa/Mbabane		Link to Africa/Johannesburg	-26.32635	31.14415	SZ	Eswatini
++02:00	+02:00	CAT	CAT	Africa/Juba			26.95977	49.56874	SS	South Sudan
++02:00	+02:00	EET	EET	Europe/Kaliningrad	MSK-01 – Kaliningrad		54.71042	20.45221	RU	Russian Federation
++02:00	+02:00	CAT	CAT	Africa/Khartoum			15.59743	32.53558	SD	Sudan
++02:00	+02:00	CAT	CAT	Africa/Maputo	Central Africa Time		-25.96924	32.57317	MZ; BI; BW; CD; MW; RW; ZM; ZW	Mozambique; Burundi; Botswana; Democratic Republic of the Congo; Malawi; Rwanda; Zambia; Zimbabwe
++02:00	+02:00	CAT	CAT	Africa/Blantyre		Link to Africa/Maputo	-15.78796	35.01332	MW	Malawi
++02:00	+02:00	CAT	CAT	Africa/Bujumbura		Link to Africa/Maputo	-3.36137	29.35987	BI	Burundi
++02:00	+02:00	CAT	CAT	Africa/Gaborone		Link to Africa/Maputo	-24.658	25.9077	BW	Botswana
++02:00	+02:00	CAT	CAT	Africa/Harare		Link to Africa/Maputo	-17.82629	31.05037	ZW	Zimbabwe
++02:00	+02:00	CAT	CAT	Africa/Kigali		Link to Africa/Maputo	-1.94407	30.06188	RW	Rwanda
++02:00	+02:00	CAT	CAT	Africa/Lubumbashi	Dem. Rep. of Congo (east)	Link to Africa/Maputo	-11.6876	27.50261	CD	Democratic Republic of the Congo
++02:00	+02:00	CAT	CAT	Africa/Lusaka		Link to Africa/Maputo	-15.41546	28.27732	ZM	Zambia
++02:00	+02:00	EET	EET	Africa/Tripoli			34.43483	35.83596	LY	Libya
++02:00	+02:00	EET	EET	Libya		Link to Africa/Tripoli	26.3351	17.22833	LY	Libya
++02:00	+02:00	CAT	CAT	Africa/Windhoek			-22.56493	17.08421	NA	Namibia
++02:00	+03:00	EET	EEST	Europe/Athens			37.9838	23.72753	GR	Greece
++02:00	+03:00	EET	EEST	EET		Link to Europe/Athens	52.00551	37.95874		
++02:00	+03:00	EET	EEST	Asia/Beirut			33.89379	35.50177	LB	Lebanon
++02:00	+03:00	EET	EEST	Europe/Bucharest			44.42676	26.10253	RO	Romania
++02:00	+03:00	EET	EEST	Africa/Cairo			30.04441	31.23571	EG	Egypt
++02:00	+03:00	EET	EEST	Egypt		Link to Africa/Cairo	26.82055	30.80249	EG	Egypt
++02:00	+03:00	EET	EEST	Europe/Chisinau			47.01045	28.86381	MD	Republic of Moldova
++02:00	+03:00	EET	EEST	Europe/Tiraspol		Link to Europe/Chisinau	46.84818	29.5968	MD	Republic of Moldova
++02:00	+03:00	EET	EEST	Asia/Famagusta	Northern Cyprus		35.12082	33.93822	CY	Cyprus
++02:00	+03:00	EET	EEST	Asia/Gaza	Gaza Strip		31.50169	34.46684	PS	State of Palestine
++02:00	+03:00	EET	EEST	Asia/Hebron	West Bank		31.53256	35.09982	PS	State of Palestine
++02:00	+03:00	EET	EEST	Europe/Helsinki			60.16985	24.93837	FI; AX	Finland; Åland Islands
++02:00	+03:00	EET	EEST	Europe/Mariehamn		Link to Europe/Helsinki	60.09709	19.93483	AX	Åland Islands
++02:00	+03:00	IST	IDT	Asia/Jerusalem			31.77688	35.22243	IL	Israel
++02:00	+03:00	IST	IDT	Israel		Link to Asia/Jerusalem	31.04605	34.85161	IL	Israel
++02:00	+03:00	IST	IDT	Asia/Tel_Aviv		Link to Asia/Jerusalem	32.08529	34.78176	IL	Israel
++02:00	+03:00	EET	EEST	Europe/Kyiv	most of Ukraine		50.45035	30.5245	UA	Ukraine
++02:00	+03:00	EET	EEST	Europe/Uzhgorod		Link to Europe/Kyiv	48.6208	22.28788	UA	Ukraine
++02:00	+03:00	EET	EEST	Europe/Zaporozhye		Link to Europe/Kyiv	47.83928	35.1387	UA	Ukraine
++02:00	+03:00	EET	EEST	Europe/Kiev		Link to Europe/Kyiv	50.45035	30.5245	UA	Ukraine
++02:00	+03:00	EET	EEST	Asia/Nicosia	most of Cyprus		35.18556	33.38227	CY	Cyprus
++02:00	+03:00	EET	EEST	Europe/Nicosia		Link to Asia/Nicosia	35.18556	33.38227	CY	Cyprus
++02:00	+03:00	EET	EEST	Europe/Riga			56.96769	24.10562	LV	Latvia
++02:00	+03:00	EET	EEST	Europe/Sofia			42.6977	23.32186	BG	Bulgaria
++02:00	+03:00	EET	EEST	Europe/Tallinn			59.43696	24.75357	EE	Estonia
++02:00	+03:00	EET	EEST	Europe/Vilnius			54.80865	25.2182	LT	Lithuania
++03:00	+03:00	+3	+3	Etc/GMT-3		Sign is intentionally inverted. See the Etc area description.	0	45		
++03:00	+03:00	+3	+3	Asia/Amman			31.95437	35.91057	JO	Jordan
++03:00	+03:00	+3	+3	Asia/Baghdad			33.31524	44.36606	IQ	Iraq
++03:00	+03:00	+3	+3	Asia/Damascus			33.51321	36.27681	SY	Syrian Arab Republic
++03:00	+03:00	+3	+3	Europe/Istanbul			41.00823	28.97835	TR	Türkiye
++03:00	+03:00	+3	+3	Turkey		Link to Europe/Istanbul	38.96374	35.24332	TR	Türkiye
++03:00	+03:00	+3	+3	Asia/Istanbul		Link to Europe/Istanbul	41.00823	28.97835	TR	Türkiye
++03:00	+03:00	MSK	MSK	Europe/Kirov	MSK+00 – Kirov		58.41985	50.20972	RU	Russian Federation
++03:00	+03:00	+3	+3	Europe/Minsk			53.9006	27.55897	BY	Belarus
++03:00	+03:00	MSK	MSK	Europe/Moscow	MSK+00 – Moscow area		55.75687	37.61505	RU	Russian Federation
++03:00	+03:00	MSK	MSK	W-SU		Link to Europe/Moscow	55.75687	37.61505	RU	Russian Federation
++03:00	+03:00	EAT	EAT	Africa/Nairobi			-1.29206	36.82194	KE; DJ; ER; ET; KM; MG; SO; TZ; UG; YT	Kenya; Djibouti; Eritrea; Ethiopia; Comoros; Madagascar; Somalia; United Republic of Tanzania; Uganda; Mayotte
++03:00	+03:00	EAT	EAT	Africa/Addis_Ababa		Link to Africa/Nairobi	9.01919	38.75246	ET	Ethiopia
++03:00	+03:00	EAT	EAT	Africa/Asmara		Link to Africa/Nairobi	15.33173	38.93003	ER	Eritrea
++03:00	+03:00	EAT	EAT	Africa/Dar_es_Salaam		Link to Africa/Nairobi	-6.8165	39.28943	TZ	United Republic of Tanzania
++03:00	+03:00	EAT	EAT	Africa/Djibouti		Link to Africa/Nairobi	11.82513	42.59027	DJ	Djibouti
++03:00	+03:00	EAT	EAT	Africa/Kampala		Link to Africa/Nairobi	0.31516	32.58163	UG	Uganda
++03:00	+03:00	EAT	EAT	Africa/Mogadishu		Link to Africa/Nairobi	2.03721	45.33791	SO	Somalia
++03:00	+03:00	EAT	EAT	Indian/Antananarivo		Link to Africa/Nairobi	-18.91846	47.52112	MG	Madagascar
++03:00	+03:00	EAT	EAT	Indian/Comoro		Link to Africa/Nairobi	-11.6455	43.3333	KM	Comoros
++03:00	+03:00	EAT	EAT	Indian/Mayotte		Link to Africa/Nairobi	-12.8275	45.16624	YT	Mayotte
++03:00	+03:00	EAT	EAT	Africa/Asmera		Link to Africa/Nairobi	15.33173	38.93003	ER	Eritrea
++03:00	+03:00	+3	+3	Asia/Qatar			25.35482	51.18388	QA; BH	Qatar; Bahrain
++03:00	+03:00	+3	+3	Asia/Bahrain		Link to Asia/Qatar	26.0667	50.5577	BH	Bahrain
++03:00	+03:00	+3	+3	Asia/Riyadh	Syowa		24.71355	46.67529	SA; AQ; KW; YE	Saudi Arabia; Antarctica; Kuwait; Yemen
++03:00	+03:00	+3	+3	Antarctica/Syowa	Syowa	Link to Asia/Riyadh	-69.00439	39.5822	AQ	Antarctica
++03:00	+03:00	+3	+3	Asia/Aden		Link to Asia/Riyadh	12.79063	45.01759	YE	Yemen
++03:00	+03:00	+3	+3	Asia/Kuwait		Link to Asia/Riyadh	29.31166	47.48176	KW	Kuwait
++03:00	+03:00	MSK	MSK	Europe/Simferopol	Crimea	Disputed – Reflects data in the TZDB.[note 1]	44.95211	34.10241	RU; UA	Russian Federation; Ukraine
++03:00	+03:00	MSK	MSK	Europe/Volgograd	MSK+00 – Volgograd		48.70804	44.5133	RU	Russian Federation
++03:30	+03:30	+330	+330	Asia/Tehran			35.72185	51.33469	IR	Islamic Republic of Iran
++03:30	+03:30	+330	+330	Iran		Link to Asia/Tehran	32.4279	53.68804	IR	Islamic Republic of Iran
++04:00	+04:00	+4	+4	Etc/GMT-4		Sign is intentionally inverted. See the Etc area description.	0	60		
++04:00	+04:00	+4	+4	Europe/Astrakhan	MSK+01 – Astrakhan		46.3586	48.05694	RU	Russian Federation
++04:00	+04:00	+4	+4	Asia/Baku			40.40926	49.86709	AZ	Azerbaijan
++04:00	+04:00	+4	+4	Asia/Dubai	Crozet		25.20484	55.27078	AE; OM; RE; SC; TF	United Arab Emirates; Oman; Réunion; Seychelles; French Southern Territories
++04:00	+04:00	+4	+4	Asia/Muscat		Link to Asia/Dubai	23.58803	58.38287	OM	Oman
++04:00	+04:00	+4	+4	Indian/Mahe		Link to Asia/Dubai	-4.67739	55.46377	SC	Seychelles
++04:00	+04:00	+4	+4	Indian/Reunion		Link to Asia/Dubai	-21.11514	55.53638	RE	Réunion
++04:00	+04:00	+4	+4	Indian/Mauritius			-20.3484	57.55215	MU	Mauritius
++04:00	+04:00	+4	+4	Europe/Samara	MSK+01 – Samara, Udmurtia		53.20377	50.16063	RU	Russian Federation
++04:00	+04:00	+4	+4	Europe/Saratov	MSK+01 – Saratov		41.08183	44.30763	RU	Russian Federation
++04:00	+04:00	+4	+4	Asia/Tbilisi			41.6938	44.80151	GE	Georgia
++04:00	+04:00	+4	+4	Europe/Ulyanovsk	MSK+01 – Ulyanovsk		54.31865	48.39777	RU	Russian Federation
++04:00	+04:00	+4	+4	Asia/Yerevan			40.1872	44.5152	AM	Armenia
++04:30	+04:30	+430	+430	Asia/Kabul			34.55534	69.20748	AF	Afghanistan
++05:00	+05:00	+5	+5	Etc/GMT-5		Sign is intentionally inverted. See the Etc area description.	0	75		
++05:00	+05:00	+5	+5	Asia/Almaty	most of Kazakhstan		43.23797	76.88286	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Aqtobe	Aqtöbe/Aktobe		50.28393	57.16697	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Aqtau	Mangghystaū/Mankistau		43.67186	51.21205	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Ashgabat			37.96007	58.32606	TM	Turkmenistan
++05:00	+05:00	+5	+5	Asia/Ashkhabad		Link to Asia/Ashgabat	37.96007	58.32606	TM	Turkmenistan
++05:00	+05:00	+5	+5	Asia/Atyrau	Atyraū/Atirau/Gur’yev		47.09449	51.92383	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Dushanbe			38.55977	68.78703	TJ	Tajikistan
++05:00	+05:00	PKT	PKT	Asia/Karachi			24.86073	67.00113	PK	Pakistan
++05:00	+05:00	+5	+5	Indian/Maldives	Kerguelen, St Paul I, Amsterdam I		3.20277	73.22068	MV; TF	Maldives; French Southern Territories
++05:00	+05:00	+5	+5	Indian/Kerguelen		Link to Indian/Maldives	-55.19908	76.10015	TF	French Southern Territories
++05:00	+05:00	+5	+5	Antarctica/Mawson	Mawson		-67.60278	62.87308	AQ	Antarctica
++05:00	+05:00	+5	+5	Asia/Oral	West Kazakhstan		51.22782	51.38654	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Qostanay	Qostanay/Kostanay/Kustanay		53.2198	63.63542	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Qyzylorda	Qyzylorda/Kyzylorda/Kzyl-Orda		44.84883	65.48226	KZ	Kazakhstan
++05:00	+05:00	+5	+5	Asia/Samarkand	Uzbekistan (west)		39.65079	66.96535	UZ	Uzbekistan
++05:00	+05:00	+5	+5	Asia/Tashkent	Uzbekistan (east)		41.29822	69.23852	UZ	Uzbekistan
++05:00	+05:00	+5	+5	Antarctica/Vostok	Vostok		55.36704	36.53014	AQ	Antarctica
++05:00	+05:00	+5	+5	Asia/Yekaterinburg	MSK+02 – Urals		56.84309	60.6454	RU	Russian Federation
++05:30	+05:30	+530	+530	Asia/Colombo			6.92707	79.86124	LK	Sri Lanka
++05:30	+05:30	IST	IST	Asia/Kolkata		Note: Different zones in history, see Time in India.	22.57435	88.36287	IN	India
++05:30	+05:30	IST	IST	Asia/Calcutta		Link to Asia/Kolkata	22.57435	88.36287	IN	India
++05:45	+05:45	+545	+545	Asia/Kathmandu			27.71031	85.32216	NP	Nepal
++05:45	+05:45	+545	+545	Asia/Katmandu		Link to Asia/Kathmandu	27.71031	85.32216	NP	Nepal
++06:00	+06:00	+6	+6	Etc/GMT-6		Sign is intentionally inverted. See the Etc area description.	0	90		
++06:00	+06:00	+6	+6	Asia/Bishkek			42.87462	74.56976	KG	Kyrgyzstan
++06:00	+06:00	+6	+6	Indian/Chagos			-6.12176	72.01135	IO	British Indian Ocean Territory
++06:00	+06:00	+6	+6	Asia/Dhaka			23.80409	90.41523	BD	Bangladesh
++06:00	+06:00	+6	+6	Asia/Dacca		Link to Asia/Dhaka	23.80409	90.41523	BD	Bangladesh
++06:00	+06:00	+6	+6	Asia/Omsk	MSK+03 – Omsk		54.99135	73.36452	RU	Russian Federation
++06:00	+06:00	+6	+6	Asia/Thimphu			27.47158	89.63861	BT	Bhutan
++06:00	+06:00	+6	+6	Asia/Thimbu		Link to Asia/Thimphu	27.47158	89.63861	BT	Bhutan
++06:00	+06:00	+6	+6	Asia/Urumqi	Xinjiang Time	The Asia/Urumqi entry in the tz database reflected the use of Xinjiang Time by part of the local population. Consider using Asia/Shanghai for Beijing Time if that is preferred.	43.82662	87.61688	CN	China
++06:00	+06:00	+6	+6	Asia/Kashgar		Link to Asia/Urumqi[note 2]	39.46771	75.99381	CN	China
++06:30	+06:30	+630	+630	Asia/Yangon			16.84093	96.17352	MM; CC	Myanmar; Cocos (Keeling) Islands
++06:30	+06:30	+630	+630	Indian/Cocos		Link to Asia/Yangon	-12.16416	96.87095	CC	Cocos (Keeling) Islands
++06:30	+06:30	+630	+630	Asia/Rangoon		Link to Asia/Yangon	16.84093	96.17352	MM	Myanmar
++07:00	+07:00	+7	+7	Etc/GMT-7		Sign is intentionally inverted. See the Etc area description.	0	105		
++07:00	+07:00	+7	+7	Asia/Bangkok	north Vietnam		13.75633	100.50176	TH; CX; KH; LA; VN	Thailand; Christmas Island; Cambodia; Lao People's Democratic Republic; Viet Nam
++07:00	+07:00	+7	+7	Asia/Phnom_Penh		Link to Asia/Bangkok	11.55637	104.9282	KH	Cambodia
++07:00	+07:00	+7	+7	Asia/Vientiane		Link to Asia/Bangkok	17.9757	102.6331	LA	Lao People's Democratic Republic
++07:00	+07:00	+7	+7	Indian/Christmas		Link to Asia/Bangkok	-10.44752	105.69044	CX	Christmas Island
++07:00	+07:00	+7	+7	Asia/Barnaul	MSK+04 – Altai		53.34974	83.78357	RU	Russian Federation
++07:00	+07:00	+7	+7	Antarctica/Davis	Davis		-68.57624	77.96962	AQ	Antarctica
++07:00	+07:00	+7	+7	Asia/Ho_Chi_Minh	south Vietnam		10.82309	106.62966	VN	Viet Nam
++07:00	+07:00	+7	+7	Asia/Saigon		Link to Asia/Ho_Chi_Minh	10.82309	106.62966	VN	Viet Nam
++07:00	+07:00	+7	+7	Asia/Hovd	Bayan-Ölgii, Hovd, Uvs		48.00378	91.64136	MN	Mongolia
++07:00	+07:00	WIB	WIB	Asia/Jakarta	Java, Sumatra		-6.19444	106.82291	ID	Indonesia
++07:00	+07:00	+7	+7	Asia/Krasnoyarsk	MSK+04 – Krasnoyarsk area		56.01528	92.89324	RU	Russian Federation
++07:00	+07:00	+7	+7	Asia/Novosibirsk	MSK+04 – Novosibirsk		54.98326	82.89638	RU	Russian Federation
++07:00	+07:00	+7	+7	Asia/Novokuznetsk	MSK+04 – Kemerovo		53.75959	87.12157	RU	Russian Federation
++07:00	+07:00	WIB	WIB	Asia/Pontianak	Borneo (west, central)		-0.02633	109.3425	ID	Indonesia
++07:00	+07:00	+7	+7	Asia/Tomsk	MSK+04 – Tomsk		56.48842	84.94804	RU	Russian Federation
++08:00	+08:00	+8	+8	Etc/GMT-8		Sign is intentionally inverted. See the Etc area description.	0	120		
++08:00	+08:00	+8	+8	Antarctica/Casey	Casey		-66.28213	110.52854	AQ	Antarctica
++08:00	+08:00	HKT	HKT	Asia/Hong_Kong			22.3193	114.16936	HK	Hong Kong
++08:00	+08:00	HKT	HKT	Hongkong		Link to Asia/Hong_Kong	22.3193	114.16936	HK	Hong Kong
++08:00	+08:00	+8	+8	Asia/Irkutsk	MSK+05 – Irkutsk, Buryatia		52.28548	104.28902	RU	Russian Federation
++08:00	+08:00	+8	+8	Asia/Kuching	Sabah, Sarawak		1.55337	110.3595	MY; BN	Malaysia; Brunei Darussalam
++08:00	+08:00	+8	+8	Asia/Brunei		Link to Asia/Kuching	4.53527	114.72766	BN	Brunei Darussalam
++08:00	+08:00	CST	CST	Asia/Macau			22.19874	113.54387	MO	Macao
++08:00	+08:00	CST	CST	Asia/Macao		Link to Asia/Macau	22.19874	113.54387	MO	Macao
++08:00	+08:00	WITA	WITA	Asia/Makassar	Borneo (east, south), Sulawesi/Celebes, Bali, Nusa Tengarra, Timor (west)		-5.16158	119.43592	ID	Indonesia
++08:00	+08:00	WITA	WITA	Asia/Ujung_Pandang		Link to Asia/Makassar	-5.16158	119.43592	ID	Indonesia
++08:00	+08:00	PST	PST	Asia/Manila			14.59951	120.98423	PH	Philippines
++08:00	+08:00	AWST	AWST	Australia/Perth	Western Australia (most areas)		-31.95139	115.86167	AU	Australia
++08:00	+08:00	AWST	AWST	Australia/West		Link to Australia/Perth	-27.67281	121.6283	AU	Australia
++08:00	+08:00	CST	CST	Asia/Shanghai	Beijing Time		31.23041	121.4737	CN	China
++08:00	+08:00	CST	CST	PRC		Link to Asia/Shanghai	35.86166	104.19539	CN	China
++08:00	+08:00	CST	CST	Asia/Chongqing		Link to Asia/Shanghai	29.56568	106.55118	CN	China
++08:00	+08:00	CST	CST	Asia/Harbin		Link to Asia/Shanghai	45.75673	126.64241	CN	China
++08:00	+08:00	CST	CST	Asia/Chungking		Link to Asia/Shanghai	22.29619	114.1726	CN	China
++08:00	+08:00	+8	+8	Asia/Singapore	peninsular Malaysia, Concordia		1.35208	103.81983	SG; AQ; MY	Singapore; Antarctica; Malaysia
++08:00	+08:00	+8	+8	Singapore		Link to Asia/Singapore	1.35208	103.81983	SG	Singapore
++08:00	+08:00	+8	+8	Asia/Kuala_Lumpur	Malaysia (peninsula)	Link to Asia/Singapore	3.13191	101.68405	MY	Malaysia
++08:00	+08:00	CST	CST	Asia/Taipei			25.03296	121.56542	TW	Province of China of Taiwan
++08:00	+08:00	CST	CST	ROC		Link to Asia/Taipei	23.69781	120.96051	TW	Province of China of Taiwan
++08:00	+08:00	+8	+8	Asia/Ulaanbaatar	most of Mongolia		47.92205	106.9155	MN	Mongolia
++08:00	+08:00	+8	+8	Asia/Choibalsan		Link to Asia/Ulaanbaatar	48.08169	114.54745	MN	Mongolia
++08:00	+08:00	+8	+8	Asia/Ulan_Bator		Link to Asia/Ulaanbaatar	47.92205	106.9155	MN	Mongolia
++08:45	+08:45	+845	+845	Australia/Eucla	Western Australia (Eucla)		-31.67501	128.88354	AU	Australia
++09:00	+09:00	+9	+9	Etc/GMT-9		Sign is intentionally inverted. See the Etc area description.	0	135		
++09:00	+09:00	+9	+9	Asia/Chita	MSK+06 – Zabaykalsky		52.0515	113.47119	RU	Russian Federation
++09:00	+09:00	+9	+9	Asia/Dili			-8.55633	125.57982	TL	Timor-Leste
++09:00	+09:00	WIT	WIT	Asia/Jayapura	New Guinea (West Papua / Irian Jaya), Malukus/Moluccas		-2.5916	140.66899	ID	Indonesia
++09:00	+09:00	+9	+9	Asia/Khandyga	MSK+06 – Tomponsky, Ust-Maysky		62.6564	135.55398	RU	Russian Federation
++09:00	+09:00	+9	+9	Pacific/Palau			7.51497	134.58251	PW	Palau
++09:00	+09:00	KST	KST	Asia/Pyongyang			39.07379	125.81976	KP	Democratic People's Republic of Korea
++09:00	+09:00	KST	KST	Asia/Seoul			37.55026	126.99708	KR	Republic of Korea
++09:00	+09:00	KST	KST	ROK		Link to Asia/Seoul	35.90775	127.76692	KR	Republic of Korea
++09:00	+09:00	JST	JST	Asia/Tokyo	Eyre Bird Observatory		35.67642	139.65002	JP; AU	Japan; Australia
++09:00	+09:00	JST	JST	Japan		Link to Asia/Tokyo	34.64938	135.00147	JP	Japan
++09:00	+09:00	+9	+9	Asia/Yakutsk	MSK+06 – Lena River		62.03969	129.74221	RU	Russian Federation
++09:30	+09:30	ACST	ACST	Australia/Darwin	Northern Territory		-12.46373	130.84444	AU	Australia
++09:30	+09:30	ACST	ACST	Australia/North		Link to Australia/Darwin	-19.49141	132.55096	AU	Australia
++09:30	+10:30	ACST	ACDT	Australia/Adelaide	South Australia		-34.92849	138.60074	AU	Australia
++09:30	+10:30	ACST	ACDT	Australia/South		Link to Australia/Adelaide	-30.00023	136.20915	AU	Australia
++09:30	+10:30	ACST	ACDT	Australia/Broken_Hill	New South Wales (Yancowinna)		-31.95958	141.46081	AU	Australia
++09:30	+10:30	ACST	ACDT	Australia/Yancowinna		Link to Australia/Broken_Hill	-31.93941	141.51526	AU	Australia
++10:00	+10:00	+10	+10	Etc/GMT-10		Sign is intentionally inverted. See the Etc area description.	0	150		
++10:00	+10:00	AEST	AEST	Australia/Brisbane	Queensland (most areas)		-27.47045	153.02603	AU	Australia
++10:00	+10:00	AEST	AEST	Australia/Queensland		Link to Australia/Brisbane	-22.57519	144.08479	AU	Australia
++10:00	+10:00	ChST	ChST	Pacific/Guam			13.38237	144.69727	GU; MP	Guam; Northern Mariana Islands
++10:00	+10:00	ChST	ChST	Pacific/Saipan		Link to Pacific/Guam	15.18504	145.74672	MP	Northern Mariana Islands
++10:00	+10:00	AEST	AEST	Australia/Lindeman	Queensland (Whitsunday Islands)		-20.44478	149.04105	AU	Australia
++10:00	+10:00	+10	+10	Pacific/Port_Moresby	Papua New Guinea (most areas), Chuuk, Yap, Dumont d’Urville		-9.479	147.14941	PG; AQ; FM	Papua New Guinea; Antarctica; Federated States of Micronesia
++10:00	+10:00	+10	+10	Antarctica/DumontDUrville	Dumont-d'Urville	Link to Pacific/Port_Moresby	-66.66359	140.00325	AQ	Antarctica
++10:00	+10:00	+10	+10	Pacific/Chuuk	Chuuk/Truk, Yap	Link to Pacific/Port_Moresby	7.13446	151.50741	FM	Federated States of Micronesia
++10:00	+10:00	+10	+10	Pacific/Yap		Link to Pacific/Port_Moresby	9.55565	138.13992	FM	Federated States of Micronesia
++10:00	+10:00	+10	+10	Pacific/Truk		Link to Pacific/Port_Moresby	7.41888	151.73194	FM	Federated States of Micronesia
++10:00	+10:00	+10	+10	Asia/Ust-Nera	MSK+07 – Oymyakonsky		63.08151	142.18784	RU	Russian Federation
++10:00	+10:00	+10	+10	Asia/Vladivostok	MSK+07 – Amur River		43.13324	131.91129	RU	Russian Federation
++10:00	+11:00	AEST	AEDT	Australia/Hobart	Tasmania		-42.8826	147.32571	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Tasmania		Link to Australia/Hobart	-42.0409	146.80873	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Currie		Link to Australia/Hobart	-39.9301	143.85378	AU	Australia
++10:00	+11:00	AEST	AEDT	Antarctica/Macquarie	Macquarie Island		-54.62081	158.85561	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Melbourne	Victoria		-37.81362	144.96305	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Victoria		Link to Australia/Melbourne	-36.98478	143.3906	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Sydney	New South Wales (most areas)		-33.86225	151.20768	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/ACT		Link to Australia/Sydney	-35.47346	149.01236	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/NSW		Link to Australia/Sydney	-31.25321	146.92109	AU	Australia
++10:00	+11:00	AEST	AEDT	Australia/Canberra		Link to Australia/Sydney	-35.28018	149.13103	AU	Australia
++10:30	+11:00	+1030	+11	Australia/Lord_Howe	Lord Howe Island	This is the only time zone in the world that uses 30-minute DST transitions.	-31.55532	159.08212	AU	Australia
++10:30	+11:00	+1030	+11	Australia/LHI		Link to Australia/Lord_Howe	-31.55532	159.08212	AU	Australia
++11:00	+11:00	+11	+11	Etc/GMT-11		Sign is intentionally inverted. See the Etc area description.	0	165		
++11:00	+11:00	+11	+11	Pacific/Bougainville	Bougainville		-6.0536	155.19073	PG	Papua New Guinea
++11:00	+11:00	+11	+11	Pacific/Efate			-17.65774	168.42971	VU	Vanuatu
++11:00	+11:00	+11	+11	Pacific/Guadalcanal	Pohnpei		-9.57732	160.14558	SB; FM	Solomon Islands; Federated States of Micronesia
++11:00	+11:00	+11	+11	Pacific/Pohnpei	Pohnpei/Ponape	Link to Pacific/Guadalcanal	6.85186	158.21468	FM	Federated States of Micronesia
++11:00	+11:00	+11	+11	Pacific/Ponape		Link to Pacific/Guadalcanal	6.89211	158.21468	FM	Federated States of Micronesia
++11:00	+11:00	+11	+11	Pacific/Kosrae	Kosrae		5.30956	162.98148	FM	Federated States of Micronesia
++11:00	+11:00	+11	+11	Asia/Magadan	MSK+08 – Magadan		59.55943	150.81275	RU	Russian Federation
++11:00	+11:00	+11	+11	Pacific/Noumea			-22.27168	166.43986	NC	New Caledonia
++11:00	+11:00	+11	+11	Asia/Sakhalin	MSK+08 – Sakhalin Island		50.69098	142.95056	RU	Russian Federation
++11:00	+11:00	+11	+11	Asia/Srednekolymsk	MSK+08 – Sakha (E), N Kuril Is		67.4373	153.72867	RU	Russian Federation
++11:00	+12:00	+11	+12	Pacific/Norfolk			-29.04083	167.95471	NF	Norfolk Island
++12:00	+12:00	+12	+12	Etc/GMT-12		Sign is intentionally inverted. See the Etc area description.	0	180		
++12:00	+12:00	+12	+12	Asia/Anadyr	MSK+09 – Bering Sea		64.73169	177.50929	RU	Russian Federation
++12:00	+12:00	+12	+12	Pacific/Fiji			-17.71337	178.06503	FJ	Fiji
++12:00	+12:00	+12	+12	Asia/Kamchatka	MSK+09 – Kamchatka		56.35992	160.75899	RU	Russian Federation
++12:00	+12:00	+12	+12	Pacific/Kwajalein	Kwajalein		8.72266	167.73519	MH	Marshall Islands
++12:00	+12:00	+12	+12	Kwajalein		Link to Pacific/Kwajalein	8.72266	167.73519	MH	Marshall Islands
++12:00	+12:00	+12	+12	Pacific/Nauru			-0.52277	166.9315	NR	Nauru
++12:00	+12:00	+12	+12	Pacific/Tarawa	Gilberts, Marshalls, Wake		1.45181	172.97166	KI; MH; TV; UM; WF	Kiribati; Marshall Islands; Tuvalu; United States Minor Outlying Islands; Wallis and Futuna
++12:00	+12:00	+12	+12	Pacific/Funafuti		Link to Pacific/Tarawa	-8.52114	179.19619	TV	Tuvalu
++12:00	+12:00	+12	+12	Pacific/Majuro	most of Marshall Islands	Link to Pacific/Tarawa	7.06666	171.26666	MH	Marshall Islands
++12:00	+12:00	+12	+12	Pacific/Wake	Wake Island	Link to Pacific/Tarawa	19.27961	166.64993	UM	United States Minor Outlying Islands
++12:00	+12:00	+12	+12	Pacific/Wallis		Link to Pacific/Tarawa	-14.2938	-178.1165	WF	Wallis and Futuna
++12:00	+13:00	NZST	NZDT	Pacific/Auckland	New Zealand time		-36.85088	174.76448	NZ; AQ	New Zealand; Antarctica
++12:00	+13:00	NZST	NZDT	NZ		Link to Pacific/Auckland	-40.90055	174.88597	NZ	New Zealand
++12:00	+13:00	NZST	NZDT	Antarctica/McMurdo	New Zealand time – McMurdo, South Pole	Link to Pacific/Auckland	-77.84551	166.66976	AQ	Antarctica
++12:00	+13:00	NZST	NZDT	Antarctica/South_Pole		Link to Pacific/Auckland	-90	0	AQ	Antarctica
++12:45	+13:45	+1245	+1345	Pacific/Chatham	Chatham Islands		-44.00575	-176.54006	NZ	New Zealand
++12:45	+13:45	+1245	+1345	NZ-CHAT		Link to Pacific/Chatham	-44.00575	-176.54006	NZ	New Zealand
++13:00	+13:00	+13	+13	Etc/GMT-13		Sign is intentionally inverted. See the Etc area description.	0	-175		
++13:00	+13:00	+13	+13	Pacific/Apia			-13.8316	-171.7689	WS	Samoa
++13:00	+13:00	+13	+13	Pacific/Fakaofo			-9.38025	-171.21883	TK	Tokelau
++13:00	+13:00	+13	+13	Pacific/Kanton	Phoenix Islands		-2.80398	-171.64323	KI	Kiribati
++13:00	+13:00	+13	+13	Pacific/Enderbury		Link to Pacific/Kanton	-3.12724	-171.08374	KI	Kiribati
++13:00	+13:00	+13	+13	Pacific/Tongatapu			-21.14659	-175.25154	TO	Tonga
++14:00	+14:00	+14	+14	Etc/GMT-14		Sign is intentionally inverted. See the Etc area description.	0	-160		
++14:00	+14:00	+14	+14	Pacific/Kiritimati	Line Islands		1.87213	-157.42781	KI	Kiribati

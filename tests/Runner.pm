@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use File::Basename qw(dirname); # first released with perl 5
+use POSIX qw();
 
 my $test_beg_epoch = 0;
 my $test_end_epoch = 0;
@@ -26,11 +27,37 @@ sub _SetTargetCommand( $ )
     chdir( "$apppath/../" );
 }
 
+sub get_time_zone()
+{
+    return $ENV{TZ} if( defined( $ENV{TZ} ) );
+    return undef;
+}
+
+sub change_time_zone( $ )
+{
+    my( $time_zone ) = @_;
+
+    if( !defined( $time_zone ) ){
+        delete( $ENV{TZ} );
+    }else{
+        $ENV{TZ} = $time_zone;
+    }
+
+    # PerlにTZ環境変数の変更を認識させるための命令
+    # OSのCライブラリのタイムゾーンキャッシュをリフレッシュ
+    POSIX::tzset();
+}
+
 sub TestPreProc( $@ )
 {
     my( $testfilename, @args ) = @_;
 
     $test_beg_epoch = time();
+
+    ## IANAタイムゾーンID
+    ##   - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    ##   - $ timedatectl list-timezones --no-pager
+    change_time_zone( 'Asia/Tokyo' );
 
     &_SetTargetCommand( $testfilename );
 

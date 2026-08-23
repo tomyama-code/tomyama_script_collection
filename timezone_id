@@ -1,0 +1,468 @@
+#!/usr/bin/perl
+################################################################################
+## TIMEZONE_ID -- List IANA timezone IDs.
+##
+## - $Revision: 1.1 $
+## - Note: This uses bundled IANA data instead of the host system's timezone data.
+##
+## - Author: 2026, tomyama
+## - Intended primarily for personal use, but BSD license permits redistribution.
+##
+## BSD 2-Clause License:
+## Copyright (c) 2026, tomyama
+## All rights reserved.
+################################################################################
+
+use strict;                                 # first released with perl 5
+use warnings;                               # first released with perl v5.6.0
+use File::Basename qw(dirname basename);    # first released with perl 5
+use Getopt::Long qw();                      # first released with perl 5
+
+
+##########
+## スクリプトのエントリポイント
+sub pl_main( @ )
+{
+    ## 初期化処理
+    init_script();
+
+    ## 引数解析
+    my $reaction = parse_arg( @_ );
+
+    param_print();
+
+    if( $main::help || $main::version ){
+        if( $main::help ){
+            usage( 0 );
+        }
+        if( $main::version ){
+            PrintVersion();
+        }
+        return 0;
+    }
+
+    open( DATFILE, '<', $main::datafile ) ||
+        die( qq{$main::datafile: could not open file: $!} );
+    my $line_row = 0;
+    my @matched = ();
+    my $tz_id_len_max = 0;
+    while( <DATFILE> ){
+        $line_row++;
+        my $line = $_;
+        $line =~ s/\r?\n$//o;
+        #print( qq{$line\n} );
+
+        my $b_disp = 1;
+        if( $line_row > 1 && $main::use_filter ){
+            for my $filter( @main::filters ){
+                if( !( $line =~ m/$filter/ ) ){
+                    $b_disp = 0;
+                    last;
+                }
+            }
+        }
+
+        if( $b_disp ){
+            # SDT: Standard Time, 標準時（冬時間、平時）
+            # DST: Daylight Saving Time, 夏時間（日光節約時間）
+            my( $sdt, $dst, $sdt2, $dst2, $tz_id, $cmt, $note, $lat, $lon, $cc, $cname ) =
+                split( /\t/, $line );
+            my $tz_id_len = length( $tz_id );
+            $tz_id_len_max = $tz_id_len if( $tz_id_len > $tz_id_len_max );
+            push( @matched, $line );
+        }
+    }
+    close( DATFILE );
+
+    for my $line( @matched ){
+        my( $sdt, $dst, $sdt2, $dst2, $tz_id, $cmt, $note, $lat, $lon, $cc, $cname ) =
+            split( /\t/, $line );
+
+        if( $main::verbose ){
+            printf( qq{%-6s %-5s  %-6s %-5s  %-22s %-*s  "%s"  "%s"  %s  %s\n},
+                $sdt, $sdt2, $dst, $dst2, "$lat, $lon", $tz_id_len_max, $tz_id, $cmt, $note, $cc, $cname );
+        }else{
+            printf( qq{%-6s %-5s  %-22s %-*s  %s\n},
+                $sdt, $sdt2, "$lat, $lon", $tz_id_len_max, $tz_id, $cc );
+        }
+    }
+
+    return 0;
+}
+
+##########
+## 初期化処理
+## Revision: 1.3
+sub init_script()
+{
+    my $exec_file = $0;
+    $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
+
+    ### GLOBAL ###
+    $main::apppath = File::Basename::dirname( $exec_file );
+    $main::appname = File::Basename::basename( $exec_file );
+    @main::argv = ();
+    $main::argc = 0;
+    $main::datafile = "$main::apppath/$main::appname.tab";
+    $main::debug = 0;
+    $main::verbose = 0;
+    $main::version = 0;
+    $main::help = 0;
+    @main::filters = ();
+    $main::use_filter = 0;
+    ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
+#    $main::bUseAnsiEscSeqColor = -t STDOUT;
+#    $main::bIsStdinATty = -t STDIN;
+    ##############
+}
+
+sub param_print()
+{
+    dPrintf( qq{Parameter Print\n} .
+             qq{     \$main::apppath = "%s"\n} .
+             qq{     \$main::appname = "%s"\n} .
+             qq{     \@main::argv = (%s)\n} .
+             qq{     \$main::argc = %d\n} .
+             qq{     \$main::debug = %d\n} .
+             qq{     \$main::verbose = %d\n} .
+             qq{     \$main::version = %d\n} .
+             qq{     \$main::help = %d\n} .
+             qq{     \@main::filters = (%s)\n} .
+             qq{     \$main::use_filter = %d\n},
+        $main::apppath,
+        $main::appname,
+        array_to_str( @main::argv ),
+        $main::argc,
+        $main::debug,
+        $main::verbose,
+        $main::version,
+        $main::help,
+        array_to_str( @main::filters ),
+        $main::use_filter );
+}
+
+sub array_to_str( @ )
+{
+    return q{ '} . join( q{', '}, @_ ) . q{' } if( scalar( @_ ) > 0 );
+    return '';
+}
+
+##########
+## 引数解析
+sub parse_arg()
+{
+    @main::argv = @_;
+    $main::argc = scalar( @main::argv );
+
+    # Getopt::Long が動くように局所的に変更して騙す
+    local @ARGV = @main::argv;
+
+    # 設定: ショートオプションのまとめ指定（バンドリング）を有効化
+    Getopt::Long::Configure("bundling");
+
+    Getopt::Long::GetOptions(
+        'debug|d'    => \$main::debug,
+        'verbose|v'  => \$main::verbose,
+        'version'    => \$main::version,
+        'help|h'     => \$main::help,
+        'datafile=s' => \$main::datafile,
+    ) || die( qq{parse_arg(): error: Failed to parse option switches.\n} );
+
+    while( my $myparam = shift( @ARGV ) ){
+        push( @main::filters, $myparam );
+        #dPrint( qq{filters += "$myparam"\n} );
+    }
+
+    $main::use_filter = 1 if( scalar( @main::filters ) > 0 );
+}
+
+##########
+## 書式表示
+## Revision: 1.2
+sub usage( $ )
+{
+    my $msg = "usage: " .
+        qq{$main::appname [ <OPTIONS> ] [ <PATTERN>... ]\n} .
+        qq{<PATTERN>:\n} .
+        qq{  The PATTERN can be described by the Regular-Expression equal with Perl.\n} .
+        qq{<OPTIONS>:\n} .
+        qq{  -v, --verbose\n} .
+        qq{            : The intermediate steps of the calculation will also be displayed.\n} .
+        qq{  -h, --help: Display this help and exit\n} .
+        qq{\n} .
+        qq{* simple\n} .
+        qq{  \$ $main::appname\n} .
+        qq{  \$ $main::appname JST --verbose\n} .
+        qq{* advance\n} .
+        qq{  \$ $main::appname 'America/' 'Fr'\n} .
+        qq{\n} .
+        qq{Try `perldoc $main::apppath/$main::appname' for more information.\n};
+
+#    if( $_[0] ){
+#        print STDERR ( $msg );
+#    } else {
+        print STDOUT ( $msg );
+#    }
+
+    return 0;
+}
+
+#sub dPrint( @ )
+#{
+#    if( $main::debug ){
+#        print( 'dbg: ', @_ );
+#    }
+#}
+
+sub dPrintf( @ )
+{
+    if( $main::debug ){
+        print( 'dbg: ' );
+        printf( @_ );
+    }
+}
+
+## Revision: 1.2
+sub PrintVersion()
+{
+    my $ver = GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
+}
+sub GetVersion()
+{
+    my $rev = GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    return $version;
+}
+sub GetRevision()
+{
+    my $rev = q{$Revision: 1.1 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+
+# uncoverable branch false
+exit( pl_main( @ARGV ) ) unless caller();
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+TIMEZONE_ID -- List IANA timezone IDs.
+
+=head1 DESCRIPTION
+
+Note: This uses bundled IANA data instead of the host system's timezone data.
+
+=head1 SYNOPSIS
+
+$ timezone_id [ I<OPTIONS> ] [ I<PATTERN>... ]
+
+=head1 PATTERN
+
+Each I<PATTERN> can be:
+
+=over 4
+
+=item *
+
+Filter by a single keyword:
+
+  $ timezone_id JST
+  SDT    SDT    Lat, Lon               IANA TZ id  Country Code
+  +09:00 JST    35.67642, 139.65002    Asia/Tokyo  JP; AU
+  +09:00 JST    34.64938, 135.00147    Japan       JP
+
+=item *
+
+Specifying multiple keywords results in an AND condition:
+
+  $ timezone_id 'America/' 'Fr'
+  SDT    SDT    Lat, Lon               IANA TZ id           Country Code
+  −04:00 AST    18.22083, -66.59014    America/Puerto_Rico  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
+  −04:00 AST    18.06751, -63.08246    America/Marigot      MF
+  −03:00 -3     4.93797, -52.33543     America/Cayenne      GF
+
+=item *
+
+Use a vertical bar (|) to specify multiple keywords with an OR condition:
+
+  $ timezone_id 'France|French'
+  SDT    SDT    Lat, Lon               IANA TZ id           Country Code
+  −10:00 -10    -17.65091, -149.42604  Pacific/Tahiti       PF
+  −09:30 -930   -9.78121, -139.08171   Pacific/Marquesas    PF
+  −09:00 -9     -23.10965, -134.97434  Pacific/Gambier      PF
+  −04:00 AST    18.22083, -66.59014    America/Puerto_Rico  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
+  −04:00 AST    18.06751, -63.08246    America/Marigot      MF
+  −03:00 -3     4.93797, -52.33543     America/Cayenne      GF
+  +01:00 CET    48.85754, 2.35137      Europe/Paris         FR; MC
+  +04:00 +4     25.20484, 55.27078     Asia/Dubai           AE; OM; RE; SC; TF
+  +05:00 +5     3.20277, 73.22068      Indian/Maldives      MV; TF
+  +05:00 +5     -55.19908, 76.10015    Indian/Kerguelen     TF
+
+=back
+
+=head1 OPTIONS
+
+=over 4
+
+=item -d, --debug
+
+Enable debug output.
+
+=item --version
+
+Print the version of this script and Perl and exit.
+
+=item -h, --help
+
+Display simple help and exit.
+
+=back
+
+=head1 ADVANCED USAGE
+
+=over 4
+
+=item *
+
+Run the clock set to French time.
+
+Search for France's time zone:
+
+  $ timezone_id France
+  SDT    SDT    Lat, Lon               IANA TZ id    Country Code
+  +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
+
+Change the time zone only for the duration of execution: (shell feature)
+
+  $ TZ='Europe/Paris' date
+  Sat Aug 22 18:06:02 CEST 2026
+
+Run the clock:
+
+  $ TZ='Europe/Paris' cl
+
+Using latitude and longitude in a C<c script>:
+
+  $ timezone_id 'Tokyo|Paris'
+  SDT    SDT    Lat, Lon               IANA TZ id    Country Code
+  +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
+  +09:00 JST    35.67642, 139.65002    Asia/Tokyo    JP; AU
+  $ Paris='48.85754, 2.35137'
+  $ Tokyo='35.67642, 139.65002'
+
+  # What's the distance?
+  $ c "geo_distance_km( deg2rad( $Paris, $Tokyo ) )"
+  9735.22180919
+
+  # Which direction?
+  $ c "geo_azimuth( deg2rad( $Paris, $Tokyo ) )"
+  33.4304455215
+
+=back
+
+=head1 DEPENDENCIES
+
+This script uses only B<core Perl modules>. No external modules from CPAN are required.
+
+=head2 Core Modules Used
+
+=over 4
+
+=item * L<File::Basename> — first included in perl 5
+
+=item * L<Getopt::Long> - first released with perl 5
+
+=item * L<strict> — first included in perl 5
+
+=item * L<warnings> — first included in perl v5.6.0
+
+=back
+
+=head2 Survey methodology
+
+=over 4
+
+=item 1. Preparation
+
+Define the script name:
+
+  $ target_script=timezone_id
+
+=item 2. Extract used modules
+
+Generate a list of modules from C<use> statements:
+
+  $ grep '^use ' $target_script | sed 's!^use \([^ ;{][^ ;{]*\).*$!\1!' | \
+      sort | uniq | tee ${target_script}.uselist
+
+=item 3. Check core module status
+
+Run C<corelist> for each module to find the first Perl version it appeared in:
+
+  $ cat ${target_script}.uselist | while read line; do
+      corelist $line
+    done
+
+=back
+
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<c -- The Flat-Text Calculator (Perl Script)|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md>
+
+=item L<cl -- CLOCK PROGRAM|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/cl.md>
+
+=item L<perl>(1)
+
+=back
+
+=head1 AUTHOR
+
+2026, tomyama
+
+=head1 LICENSE
+
+Copyright (c) 2026, tomyama
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of tomyama nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut
