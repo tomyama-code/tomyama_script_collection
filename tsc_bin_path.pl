@@ -3,7 +3,7 @@
 ## tsc_bin_path.pl -- Prints the installation path or project root directory.
 ##
 ## - Version: 1
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -12,10 +12,11 @@
 ## Copyright (c) 2026, tomyama
 ## All rights reserved.
 ################################################################################
-use strict;
-use warnings;
-use FindBin;
-use Pod::Text;
+
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use FindBin;                        # first released with perl 5.00307
+use Pod::Text;                      # first released with perl 5.002
 
 if( defined( $ARGV[ 0 ] ) ){
     if( $ARGV[ 0 ] eq '-h' || $ARGV[ 0 ] eq '--help' ){
@@ -119,6 +120,8 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 =head1 SEE ALSO
 
 =over 4
+
+=item L<C<FTCalc.pm -- Perl interface for The Flat-Text Calculator>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md>
 
 =item L<C<perl(1)>>
 

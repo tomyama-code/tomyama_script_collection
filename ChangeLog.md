@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.3.12] - 2026-08-25
+### Added
+- `timezone_id` [1.01.003]:
+  - Added the '--ignorecase' and '-i' options.
+
 ## [0.3.11] - 2026-08-24
 ### Added
 - Added a script.

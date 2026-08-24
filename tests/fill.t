@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
 use strict;
@@ -11,7 +11,7 @@ use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
-my %phrase = &tests::Tester::get_phrase();
+my %phrase = tests::Tester::get_phrase();
 my $apppath = $phrase{apppath};
 my $proj_root = $phrase{proj_root};
 
@@ -24,7 +24,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-d', '-1', '123' );
+            $status = pl_main( '-d', '-1', '123' );
         } );
         ok( $status == 0, qq{./fill -d -1 123} );
         $t->has_no_exception();
@@ -32,7 +32,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--debug', '-1', '123' );
+            $status = pl_main( '--debug', '-1', '123' );
         } );
         ok( $status == 0, qq{./fill --debug -1 123} );
         $t->has_no_exception();
@@ -40,7 +40,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-dh', '-1', '123' );
+            $status = pl_main( '-dh', '-1', '123' );
         } );
         ok( $status == 0, qq{./fill -dh -1 123} );
         $t->has_no_exception();
@@ -55,11 +55,11 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--force-color', '-2', 'a-', '1:1', '-b' );
+            $status = pl_main( '--force-color', '-2', 'a-', '1:1', '-b' );
         } );
         ok( $status == 0, qq{./fill --force-color -2 a- 1:1 -b} );
         $t->has_no_exception();
-        equal( $status, 0 );
+        is( $status, 0 );
         $t->stdout_is( qq{a-\033[1m1\033[0m-b\na-\033[1m2\033[0m-b\n}, qq{ANSI escape sequence} );
         $t->stderr_is( qq{} );
 
@@ -70,7 +70,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main();
+            $status = pl_main();
         } );
         ok( $status != 0, qq{./fill} );
         $t->has_no_exception();
@@ -78,7 +78,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/fill: An argument must be specified./, qq{usage output} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-h' );
+            $status = pl_main( '-h' );
         } );
         ok( $status == 0, qq{./fill -h} );
         $t->has_no_exception();
@@ -86,7 +86,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--help' );
+            $status = pl_main( '--help' );
         } );
         ok( $status == 0, qq{./fill --help} );
         $t->has_no_exception();
@@ -94,7 +94,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-h', '123' );
+            $status = pl_main( '-h', '123' );
         } );
         ok( $status == 0, qq{./fill -h 123} );
         $t->has_no_exception();
@@ -109,7 +109,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--version' );
+            $status = pl_main( '--version' );
         } );
         ok( $status == 0, qq{./fill --version} );
         $t->has_no_exception();
@@ -117,7 +117,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-v' );
+            $status = pl_main( '-v' );
         } );
         ok( $status == 0, qq{./fill -v} );
         $t->has_no_exception();
@@ -133,7 +133,7 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '1:1' );
+                $status = pl_main( '1:1' );
             } );
             ok( $status == 0, qq{./fill 1:1} );
             $t->has_no_exception();
@@ -141,7 +141,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '01:1' );
+                $status = pl_main( '01:1' );
             } );
             ok( $status == 0, qq{./fill 01:1} );
             $t->has_no_exception();
@@ -149,7 +149,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-1:-1' );
+                $status = pl_main( '-1:-1' );
             } );
             ok( $status == 0, qq{./fill -1:-1} );
             $t->has_no_exception();
@@ -157,7 +157,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-01:-1' );
+                $status = pl_main( '-01:-1' );
             } );
             ok( $status == 0, qq{./fill -01:-1} );
             $t->has_no_exception();
@@ -165,7 +165,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-5', '002:-1' );
+                $status = pl_main( '-5', '002:-1' );
             } );
             ok( $status == 0, qq{./fill -5 002:-1} );
             $t->has_no_exception();
@@ -173,7 +173,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{fill: "0:-1": The sign changes across 0.\n}, "Show warning" );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '002:-1' );
+                $status = pl_main( '-3', '002:-1' );
             } );
             ok( $status == 0, qq{./fill -3 002:-1} );
             $t->has_no_exception();
@@ -181,7 +181,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-5', '-02:1' );
+                $status = pl_main( '-5', '-02:1' );
             } );
             ok( $status == 0, qq{./fill -5 -02:1} );
             $t->has_no_exception();
@@ -189,7 +189,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{fill: "-1:1": The sign changes across 0.\n}, "Show warning" );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '-02:1' );
+                $status = pl_main( '-3', '-02:1' );
             } );
             ok( $status == 0, qq{./fill -3 -02:1} );
             $t->has_no_exception();
@@ -203,7 +203,7 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '001:1' );
+                $status = pl_main( '-3', '001:1' );
             } );
             ok( $status == 0, qq{./fill -3 001:1} );
             $t->has_no_exception();
@@ -211,7 +211,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '001:0' );
+                $status = pl_main( '-3', '001:0' );
             } );
             ok( $status == 0, qq{./fill -3 001:0} );
             $t->has_no_exception();
@@ -219,7 +219,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '010:-1' );
+                $status = pl_main( '-3', '010:-1' );
             } );
             ok( $status == 0, qq{./fill -3 010:-1} );
             $t->has_no_exception();
@@ -233,7 +233,7 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-3', '10:2' );
+                $status = pl_main( '-3', '10:2' );
             } );
             ok( $status == 0, qq{./fill -3 10:2} );
             $t->has_no_exception();
@@ -241,7 +241,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-9', '1:1' );
+                $status = pl_main( '-9', '1:1' );
             } );
             ok( $status == 0, qq{./fill -9 1:1} );
             $t->has_no_exception();
@@ -249,7 +249,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-10', '1:1' );
+                $status = pl_main( '-10', '1:1' );
             } );
             ok( $status == 0, qq{./fill -10 1:1} );
             $t->has_no_exception();
@@ -257,7 +257,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-10d3', '1:1' );
+                $status = pl_main( '-10d3', '1:1' );
             } );
             ok( $status == 0, qq{./fill -10d3 1:1} );
             $t->has_no_exception();
@@ -265,7 +265,7 @@ subtest qq{In-Proc Test} => sub{
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = &pl_main( '-0', '-' );
+                $status = pl_main( '-0', '-' );
             } );
             ok( $status == 0, qq{./fill -0 -} );
             $t->has_no_exception();
@@ -281,7 +281,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-2', '-w', '1', '1:1' );
+            $status = pl_main( '-2', '-w', '1', '1:1' );
         } );
         ok( $status == 0, qq{./fill -2 -w 1 1:1} );
         $t->has_no_exception();
@@ -289,7 +289,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-2', '-w', '1:1' );
+            $status = pl_main( '-2', '-w', '1:1' );
         } );
         ok( $status == 0, qq{./fill -2 -w 1:1} );
         $t->has_no_exception();
@@ -297,7 +297,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-w10d', '10:10' );
+            $status = pl_main( '-w10d', '10:10' );
         } );
         ok( $status == 0, qq{./fill -w10d 10:10} );
         $t->has_no_exception();
@@ -306,7 +306,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-dw10', '10:10' );
+            $status = pl_main( '-dw10', '10:10' );
         } );
         ok( $status == 0, qq{./fill -dw10 10:10} );
         $t->has_no_exception();
@@ -315,7 +315,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-2', '1:1', '-w' );
+            $status = pl_main( '-2', '1:1', '-w' );
         } );
         ok( $status == 0, qq{./fill -2 1:1 -w} );
         $t->has_no_exception();
@@ -323,7 +323,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-dw', '-180', '179:-1' );
+            $status = pl_main( '-dw', '-180', '179:-1' );
         } );
         ok( $status == 0, qq{./fill -dw -180 179:-1} );
         $t->has_no_exception();
@@ -333,7 +333,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-dw2', '-90', '178:-2' );
+            $status = pl_main( '-dw2', '-90', '178:-2' );
         } );
         ok( $status == 0, qq{./fill -dw2 -90 178:-2} );
         $t->has_no_exception();
@@ -343,7 +343,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-wd', '-180', '179:-1' );
+            $status = pl_main( '-wd', '-180', '179:-1' );
         } );
         ok( $status == 0, qq{./fill -wd -180 179:-1} );
         $t->has_no_exception();
@@ -353,7 +353,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-w20d50', '0980:-20' );
+            $status = pl_main( '-w20d50', '0980:-20' );
         } );
         ok( $status == 0, qq{./fill -w20d50 0980:-20} );
         $t->has_no_exception();
@@ -363,7 +363,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-d', '-5w2', '2:2' );
+            $status = pl_main( '-d', '-5w2', '2:2' );
         } );
         ok( $status == 0, qq{./fill -d -5w2 2:2} );
         $t->has_no_exception();
@@ -379,7 +379,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-' );
+            $status = pl_main( '-' );
         } );
         ok( $status == 0, qq{./fill -} );
         $t->has_no_exception();
@@ -387,7 +387,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', 'mv "%%-%%" "newname_%%01:1%%.txt"' );
+            $status = pl_main( '-3', 'mv "%%-%%" "newname_%%01:1%%.txt"' );
         } );
         ok( $status == 0, qq{./fill -3 'mv "%%-%%" "newname_%%01:1%%.txt"'} );
         $t->has_no_exception();
@@ -401,7 +401,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\n', '11:1' );
+            $status = pl_main( '-3', '1:1', '\n', '11:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\n' 11:1} );
         $t->has_no_exception( qq{"\\n" is support (New Line)} );
@@ -409,7 +409,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\t', '21:1' );
+            $status = pl_main( '-3', '1:1', '\t', '21:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\t' 21:1} );
         $t->has_no_exception( qq{"\\t" is support (Tab)} );
@@ -417,7 +417,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\r', '31:1' );
+            $status = pl_main( '-3', '1:1', '\r', '31:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\r' 31:1} );
         $t->has_no_exception( qq{"\\r" is NOT support (Carriage Return)} );
@@ -425,7 +425,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\f', '41:1' );
+            $status = pl_main( '-3', '1:1', '\f', '41:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\f' 41:1} );
         $t->has_no_exception( qq{"\\f" is NOT support (Form Feed)} );
@@ -433,7 +433,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\a ', '51:1' );
+            $status = pl_main( '-3', '1:1', '\a ', '51:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\a ' 51:1} );
         $t->has_no_exception( qq{"\\a" is support (Alarm)} );
@@ -441,7 +441,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '1:1', '\e', '61:1' );
+            $status = pl_main( '-3', '1:1', '\e', '61:1' );
         } );
         ok( $status == 0, qq{./fill -3 1:1 '\e' 61:1} );
         $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
@@ -455,7 +455,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', 'usage rate: %%0:1%%%.' );
+            $status = pl_main( '-3', 'usage rate: %%0:1%%%.' );
         } );
         ok( $status == 0, qq{./fill -3 'usage rate: %%0:1%%%.'} );
         $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
@@ -469,7 +469,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-d3', '-%%1:1%%%%-%%-', '-', '-%%10:-1%%%%01:1%%' );
+            $status = pl_main( '-d3', '-%%1:1%%%%-%%-', '-', '-%%10:-1%%%%01:1%%' );
         } );
         ok( $status == 0, qq{./fill -d3 '-%%1:1%%%%-%%-' - '-%%10:-1%%%%01:1%%'} );
         $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );
@@ -478,7 +478,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-3', '%d%%1:3%%%d' );
+            $status = pl_main( '-3', '%d%%1:3%%%d' );
         } );
         ok( $status == 0, qq{./fill -3 '%d%%1:3%%%d'} );
         $t->has_no_exception( qq{"\\e" is NOT support (Escape)} );

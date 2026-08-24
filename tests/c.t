@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.56 $
+## - $Revision: 1.58 $
 ################################################################################
 
 use strict;
@@ -21,7 +21,7 @@ use FTCalc;
 if( defined( $ENV{WITH_PERL_COVERAGE} ) ){
     my %def_val;
     $def_val{def_timeout} = 3.0;
-    &FTCalc::set_default_value( %def_val );
+    FTCalc::set_default_value( %def_val );
 }
 
 ## 座標：緯度・経度
@@ -86,17 +86,17 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    } );
 #    $t->exit_is( 0, qq{./c 'mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )'} );
 #    $t->has_no_exception();
-#    equal( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
-#    equal( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
-#    equal( ${ $res }[ 1 ],   205, qq{水星  :   205} );
-#    equal( ${ $res }[ 2 ],   509, qq{金星  :   509} );
-#    equal( ${ $res }[ 3 ],   537, qq{地球  :   537} );
-#    equal( ${ $res }[ 4 ],   286, qq{火星  :   286} );
-#    equal( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
-#    equal( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
-#    equal( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
-#    equal( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
-#    equal( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
+#    is( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
+#    is( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
+#    is( ${ $res }[ 1 ],   205, qq{水星  :   205} );
+#    is( ${ $res }[ 2 ],   509, qq{金星  :   509} );
+#    is( ${ $res }[ 3 ],   537, qq{地球  :   537} );
+#    is( ${ $res }[ 4 ],   286, qq{火星  :   286} );
+#    is( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
+#    is( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
+#    is( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
+#    is( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
+#    is( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 #
@@ -111,7 +111,7 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $status;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = &pl_main( 'the_solar_system()', '--verbose' );
+#        $status = pl_main( 'the_solar_system()', '--verbose' );
 #    } );
 #    $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
 #    $t->has_no_exception();
@@ -147,7 +147,7 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    $t->stderr_is( qq{} );
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = &pl_main( 'the_solar_system( radius )', '--verbose' );
+#        $status = pl_main( 'the_solar_system( radius )', '--verbose' );
 #    } );
 #    $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
 #    $t->has_no_exception();
@@ -210,7 +210,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -219,7 +219,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123091.088 );
+    is( $res, 123091.088 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -228,7 +228,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 386, qq{整数の計算} );
+    is( $res, 386, qq{整数の計算} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -237,7 +237,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '0xfc & 0x10  ~0x1 | 0x8 ='} );
     $t->has_no_exception();
-    equal( $res, 252 );
+    is( $res, 252 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -246,7 +246,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '１cos(deg2rad(４５))'} );
     $t->has_no_exception();
-    equal( $res, 0.707106781187 );
+    is( $res, 0.707106781187 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -255,7 +255,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
     $t->has_no_exception();
-    equal( $res, 144, qq{12(3 2)2 => 144} );
+    is( $res, 144, qq{12(3 2)2 => 144} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -264,7 +264,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{暗黙の乗算記号(*)を補完} );
     $t->has_no_exception();
-    equal( $res, 24, qq{2 3 4 => 24} );
+    is( $res, 24, qq{2 3 4 => 24} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -273,7 +273,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '123 +2='} );
     $t->has_no_exception();
-    equal( $res, 125, qq{乗算記号(*)を補完しない} );
+    is( $res, 125, qq{乗算記号(*)を補完しない} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -282,7 +282,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '123 2='} );
     $t->has_no_exception();
-    equal( $res, 246, qq{乗算記号(*)を補完する} );
+    is( $res, 246, qq{乗算記号(*)を補完する} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -291,7 +291,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{指数表記} );
     $t->has_no_exception();
-    equal( $res, 0.00000022, qq{0.22*10**(-6) = 0.00000022} );
+    is( $res, 0.00000022, qq{0.22*10**(-6) = 0.00000022} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -327,7 +327,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '-pi'} );
     $t->has_no_exception( qq{単項演算子 Neg + 定数} );
-    equal( $res, -3.14159265359 );
+    is( $res, -3.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -336,7 +336,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '+pi'} );
     $t->has_no_exception( qq{単項演算子 Pos + 定数} );
-    equal( $res, 3.14159265359 );
+    is( $res, 3.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -345,7 +345,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '3--pi'} );
     $t->has_no_exception( qq{式の途中で、単項演算子 Neg + 定数 （注意：デクリメントではない！）} );
-    equal( $res, 6.14159265359 );
+    is( $res, 6.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -354,7 +354,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '3++pi'} );
     $t->has_no_exception( qq{式の途中で、単項演算子 Pos + 定数 （注意：インクリメントではない！）} );
-    equal( $res, 6.14159265359 );
+    is( $res, 6.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -363,7 +363,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '3-pi'} );
     $t->has_no_exception( qq{二項演算子の引き算} );
-    equal( $res, -0.14159265359 );
+    is( $res, -0.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -372,7 +372,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '3+pi'} );
     $t->has_no_exception( qq{二項演算子の足し算} );
-    equal( $res, 6.14159265359 );
+    is( $res, 6.14159265359 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -381,7 +381,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '5 * - abs(3)'} );
     $t->has_no_exception( qq{単項演算子 Neg + 関数} );
-    equal( $res, -15 );
+    is( $res, -15 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -390,7 +390,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '5 * + abs(3)'} );
     $t->has_no_exception( qq{単項演算子 Pos + 関数} );
-    equal( $res, 15 );
+    is( $res, 15 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -399,7 +399,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '-(3)'} );
     $t->has_no_exception( qq{単項演算子 Neg + 括弧} );
-    equal( $res, -3 );
+    is( $res, -3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -408,7 +408,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '+(3)'} );
     $t->has_no_exception( qq{単項演算子 Pos + 括弧} );
-    equal( $res, 3 );
+    is( $res, 3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -417,7 +417,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '1_2 + 2_1='} );
     $t->has_no_exception( qq{桁区切り文字【_】を許容} );
-    equal( $res, 33 );
+    is( $res, 33 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -448,7 +448,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '0.1_2 + 0.2_1='} );
     $t->has_no_exception( qq{桁区切り文字【_】を許容} );
-    equal( $res, 0.33 );
+    is( $res, 0.33 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -479,7 +479,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '123_456.7_8_9 + 987_654.3_2_1='} );
     $t->has_no_exception( qq{桁区切り文字【_】を許容} );
-    equal( $res, 1111111.11 );
+    is( $res, 1111111.11 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -488,7 +488,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '123_456. + 654_321.='} );
     $t->has_no_exception( qq{ドットで終わる数値を許容} );
-    equal( $res, 777777 );
+    is( $res, 777777 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -497,7 +497,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '0x12_34_cd_ef | 0xedcb_3210='} );
     $t->has_no_exception( qq{桁区切り文字【_】を許容} );
-    equal( $res, 4294967295 );
+    is( $res, 4294967295 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -548,7 +548,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'sqrt(power(2, 100)+power(2, 100))='} );
     $t->has_no_exception();
-    equal( $res, 1592262918131443.25, qq{3桁区切り数値解釈の回避} );
+    is( $res, 1592262918131443.25, qq{3桁区切り数値解釈の回避} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -557,7 +557,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -566,7 +566,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -575,7 +575,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -584,7 +584,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -593,7 +593,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123643.912 );
+    is( $res, 123643.912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -602,7 +602,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 13756 );
+    is( $res, 13756 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -611,7 +611,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 13756 );
+    is( $res, 13756 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -620,7 +620,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 12 );
+    is( $res, 12 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -629,7 +629,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.2 );
+    is( $res, -0.2 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -638,7 +638,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 4 );
+    is( $res, 4 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -650,7 +650,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '3+0xf*2='} );
     $t->has_no_exception();
-    equal( $res, 33, qq{数値のみ受け取る} );
+    is( $res, 33, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 33 \[ = 0x21 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -659,7 +659,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 7211, qq{数値のみ受け取る} );
+    is( $res, 7211, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 7211 \[ = 0x1C2B \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -668,7 +668,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 4, qq{数値のみ受け取る} );
+    is( $res, 4, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 4 \[ = 0x4 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -677,7 +677,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 8, qq{数値のみ受け取る} );
+    is( $res, 8, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 8 \[ = 0x8 \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -686,7 +686,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 31, qq{数値のみ受け取る} );
+    is( $res, 31, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 31 \[ = 0x1F \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -695,7 +695,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 27, qq{数値のみ受け取る} );
+    is( $res, 27, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 27 \[ = 0x1B \]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -704,7 +704,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3, qq{数値のみ受け取る} );
+    is( $res, 3, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 3 [ = 0x3 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -713,7 +713,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{数値のみ受け取る} );
+    is( $res, 1, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 1 [ = 0x1 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -722,7 +722,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{数値のみ受け取る} );
+    is( $res, 0, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 0 [ = 0x0 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -731,7 +731,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 6, qq{数値のみ受け取る} );
+    is( $res, 6, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 6 [ = 0x6 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -740,7 +740,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 12, qq{数値のみ受け取る} );
+    is( $res, 12, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 12 [ = 0xC ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -749,7 +749,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3, qq{数値のみ受け取る} );
+    is( $res, 3, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 3 [ = 0x3 ]\n}, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -766,7 +766,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect_L, qq{UVの最大シフト数: $num_of_shifts} );
     $t->stderr_is( qq{} );
 
@@ -775,7 +775,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{数値のみ受け取る} );
+    is( $res, 1, qq{数値のみ受け取る} );
     $t->stdout_is( qq{ Result: 1 [ = 0x1 ]\n}, qq{UVの最大シフト数: $num_of_shifts} );
     $t->stderr_is( qq{} );
 
@@ -790,7 +790,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -805,7 +805,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -820,7 +820,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -835,7 +835,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -850,7 +850,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, $arg_R, qq{数値のみ受け取る} );
+    is( $res, $arg_R, qq{数値のみ受け取る} );
     $t->stdout_is( $expect, qq{複雑な書式をそのまま出力していること} );
     $t->stderr_is( qq{} );
 
@@ -861,7 +861,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 4852800 );
+    is( $res, 4852800 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -870,7 +870,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2202.90717008 );
+    is( $res, 2202.90717008 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -879,7 +879,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 62.8318530718, qq{２π１０＝62.83185307179586476925286766559} );
+    is( $res, 62.8318530718, qq{２π１０＝62.83185307179586476925286766559} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -906,7 +906,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '0.0e0+9.876_543_21e+10+1.0e+0'} );
     $t->has_no_exception( qq{「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」} );
-    equal( $res, 98765432101, qq{Result: 98765432101} );
+    is( $res, 98765432101, qq{Result: 98765432101} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -915,7 +915,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c '1.2e-0+1.234_567e-3+8.9e-10'} );
     $t->has_no_exception( qq{「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」} );
-    equal( $res, 1.20123456789, qq{Result: 1.20123456789} );
+    is( $res, 1.20123456789, qq{Result: 1.20123456789} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -924,7 +924,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2202.90717008, qq{2202.90717008} );
+    is( $res, 2202.90717008, qq{2202.90717008} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -933,7 +933,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2202.90717008, qq{2202.90717008} );
+    is( $res, 2202.90717008, qq{2202.90717008} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -942,7 +942,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2202.90717008, qq{2202.90717008} );
+    is( $res, 2202.90717008, qq{2202.90717008} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -951,9 +951,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 1920, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 1080, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 1920, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 1080, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -971,7 +971,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2202.90717008, qq{2202.90717008} );
+    is( $res, 2202.90717008, qq{2202.90717008} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -980,7 +980,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 29.3577535428, qq{29.3577535428} );
+    is( $res, 29.3577535428, qq{29.3577535428} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -989,7 +989,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 29.3577535428, qq{29.3577535428} );
+    is( $res, 29.3577535428, qq{29.3577535428} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -998,7 +998,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 60.6422464572, qq{60.6422464572} );
+    is( $res, 60.6422464572, qq{60.6422464572} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1007,7 +1007,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 141.421356237, qq{141.421356237} );
+    is( $res, 141.421356237, qq{141.421356237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1025,7 +1025,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 173.205080757, qq{173.205080757} );
+    is( $res, 173.205080757, qq{173.205080757} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1034,9 +1034,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 0, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 0, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1054,10 +1054,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 0, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], 0, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 0, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], 0, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1066,7 +1066,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 51.3401917459, qq{51.3401917459} );
+    is( $res, 51.3401917459, qq{51.3401917459} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1075,7 +1075,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 51.3401917459, qq{51.3401917459} );
+    is( $res, 51.3401917459, qq{51.3401917459} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1084,7 +1084,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 38.6598082541, qq{38.6598082541} );
+    is( $res, 38.6598082541, qq{38.6598082541} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1093,7 +1093,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 321.340191746, qq{321.340191746} );
+    is( $res, 321.340191746, qq{321.340191746} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1102,9 +1102,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 51.3401917459, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 51.3401917459, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1113,9 +1113,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 51.3401917459, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 51.3401917459, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1124,9 +1124,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 38.6598082541, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 38.6598082541, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1135,9 +1135,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 321.340191746, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 321.340191746, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 31.9928170002, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1146,7 +1146,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 45 );
+    is( $res, 45 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1155,7 +1155,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.785398163397, qq{0.785398163397} );
+    is( $res, 0.785398163397, qq{0.785398163397} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1164,7 +1164,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 127.008055363, qq{127.008055363} );
+    is( $res, 127.008055363, qq{127.008055363} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1173,7 +1173,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2.21670874265, qq{2.21670874265} );
+    is( $res, 2.21670874265, qq{2.21670874265} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1182,7 +1182,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 90 );
+    is( $res, 90 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1191,7 +1191,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 72.7492079698, qq{72.7492079698} );
+    is( $res, 72.7492079698, qq{72.7492079698} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1200,7 +1200,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 81 );
+    is( $res, 81 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1209,7 +1209,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 81 );
+    is( $res, 81 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1218,7 +1218,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 81 );
+    is( $res, 81 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1227,7 +1227,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 81 );
+    is( $res, 81 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1236,7 +1236,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
 #    } );
 #    $t->exit_is( 0 );
 #    $t->has_no_exception();
-#    equal( $res, 0.00000022, qq{0.00000022} );
+#    is( $res, 0.00000022, qq{0.00000022} );
 #    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
 
@@ -1245,7 +1245,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'rad2deg(atan2(100, 200='} );
     $t->has_no_exception();
-    equal( $res, 26.5650511771 );
+    is( $res, 26.5650511771 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: parser: warn: "atan2\(": "\)" may be incorrect\.\n/ );
     $t->stderr_like( qr/\nc: parser: warn: "rad2deg\(": "\)" may be incorrect\.\n/ );
@@ -1255,7 +1255,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'rad2deg(atan2(100, 200)='} );
     $t->has_no_exception();
-    equal( $res, 26.5650511771 );
+    is( $res, 26.5650511771 );
     $t->stdout_is( qq{} );
     $t->stderr_unlike( qr/^c: parser: warn: "atan2\(": "\)" may be incorrect\.\n/ );
     $t->stderr_like( qr/^c: parser: warn: "rad2deg\(": "\)" may be incorrect\.\n/ );
@@ -1265,7 +1265,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3.14159265359, qq{ｄｅｇ２ｒａｄ（１８０）＝3.14159265359} );
+    is( $res, 3.14159265359, qq{ｄｅｇ２ｒａｄ（１８０）＝3.14159265359} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1274,7 +1274,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 90 );
+    is( $res, 90 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1283,7 +1283,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.41421356237, qq{1/cos(deg2rad(45))=1.41421356237} );
+    is( $res, 1.41421356237, qq{1/cos(deg2rad(45))=1.41421356237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1294,7 +1294,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1527.35064736, qq{1080/sin(deg2rad(45))=1527.35064736} );
+    is( $res, 1527.35064736, qq{1080/sin(deg2rad(45))=1527.35064736} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1303,7 +1303,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 45 );
+    is( $res, 45 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1312,7 +1312,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2715.29003976 );
+    is( $res, 2715.29003976 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1321,7 +1321,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 45 );
+    is( $res, 45 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1330,7 +1330,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 29.3577535428 );
+    is( $res, 29.3577535428 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1339,9 +1339,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 130, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 120, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 130, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 120, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1350,7 +1350,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1080 );
+    is( $res, 1080 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1359,7 +1359,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 34.7018888889 );
+    is( $res, 34.7018888889 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1368,7 +1368,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 135.494972222 );
+    is( $res, 135.494972222 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1377,7 +1377,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 35.68129 );
+    is( $res, 35.68129 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1386,7 +1386,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 139.76706 );
+    is( $res, 139.76706 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1395,7 +1395,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.3831 );
+    is( $res, -0.3831 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1404,7 +1404,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -90.42333 );
+    is( $res, -90.42333 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1413,9 +1413,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 35.68129, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 139.76706, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 35.68129, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 139.76706, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1424,7 +1424,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.605662217772 );
+    is( $res, 0.605662217772 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1433,7 +1433,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2.36483338518 );
+    is( $res, 2.36483338518 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1442,7 +1442,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.622755991859 );
+    is( $res, 0.622755991859 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1451,7 +1451,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2.43939538283 );
+    is( $res, 2.43939538283 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1460,7 +1460,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.017093774087 );
+    is( $res, 0.017093774087 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1469,7 +1469,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.074561997656 );
+    is( $res, 0.074561997656 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1478,7 +1478,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.006686356364 );
+    is( $res, -0.006686356364 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1487,7 +1487,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -1.57818482912 );
+    is( $res, -1.57818482912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1496,7 +1496,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -1.57818482912 );
+    is( $res, -1.57818482912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1505,7 +1505,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -1.57818482912 );
+    is( $res, -1.57818482912 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1514,9 +1514,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], -1.57818482912, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -1.57818482912, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], -1.57818482912, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -1.57818482912, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1552,10 +1552,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], -18, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -46, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -0.984000000006, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], -18, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -46, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -0.984000000006, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1564,10 +1564,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 46, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 52, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], 8.76000000001, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 46, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 52, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], 8.76000000001, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1576,10 +1576,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], -18, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -46, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -0.984000000006, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], -18, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -46, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -0.984000000006, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1588,10 +1588,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 46, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 52, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], 8.76000000001, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 46, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 52, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], 8.76000000001, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1600,10 +1600,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{( \$d == 0 and \$deg < 0 ) : true, false} );
-    equal( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 22, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], 59.16, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{( \$d == 0 and \$deg < 0 ) : true, false} );
+    is( ${ $res }[ 0 ], 0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 22, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], 59.16, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1612,7 +1612,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.3831 );
+    is( $res, -0.3831 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1621,10 +1621,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1633,7 +1633,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.3831 );
+    is( $res, -0.3831 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1642,13 +1642,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 40, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], 41, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], 53.9999999999, qq{リストを受け取る} );
-    equal( ${ $res }[ 3 ], 143, qq{リストを受け取る} );
-    equal( ${ $res }[ 4 ], 35, qq{リストを受け取る} );
-    equal( ${ $res }[ 5 ], 42, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 6, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 40, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], 41, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], 53.9999999999, qq{リストを受け取る} );
+    is( ${ $res }[ 3 ], 143, qq{リストを受け取る} );
+    is( ${ $res }[ 4 ], 35, qq{リストを受け取る} );
+    is( ${ $res }[ 5 ], 42, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1657,10 +1657,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1669,16 +1669,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
-    equal( ${ $res }[ 3 ], -69, qq{リストを受け取る} );
-    equal( ${ $res }[ 4 ], 0, qq{リストを受け取る} );
-    equal( ${ $res }[ 5 ], -15.804, qq{リストを受け取る} );
-    equal( ${ $res }[ 6 ], 39, qq{リストを受け取る} );
-    equal( ${ $res }[ 7 ], 34, qq{リストを受け取る} );
-    equal( ${ $res }[ 8 ], 55.92, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 9, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ],   0, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -22, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -59.16, qq{リストを受け取る} );
+    is( ${ $res }[ 3 ], -69, qq{リストを受け取る} );
+    is( ${ $res }[ 4 ], 0, qq{リストを受け取る} );
+    is( ${ $res }[ 5 ], -15.804, qq{リストを受け取る} );
+    is( ${ $res }[ 6 ], 39, qq{リストを受け取る} );
+    is( ${ $res }[ 7 ], 34, qq{リストを受け取る} );
+    is( ${ $res }[ 8 ], 55.92, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1687,10 +1687,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], -29, qq{リストを受け取る} );
-    equal( ${ $res }[ 1 ], -59, qq{リストを受け取る} );
-    equal( ${ $res }[ 2 ], -54, qq{リストを受け取る} );
+    is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], -29, qq{リストを受け取る} );
+    is( ${ $res }[ 1 ], -59, qq{リストを受け取る} );
+    is( ${ $res }[ 2 ], -54, qq{リストを受け取る} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1699,7 +1699,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 6378.137, qq{地球の赤道半径（km）} );
+    is( $res, 6378.137, qq{地球の赤道半径（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1708,7 +1708,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 6370.90194344, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
+    is( $res, 6370.90194344, qq{地球が楕円である事を考慮して地球の中心から東京駅（地表）までの距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1717,7 +1717,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5186.70483555, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
+    is( $res, 5186.70483555, qq{地球が楕円である事を考慮して東京駅を通る緯線の半径（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1726,7 +1726,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 403.822719846, qq{東京駅から大阪駅までの距離（km）} );
+    is( $res, 403.822719846, qq{東京駅から大阪駅までの距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1735,7 +1735,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（km）} );
+    is( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1744,7 +1744,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
+    is( $res, 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1753,7 +1753,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 294.538064998, qq{ウォータールー駅からユニオン駅までの方角（度）} );
+    is( $res, 294.538064998, qq{ウォータールー駅からユニオン駅までの方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1762,9 +1762,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 14056131.1832, qq{東京駅から昭和基地までの距離（m）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 14056131.1832, qq{東京駅から昭和基地までの距離（m）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1773,9 +1773,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 14056.1311832, qq{東京駅から昭和基地までの距離（km）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 14056.1311832, qq{東京駅から昭和基地までの距離（km）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1784,7 +1784,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 14484256.5649, qq{東京駅から昭和基地までの等角航路の距離（m）} );
+    is( $res, 14484256.5649, qq{東京駅から昭和基地までの等角航路の距離（m）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1793,7 +1793,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 14484.2565649, qq{東京駅から昭和基地までの等角航路の距離（km）} );
+    is( $res, 14484.2565649, qq{東京駅から昭和基地までの等角航路の距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1802,7 +1802,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    is( $res, 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1811,7 +1811,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 286.477790179, qq{ガラパゴス諸島から東京駅までの等角航路の方角（度）。( \$dlon > pi )} );
+    is( $res, 286.477790179, qq{ガラパゴス諸島から東京駅までの等角航路の方角（度）。( \$dlon > pi )} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1820,7 +1820,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 106.477790179, qq{東京駅からガラパゴス諸島までの等角航路の方角（度）。( \$dlon < -pi )} );
+    is( $res, 106.477790179, qq{東京駅からガラパゴス諸島までの等角航路の方角（度）。( \$dlon < -pi )} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1829,9 +1829,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 14484256.5649, qq{東京駅から昭和基地までの等角航路の距離（m）} );
-    equal( ${ $res }[ 1 ], 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 14484256.5649, qq{東京駅から昭和基地までの等角航路の距離（m）} );
+    is( ${ $res }[ 1 ], 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1840,9 +1840,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{リストを受け取る} );
-    equal( ${ $res }[ 0 ], 14484.2565649, qq{東京駅から昭和基地までの等角航路の距離（km）} );
-    equal( ${ $res }[ 1 ], 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{リストを受け取る} );
+    is( ${ $res }[ 0 ], 14484.2565649, qq{東京駅から昭和基地までの等角航路の距離（km）} );
+    is( ${ $res }[ 1 ], 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1851,11 +1851,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14056131.1832, qq{大圏航路（Great Circle）の距離（m）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 14484256.5649, qq{等角航路（Rhumb Line）の距離（m）} );
-    equal( ${ $res }[ 3 ], 216.733277422, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14056131.1832, qq{大圏航路（Great Circle）の距離（m）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 14484256.5649, qq{等角航路（Rhumb Line）の距離（m）} );
+    is( ${ $res }[ 3 ], 216.733277422, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1864,11 +1864,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14056.1311832, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 14484.2565649, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 216.733277422, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14056.1311832, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 14484.2565649, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 216.733277422, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1877,11 +1877,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{同一地点の距離と方位角} );
-    equal( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{同一地点の距離と方位角} );
+    is( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1890,11 +1890,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{赤道上のケース} );
-    equal( ${ $res }[ 0 ], 19903.5933909, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 270, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 20037.5083428, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 270, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{赤道上のケース} );
+    is( ${ $res }[ 0 ], 19903.5933909, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 270, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 20037.5083428, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 270, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1903,11 +1903,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{対蹠点（真裏）, 経度の正規化（ー）} );
-    equal( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{対蹠点（真裏）, 経度の正規化（ー）} );
+    is( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1916,11 +1916,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{対蹠点（真裏）, 経度の正規化（＋）} );
-    equal( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{対蹠点（真裏）, 経度の正規化（＋）} );
+    is( ${ $res }[ 0 ], 0, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 0, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 0, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 0, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1929,11 +1929,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{ラジアンの正規化（ー）} );
-    equal( ${ $res }[ 0 ], 5081.68969015, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 350.091119424, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 5082.78218063, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 348.739975473, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{ラジアンの正規化（ー）} );
+    is( ${ $res }[ 0 ], 5081.68969015, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 350.091119424, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 5082.78218063, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 348.739975473, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -1942,11 +1942,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_all_km( 10, 10, -10, -10 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.575222039230621, 0.575222039230621, 0.575222039230621, -0.575222039230621 )} );
-    equal( ${ $res }[ 0 ], 10045.2740731, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 309.826898594, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 10058.0659261, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 316.502246503, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.575222039230621, 0.575222039230621, 0.575222039230621, -0.575222039230621 )} );
+    is( ${ $res }[ 0 ], 10045.2740731, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 309.826898594, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 10058.0659261, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 316.502246503, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
@@ -1955,11 +1955,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_all_km( 1, 4, 2, -100 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, -2.28318530717959, 1.14159265358979, -2.61062773871641 )} );
-    equal( ${ $res }[ 0 ], 1341.45302198, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 319.995434444, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 1346.08951591, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 312.190223662, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, -2.28318530717959, 1.14159265358979, -2.61062773871641 )} );
+    is( ${ $res }[ 0 ], 1341.45302198, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 319.995434444, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 1346.08951591, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 312.190223662, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
@@ -1968,11 +1968,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_all_km( 100, 100, -100, -100 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.53096491487338, -0.530964914873376, 0.53096491487338, 0.530964914873383 )} );
-    equal( ${ $res }[ 0 ], 9315.0650115 , qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 49.4032576339, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 9323.62154307, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 43.7610906052, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( -0.53096491487338, -0.530964914873376, 0.53096491487338, 0.530964914873383 )} );
+    is( ${ $res }[ 0 ], 9315.0650115 , qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 49.4032576339, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 9323.62154307, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 43.7610906052, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
@@ -1981,11 +1981,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
-    equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
+    is( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 
@@ -1994,10 +1994,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon2xyz( deg2rad( 8.5, 84.6 ), -3_731 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{Neper Crater の緯度・経度を XYZ座標 に変換} );
-    equal( ${ $res }[ 0 ], 161430.008143, qq{X == 161430.008143} );
-    equal( ${ $res }[ 1 ], 1707751.10493, qq{Y == 1707751.10493} );
-    equal( ${ $res }[ 2 ], 255740.414968, qq{Z == 255740.414968} );
+    is( scalar( @{ $res } ), 3, qq{Neper Crater の緯度・経度を XYZ座標 に変換} );
+    is( ${ $res }[ 0 ], 161430.008143, qq{X == 161430.008143} );
+    is( ${ $res }[ 1 ], 1707751.10493, qq{Y == 1707751.10493} );
+    is( ${ $res }[ 2 ], 255740.414968, qq{Z == 255740.414968} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2006,7 +2006,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_radius_of_lat_circle( deg2rad( 45 ) )'} );
     $t->has_no_exception();
-    equal( $res, 1229767.38396, qq{月の45度の緯線の半径 = 1_229_767.38396 meters} );
+    is( $res, 1229767.38396, qq{月の45度の緯線の半径 = 1_229_767.38396 meters} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2015,7 +2015,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
+    is( $res, 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2024,7 +2024,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    is( $res, 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2033,7 +2033,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    is( $res, 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2042,9 +2042,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
-    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（m）} );
+    is( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2053,9 +2053,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2064,7 +2064,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_rl_distance_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
+    is( $res, 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2073,7 +2073,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_rl_distance_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( $res, 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2082,7 +2082,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_rl_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception( qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( $res, 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( $res, 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2091,9 +2091,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_rl_dist_m_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
-    equal( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（m）} );
+    is( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2102,9 +2102,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_rl_dist_km_and_azimuth( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 1 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2113,11 +2113,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_all_m( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877530.462324, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 877535.786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2126,11 +2126,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_all_km( deg2rad( -3.21, -5.21, 0.67, 23.47 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
-    equal( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
-    equal( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
-    equal( ${ $res }[ 2 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
-    equal( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
+    is( scalar( @{ $res } ), 4, qq{メスティングA（クレーター）から静かの海（アポロ11号着陸地点）まで} );
+    is( ${ $res }[ 0 ], 877.530462324, qq{大圏航路（Great Circle）の距離（km）} );
+    is( ${ $res }[ 1 ], 82.7979964281, qq{大圏航路（Great Circle）の方角（度）} );
+    is( ${ $res }[ 2 ], 877.535786021, qq{等角航路（Rhumb Line）の距離（km）} );
+    is( ${ $res }[ 3 ], 82.3105720616, qq{等角航路（Rhumb Line）の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2148,7 +2148,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( 89.9 ) )'} );
     $t->has_no_exception();
-    equal( $res, 7.04395898475 );
+    is( $res, 7.04395898475 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2157,7 +2157,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'gis_mercator_y( deg2rad( -89.9 ) )'} );
     $t->has_no_exception();
-    equal( $res, -7.04395898475 );
+    is( $res, -7.04395898475 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2184,7 +2184,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'gis_miller_y( deg2rad( 89.9 ) )'} );
     $t->has_no_exception();
-    equal( $res, 2.29777663826 );
+    is( $res, 2.29777663826 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2193,7 +2193,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'gis_miller_y( deg2rad( -89.9 ) )'} );
     $t->has_no_exception();
-    equal( $res, -2.29777663826 );
+    is( $res, -2.29777663826 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2211,13 +2211,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2025 );
-    equal( ${ $res }[ 1 ], 11 );
-    equal( ${ $res }[ 2 ], 25 );
-    equal( ${ $res }[ 3 ], 0 );
-    equal( ${ $res }[ 4 ], 59 );
-    equal( ${ $res }[ 5 ], 2 );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2025 );
+    is( ${ $res }[ 1 ], 11 );
+    is( ${ $res }[ 2 ], 25 );
+    is( ${ $res }[ 3 ], 0 );
+    is( ${ $res }[ 4 ], 59 );
+    is( ${ $res }[ 5 ], 2 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2225,13 +2225,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{epoch2gmt( 1763999942 )} );
     } );
     $t->exit_is( 0 );
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2025 );
-    equal( ${ $res }[ 1 ], 11 );
-    equal( ${ $res }[ 2 ], 24 );
-    equal( ${ $res }[ 3 ], 15 );
-    equal( ${ $res }[ 4 ], 59 );
-    equal( ${ $res }[ 5 ], 2 );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2025 );
+    is( ${ $res }[ 1 ], 11 );
+    is( ${ $res }[ 2 ], 24 );
+    is( ${ $res }[ 3 ], 15 );
+    is( ${ $res }[ 4 ], 59 );
+    is( ${ $res }[ 5 ], 2 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2239,13 +2239,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{local2gmt( 2026/08/15 19:54:51 )} );
     } );
     $t->exit_is( 0, qq{./c 'local2gmt( 2026/08/15 19:54:51 )'\n} );
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2026, qq{2026 年} );
-    equal( ${ $res }[ 1 ],    8, qq{08 月} );
-    equal( ${ $res }[ 2 ],   15, qq{15 日} );
-    equal( ${ $res }[ 3 ],   10, qq{10 時 (+0[UTC])} );
-    equal( ${ $res }[ 4 ],   54, qq{54 分} );
-    equal( ${ $res }[ 5 ],   51, qq{51 秒} );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2026, qq{2026 年} );
+    is( ${ $res }[ 1 ],    8, qq{08 月} );
+    is( ${ $res }[ 2 ],   15, qq{15 日} );
+    is( ${ $res }[ 3 ],   10, qq{10 時 (+0[UTC])} );
+    is( ${ $res }[ 4 ],   54, qq{54 分} );
+    is( ${ $res }[ 5 ],   51, qq{51 秒} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2253,13 +2253,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
         $res = $c->formula( qq{gmt2local( 2026-08-15 10:54:51 )} );
     } );
     $t->exit_is( 0, qq{./c 'gmt2local( 2026-08-15 10:54:51 )'\n} );
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2026, qq{2026 年} );
-    equal( ${ $res }[ 1 ],    8, qq{08 月} );
-    equal( ${ $res }[ 2 ],   15, qq{15 日} );
-    equal( ${ $res }[ 3 ],   19, qq{19 時 (+9[JST])} );
-    equal( ${ $res }[ 4 ],   54, qq{54 分} );
-    equal( ${ $res }[ 5 ],   51, qq{51 秒} );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2026, qq{2026 年} );
+    is( ${ $res }[ 1 ],    8, qq{08 月} );
+    is( ${ $res }[ 2 ],   15, qq{15 日} );
+    is( ${ $res }[ 3 ],   19, qq{19 時 (+9[JST])} );
+    is( ${ $res }[ 4 ],   54, qq{54 分} );
+    is( ${ $res }[ 5 ],   51, qq{51 秒} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2268,7 +2268,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{is_leap( 1996 ) => 1} );
+    is( $res, 1, qq{is_leap( 1996 ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2277,7 +2277,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{is_leap( 1999 ) => 0} );
+    is( $res, 0, qq{is_leap( 1999 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2286,7 +2286,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{is_leap( 2000 ) => 1} );
+    is( $res, 1, qq{is_leap( 2000 ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2295,17 +2295,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{閏年判定の確認} );
-    equal( ${ $res }[ 0 ], 1, qq{is_leap( 1200 ) => 1} );
-    equal( ${ $res }[ 1 ], 0, qq{is_leap( 1300 ) => 0} );
-    equal( ${ $res }[ 2 ], 0, qq{is_leap( 1400 ) => 0} );
-    equal( ${ $res }[ 3 ], 0, qq{is_leap( 1500 ) => 0} );
-    equal( ${ $res }[ 4 ], 1, qq{is_leap( 1600 ) => 1} );
-    equal( ${ $res }[ 5 ], 0, qq{is_leap( 1700 ) => 0} );
-    equal( ${ $res }[ 6 ], 0, qq{is_leap( 1800 ) => 0} );
-    equal( ${ $res }[ 7 ], 0, qq{is_leap( 1900 ) => 0} );
-    equal( ${ $res }[ 8 ], 1, qq{is_leap( 2000 ) => 1} );
-    equal( ${ $res }[ 9 ], 0, qq{is_leap( 2100 ) => 0} );
+    is( scalar( @{ $res } ), 10, qq{閏年判定の確認} );
+    is( ${ $res }[ 0 ], 1, qq{is_leap( 1200 ) => 1} );
+    is( ${ $res }[ 1 ], 0, qq{is_leap( 1300 ) => 0} );
+    is( ${ $res }[ 2 ], 0, qq{is_leap( 1400 ) => 0} );
+    is( ${ $res }[ 3 ], 0, qq{is_leap( 1500 ) => 0} );
+    is( ${ $res }[ 4 ], 1, qq{is_leap( 1600 ) => 1} );
+    is( ${ $res }[ 5 ], 0, qq{is_leap( 1700 ) => 0} );
+    is( ${ $res }[ 6 ], 0, qq{is_leap( 1800 ) => 0} );
+    is( ${ $res }[ 7 ], 0, qq{is_leap( 1900 ) => 0} );
+    is( ${ $res }[ 8 ], 1, qq{is_leap( 2000 ) => 1} );
+    is( ${ $res }[ 9 ], 0, qq{is_leap( 2100 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2314,9 +2314,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{平月の31日（5月）を正しくまたいで計算できているか} );
-    equal( ${ $res }[ 0 ], 0, qq{0 年} );
-    equal( ${ $res }[ 1 ], 44, qq{44 日齢} );
+    is( scalar( @{ $res } ), 2, qq{平月の31日（5月）を正しくまたいで計算できているか} );
+    is( ${ $res }[ 0 ], 0, qq{0 年} );
+    is( ${ $res }[ 1 ], 44, qq{44 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2325,9 +2325,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{年をまたいでも、エポック秒ベースで正確な日数が引けているか} );
-    equal( ${ $res }[ 0 ], 0, qq{0 年} );
-    equal( ${ $res }[ 1 ], 171, qq{171 日齢} );
+    is( scalar( @{ $res } ), 2, qq{年をまたいでも、エポック秒ベースで正確な日数が引けているか} );
+    is( ${ $res }[ 0 ], 0, qq{0 年} );
+    is( ${ $res }[ 1 ], 171, qq{171 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2336,9 +2336,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{1日齢ではなく2日齢になること} );
-    equal( ${ $res }[ 0 ], 0, qq{0 年} );
-    equal( ${ $res }[ 1 ], 2, qq{2 日齢} );
+    is( scalar( @{ $res } ), 2, qq{1日齢ではなく2日齢になること} );
+    is( ${ $res }[ 0 ], 0, qq{0 年} );
+    is( ${ $res }[ 1 ], 2, qq{2 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2347,9 +2347,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{当日なので、きっちり25歳になっていること} );
-    equal( ${ $res }[ 0 ], 25, qq{25 年} );
-    equal( ${ $res }[ 1 ], 0, qq{0 日齢} );
+    is( scalar( @{ $res } ), 2, qq{当日なので、きっちり25歳になっていること} );
+    is( ${ $res }[ 0 ], 25, qq{25 年} );
+    is( ${ $res }[ 1 ], 0, qq{0 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2358,9 +2358,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{フライングして25歳にならず「24歳」を維持できていること} );
-    equal( ${ $res }[ 0 ], 24, qq{24 年} );
-    equal( ${ $res }[ 1 ], 364, qq{364 日齢} );
+    is( scalar( @{ $res } ), 2, qq{フライングして25歳にならず「24歳」を維持できていること} );
+    is( ${ $res }[ 0 ], 24, qq{24 年} );
+    is( ${ $res }[ 1 ], 364, qq{364 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2369,9 +2369,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{フライングして25歳にならず「24歳」を維持できていること} );
-    equal( ${ $res }[ 0 ], 24, qq{24 年} );
-    equal( ${ $res }[ 1 ], 364, qq{364 日齢} );
+    is( scalar( @{ $res } ), 2, qq{フライングして25歳にならず「24歳」を維持できていること} );
+    is( ${ $res }[ 0 ], 24, qq{24 年} );
+    is( ${ $res }[ 1 ], 364, qq{364 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2380,9 +2380,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{日齢の最大値} );
-    equal( ${ $res }[ 0 ], 20, qq{20 年} );
-    equal( ${ $res }[ 1 ], 365, qq{365 日齢} );
+    is( scalar( @{ $res } ), 2, qq{日齢の最大値} );
+    is( ${ $res }[ 0 ], 20, qq{20 年} );
+    is( ${ $res }[ 1 ], 365, qq{365 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2391,9 +2391,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{誕生日が未来} );
-    equal( ${ $res }[ 0 ], 0, qq{0 年} );
-    equal( ${ $res }[ 1 ], -1, qq{-1 日齢} );
+    is( scalar( @{ $res } ), 2, qq{誕生日が未来} );
+    is( ${ $res }[ 0 ], 0, qq{0 年} );
+    is( ${ $res }[ 1 ], -1, qq{-1 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2402,9 +2402,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{誕生日が未来} );
-    equal( ${ $res }[ 0 ], -24, qq{-24 年} );
-    equal( ${ $res }[ 1 ], -364, qq{-364 日齢} );
+    is( scalar( @{ $res } ), 2, qq{誕生日が未来} );
+    is( ${ $res }[ 0 ], -24, qq{-24 年} );
+    is( ${ $res }[ 1 ], -364, qq{-364 日齢} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2413,7 +2413,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{誕生日} );
+    is( scalar( @{ $res } ), 2, qq{誕生日} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2422,7 +2422,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 24, qq{既存の挙動との変化を検知する為だけのテスト。西暦0年は存在しない。} );
+    is( $res, 24, qq{既存の挙動との変化を検知する為だけのテスト。西暦0年は存在しない。} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2431,7 +2431,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 28.3 );
+    is( $res, 28.3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2440,7 +2440,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 23 );
+    is( $res, 23 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2449,7 +2449,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 24 );
+    is( $res, 24 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2458,7 +2458,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 23 );
+    is( $res, 23 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2467,7 +2467,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 24 );
+    is( $res, 24 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2476,7 +2476,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 25 );
+    is( $res, 25 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2485,7 +2485,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 28.7 );
+    is( $res, 28.7 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2494,7 +2494,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.2 );
+    is( $res, 0.2 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2503,7 +2503,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'moon_age_instant( gmt2epoch( 1969年7月20日 20時17分40秒 ) )'} );
     $t->has_no_exception();
-    equal( $res, 6.24701057982, qq{アポロ11号が月面に着陸した時} );
+    is( $res, 6.24701057982, qq{アポロ11号が月面に着陸した時} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2516,7 +2516,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
-    my $now = &CORE::time();
+    my $now = CORE::time();
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{get_next_moon_age_epoch( -0.000000001 )} );
@@ -2561,7 +2561,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{MOON_AGEが基準日(22.308323098)よりも大きい} );
     $t->has_no_exception();
-    equal( $res, 23.0000013388 );
+    is( $res, 23.0000013388 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2570,7 +2570,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{1秒前であれば23にはならないこと} );
     $t->has_no_exception();
-    equal( $res, 22.9999897647 );
+    is( $res, 22.9999897647 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2579,13 +2579,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{MOON_AGEが基準日(22.308323098)よりも小さい} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{( 2027, 1, 30, 5, 20, 4 )} );
-    equal( ${ $res }[ 0 ], 2027 );
-    equal( ${ $res }[ 1 ], 1 );
-    equal( ${ $res }[ 2 ], 30 );
-    equal( ${ $res }[ 3 ], 5 );
-    equal( ${ $res }[ 4 ], 20 );
-    equal( ${ $res }[ 5 ], 4 );
+    is( scalar( @{ $res } ), 6, qq{( 2027, 1, 30, 5, 20, 4 )} );
+    is( ${ $res }[ 0 ], 2027 );
+    is( ${ $res }[ 1 ], 1 );
+    is( ${ $res }[ 2 ], 30 );
+    is( ${ $res }[ 3 ], 5 );
+    is( ${ $res }[ 4 ], 20 );
+    is( ${ $res }[ 5 ], 4 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2594,7 +2594,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 978274799 );
+    is( $res, 978274799 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2603,7 +2603,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1773212401 );
+    is( $res, 1773212401 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2612,7 +2612,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1773212401 );
+    is( $res, 1773212401 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2621,7 +2621,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1773212401 );
+    is( $res, 1773212401 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2630,7 +2630,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 978307199 );
+    is( $res, 978307199 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2639,7 +2639,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{未来} );
+    is( scalar( @{ $res } ), 4, qq{未来} );
     ok( ${ $res }[ 0 ] >= 0, qq{日: ( ${ $res }[ 0 ] >= 0 )} );
     ok( ${ $res }[ 1 ] >= 0, qq{時: ( ${ $res }[ 1 ] >= 0 )} );
     ok( ${ $res }[ 2 ] >= 0, qq{分: ( ${ $res }[ 2 ] >= 0 )} );
@@ -2652,7 +2652,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{過去} );
+    is( scalar( @{ $res } ), 4, qq{過去} );
     ok( ${ $res }[ 0 ] <= 0, qq{日: ( ${ $res }[ 0 ] <= 0 )} );
     ok( ${ $res }[ 1 ] <= 0, qq{時: ( ${ $res }[ 1 ] <= 0 )} );
     ok( ${ $res }[ 2 ] <= 0, qq{分: ( ${ $res }[ 2 ] <= 0 )} );
@@ -2665,11 +2665,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{日時分秒} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
-    equal( ${ $res }[ 2 ], 0 );
-    equal( ${ $res }[ 3 ], 0 );
+    is( scalar( @{ $res } ), 4, qq{日時分秒} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
+    is( ${ $res }[ 2 ], 0 );
+    is( ${ $res }[ 3 ], 0 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2678,13 +2678,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2020 );
-    equal( ${ $res }[ 1 ], 1 );
-    equal( ${ $res }[ 2 ], 11 );
-    equal( ${ $res }[ 3 ], 15 );
-    equal( ${ $res }[ 4 ], 0 );
-    equal( ${ $res }[ 5 ], 0 );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2020 );
+    is( ${ $res }[ 1 ], 1 );
+    is( ${ $res }[ 2 ], 11 );
+    is( ${ $res }[ 3 ], 15 );
+    is( ${ $res }[ 4 ], 0 );
+    is( ${ $res }[ 5 ], 0 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2693,13 +2693,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{年月日時分秒} );
-    equal( ${ $res }[ 0 ], 2019 );
-    equal( ${ $res }[ 1 ], 12 );
-    equal( ${ $res }[ 2 ], 30 );
-    equal( ${ $res }[ 3 ], 17 );
-    equal( ${ $res }[ 4 ], 56 );
-    equal( ${ $res }[ 5 ], 5 );
+    is( scalar( @{ $res } ), 6, qq{年月日時分秒} );
+    is( ${ $res }[ 0 ], 2019 );
+    is( ${ $res }[ 1 ], 12 );
+    is( ${ $res }[ 2 ], 30 );
+    is( ${ $res }[ 3 ], 17 );
+    is( ${ $res }[ 4 ], 56 );
+    is( ${ $res }[ 5 ], 5 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2708,11 +2708,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{日時分秒} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
-    equal( ${ $res }[ 2 ], 48 );
-    equal( ${ $res }[ 3 ], 45.7797882084 );
+    is( scalar( @{ $res } ), 4, qq{日時分秒} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
+    is( ${ $res }[ 2 ], 48 );
+    is( ${ $res }[ 3 ], 45.7797882084 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2757,7 +2757,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'the_solar_system( 1, Eris )'} );
     $t->has_no_exception();
-    equal( $res, 16600000000000000000000 );
+    is( $res, 16600000000000000000000 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2793,7 +2793,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'the_solar_system( number_of_satellites )'} );
     $t->has_no_exception();
-    equal( $res, 1, qq{Earth has one satellite.} );
+    is( $res, 1, qq{Earth has one satellite.} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2802,16 +2802,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'the_solar_system()'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9, qq{デフォルトの天体（地球）のデータを参照} );
-    equal( ${ $res }[ 0 ],                      6378.137   , qq{radius: 6378.137} );
-    equal( ${ $res }[ 1 ], 5972299999999999636144128       , qq{mass: 5972299999999999636144128} );
-    equal( ${ $res }[ 2 ],                         0       , qq{orbital_inclination_angle: 0} );
-    equal( ${ $res }[ 3 ],                         0.0167  , qq{orbital_eccentricity: 0.0167} );
-    equal( ${ $res }[ 4 ],                         1       , qq{orbit_semi_major_axis: 1} );
-    equal( ${ $res }[ 5 ],                         9.798   , qq{surface_gravity: 9.798} );
-    equal( ${ $res }[ 6 ],                         1       , qq{orbital_period: 1} );
-    equal( ${ $res }[ 7 ],                         0.997271, qq{rotation_period: 0.997271} );
-    equal( ${ $res }[ 8 ],                         1       , qq{number_of_satellites: 1} );
+    is( scalar( @{ $res } ), 9, qq{デフォルトの天体（地球）のデータを参照} );
+    is( ${ $res }[ 0 ],                      6378.137   , qq{radius: 6378.137} );
+    is( ${ $res }[ 1 ], 5972299999999999636144128       , qq{mass: 5972299999999999636144128} );
+    is( ${ $res }[ 2 ],                         0       , qq{orbital_inclination_angle: 0} );
+    is( ${ $res }[ 3 ],                         0.0167  , qq{orbital_eccentricity: 0.0167} );
+    is( ${ $res }[ 4 ],                         1       , qq{orbit_semi_major_axis: 1} );
+    is( ${ $res }[ 5 ],                         9.798   , qq{surface_gravity: 9.798} );
+    is( ${ $res }[ 6 ],                         1       , qq{orbital_period: 1} );
+    is( ${ $res }[ 7 ],                         0.997271, qq{rotation_period: 0.997271} );
+    is( ${ $res }[ 8 ],                         1       , qq{number_of_satellites: 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2820,17 +2820,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
-    equal( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
-    equal( ${ $res }[ 1 ],   205, qq{水星  :   205} );
-    equal( ${ $res }[ 2 ],   509, qq{金星  :   509} );
-    equal( ${ $res }[ 3 ],   537, qq{地球  :   537} );
-    equal( ${ $res }[ 4 ],   286, qq{火星  :   286} );
-    equal( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
-    equal( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
-    equal( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
-    equal( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
-    equal( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
+    is( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
+    is( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
+    is( ${ $res }[ 1 ],   205, qq{水星  :   205} );
+    is( ${ $res }[ 2 ],   509, qq{金星  :   509} );
+    is( ${ $res }[ 3 ],   537, qq{地球  :   537} );
+    is( ${ $res }[ 4 ],   286, qq{火星  :   286} );
+    is( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
+    is( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
+    is( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
+    is( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
+    is( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2866,7 +2866,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'km_per_h( 1, 5.0 )'} );
     $t->has_no_exception();
-    equal( $res, 0.00000000093 );
+    is( $res, 0.00000000093 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2875,7 +2875,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'km_per_h( 1, mph )'} );
     $t->has_no_exception();
-    equal( $res, 0.621371192237 );
+    is( $res, 0.621371192237 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2884,7 +2884,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'km_per_h( 1, 0.0 )'} );
     $t->has_no_exception();
-    equal( $res, 1 );
+    is( $res, 1 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2893,13 +2893,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'km_per_h( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 km/h を変換} );
-    equal( ${ $res }[ 0 ], 1             , qq{ km/h: 1} );
-    equal( ${ $res }[ 1 ], 0.621371192237, qq{  mph: 0.621371192237} );
-    equal( ${ $res }[ 2 ], 0.539956803456, qq{   kn: 0.539956803456} );
-    equal( ${ $res }[ 3 ], 0.277777777778, qq{  m/s: 0.277777777778} );
-    equal( ${ $res }[ 4 ], 0.000839207788, qq{ Mach: 0.000839207788} );
-    equal( ${ $res }[ 5 ], 0.00000000093 , qq{  sol: 0.00000000093} );
+    is( scalar( @{ $res } ), 6, qq{1 km/h を変換} );
+    is( ${ $res }[ 0 ], 1             , qq{ km/h: 1} );
+    is( ${ $res }[ 1 ], 0.621371192237, qq{  mph: 0.621371192237} );
+    is( ${ $res }[ 2 ], 0.539956803456, qq{   kn: 0.539956803456} );
+    is( ${ $res }[ 3 ], 0.277777777778, qq{  m/s: 0.277777777778} );
+    is( ${ $res }[ 4 ], 0.000839207788, qq{ Mach: 0.000839207788} );
+    is( ${ $res }[ 5 ], 0.00000000093 , qq{  sol: 0.00000000093} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2908,13 +2908,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'mph( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 mph を変換} );
-    equal( ${ $res }[ 0 ], 1.609344      , qq{ km/h: 1.609344} );
-    equal( ${ $res }[ 1 ], 1             , qq{  mph: 1} );
-    equal( ${ $res }[ 2 ], 0.868976241901, qq{   kn: 0.868976241901} );
-    equal( ${ $res }[ 3 ], 0.44704       , qq{  m/s: 0.44704} );
-    equal( ${ $res }[ 4 ], 0.001350574018, qq{ Mach: 0.001350574018} );
-    equal( ${ $res }[ 5 ], 0.00000000149 , qq{  sol: 0.00000000149} );
+    is( scalar( @{ $res } ), 6, qq{1 mph を変換} );
+    is( ${ $res }[ 0 ], 1.609344      , qq{ km/h: 1.609344} );
+    is( ${ $res }[ 1 ], 1             , qq{  mph: 1} );
+    is( ${ $res }[ 2 ], 0.868976241901, qq{   kn: 0.868976241901} );
+    is( ${ $res }[ 3 ], 0.44704       , qq{  m/s: 0.44704} );
+    is( ${ $res }[ 4 ], 0.001350574018, qq{ Mach: 0.001350574018} );
+    is( ${ $res }[ 5 ], 0.00000000149 , qq{  sol: 0.00000000149} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2923,13 +2923,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kn( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 kn を変換} );
-    equal( ${ $res }[ 0 ], 1.852         , qq{ km/h: 1.852} );
-    equal( ${ $res }[ 1 ], 1.15077944802 , qq{  mph: 1.15077944802} );
-    equal( ${ $res }[ 2 ], 1             , qq{   kn: 1} );
-    equal( ${ $res }[ 3 ], 0.514444444444, qq{  m/s: 0.514444444444} );
-    equal( ${ $res }[ 4 ], 0.001554212823, qq{ Mach: 0.001554212823} );
-    equal( ${ $res }[ 5 ], 0.00000000172 , qq{  sol: 0.00000000172} );
+    is( scalar( @{ $res } ), 6, qq{1 kn を変換} );
+    is( ${ $res }[ 0 ], 1.852         , qq{ km/h: 1.852} );
+    is( ${ $res }[ 1 ], 1.15077944802 , qq{  mph: 1.15077944802} );
+    is( ${ $res }[ 2 ], 1             , qq{   kn: 1} );
+    is( ${ $res }[ 3 ], 0.514444444444, qq{  m/s: 0.514444444444} );
+    is( ${ $res }[ 4 ], 0.001554212823, qq{ Mach: 0.001554212823} );
+    is( ${ $res }[ 5 ], 0.00000000172 , qq{  sol: 0.00000000172} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2938,13 +2938,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'm_per_s( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 m/s を変換} );
-    equal( ${ $res }[ 0 ], 3.6           , qq{ km/h: 3.6} );
-    equal( ${ $res }[ 1 ], 2.23693629205 , qq{  mph: 2.23693629205} );
-    equal( ${ $res }[ 2 ], 1.94384449244 , qq{   kn: 1.94384449244} );
-    equal( ${ $res }[ 3 ], 1             , qq{  m/s: 1} );
-    equal( ${ $res }[ 4 ], 0.003021148036, qq{ Mach: 0.003021148036} );
-    equal( ${ $res }[ 5 ], 0.00000000334 , qq{  sol: 0.00000000334} );
+    is( scalar( @{ $res } ), 6, qq{1 m/s を変換} );
+    is( ${ $res }[ 0 ], 3.6           , qq{ km/h: 3.6} );
+    is( ${ $res }[ 1 ], 2.23693629205 , qq{  mph: 2.23693629205} );
+    is( ${ $res }[ 2 ], 1.94384449244 , qq{   kn: 1.94384449244} );
+    is( ${ $res }[ 3 ], 1             , qq{  m/s: 1} );
+    is( ${ $res }[ 4 ], 0.003021148036, qq{ Mach: 0.003021148036} );
+    is( ${ $res }[ 5 ], 0.00000000334 , qq{  sol: 0.00000000334} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2953,13 +2953,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'Mach( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
-    equal( ${ $res }[ 0 ], 1191.6         , qq{ km/h: 1191.6} );
-    equal( ${ $res }[ 1 ],  740.42591267  , qq{  mph:  740.42591267} );
-    equal( ${ $res }[ 2 ],  643.412526998 , qq{   kn:  643.412526998} );
-    equal( ${ $res }[ 3 ],  331           , qq{  m/s:  331} );
-    equal( ${ $res }[ 4 ],    1           , qq{ Mach:    1} );
-    equal( ${ $res }[ 5 ],    0.0000011041, qq{  sol:    0.0000011041} );
+    is( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
+    is( ${ $res }[ 0 ], 1191.6         , qq{ km/h: 1191.6} );
+    is( ${ $res }[ 1 ],  740.42591267  , qq{  mph:  740.42591267} );
+    is( ${ $res }[ 2 ],  643.412526998 , qq{   kn:  643.412526998} );
+    is( ${ $res }[ 3 ],  331           , qq{  m/s:  331} );
+    is( ${ $res }[ 4 ],    1           , qq{ Mach:    1} );
+    is( ${ $res }[ 5 ],    0.0000011041, qq{  sol:    0.0000011041} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2968,13 +2968,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'speed_of_light( 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
-    equal( ${ $res }[ 0 ], 1079252848.8    , qq{ km/h: 1079252848.8} );
-    equal( ${ $res }[ 1 ],  670616629.384  , qq{  mph:  670616629.384} );
-    equal( ${ $res }[ 2 ],  582749918.359  , qq{   kn:  582749918.359} );
-    equal( ${ $res }[ 3 ],  299792458      , qq{  m/s:  299792458} );
-    equal( ${ $res }[ 4 ],     905717.39577, qq{ Mach:     905717.39577} );
-    equal( ${ $res }[ 5 ],          1      , qq{  sol:          1} );
+    is( scalar( @{ $res } ), 6, qq{1 Mach を変換} );
+    is( ${ $res }[ 0 ], 1079252848.8    , qq{ km/h: 1079252848.8} );
+    is( ${ $res }[ 1 ],  670616629.384  , qq{  mph:  670616629.384} );
+    is( ${ $res }[ 2 ],  582749918.359  , qq{   kn:  582749918.359} );
+    is( ${ $res }[ 3 ],  299792458      , qq{  m/s:  299792458} );
+    is( ${ $res }[ 4 ],     905717.39577, qq{ Mach:     905717.39577} );
+    is( ${ $res }[ 5 ],          1      , qq{  sol:          1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2983,7 +2983,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5900888009.76, qq{au2km( 39.445 ) => 5900888009.76} );
+    is( $res, 5900888009.76, qq{au2km( 39.445 ) => 5900888009.76} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -2992,7 +2992,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5.20301523249, qq{km2au( 778_360_000 ) => 5.20301523249} );
+    is( $res, 5.20301523249, qq{km2au( 778_360_000 ) => 5.20301523249} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3001,7 +3001,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3927.27272727, qq{ri2meter( 1 ) => 3927.27272727} );
+    is( $res, 3927.27272727, qq{ri2meter( 1 ) => 3927.27272727} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3010,7 +3010,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.01851851852, qq{meter2ri( 4000 ) => 1.01851851852} );
+    is( $res, 1.01851851852, qq{meter2ri( 4000 ) => 1.01851851852} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3019,7 +3019,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1609.344, qq{mile2meter( 1 ) => 1609.344} );
+    is( $res, 1609.344, qq{mile2meter( 1 ) => 1609.344} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3028,7 +3028,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.24274238447, qq{meter2mile( 2000 ) => 1.24274238447} );
+    is( $res, 1.24274238447, qq{meter2mile( 2000 ) => 1.24274238447} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3037,7 +3037,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1852, qq{nautical_mile2meter( 1 ) => 1852} );
+    is( $res, 1852, qq{nautical_mile2meter( 1 ) => 1852} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3046,7 +3046,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.07991360691, qq{meter2nautical_mile( 2000 ) => 1.07991360691} );
+    is( $res, 1.07991360691, qq{meter2nautical_mile( 2000 ) => 1.07991360691} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3055,7 +3055,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 6.35, qq{inch2mm( 0.25 ) => 6.35} );
+    is( $res, 6.35, qq{inch2mm( 0.25 ) => 6.35} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3064,7 +3064,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.5, qq{mm2inch( 12.7 ) => 0.5} );
+    is( $res, 0.5, qq{mm2inch( 12.7 ) => 0.5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3073,7 +3073,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 453.59237, qq{pound2gram( 1 ) => 453.59237} );
+    is( $res, 453.59237, qq{pound2gram( 1 ) => 453.59237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3082,7 +3082,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.10231131092, qq{gram2pound( 500 ) => 1.10231131092} );
+    is( $res, 1.10231131092, qq{gram2pound( 500 ) => 1.10231131092} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3091,7 +3091,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 28.349523125, qq{ounce2gram( 1 ) => 28.349523125} );
+    is( $res, 28.349523125, qq{ounce2gram( 1 ) => 28.349523125} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3100,7 +3100,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.05821885849, qq{gram2ounce( 30 ) => 1.05821885849} );
+    is( $res, 1.05821885849, qq{gram2ounce( 30 ) => 1.05821885849} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3109,7 +3109,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 63.743225, qq{kgf2newton( 6.5 ) => 63.743225} );
+    is( $res, 63.743225, qq{kgf2newton( 6.5 ) => 63.743225} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3118,7 +3118,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 6.52618376306, qq{newton2kgf( 64 ) => 6.52618376306} );
+    is( $res, 6.52618376306, qq{newton2kgf( 64 ) => 6.52618376306} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3154,7 +3154,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kPa( 221, 3.0 )'} );
     $t->has_no_exception();
-    equal( $res, 2.21 );
+    is( $res, 2.21 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3163,7 +3163,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kPa( 221, kgf_per_cm2 )'} );
     $t->has_no_exception();
-    equal( $res, 2.2535812 );
+    is( $res, 2.2535812 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3172,7 +3172,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kPa( 221, 0.0 )'} );
     $t->has_no_exception();
-    equal( $res, 221 );
+    is( $res, 221 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3181,11 +3181,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kPa( 221 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{221 kPa を変換} );
-    equal( ${ $res }[ 0 ], 221        , qq{   kPa: 221} );
-    equal( ${ $res }[ 1 ],   2.2535812, qq{kg/cm2:   2.2535812} );
-    equal( ${ $res }[ 2 ],  32.053398 , qq{   PSI:  32.053398} );
-    equal( ${ $res }[ 3 ],   2.21     , qq{   bar:   2.21} );
+    is( scalar( @{ $res } ), 4, qq{221 kPa を変換} );
+    is( ${ $res }[ 0 ], 221        , qq{   kPa: 221} );
+    is( ${ $res }[ 1 ],   2.2535812, qq{kg/cm2:   2.2535812} );
+    is( ${ $res }[ 2 ],  32.053398 , qq{   PSI:  32.053398} );
+    is( ${ $res }[ 3 ],   2.21     , qq{   bar:   2.21} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3194,11 +3194,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'kgf_per_cm2( 2.25 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{2.25 kgf/cm2 を変換} );
-    equal( ${ $res }[ 0 ], 220.648805554  , qq{   kPa: 220.648805554} );
-    equal( ${ $res }[ 1 ],   2.25         , qq{kg/cm2:   2.25} );
-    equal( ${ $res }[ 2 ],  32.00246146   , qq{   PSI:  32.00246146} );
-    equal( ${ $res }[ 3 ],   2.20648805554, qq{   bar:   2.20648805554} );
+    is( scalar( @{ $res } ), 4, qq{2.25 kgf/cm2 を変換} );
+    is( ${ $res }[ 0 ], 220.648805554  , qq{   kPa: 220.648805554} );
+    is( ${ $res }[ 1 ],   2.25         , qq{kg/cm2:   2.25} );
+    is( ${ $res }[ 2 ],  32.00246146   , qq{   PSI:  32.00246146} );
+    is( ${ $res }[ 3 ],   2.20648805554, qq{   bar:   2.20648805554} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3207,11 +3207,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'PSI( 32 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{32 PSI を変換} );
-    equal( ${ $res }[ 0 ], 220.631834416  , qq{   kPa: 220.631834416} );
-    equal( ${ $res }[ 1 ],   2.2498269419 , qq{kg/cm2:   2.2498269419} );
-    equal( ${ $res }[ 2 ],  32            , qq{   PSI:  32} );
-    equal( ${ $res }[ 3 ],   2.20631834416, qq{   bar:   2.20631834416} );
+    is( scalar( @{ $res } ), 4, qq{32 PSI を変換} );
+    is( ${ $res }[ 0 ], 220.631834416  , qq{   kPa: 220.631834416} );
+    is( ${ $res }[ 1 ],   2.2498269419 , qq{kg/cm2:   2.2498269419} );
+    is( ${ $res }[ 2 ],  32            , qq{   PSI:  32} );
+    is( ${ $res }[ 3 ],   2.20631834416, qq{   bar:   2.20631834416} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3220,11 +3220,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'bar( 2.2 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{2.2 bar を変換} );
-    equal( ${ $res }[ 0 ], 220            , qq{   kPa: 220} );
-    equal( ${ $res }[ 1 ],   2.243384     , qq{kg/cm2:   2.243384} );
-    equal( ${ $res }[ 2 ],  31.90836      , qq{   PSI:  31.90836} );
-    equal( ${ $res }[ 3 ],   2.2          , qq{   bar:   2.2} );
+    is( scalar( @{ $res } ), 4, qq{2.2 bar を変換} );
+    is( ${ $res }[ 0 ], 220            , qq{   kPa: 220} );
+    is( ${ $res }[ 1 ],   2.243384     , qq{kg/cm2:   2.243384} );
+    is( ${ $res }[ 2 ],  31.90836      , qq{   PSI:  31.90836} );
+    is( ${ $res }[ 3 ],   2.2          , qq{   bar:   2.2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3233,7 +3233,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{laptimer( 0 ) => 0} );
+    is( $res, 0, qq{laptimer( 0 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3244,16 +3244,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2725.2, qq{telemeter_m( 8 ) => 2725.2} );
+    is( $res, 2725.2, qq{telemeter_m( 8 ) => 2725.2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{telemeter_km( 8 )} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, q{./c 'telemeter_km( 8 )'} );
     $t->has_no_exception();
-    equal( $res, 2.7252, qq{telemeter_km( 8 ) => 2.7252} );
+    is( $res, 2.7252, qq{telemeter_km( 8 ) => 2.7252} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3262,7 +3262,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2749.6, qq{telemeter( 8, 20 ) => 2749.6} );
+    is( $res, 2749.6, qq{telemeter( 8, 20 ) => 2749.6} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3271,7 +3271,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.100258843723, qq{exp( -2.3 ) => 0.100258843723} );
+    is( $res, 0.100258843723, qq{exp( -2.3 ) => 0.100258843723} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3280,7 +3280,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.135335283237, qq{exp( -2 ) => 0.135335283237} );
+    is( $res, 0.135335283237, qq{exp( -2 ) => 0.135335283237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3289,7 +3289,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.367879441171, qq{exp( -1 ) => 0.367879441171} );
+    is( $res, 0.367879441171, qq{exp( -1 ) => 0.367879441171} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3298,7 +3298,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{exp( 0 ) => 1} );
+    is( $res, 1, qq{exp( 0 ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3307,7 +3307,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2.71828182846, qq{exp( 1 ) => 2.71828182846} );
+    is( $res, 2.71828182846, qq{exp( 1 ) => 2.71828182846} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3316,7 +3316,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 7.38905609893, qq{exp( 2 ) => 7.38905609893} );
+    is( $res, 7.38905609893, qq{exp( 2 ) => 7.38905609893} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3325,7 +3325,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 9.97418245481, qq{exp( 2.3 ) => 9.97418245481} );
+    is( $res, 9.97418245481, qq{exp( 2.3 ) => 9.97418245481} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3334,10 +3334,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ], 0.367879441171, qq{exp( -1 ) => 0.367879441171} );
-    equal( ${ $res }[ 1 ], 1,              qq{exp(  0 ) => 1} );
-    equal( ${ $res }[ 2 ], 2.71828182846,  qq{exp(  1 ) => 2.71828182846} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ], 0.367879441171, qq{exp( -1 ) => 0.367879441171} );
+    is( ${ $res }[ 1 ], 1,              qq{exp(  0 ) => 1} );
+    is( ${ $res }[ 2 ], 2.71828182846,  qq{exp(  1 ) => 2.71828182846} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3346,7 +3346,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.09861228867, qq{log(3) => 1.09861228867} );
+    is( $res, 1.09861228867, qq{log(3) => 1.09861228867} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3380,7 +3380,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $t->has_no_exception();
-    equal( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    is( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
 
@@ -3391,10 +3391,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ], 2.30258509299, qq{log(   10 ) => 2.30258509299} );
-    equal( ${ $res }[ 1 ], 4.60517018599, qq{log(  100 ) => 4.60517018599} );
-    equal( ${ $res }[ 2 ], 6.90775527898, qq{log( 1000 ) => 6.90775527898} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ], 2.30258509299, qq{log(   10 ) => 2.30258509299} );
+    is( ${ $res }[ 1 ], 4.60517018599, qq{log(  100 ) => 4.60517018599} );
+    is( ${ $res }[ 2 ], 6.90775527898, qq{log( 1000 ) => 6.90775527898} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3403,7 +3403,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1024, qq{exp2( 10 ) => 1024} );
+    is( $res, 1024, qq{exp2( 10 ) => 1024} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3412,10 +3412,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ],        256, qq{exp2(  8 ) => 256} );
-    equal( ${ $res }[ 1 ],      65536, qq{exp2( 16 ) => 65536} );
-    equal( ${ $res }[ 2 ], 4294967296, qq{exp2( 32 ) => 4294967296} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ],        256, qq{exp2(  8 ) => 256} );
+    is( ${ $res }[ 1 ],      65536, qq{exp2( 16 ) => 65536} );
+    is( ${ $res }[ 2 ], 4294967296, qq{exp2( 32 ) => 4294967296} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3426,7 +3426,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 32, qq{log2( 4294967296 ) => 32} );
+    is( $res, 32, qq{log2( 4294967296 ) => 32} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3435,10 +3435,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ],  8, qq{log2(        256 ) =>  8} );
-    equal( ${ $res }[ 1 ], 16, qq{log2(      65536 ) => 16} );
-    equal( ${ $res }[ 2 ], 32, qq{log2( 4294967296 ) => 32} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ],  8, qq{log2(        256 ) =>  8} );
+    is( ${ $res }[ 1 ], 16, qq{log2(      65536 ) => 16} );
+    is( ${ $res }[ 2 ], 32, qq{log2( 4294967296 ) => 32} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3465,7 +3465,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 100000, qq{exp10( 5 ) => 100000} );
+    is( $res, 100000, qq{exp10( 5 ) => 100000} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3474,10 +3474,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ],   10, qq{exp10( 1 ) =>   10} );
-    equal( ${ $res }[ 1 ],  100, qq{exp10( 2 ) =>  100} );
-    equal( ${ $res }[ 2 ], 1000, qq{exp10( 3 ) => 1000} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ],   10, qq{exp10( 1 ) =>   10} );
+    is( ${ $res }[ 1 ],  100, qq{exp10( 2 ) =>  100} );
+    is( ${ $res }[ 2 ], 1000, qq{exp10( 3 ) => 1000} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3488,7 +3488,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 9.63295986125, qq{log10( 4294967296 ) => 9.63295986125} );
+    is( $res, 9.63295986125, qq{log10( 4294967296 ) => 9.63295986125} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3497,10 +3497,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{3回の一括処理} );
-    equal( ${ $res }[ 0 ], 1, qq{log10(   10 ) => 1} );
-    equal( ${ $res }[ 1 ], 2, qq{log10(  100 ) => 2} );
-    equal( ${ $res }[ 2 ], 3, qq{log10( 1000 ) => 3} );
+    is( scalar( @{ $res } ), 3, qq{3回の一括処理} );
+    is( ${ $res }[ 0 ], 1, qq{log10(   10 ) => 1} );
+    is( ${ $res }[ 1 ], 2, qq{log10(  100 ) => 2} );
+    is( ${ $res }[ 2 ], 3, qq{log10( 1000 ) => 3} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3534,7 +3534,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{${UV_bit_width}bit: perlの整数は固定幅ではないが基本は64bitが多いはず。} );
     $t->has_no_exception();
-    equal( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
+    is( $res, $UV_bit_width, qq{"~0+1": perlの整数は固定幅ではないので桁溢れしない。} );
     $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
 
@@ -3547,7 +3547,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2個のリストがあれば良し} );
+    is( scalar( @{ $res } ), 2, qq{2個のリストがあれば良し} );
     $t->stdout_is( $expect );
     $t->stderr_is( qq{} );
 
@@ -3558,7 +3558,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 32, qq{pow_inv( 4294967296, 2 ) => 32} );
+    is( $res, 32, qq{pow_inv( 4294967296, 2 ) => 32} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3567,7 +3567,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 32.0000000003, qq{pow_inv( 4294967297, 2 ) => 32.0000000003} );
+    is( $res, 32.0000000003, qq{pow_inv( 4294967297, 2 ) => 32.0000000003} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3576,7 +3576,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 62.8318530718, qq{2PI10 => 62.8318530718} );
+    is( $res, 62.8318530718, qq{2PI10 => 62.8318530718} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3585,7 +3585,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 62.8318530718, qq{2･PI･10 => 62.8318530718} );
+    is( $res, 62.8318530718, qq{2･PI･10 => 62.8318530718} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3594,7 +3594,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 62.8318530718, qq{２・ＰＩ・１０ => 62.8318530718} );
+    is( $res, 62.8318530718, qq{２・ＰＩ・１０ => 62.8318530718} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3605,7 +3605,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3, qq{15/5 => 3} );
+    is( $res, 3, qq{15/5 => 3} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3616,7 +3616,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{5%-1.0 => 0} );
+    is( $res, 0, qq{5%-1.0 => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3625,7 +3625,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.5, qq{5%-0.9 => 0.5} );
+    is( $res, 0.5, qq{5%-0.9 => 0.5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3636,7 +3636,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.5, qq{5%0.9 => 0.5} );
+    is( $res, 0.5, qq{5%0.9 => 0.5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3645,7 +3645,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{5%1.0 => 0} );
+    is( $res, 0, qq{5%1.0 => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3654,7 +3654,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{10 % 3 => 1} );
+    is( $res, 1, qq{10 % 3 => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3663,7 +3663,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{10 % -3 => 1} );
+    is( $res, 1, qq{10 % -3 => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3672,7 +3672,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -1, qq{-10 % 3 => -1} );
+    is( $res, -1, qq{-10 % 3 => -1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3681,7 +3681,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -1, qq{-10 % -3 => -1} );
+    is( $res, -1, qq{-10 % -3 => -1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3690,7 +3690,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.987, qq{10.987 % 3 => 1.987} );
+    is( $res, 1.987, qq{10.987 % 3 => 1.987} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3699,7 +3699,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -10, qq{-10 => -10} );
+    is( $res, -10, qq{-10 => -10} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3708,7 +3708,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{0 => 0} );
+    is( $res, 0, qq{0 => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3719,7 +3719,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1.234, qq{fmod( 10.234, 3 ) => 1.234} );
+    is( $res, 1.234, qq{fmod( 10.234, 3 ) => 1.234} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3728,7 +3728,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0.4, qq{fmod( 10, -1.2 ) => 0.4} );
+    is( $res, 0.4, qq{fmod( 10, -1.2 ) => 0.4} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3737,7 +3737,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 0 0 0 1 )} );
     $t->has_no_exception();
-    equal( $res, 0, qq{math_mod( -100, -10 ) => 0} );
+    is( $res, 0, qq{math_mod( -100, -10 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3764,7 +3764,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 0 0 1 1 )} );
     $t->has_no_exception();
-    equal( $res, -0.8, qq{math_mod( 10, -1.2 ) => -0.8} );
+    is( $res, -0.8, qq{math_mod( 10, -1.2 ) => -0.8} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3773,7 +3773,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 0 1 0 0 )} );
     $t->has_no_exception();
-    equal( $res, 0, qq{math_mod( -1.2, 1.2 ) => 0} );
+    is( $res, 0, qq{math_mod( -1.2, 1.2 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3782,7 +3782,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 0 1 1 0 )} );
     $t->has_no_exception();
-    equal( $res, 1.2, qq{math_mod( 1.2, 12.1 ) => 1.2} );
+    is( $res, 1.2, qq{math_mod( 1.2, 12.1 ) => 1.2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3793,7 +3793,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 1 0 0 1 )} );
     $t->has_no_exception();
-    equal( $res, -0.4, qq{math_mod( -10, -1.2 ) => -0.4} );
+    is( $res, -0.4, qq{math_mod( -10, -1.2 ) => -0.4} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3802,7 +3802,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{( A B C D ) = ( 1 1 0 0 )} );
     $t->has_no_exception();
-    equal( $res, 10.9, qq{math_mod( -1.2, 12.1 ) => 10.9} );
+    is( $res, 10.9, qq{math_mod( -1.2, 12.1 ) => 10.9} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3811,7 +3811,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 29.3577535428, qq{abs(-29.3577535427913) => 29.3577535428} );
+    is( $res, 29.3577535428, qq{abs(-29.3577535427913) => 29.3577535428} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3820,9 +3820,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2回の一括処理} );
-    equal( ${ $res }[ 0 ], 1.2, qq{abs( -1.2 ) => 1.2} );
-    equal( ${ $res }[ 1 ], 1.2, qq{abs(  1.2 ) => 1.2} );
+    is( scalar( @{ $res } ), 2, qq{2回の一括処理} );
+    is( ${ $res }[ 0 ], 1.2, qq{abs( -1.2 ) => 1.2} );
+    is( ${ $res }[ 1 ], 1.2, qq{abs(  1.2 ) => 1.2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3831,7 +3831,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3.33, qq{int(10/3*100+0.5)/100 => 3.33} );
+    is( $res, 3.33, qq{int(10/3*100+0.5)/100 => 3.33} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3840,9 +3840,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2回の一括処理} );
-    equal( ${ $res }[ 0 ], -1, qq{int( -1.2 ) => -1} );
-    equal( ${ $res }[ 1 ],  1, qq{int(  1.2 ) =>  1} );
+    is( scalar( @{ $res } ), 2, qq{2回の一括処理} );
+    is( ${ $res }[ 0 ], -1, qq{int( -1.2 ) => -1} );
+    is( ${ $res }[ 1 ],  1, qq{int(  1.2 ) =>  1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3851,7 +3851,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 192, qq{floor( 192.168 ) => 192} );
+    is( $res, 192, qq{floor( 192.168 ) => 192} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3860,7 +3860,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -193, qq{floor( -192.168 ) => -193} );
+    is( $res, -193, qq{floor( -192.168 ) => -193} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3869,9 +3869,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2回の一括処理} );
-    equal( ${ $res }[ 0 ], -2, qq{floor( -1.2 ) => -2} );
-    equal( ${ $res }[ 1 ],  1, qq{floor(  1.2 ) =>  1} );
+    is( scalar( @{ $res } ), 2, qq{2回の一括処理} );
+    is( ${ $res }[ 0 ], -2, qq{floor( -1.2 ) => -2} );
+    is( ${ $res }[ 1 ],  1, qq{floor(  1.2 ) =>  1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3880,7 +3880,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 193, qq{ceil( 192.168 ) => 193} );
+    is( $res, 193, qq{ceil( 192.168 ) => 193} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3889,7 +3889,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192, qq{ceil( -192.168 ) => -192} );
+    is( $res, -192, qq{ceil( -192.168 ) => -192} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3898,9 +3898,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2回の一括処理} );
-    equal( ${ $res }[ 0 ], -1, qq{ceil( -1.2 ) => -1} );
-    equal( ${ $res }[ 1 ],  2, qq{ceil(  1.2 ) =>  2} );
+    is( scalar( @{ $res } ), 2, qq{2回の一括処理} );
+    is( ${ $res }[ 0 ], -1, qq{ceil( -1.2 ) => -1} );
+    is( ${ $res }[ 1 ],  2, qq{ceil(  1.2 ) =>  2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3945,7 +3945,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 192.16, qq{rounddown( 192.168, 2 ) => 192.16} );
+    is( $res, 192.16, qq{rounddown( 192.168, 2 ) => 192.16} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3954,7 +3954,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 192.17, qq{round( 192.168, 2 ) => 192.17} );
+    is( $res, 192.17, qq{round( 192.168, 2 ) => 192.17} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3963,7 +3963,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 192.17, qq{roundup( 192.168, 2 ) => 192.17} );
+    is( $res, 192.17, qq{roundup( 192.168, 2 ) => 192.17} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3972,7 +3972,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.16, qq{rounddown( -192.168, 2 ) => -192.16} );
+    is( $res, -192.16, qq{rounddown( -192.168, 2 ) => -192.16} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3981,7 +3981,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.17, qq{round( -192.168, 2 ) => -192.17} );
+    is( $res, -192.17, qq{round( -192.168, 2 ) => -192.17} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3990,7 +3990,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.17, qq{roundup( -192.168, 2 ) => -192.17} );
+    is( $res, -192.17, qq{roundup( -192.168, 2 ) => -192.17} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -3999,7 +3999,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.168, qq{rounddown( -192.168, 3 ) => -192.168} );
+    is( $res, -192.168, qq{rounddown( -192.168, 3 ) => -192.168} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4008,7 +4008,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.168, qq{round( -192.168, 3 ) => -192.168} );
+    is( $res, -192.168, qq{round( -192.168, 3 ) => -192.168} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4017,7 +4017,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -192.168, qq{roundup( -192.168, 3 ) => -192.168} );
+    is( $res, -192.168, qq{roundup( -192.168, 3 ) => -192.168} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4026,14 +4026,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1  , qq{rounddown( -1  , 1 ) => -1  } );
-    equal( ${ $res }[ 1 ], -0.5, qq{rounddown( -0.5, 1 ) => -0.5} );
-    equal( ${ $res }[ 2 ], -0.4, qq{rounddown( -0.4, 1 ) => -0.4} );
-    equal( ${ $res }[ 3 ],  0  , qq{rounddown(  0  , 1 ) =>  0  } );
-    equal( ${ $res }[ 4 ],  0.4, qq{rounddown(  0.4, 1 ) =>  0.4} );
-    equal( ${ $res }[ 5 ],  0.5, qq{rounddown(  0.5, 1 ) =>  0.5} );
-    equal( ${ $res }[ 6 ],  1  , qq{rounddown(  1  , 1 ) =>  1  } );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1  , qq{rounddown( -1  , 1 ) => -1  } );
+    is( ${ $res }[ 1 ], -0.5, qq{rounddown( -0.5, 1 ) => -0.5} );
+    is( ${ $res }[ 2 ], -0.4, qq{rounddown( -0.4, 1 ) => -0.4} );
+    is( ${ $res }[ 3 ],  0  , qq{rounddown(  0  , 1 ) =>  0  } );
+    is( ${ $res }[ 4 ],  0.4, qq{rounddown(  0.4, 1 ) =>  0.4} );
+    is( ${ $res }[ 5 ],  0.5, qq{rounddown(  0.5, 1 ) =>  0.5} );
+    is( ${ $res }[ 6 ],  1  , qq{rounddown(  1  , 1 ) =>  1  } );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4042,14 +4042,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1  , qq{round( -1  , 1 ) => -1  } );
-    equal( ${ $res }[ 1 ], -0.5, qq{round( -0.5, 1 ) => -0.5} );
-    equal( ${ $res }[ 2 ], -0.4, qq{round( -0.4, 1 ) => -0.4} );
-    equal( ${ $res }[ 3 ],  0  , qq{round(  0  , 1 ) =>  0  } );
-    equal( ${ $res }[ 4 ],  0.4, qq{round(  0.4, 1 ) =>  0.4} );
-    equal( ${ $res }[ 5 ],  0.5, qq{round(  0.5, 1 ) =>  0.5} );
-    equal( ${ $res }[ 6 ],  1  , qq{round(  1  , 1 ) =>  1  } );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1  , qq{round( -1  , 1 ) => -1  } );
+    is( ${ $res }[ 1 ], -0.5, qq{round( -0.5, 1 ) => -0.5} );
+    is( ${ $res }[ 2 ], -0.4, qq{round( -0.4, 1 ) => -0.4} );
+    is( ${ $res }[ 3 ],  0  , qq{round(  0  , 1 ) =>  0  } );
+    is( ${ $res }[ 4 ],  0.4, qq{round(  0.4, 1 ) =>  0.4} );
+    is( ${ $res }[ 5 ],  0.5, qq{round(  0.5, 1 ) =>  0.5} );
+    is( ${ $res }[ 6 ],  1  , qq{round(  1  , 1 ) =>  1  } );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4058,14 +4058,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1  , qq{roundup( -1  , 1 ) => -1  } );
-    equal( ${ $res }[ 1 ], -0.5, qq{roundup( -0.5, 1 ) => -0.5} );
-    equal( ${ $res }[ 2 ], -0.4, qq{roundup( -0.4, 1 ) => -0.4} );
-    equal( ${ $res }[ 3 ],  0  , qq{roundup(  0  , 1 ) =>  0  } );
-    equal( ${ $res }[ 4 ],  0.4, qq{roundup(  0.4, 1 ) =>  0.4} );
-    equal( ${ $res }[ 5 ],  0.5, qq{roundup(  0.5, 1 ) =>  0.5} );
-    equal( ${ $res }[ 6 ],  1  , qq{roundup(  1  , 1 ) =>  1  } );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1  , qq{roundup( -1  , 1 ) => -1  } );
+    is( ${ $res }[ 1 ], -0.5, qq{roundup( -0.5, 1 ) => -0.5} );
+    is( ${ $res }[ 2 ], -0.4, qq{roundup( -0.4, 1 ) => -0.4} );
+    is( ${ $res }[ 3 ],  0  , qq{roundup(  0  , 1 ) =>  0  } );
+    is( ${ $res }[ 4 ],  0.4, qq{roundup(  0.4, 1 ) =>  0.4} );
+    is( ${ $res }[ 5 ],  0.5, qq{roundup(  0.5, 1 ) =>  0.5} );
+    is( ${ $res }[ 6 ],  1  , qq{roundup(  1  , 1 ) =>  1  } );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4074,14 +4074,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1, qq{rounddown( -1  , 0 ) => -1} );
-    equal( ${ $res }[ 1 ],  0, qq{rounddown( -0.5, 0 ) =>  0} );
-    equal( ${ $res }[ 2 ],  0, qq{rounddown( -0.4, 0 ) =>  0} );
-    equal( ${ $res }[ 3 ],  0, qq{rounddown(  0  , 0 ) =>  0} );
-    equal( ${ $res }[ 4 ],  0, qq{rounddown(  0.4, 0 ) =>  0} );
-    equal( ${ $res }[ 5 ],  0, qq{rounddown(  0.5, 0 ) =>  0} );
-    equal( ${ $res }[ 6 ],  1, qq{rounddown(  1  , 0 ) =>  1} );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1, qq{rounddown( -1  , 0 ) => -1} );
+    is( ${ $res }[ 1 ],  0, qq{rounddown( -0.5, 0 ) =>  0} );
+    is( ${ $res }[ 2 ],  0, qq{rounddown( -0.4, 0 ) =>  0} );
+    is( ${ $res }[ 3 ],  0, qq{rounddown(  0  , 0 ) =>  0} );
+    is( ${ $res }[ 4 ],  0, qq{rounddown(  0.4, 0 ) =>  0} );
+    is( ${ $res }[ 5 ],  0, qq{rounddown(  0.5, 0 ) =>  0} );
+    is( ${ $res }[ 6 ],  1, qq{rounddown(  1  , 0 ) =>  1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4090,14 +4090,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1, qq{round( -1  , 0 ) => -1} );
-    equal( ${ $res }[ 1 ], -1, qq{round( -0.5, 0 ) => -1} );
-    equal( ${ $res }[ 2 ],  0, qq{round( -0.4, 0 ) =>  0} );
-    equal( ${ $res }[ 3 ],  0, qq{round(  0  , 0 ) =>  0} );
-    equal( ${ $res }[ 4 ],  0, qq{round(  0.4, 0 ) =>  0} );
-    equal( ${ $res }[ 5 ],  1, qq{round(  0.5, 0 ) =>  1} );
-    equal( ${ $res }[ 6 ],  1, qq{round(  1  , 0 ) =>  1} );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1, qq{round( -1  , 0 ) => -1} );
+    is( ${ $res }[ 1 ], -1, qq{round( -0.5, 0 ) => -1} );
+    is( ${ $res }[ 2 ],  0, qq{round( -0.4, 0 ) =>  0} );
+    is( ${ $res }[ 3 ],  0, qq{round(  0  , 0 ) =>  0} );
+    is( ${ $res }[ 4 ],  0, qq{round(  0.4, 0 ) =>  0} );
+    is( ${ $res }[ 5 ],  1, qq{round(  0.5, 0 ) =>  1} );
+    is( ${ $res }[ 6 ],  1, qq{round(  1  , 0 ) =>  1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4106,14 +4106,14 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 7, qq{7回の一括処理} );
-    equal( ${ $res }[ 0 ], -1, qq{roundup( -1  , 0 ) => -1} );
-    equal( ${ $res }[ 1 ], -1, qq{roundup( -0.5, 0 ) => -1} );
-    equal( ${ $res }[ 2 ], -1, qq{roundup( -0.4, 0 ) => -1} );
-    equal( ${ $res }[ 3 ],  0, qq{roundup(  0  , 0 ) =>  0} );
-    equal( ${ $res }[ 4 ],  1, qq{roundup(  0.4, 0 ) =>  1} );
-    equal( ${ $res }[ 5 ],  1, qq{roundup(  0.5, 0 ) =>  1} );
-    equal( ${ $res }[ 6 ],  1, qq{roundup(  1  , 0 ) =>  1} );
+    is( scalar( @{ $res } ), 7, qq{7回の一括処理} );
+    is( ${ $res }[ 0 ], -1, qq{roundup( -1  , 0 ) => -1} );
+    is( ${ $res }[ 1 ], -1, qq{roundup( -0.5, 0 ) => -1} );
+    is( ${ $res }[ 2 ], -1, qq{roundup( -0.4, 0 ) => -1} );
+    is( ${ $res }[ 3 ],  0, qq{roundup(  0  , 0 ) =>  0} );
+    is( ${ $res }[ 4 ],  1, qq{roundup(  0.4, 0 ) =>  1} );
+    is( ${ $res }[ 5 ],  1, qq{roundup(  0.5, 0 ) =>  1} );
+    is( ${ $res }[ 6 ],  1, qq{roundup(  1  , 0 ) =>  1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4122,7 +4122,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 66.6666666667, qq{percentage( 2, 3 ) => 66.6666666667} );
+    is( $res, 66.6666666667, qq{percentage( 2, 3 ) => 66.6666666667} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4131,7 +4131,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 66.7, qq{percentage( 2, 3, 1 ) => 66.7} );
+    is( $res, 66.7, qq{percentage( 2, 3, 1 ) => 66.7} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4140,7 +4140,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 67, qq{percentage( 2, 3, 0 ) => 67} );
+    is( $res, 67, qq{percentage( 2, 3, 0 ) => 67} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4149,7 +4149,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 70, qq{percentage( 2, 3, -1 ) => 70} );
+    is( $res, 70, qq{percentage( 2, 3, -1 ) => 70} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4185,7 +4185,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 66.6666666667, qq{ratio_scaling( 3, 10, 20 ) => 66.6666666667} );
+    is( $res, 66.6666666667, qq{ratio_scaling( 3, 10, 20 ) => 66.6666666667} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4194,7 +4194,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 66.7, qq{ratio_scaling( 3, 10, 20, 1 ) => 66.7} );
+    is( $res, 66.7, qq{ratio_scaling( 3, 10, 20, 1 ) => 66.7} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4212,7 +4212,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{29は素数} );
+    is( $res, 1, qq{29は素数} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4221,7 +4221,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{小数点付きの数は素数ではない} );
+    is( $res, 0, qq{小数点付きの数は素数ではない} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4230,7 +4230,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{2未満の数は素数ではない} );
+    is( $res, 0, qq{2未満の数は素数ではない} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4239,7 +4239,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{2は素数} );
+    is( $res, 1, qq{2は素数} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4248,7 +4248,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{2以外の偶数は素数ではない} );
+    is( $res, 0, qq{2以外の偶数は素数ではない} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4257,7 +4257,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{32bitクラスの整数（素数）} );
+    is( $res, 1, qq{32bitクラスの整数（素数）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4266,7 +4266,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{32bitクラスの整数（非素数）} );
+    is( $res, 0, qq{32bitクラスの整数（非素数）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4275,9 +4275,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{2回の一括処理} );
-    equal( ${ $res }[ 0 ], 1, qq{is_prime( 1576770817 ) => 1} );
-    equal( ${ $res }[ 1 ], 0, qq{is_prime( 1576770818 ) => 0} );
+    is( scalar( @{ $res } ), 2, qq{2回の一括処理} );
+    is( ${ $res }[ 0 ], 1, qq{is_prime( 1576770817 ) => 1} );
+    is( ${ $res }[ 1 ], 0, qq{is_prime( 1576770818 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4286,13 +4286,13 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{prime_factorize( 1234567890 )} );
-    equal( ${ $res }[ 0 ], 2 );
-    equal( ${ $res }[ 1 ], 3 );
-    equal( ${ $res }[ 2 ], 3 );
-    equal( ${ $res }[ 3 ], 5 );
-    equal( ${ $res }[ 4 ], 3607 );
-    equal( ${ $res }[ 5 ], 3803 );
+    is( scalar( @{ $res } ), 6, qq{prime_factorize( 1234567890 )} );
+    is( ${ $res }[ 0 ], 2 );
+    is( ${ $res }[ 1 ], 3 );
+    is( ${ $res }[ 2 ], 3 );
+    is( ${ $res }[ 3 ], 5 );
+    is( ${ $res }[ 4 ], 3607 );
+    is( ${ $res }[ 5 ], 3803 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4301,12 +4301,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 32, qq{prime_factorize( 2 ** 32 )} );
-    equal( ${ $res }[ 0 ], 2 );
-    equal( ${ $res }[ 1 ], 2 );
-    equal( ${ $res }[ 15 ], 2 );
-    equal( ${ $res }[ 30 ], 2 );
-    equal( ${ $res }[ 31 ], 2 );
+    is( scalar( @{ $res } ), 32, qq{prime_factorize( 2 ** 32 )} );
+    is( ${ $res }[ 0 ], 2 );
+    is( ${ $res }[ 1 ], 2 );
+    is( ${ $res }[ 15 ], 2 );
+    is( ${ $res }[ 30 ], 2 );
+    is( ${ $res }[ 31 ], 2 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4315,12 +4315,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5, qq{prime_factorize( ( 2 ** 32 ) - 1 )} );
-    equal( ${ $res }[ 0 ], 3 );
-    equal( ${ $res }[ 1 ], 5 );
-    equal( ${ $res }[ 2 ], 17 );
-    equal( ${ $res }[ 3 ], 257 );
-    equal( ${ $res }[ 4 ], 65537 );
+    is( scalar( @{ $res } ), 5, qq{prime_factorize( ( 2 ** 32 ) - 1 )} );
+    is( ${ $res }[ 0 ], 3 );
+    is( ${ $res }[ 1 ], 5 );
+    is( ${ $res }[ 2 ], 17 );
+    is( ${ $res }[ 3 ], 257 );
+    is( ${ $res }[ 4 ], 65537 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4329,7 +4329,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 2, qq{prime_factorize( 2 ) => 2} );
+    is( $res, 2, qq{prime_factorize( 2 ) => 2} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4365,7 +4365,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{\$UV_bit_width="$UV_bit_width"} );
     $t->has_no_exception();
-    t_like( $res, qr/^\d+$/ );
+    like( $res, qr/^\d+$/ );
     $t->stdout_like( $expect );
     $t->stderr_is( qq{} );
 
@@ -4374,7 +4374,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    t_like( $res, qr/^\d+$/ );
+    like( $res, qr/^\d+$/ );
     $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
 
@@ -4383,7 +4383,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    t_like( $res, qr/^\d+$/ );
+    like( $res, qr/^\d+$/ );
     $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
 
@@ -4392,7 +4392,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    t_like( $res, qr/^\d+$/ );
+    like( $res, qr/^\d+$/ );
     $t->stdout_like( qr/^ Result: \d+ \[ = 0x[\dA-F]{1,6} \]$/ );
     $t->stderr_is( qq{} );
 
@@ -4430,7 +4430,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{gcd( 0 ) => 0} );
+    is( $res, 0, qq{gcd( 0 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4439,7 +4439,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 138, qq{gcd( 138 ) => 138} );
+    is( $res, 138, qq{gcd( 138 ) => 138} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4448,7 +4448,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 120, qq{gcd( 2040, 1920, 1080 ) => 120} );
+    is( $res, 120, qq{gcd( 2040, 1920, 1080 ) => 120} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4457,7 +4457,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 17280, qq{lcm( 1920, 1080 ) => 17280} );
+    is( $res, 17280, qq{lcm( 1920, 1080 ) => 17280} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4466,7 +4466,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{lcm( 100, 0, 0 ) => 0} );
+    is( $res, 0, qq{lcm( 100, 0, 0 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4475,7 +4475,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'rand(-10)'} );
     $t->has_no_exception();
-    t_like( $res, qr/^\-[0-9]\.\d+$/ );
+    like( $res, qr/^\-[0-9]\.\d+$/ );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4484,7 +4484,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'rand(0)'} );
     $t->has_no_exception();
-    t_like( $res, qr/^0\.\d+$/ );
+    like( $res, qr/^0\.\d+$/ );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4493,7 +4493,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'rand(10)'} );
     $t->has_no_exception();
-    t_like( $res, qr/^[0-9]\.\d+$/ );
+    like( $res, qr/^[0-9]\.\d+$/ );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4538,12 +4538,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'int( rand( 6, 5 ) )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5 );
-    t_like( ${ $res }[ 0 ], qr/^[012345]$/ );
-    t_like( ${ $res }[ 1 ], qr/^[012345]$/ );
-    t_like( ${ $res }[ 2 ], qr/^[012345]$/ );
-    t_like( ${ $res }[ 3 ], qr/^[012345]$/ );
-    t_like( ${ $res }[ 4 ], qr/^[012345]$/ );
+    is( scalar( @{ $res } ), 5 );
+    like( ${ $res }[ 0 ], qr/^[012345]$/ );
+    like( ${ $res }[ 1 ], qr/^[012345]$/ );
+    like( ${ $res }[ 2 ], qr/^[012345]$/ );
+    like( ${ $res }[ 3 ], qr/^[012345]$/ );
+    like( ${ $res }[ 4 ], qr/^[012345]$/ );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4588,7 +4588,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{ncr( 1.0, 2.0 ) => 0} );
+    is( $res, 0, qq{ncr( 1.0, 2.0 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4597,7 +4597,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 21, qq{ncr( 7.0, 2.0 ) => 21} );
+    is( $res, 21, qq{ncr( 7.0, 2.0 ) => 21} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4615,7 +4615,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5, qq{min( 5 ) => 5} );
+    is( $res, 5, qq{min( 5 ) => 5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4624,7 +4624,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5, qq{max( 5 ) => 5} );
+    is( $res, 5, qq{max( 5 ) => 5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4633,7 +4633,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{min( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 1} );
+    is( $res, 1, qq{min( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4642,7 +4642,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 9, qq{max( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 9} );
+    is( $res, 9, qq{max( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 9} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4651,7 +4651,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{min( 5, 4, 3, min( 5, 4, 3, 1, 2, 9, 8, 7, 6 ), 2, 9, 8, 7, 6 ) => 1} );
+    is( $res, 1, qq{min( 5, 4, 3, min( 5, 4, 3, 1, 2, 9, 8, 7, 6 ), 2, 9, 8, 7, 6 ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4660,7 +4660,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 9, qq{max( 5, 4, 3, max( 5, 4, 3, 1, 2, 9, 8, 7, 6 ), 2, 9, 8, 7, 6 ) => 9} );
+    is( $res, 9, qq{max( 5, 4, 3, max( 5, 4, 3, 1, 2, 9, 8, 7, 6 ), 2, 9, 8, 7, 6 ) => 9} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4671,12 +4671,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9 );
+    is( scalar( @{ $res } ), 9 );
     ok( !( ( ( ${ $res }[ 0 ] + ${ $res }[ 1 ] ) == 9 ) &&
            ( ( ${ $res }[ 2 ] + ${ $res }[ 3 ] ) == 4 ) &&
            ( ( ${ $res }[ 5 ] + ${ $res }[ 6 ] ) == 17 ) &&
            ( ( ${ $res }[ 7 ] + ${ $res }[ 8 ] ) == 13 ) ) );
-    equal( $$res[ 0 ] + $$res[ 1 ] + $$res[ 2 ] + $$res[ 3 ] + $$res[ 4 ] + $$res[ 5 ] + $$res[ 6 ] + $$res[ 7 ] + $$res[ 8 ], 45 );
+    is( $$res[ 0 ] + $$res[ 1 ] + $$res[ 2 ] + $$res[ 3 ] + $$res[ 4 ] + $$res[ 5 ] + $$res[ 6 ] + $$res[ 7 ] + $$res[ 8 ], 45 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4685,7 +4685,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1, qq{min( shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ) => 1} );
+    is( $res, 1, qq{min( shuffle( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ) => 1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4721,7 +4721,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'sample( 222.0, 111.0 )'} );
     $t->has_no_exception();
-    equal( $res, 222 );
+    is( $res, 222 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: sample\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
 
@@ -4739,7 +4739,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'sample( 333.1, 222.0, 111.0, 3 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
+    is( scalar( @{ $res } ), 3 );
     ok( ${ $res }[ 0 ] == 333.1 || ${ $res }[ 0 ] == 222 || ${ $res }[ 0 ] == 111, qq{[ 0 ] = "${ $res }[ 0 ]"} );
     ok( ${ $res }[ 1 ] == 333.1 || ${ $res }[ 1 ] == 222 || ${ $res }[ 1 ] == 111, qq{[ 1 ] = "${ $res }[ 1 ]"} );
     ok( ${ $res }[ 2 ] == 333.1 || ${ $res }[ 2 ] == 222 || ${ $res }[ 2 ] == 111, qq{[ 2 ] = "${ $res }[ 2 ]"} );
@@ -4751,7 +4751,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5, qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 5} );
+    is( $res, 5, qq{first( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) => 5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4787,7 +4787,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'head( 222.0, 111.0 )'} );
     $t->has_no_exception();
-    equal( $res, 222 );
+    is( $res, 222 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: head\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
 
@@ -4796,7 +4796,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'head( 222.0, 111.0, 1 )'} );
     $t->has_no_exception();
-    equal( $res, 222 );
+    is( $res, 222 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4805,10 +4805,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'head( 333.1, 222.0, 111.0, 3 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 333.1 );
-    equal( ${ $res }[ 1 ], 222 );
-    equal( ${ $res }[ 2 ], 111 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 333.1 );
+    is( ${ $res }[ 1 ], 222 );
+    is( ${ $res }[ 2 ], 111 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4844,7 +4844,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'tail( 222.0, 111.0 )'} );
     $t->has_no_exception();
-    equal( $res, 222 );
+    is( $res, 222 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: tail\(\): The specified quantity is 111, but the quantity obtained is 1\.\n/ );
 
@@ -4853,7 +4853,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'tail( 222.0, 111.0, 1 )'} );
     $t->has_no_exception();
-    equal( $res, 111 );
+    is( $res, 111 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4862,10 +4862,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'tail( 333.1, 222.0, 111.0, 3 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 333.1 );
-    equal( ${ $res }[ 1 ], 222 );
-    equal( ${ $res }[ 2 ], 111 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 333.1 );
+    is( ${ $res }[ 1 ], 222 );
+    is( ${ $res }[ 2 ], 111 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4928,10 +4928,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'slice( 2025, 12, 16, 0, 4 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 2025 );
-    equal( ${ $res }[ 1 ], 12 );
-    equal( ${ $res }[ 2 ], 16 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 2025 );
+    is( ${ $res }[ 1 ], 12 );
+    is( ${ $res }[ 2 ], 16 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: \$length=4: Decrease the value of \$length\.\n/ );
 
@@ -4940,9 +4940,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'slice( 2025, 12, 16, -2, 3 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2 );
-    equal( ${ $res }[ 0 ], 12 );
-    equal( ${ $res }[ 1 ], 16 );
+    is( scalar( @{ $res } ), 2 );
+    is( ${ $res }[ 0 ], 12 );
+    is( ${ $res }[ 1 ], 16 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: \$length=3: Decrease the value of \$length\.\n/ );
 
@@ -4951,10 +4951,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{年月日} );
-    equal( ${ $res }[ 0 ], 2025 );
-    equal( ${ $res }[ 1 ], 12 );
-    equal( ${ $res }[ 2 ], 16 );
+    is( scalar( @{ $res } ), 3, qq{年月日} );
+    is( ${ $res }[ 0 ], 2025 );
+    is( ${ $res }[ 1 ], 12 );
+    is( ${ $res }[ 2 ], 16 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4963,7 +4963,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 16, qq{slice( 2025, 12, 16, -1, 1 ) => 16} );
+    is( $res, 16, qq{slice( 2025, 12, 16, -1, 1 ) => 16} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4972,16 +4972,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9 );
-    equal( ${ $res }[ 0 ], 5 );
-    equal( ${ $res }[ 1 ], 4 );
-    equal( ${ $res }[ 2 ], 3 );
-    equal( ${ $res }[ 3 ], 1 );
-    equal( ${ $res }[ 4 ], 2 );
-    equal( ${ $res }[ 5 ], 9 );
-    equal( ${ $res }[ 6 ], 8 );
-    equal( ${ $res }[ 7 ], 7 );
-    equal( ${ $res }[ 8 ], 6 );
+    is( scalar( @{ $res } ), 9 );
+    is( ${ $res }[ 0 ], 5 );
+    is( ${ $res }[ 1 ], 4 );
+    is( ${ $res }[ 2 ], 3 );
+    is( ${ $res }[ 3 ], 1 );
+    is( ${ $res }[ 4 ], 2 );
+    is( ${ $res }[ 5 ], 9 );
+    is( ${ $res }[ 6 ], 8 );
+    is( ${ $res }[ 7 ], 7 );
+    is( ${ $res }[ 8 ], 6 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -4990,16 +4990,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9 );
-    equal( ${ $res }[ 0 ], 5 );
-    equal( ${ $res }[ 1 ], 4 );
-    equal( ${ $res }[ 2 ], 3 );
-    equal( ${ $res }[ 3 ], 1 );
-    equal( ${ $res }[ 4 ], 2 );
-    equal( ${ $res }[ 5 ], 9 );
-    equal( ${ $res }[ 6 ], 8 );
-    equal( ${ $res }[ 7 ], 7 );
-    equal( ${ $res }[ 8 ], 6 );
+    is( scalar( @{ $res } ), 9 );
+    is( ${ $res }[ 0 ], 5 );
+    is( ${ $res }[ 1 ], 4 );
+    is( ${ $res }[ 2 ], 3 );
+    is( ${ $res }[ 3 ], 1 );
+    is( ${ $res }[ 4 ], 2 );
+    is( ${ $res }[ 5 ], 9 );
+    is( ${ $res }[ 6 ], 8 );
+    is( ${ $res }[ 7 ], 7 );
+    is( ${ $res }[ 8 ], 6 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5008,7 +5008,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 9, qq{max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) => 9} );
+    is( $res, 9, qq{max( uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ) => 9} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5017,7 +5017,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 45, qq{sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) => 45} );
+    is( $res, 45, qq{sum( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) => 45} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5026,7 +5026,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 22.5, qq{sum( 0.1, 2.3, 4.5, 6.7, 8.9 ) => 22.5} );
+    is( $res, 22.5, qq{sum( 0.1, 2.3, 4.5, 6.7, 8.9 ) => 22.5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5035,7 +5035,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 3628800, qq{prod( linstep( 1, 1, 10 ) ) => 3628800} );
+    is( $res, 3628800, qq{prod( linstep( 1, 1, 10 ) ) => 3628800} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5044,7 +5044,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{prod( linstep( 0, 1, 10 ) ) => 0} );
+    is( $res, 0, qq{prod( linstep( 0, 1, 10 ) ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5053,7 +5053,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -945, qq{prod( linstep( -1, 2, 6 ) ) => -945} );
+    is( $res, -945, qq{prod( linstep( -1, 2, 6 ) ) => -945} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5062,7 +5062,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 5, qq{avg( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) => 5} );
+    is( $res, 5, qq{avg( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) => 5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5071,7 +5071,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 4.5, qq{avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) => 4.5} );
+    is( $res, 4.5, qq{avg( 0.1, 2.3, 4.5, 6.7, 8.9 ) => 4.5} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5089,9 +5089,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{add_each( 100, 200, -10 )} );
-    equal( ${ $res }[ 0 ],  90, qq{100 + -10} );
-    equal( ${ $res }[ 1 ], 190, qq{200 + -10} );
+    is( scalar( @{ $res } ), 2, qq{add_each( 100, 200, -10 )} );
+    is( ${ $res }[ 0 ],  90, qq{100 + -10} );
+    is( ${ $res }[ 1 ], 190, qq{200 + -10} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5109,9 +5109,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{mul_each( 210, 297, ( 1 / 25.4 ) * 300 )} );
-    equal( ${ $res }[ 0 ], 2480.31496063, qq{210 * ( ( 1 / 25.4 ) * 300 )} );
-    equal( ${ $res }[ 1 ], 3507.87401575, qq{297 * ( ( 1 / 25.4 ) * 300 )} );
+    is( scalar( @{ $res } ), 2, qq{mul_each( 210, 297, ( 1 / 25.4 ) * 300 )} );
+    is( ${ $res }[ 0 ], 2480.31496063, qq{210 * ( ( 1 / 25.4 ) * 300 )} );
+    is( ${ $res }[ 1 ], 3507.87401575, qq{297 * ( ( 1 / 25.4 ) * 300 )} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5138,10 +5138,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{div_each( 31080, 62370, 124740, 210 )} );
-    equal( ${ $res }[ 0 ], 148, qq{ 31080 / 210 = 148 } );
-    equal( ${ $res }[ 1 ], 297, qq{ 62370 / 210 = 297 } );
-    equal( ${ $res }[ 2 ], 594, qq{124740 / 210 = 594 } );
+    is( scalar( @{ $res } ), 3, qq{div_each( 31080, 62370, 124740, 210 )} );
+    is( ${ $res }[ 0 ], 148, qq{ 31080 / 210 = 148 } );
+    is( ${ $res }[ 1 ], 297, qq{ 62370 / 210 = 297 } );
+    is( ${ $res }[ 2 ], 594, qq{124740 / 210 = 594 } );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5168,10 +5168,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'simplify_ratio( 3, 1, 2 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 3 );
-    equal( ${ $res }[ 1 ], 1 );
-    equal( ${ $res }[ 2 ], 2 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 3 );
+    is( ${ $res }[ 1 ], 1 );
+    is( ${ $res }[ 2 ], 2 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: simplify_ratio\(\): Could not be simplified\.\n/ );
 
@@ -5180,10 +5180,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'simplify_ratio( 6, 10, 14 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 3 );
-    equal( ${ $res }[ 1 ], 5 );
-    equal( ${ $res }[ 2 ], 7 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 3 );
+    is( ${ $res }[ 1 ], 5 );
+    is( ${ $res }[ 2 ], 7 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5192,10 +5192,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'simplify_ratio( 9.876, pi, 1.2 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 987600000000000 );
-    equal( ${ $res }[ 1 ], 314159265358979 );
-    equal( ${ $res }[ 2 ], 120000000000000 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 987600000000000 );
+    is( ${ $res }[ 1 ], 314159265358979 );
+    is( ${ $res }[ 2 ], 120000000000000 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5222,10 +5222,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'normalize_ratio( 3, 1, 2 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 3 );
-    equal( ${ $res }[ 1 ], 1 );
-    equal( ${ $res }[ 2 ], 2 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 3 );
+    is( ${ $res }[ 1 ], 1 );
+    is( ${ $res }[ 2 ], 2 );
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/^c: tbl_prvdr: warn: normalize_ratio\(\): Could not be normalized\.\n/ );
 
@@ -5234,10 +5234,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'normalize_ratio( 6, 10, 14 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 1 );
-    equal( ${ $res }[ 1 ], 1.66666666667 );
-    equal( ${ $res }[ 2 ], 2.33333333333 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 1 );
+    is( ${ $res }[ 1 ], 1.66666666667 );
+    is( ${ $res }[ 2 ], 2.33333333333 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5246,10 +5246,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'normalize_ratio( 9.876, pi, 1.2 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3 );
-    equal( ${ $res }[ 0 ], 8.23 );
-    equal( ${ $res }[ 1 ], 2.61799387799 );
-    equal( ${ $res }[ 2 ], 1 );
+    is( scalar( @{ $res } ), 3 );
+    is( ${ $res }[ 0 ], 8.23 );
+    is( ${ $res }[ 1 ], 2.61799387799 );
+    is( ${ $res }[ 2 ], 1 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5303,10 +5303,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{linspace( 4, 10, 3 )} );
-    equal( ${ $res }[ 0 ],  4 );
-    equal( ${ $res }[ 1 ],  7 );
-    equal( ${ $res }[ 2 ], 10 );
+    is( scalar( @{ $res } ), 3, qq{linspace( 4, 10, 3 )} );
+    is( ${ $res }[ 0 ],  4 );
+    is( ${ $res }[ 1 ],  7 );
+    is( ${ $res }[ 2 ], 10 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5315,12 +5315,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5, qq{linspace( -10, 10, 5 )} );
-    equal( ${ $res }[ 0 ], -10 );
-    equal( ${ $res }[ 1 ],  -5 );
-    equal( ${ $res }[ 2 ],   0 );
-    equal( ${ $res }[ 3 ],   5 );
-    equal( ${ $res }[ 4 ],  10 );
+    is( scalar( @{ $res } ), 5, qq{linspace( -10, 10, 5 )} );
+    is( ${ $res }[ 0 ], -10 );
+    is( ${ $res }[ 1 ],  -5 );
+    is( ${ $res }[ 2 ],   0 );
+    is( ${ $res }[ 3 ],   5 );
+    is( ${ $res }[ 4 ],  10 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5329,12 +5329,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5, qq{linspace( 10, -10, 5 )} );
-    equal( ${ $res }[ 0 ],  10 );
-    equal( ${ $res }[ 1 ],   5 );
-    equal( ${ $res }[ 2 ],   0 );
-    equal( ${ $res }[ 3 ],  -5 );
-    equal( ${ $res }[ 4 ], -10 );
+    is( scalar( @{ $res } ), 5, qq{linspace( 10, -10, 5 )} );
+    is( ${ $res }[ 0 ],  10 );
+    is( ${ $res }[ 1 ],   5 );
+    is( ${ $res }[ 2 ],   0 );
+    is( ${ $res }[ 3 ],  -5 );
+    is( ${ $res }[ 4 ], -10 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5343,16 +5343,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9, qq{linspace( -10, 10, 9 )} );
-    equal( ${ $res }[ 0 ], -10   );
-    equal( ${ $res }[ 1 ],  -7.5 );
-    equal( ${ $res }[ 2 ],  -5   );
-    equal( ${ $res }[ 3 ],  -2.5 );
-    equal( ${ $res }[ 4 ],   0   );
-    equal( ${ $res }[ 5 ],   2.5 );
-    equal( ${ $res }[ 6 ],   5   );
-    equal( ${ $res }[ 7 ],   7.5 );
-    equal( ${ $res }[ 8 ],  10   );
+    is( scalar( @{ $res } ), 9, qq{linspace( -10, 10, 9 )} );
+    is( ${ $res }[ 0 ], -10   );
+    is( ${ $res }[ 1 ],  -7.5 );
+    is( ${ $res }[ 2 ],  -5   );
+    is( ${ $res }[ 3 ],  -2.5 );
+    is( ${ $res }[ 4 ],   0   );
+    is( ${ $res }[ 5 ],   2.5 );
+    is( ${ $res }[ 6 ],   5   );
+    is( ${ $res }[ 7 ],   7.5 );
+    is( ${ $res }[ 8 ],  10   );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5361,16 +5361,16 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 9, qq{linspace( -10, 10, 9, 0 )} );
-    equal( ${ $res }[ 0 ], -10 );
-    equal( ${ $res }[ 1 ],  -8 );
-    equal( ${ $res }[ 2 ],  -5 );
-    equal( ${ $res }[ 3 ],  -3 );
-    equal( ${ $res }[ 4 ],   0 );
-    equal( ${ $res }[ 5 ],   3 );
-    equal( ${ $res }[ 6 ],   5 );
-    equal( ${ $res }[ 7 ],   8 );
-    equal( ${ $res }[ 8 ],  10 );
+    is( scalar( @{ $res } ), 9, qq{linspace( -10, 10, 9, 0 )} );
+    is( ${ $res }[ 0 ], -10 );
+    is( ${ $res }[ 1 ],  -8 );
+    is( ${ $res }[ 2 ],  -5 );
+    is( ${ $res }[ 3 ],  -3 );
+    is( ${ $res }[ 4 ],   0 );
+    is( ${ $res }[ 5 ],   3 );
+    is( ${ $res }[ 6 ],   5 );
+    is( ${ $res }[ 7 ],   8 );
+    is( ${ $res }[ 8 ],  10 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5379,12 +5379,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5, qq{linspace( 0x64, 0xff, 5 )} );
-    equal( ${ $res }[ 0 ], 100 );
-    equal( ${ $res }[ 1 ], 138.75 );
-    equal( ${ $res }[ 2 ], 177.5  );
-    equal( ${ $res }[ 3 ], 216.25 );
-    equal( ${ $res }[ 4 ], 255 );
+    is( scalar( @{ $res } ), 5, qq{linspace( 0x64, 0xff, 5 )} );
+    is( ${ $res }[ 0 ], 100 );
+    is( ${ $res }[ 1 ], 138.75 );
+    is( ${ $res }[ 2 ], 177.5  );
+    is( ${ $res }[ 3 ], 216.25 );
+    is( ${ $res }[ 4 ], 255 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5395,10 +5395,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{linstep( 4, 10, 3 )} );
-    equal( ${ $res }[ 0 ],  4 );
-    equal( ${ $res }[ 1 ], 14 );
-    equal( ${ $res }[ 2 ], 24 );
+    is( scalar( @{ $res } ), 3, qq{linstep( 4, 10, 3 )} );
+    is( ${ $res }[ 0 ],  4 );
+    is( ${ $res }[ 1 ], 14 );
+    is( ${ $res }[ 2 ], 24 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5407,10 +5407,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{linstep( 4, -10, 3 )} );
-    equal( ${ $res }[ 0 ],   4 );
-    equal( ${ $res }[ 1 ],  -6 );
-    equal( ${ $res }[ 2 ], -16 );
+    is( scalar( @{ $res } ), 3, qq{linstep( 4, -10, 3 )} );
+    is( ${ $res }[ 0 ],   4 );
+    is( ${ $res }[ 1 ],  -6 );
+    is( ${ $res }[ 2 ], -16 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5446,7 +5446,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 4, qq{linstep( 4, -10, 1 ) => 4} );
+    is( $res, 4, qq{linstep( 4, -10, 1 ) => 4} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5455,10 +5455,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{linstep( -1.1, -1 sqrt( 2 ), 3 )} );
-    equal( ${ $res }[ 0 ], -1.1 );
-    equal( ${ $res }[ 1 ], -2.51421356237 );
-    equal( ${ $res }[ 2 ], -3.92842712475 );
+    is( scalar( @{ $res } ), 3, qq{linstep( -1.1, -1 sqrt( 2 ), 3 )} );
+    is( ${ $res }[ 0 ], -1.1 );
+    is( ${ $res }[ 1 ], -2.51421356237 );
+    is( ${ $res }[ 2 ], -3.92842712475 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5467,10 +5467,10 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{mul_growth( 0, 1, 10 )} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 9 ], 0 );
-    equal( $c->formula( qq{sum( } . join( ', ', @$res ) . qq{ )} ), 0, qq{全てゼロ} );
+    is( scalar( @{ $res } ), 10, qq{mul_growth( 0, 1, 10 )} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 9 ], 0 );
+    is( $c->formula( qq{sum( } . join( ', ', @$res ) . qq{ )} ), 0, qq{全てゼロ} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5506,7 +5506,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -100, qq{mul_growth( -100, 0, 1 ) => -100} );
+    is( $res, -100, qq{mul_growth( -100, 0, 1 ) => -100} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5517,9 +5517,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{mul_growth( 100, 0.5, 2 )} );
-    equal( ${ $res }[ 0 ], 100 );
-    equal( ${ $res }[ 1 ],  50 );
+    is( scalar( @{ $res } ), 2, qq{mul_growth( 100, 0.5, 2 )} );
+    is( ${ $res }[ 0 ], 100 );
+    is( ${ $res }[ 1 ],  50 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5528,12 +5528,12 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 5, qq{mul_growth( 4, 2, 5 )} );
-    equal( ${ $res }[ 0 ],  4 );
-    equal( ${ $res }[ 1 ],  8 );
-    equal( ${ $res }[ 2 ], 16 );
-    equal( ${ $res }[ 3 ], 32 );
-    equal( ${ $res }[ 4 ], 64 );
+    is( scalar( @{ $res } ), 5, qq{mul_growth( 4, 2, 5 )} );
+    is( ${ $res }[ 0 ],  4 );
+    is( ${ $res }[ 1 ],  8 );
+    is( ${ $res }[ 2 ], 16 );
+    is( ${ $res }[ 3 ], 32 );
+    is( ${ $res }[ 4 ], 64 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5542,17 +5542,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{gen_fibo_seq( 0, 1, 10 )} );
-    equal( ${ $res }[ 0 ],  0 );
-    equal( ${ $res }[ 1 ],  1 );
-    equal( ${ $res }[ 2 ],  1 );
-    equal( ${ $res }[ 3 ],  2 );
-    equal( ${ $res }[ 4 ],  3 );
-    equal( ${ $res }[ 5 ],  5 );
-    equal( ${ $res }[ 6 ],  8 );
-    equal( ${ $res }[ 7 ], 13 );
-    equal( ${ $res }[ 8 ], 21 );
-    equal( ${ $res }[ 9 ], 34 );
+    is( scalar( @{ $res } ), 10, qq{gen_fibo_seq( 0, 1, 10 )} );
+    is( ${ $res }[ 0 ],  0 );
+    is( ${ $res }[ 1 ],  1 );
+    is( ${ $res }[ 2 ],  1 );
+    is( ${ $res }[ 3 ],  2 );
+    is( ${ $res }[ 4 ],  3 );
+    is( ${ $res }[ 5 ],  5 );
+    is( ${ $res }[ 6 ],  8 );
+    is( ${ $res }[ 7 ], 13 );
+    is( ${ $res }[ 8 ], 21 );
+    is( ${ $res }[ 9 ], 34 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5561,17 +5561,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{gen_fibo_seq( 2, 1, 10 )} );
-    equal( ${ $res }[ 0 ],  2 );
-    equal( ${ $res }[ 1 ],  1 );
-    equal( ${ $res }[ 2 ],  3 );
-    equal( ${ $res }[ 3 ],  4 );
-    equal( ${ $res }[ 4 ],  7 );
-    equal( ${ $res }[ 5 ], 11 );
-    equal( ${ $res }[ 6 ], 18 );
-    equal( ${ $res }[ 7 ], 29 );
-    equal( ${ $res }[ 8 ], 47 );
-    equal( ${ $res }[ 9 ], 76 );
+    is( scalar( @{ $res } ), 10, qq{gen_fibo_seq( 2, 1, 10 )} );
+    is( ${ $res }[ 0 ],  2 );
+    is( ${ $res }[ 1 ],  1 );
+    is( ${ $res }[ 2 ],  3 );
+    is( ${ $res }[ 3 ],  4 );
+    is( ${ $res }[ 4 ],  7 );
+    is( ${ $res }[ 5 ], 11 );
+    is( ${ $res }[ 6 ], 18 );
+    is( ${ $res }[ 7 ], 29 );
+    is( ${ $res }[ 8 ], 47 );
+    is( ${ $res }[ 9 ], 76 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5580,17 +5580,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{gen_fibo_seq( -2, 5, 10 )} );
-    equal( ${ $res }[ 0 ],  -2 );
-    equal( ${ $res }[ 1 ],   5 );
-    equal( ${ $res }[ 2 ],   3 );
-    equal( ${ $res }[ 3 ],   8 );
-    equal( ${ $res }[ 4 ],  11 );
-    equal( ${ $res }[ 5 ],  19 );
-    equal( ${ $res }[ 6 ],  30 );
-    equal( ${ $res }[ 7 ],  49 );
-    equal( ${ $res }[ 8 ],  79 );
-    equal( ${ $res }[ 9 ], 128 );
+    is( scalar( @{ $res } ), 10, qq{gen_fibo_seq( -2, 5, 10 )} );
+    is( ${ $res }[ 0 ],  -2 );
+    is( ${ $res }[ 1 ],   5 );
+    is( ${ $res }[ 2 ],   3 );
+    is( ${ $res }[ 3 ],   8 );
+    is( ${ $res }[ 4 ],  11 );
+    is( ${ $res }[ 5 ],  19 );
+    is( ${ $res }[ 6 ],  30 );
+    is( ${ $res }[ 7 ],  49 );
+    is( ${ $res }[ 8 ],  79 );
+    is( ${ $res }[ 9 ], 128 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5626,9 +5626,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{gen_fibo_seq( -100, 100, 2 )} );
-    equal( ${ $res }[ 0 ], -100 );
-    equal( ${ $res }[ 1 ],  100 );
+    is( scalar( @{ $res } ), 2, qq{gen_fibo_seq( -100, 100, 2 )} );
+    is( ${ $res }[ 0 ], -100 );
+    is( ${ $res }[ 1 ],  100 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5637,17 +5637,17 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 10, qq{gen_fibo_seq( -5.4, 3.2, 10 )} );
-    equal( ${ $res }[ 0 ], -5.4 );
-    equal( ${ $res }[ 1 ],  3.2 );
-    equal( ${ $res }[ 2 ], -2.2 );
-    equal( ${ $res }[ 3 ],  1   );
-    equal( ${ $res }[ 4 ], -1.2 );
-    equal( ${ $res }[ 5 ], -0.2 );
-    equal( ${ $res }[ 6 ], -1.4 );
-    equal( ${ $res }[ 7 ], -1.6 );
-    equal( ${ $res }[ 8 ], -3   );
-    equal( ${ $res }[ 9 ], -4.6 );
+    is( scalar( @{ $res } ), 10, qq{gen_fibo_seq( -5.4, 3.2, 10 )} );
+    is( ${ $res }[ 0 ], -5.4 );
+    is( ${ $res }[ 1 ],  3.2 );
+    is( ${ $res }[ 2 ], -2.2 );
+    is( ${ $res }[ 3 ],  1   );
+    is( ${ $res }[ 4 ], -1.2 );
+    is( ${ $res }[ 5 ], -0.2 );
+    is( ${ $res }[ 6 ], -1.4 );
+    is( ${ $res }[ 7 ], -1.6 );
+    is( ${ $res }[ 8 ], -3   );
+    is( ${ $res }[ 9 ], -4.6 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5658,7 +5658,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
+    is( $res, 26.5650511771, qq{rad2deg(atan2(100, 200)) => 26.5650511771} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5676,9 +5676,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{paper_size( 0 )} );
-    equal( ${ $res }[ 0 ],  841 );
-    equal( ${ $res }[ 1 ], 1189 );
+    is( scalar( @{ $res } ), 2, qq{paper_size( 0 )} );
+    is( ${ $res }[ 0 ],  841 );
+    is( ${ $res }[ 1 ], 1189 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5687,9 +5687,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{paper_size( 4 )} );
-    equal( ${ $res }[ 0 ], 210 );
-    equal( ${ $res }[ 1 ], 297 );
+    is( scalar( @{ $res } ), 2, qq{paper_size( 4 )} );
+    is( ${ $res }[ 0 ], 210 );
+    is( ${ $res }[ 1 ], 297 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5698,9 +5698,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{paper_size( 19, 0 )} );
-    equal( ${ $res }[ 0 ], 1 );
-    equal( ${ $res }[ 1 ], 1 );
+    is( scalar( @{ $res } ), 2, qq{paper_size( 19, 0 )} );
+    is( ${ $res }[ 0 ], 1 );
+    is( ${ $res }[ 1 ], 1 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5727,9 +5727,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'paper_size( 20, 0 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{警告は出ても計算結果が得られること} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 1 );
+    is( scalar( @{ $res } ), 2, qq{警告は出ても計算結果が得られること} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 1 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{paper_size(): A20: The short side reaches 0 mm.\n} );
 
@@ -5738,9 +5738,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'paper_size( 100, 0 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{警告は出ても計算結果が得られること} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
+    is( scalar( @{ $res } ), 2, qq{警告は出ても計算結果が得られること} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{paper_size(): A20: The short side reaches 0 mm.\npaper_size(): A21: The long side reaches 0 mm.\n} );
 
@@ -5749,9 +5749,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{./c 'paper_size( 100, 1 )'} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{警告は出ても結果は得られること} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
+    is( scalar( @{ $res } ), 2, qq{警告は出ても結果は得られること} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{paper_size(): B21: The short side reaches 0 mm.\npaper_size(): B22: The long side reaches 0 mm.\n} );
 
@@ -5760,9 +5760,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{paper_size( 0, 1 )} );
-    equal( ${ $res }[ 0 ], 1030 );
-    equal( ${ $res }[ 1 ], 1456 );
+    is( scalar( @{ $res } ), 2, qq{paper_size( 0, 1 )} );
+    is( ${ $res }[ 0 ], 1030 );
+    is( ${ $res }[ 1 ], 1456 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5771,9 +5771,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{paper_size( 4, 1 )} );
-    equal( ${ $res }[ 0 ], 257 );
-    equal( ${ $res }[ 1 ], 364 );
+    is( scalar( @{ $res } ), 2, qq{paper_size( 4, 1 )} );
+    is( ${ $res }[ 0 ], 257 );
+    is( ${ $res }[ 1 ], 364 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5784,7 +5784,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 0, qq{() => 0} );
+    is( $res, 0, qq{() => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5795,9 +5795,9 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{( 1 + 2 + 3, 4 )} );
-    equal( ${ $res }[ 0 ], 6 );
-    equal( ${ $res }[ 1 ], 4 );
+    is( scalar( @{ $res } ), 2, qq{( 1 + 2 + 3, 4 )} );
+    is( ${ $res }[ 0 ], 6 );
+    is( ${ $res }[ 1 ], 4 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5808,7 +5808,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 100, qq{1+(2+(3+(4+(5+(6+((7+8*9))))))) => 100} );
+    is( $res, 100, qq{1+(2+(3+(4+(5+(6+((7+8*9))))))) => 100} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5819,7 +5819,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 12345678901.1, qq{12345678901 + 0.1234 => 12345678901.1} );
+    is( $res, 12345678901.1, qq{12345678901 + 0.1234 => 12345678901.1} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5828,7 +5828,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 123456789012, qq{123456789012 + 0.1234 => 123456789012} );
+    is( $res, 123456789012, qq{123456789012 + 0.1234 => 123456789012} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5837,7 +5837,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 1234567890123, qq{1234567890123 + 0.1234 => 1234567890123} );
+    is( $res, 1234567890123, qq{1234567890123 + 0.1234 => 1234567890123} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5846,7 +5846,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, -0.123456789012, qq{-0.1234567890123 => -0.123456789012} );
+    is( $res, -0.123456789012, qq{-0.1234567890123 => -0.123456789012} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -5862,7 +5862,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test', '-d' );
+            $status = pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test', '-d' );
         } );
         $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test -d} );
         $t->has_no_exception();
@@ -5884,7 +5884,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_like( qr/\nc: evaluator: error: "\*": Unexpected errors\.\n/, 'FormulaEvaluator' );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test' );
+            $status = pl_main( '1+(2+(3+(4+(5+(6+((7+8*9)))))))=', '--test-test' );
         } );
         $t->exit_is( 0, qq{./c '1+(2+(3+(4+(5+(6+((7+8*9)))))))=' --test-test} );
         $t->has_no_exception();
@@ -5914,7 +5914,7 @@ subtest qq{Require ./c} => sub {
         my $expect;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '2', '~1=' );
+            $status = pl_main( '2', '~1=' );
         } );
         $t->exit_is( 0, qq{./c '2' '~1='} );
         $t->has_no_exception();
@@ -5926,7 +5926,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123,456-59', '+', '123.456((3-2)*1+1+(1-3/3))=' );
+            $status = pl_main( '123,456-59', '+', '123.456((3-2)*1+1+(1-3/3))=' );
         } );
         $t->exit_is( 0, qq{./c 123,456-59 + '123.456((3-2)*1+1+(1-3/3))='} );
         $t->has_no_exception();
@@ -5934,7 +5934,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'timer( 1 )' );
+            $status = pl_main( 'timer( 1 )' );
         } );
         $t->exit_is( 0, qq{./c 'timer( 1 )'} );
         $t->has_no_exception();
@@ -5943,7 +5943,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( ' ', '2PI10=' );
+            $status = pl_main( ' ', '2PI10=' );
         } );
         $t->exit_is( 0, qq{./c ' ' '2PI10='} );
         $t->has_no_exception();
@@ -5951,7 +5951,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '2PI10=', ' ' );
+            $status = pl_main( '2PI10=', ' ' );
         } );
         $t->exit_is( 0, qq{./c '2PI10=' ' '} );
         $t->has_no_exception();
@@ -5959,7 +5959,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '2PI10=', ' ', '-d' );
+            $status = pl_main( '2PI10=', ' ', '-d' );
         } );
         $t->exit_is( 0, qq{./c '2PI10=' ' ' -d} );
         $t->has_no_exception();
@@ -5967,7 +5967,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123', '2(=' );
+            $status = pl_main( '123', '2(=' );
         } );
         $t->exit_isnt( 0, qq{./c '123' '2(='} );
         $t->has_exception();
@@ -5976,7 +5976,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123', '2(2=' );
+            $status = pl_main( '123', '2(2=' );
         } );
         $t->exit_isnt( 0, qq{./c '123' '2(2='} );
         $t->has_exception();
@@ -5985,7 +5985,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )', '-v' );
+            $status = pl_main( 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )', '-v' );
         } );
         $t->exit_is( 0, qq{./c 'min( rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ), rand( 10 ) )' -v} );
         $t->has_no_exception();
@@ -5994,7 +5994,7 @@ subtest qq{Require ./c} => sub {
 
         ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )', '-v' );
+            $status = pl_main( 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )', '-v' );
         } );
         $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
         $t->has_no_exception();
@@ -6002,7 +6002,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )', '-v' );
+            $status = pl_main( 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )', '-v' );
         } );
         $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
         $t->has_no_exception();
@@ -6011,7 +6011,7 @@ subtest qq{Require ./c} => sub {
         ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'sqrt(4)=', '=r' );
+            $status = pl_main( 'sqrt(4)=', '=r' );
         } );
         $t->exit_is( 0, qq{./c 'sqrt(4)=' =r} );
         $t->has_no_exception();
@@ -6025,7 +6025,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123', '-d' );
+            $status = pl_main( '123', '-d' );
         } );
         $t->exit_is( 0, qq{./c '123' -d} );
         $t->has_no_exception();
@@ -6033,7 +6033,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123', '--debug' );
+            $status = pl_main( '123', '--debug' );
         } );
         $t->exit_is( 0, qq{./c '123' --debug} );
         $t->has_no_exception();
@@ -6041,7 +6041,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '123', '-dv' );
+            $status = pl_main( '123', '-dv' );
         } );
         $t->exit_is( 0, qq{./c '123' -dv} );
         $t->has_no_exception();
@@ -6049,7 +6049,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-d', '-20-3*2(1+sqrt(4))=' );
+            $status = pl_main( '-d', '-20-3*2(1+sqrt(4))=' );
         } );
         $t->exit_is( 0, qq{./c -d '-20-3*2(1+sqrt(4))='} );
         $t->has_no_exception();
@@ -6065,7 +6065,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'sqrt(2**100)=', '-v' );
+            $status = pl_main( 'sqrt(2**100)=', '-v' );
         } );
         $t->exit_is( 0, qq{./c 'sqrt(2**100)=' -v} );
         $t->has_no_exception();
@@ -6075,7 +6075,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'sqrt(pow(2, 100)+pow(2, 100))=', '--verbose' );
+            $status = pl_main( 'sqrt(pow(2, 100)+pow(2, 100))=', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'sqrt(pow(2, 100)+pow(2, 100))=' --verbose} );
         $t->has_no_exception();
@@ -6083,7 +6083,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '0.22*10**(-6)=', '--verbose' );
+            $status = pl_main( '0.22*10**(-6)=', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c '0.22*10**(-6)=' --verbose} );
         $t->has_no_exception();
@@ -6091,7 +6091,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-v', '-20-3*2(1+sqrt(4))=' );
+            $status = pl_main( '-v', '-20-3*2(1+sqrt(4))=' );
         } );
         $t->exit_is( 0, qq{./c -v '-20-3*2(1+sqrt(4))='} );
         $t->has_no_exception();
@@ -6104,7 +6104,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '10*-3*-5+-4/2=', '--verbose' );
+            $status = pl_main( '10*-3*-5+-4/2=', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c '10*-3*-5+-4/2=' --verbose} );
         $t->has_no_exception();
@@ -6116,7 +6116,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--verbose', '0x0d*0xff/(-0x5*-0x0d)=' );
+            $status = pl_main( '--verbose', '0x0d*0xff/(-0x5*-0x0d)=' );
         } );
         $t->exit_is( 0, qq{./c --verbose '0x0d*0xff/(-0x5*-0x0d)='} );
         $t->has_no_exception();
@@ -6127,7 +6127,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'linstep( 0.00000022, -1, 2 )', '-v' );
+            $status = pl_main( 'linstep( 0.00000022, -1, 2 )', '-v' );
         } );
         $t->exit_is( 0, qq{./c 'linstep( 0.00000022, -1, 2 )' -v} );
         $t->has_no_exception();
@@ -6135,7 +6135,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'the_solar_system()', '--verbose' );
+            $status = pl_main( 'the_solar_system()', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
         $t->has_no_exception();
@@ -6171,7 +6171,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'the_solar_system( radius )', '--verbose' );
+            $status = pl_main( 'the_solar_system( radius )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
         $t->has_no_exception();
@@ -6207,7 +6207,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'km_per_h( 1 )', '--verbose' );
+            $status = pl_main( 'km_per_h( 1 )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'km_per_h( 1 )' --verbose} );
         $t->has_no_exception();
@@ -6225,7 +6225,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'mph( 1, kn )', '--verbose' );
+            $status = pl_main( 'mph( 1, kn )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'mph( 1, kn )' --verbose} );
         $t->has_no_exception();
@@ -6242,7 +6242,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'kPa( 221 )', '--verbose' );
+            $status = pl_main( 'kPa( 221 )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'kPa( 221 )' --verbose} );
         $t->has_no_exception();
@@ -6253,7 +6253,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'kgf_per_cm2( 2.25, PSI )', '--verbose' );
+            $status = pl_main( 'kgf_per_cm2( 2.25, PSI )', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c 'kgf_per_cm2( 2.25, PSI )' --verbose} );
         $t->has_no_exception();
@@ -6270,7 +6270,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '10*-3', '*-5+-4/2=', '-r' );
+            $status = pl_main( '10*-3', '*-5+-4/2=', '-r' );
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' -r} );
         $t->has_no_exception();
@@ -6278,7 +6278,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '10*-3', '*-5+-4/2=', '--rpn' );
+            $status = pl_main( '10*-3', '*-5+-4/2=', '--rpn' );
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn} );
         $t->has_no_exception();
@@ -6286,7 +6286,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '10*-3', '*-5+-4/2=', '--rpn', '--verbose' );
+            $status = pl_main( '10*-3', '*-5+-4/2=', '--rpn', '--verbose' );
         } );
         $t->exit_is( 0, qq{./c '10*-3' '*-5+-4/2=' --rpn --verbose} );
         $t->has_no_exception();
@@ -6301,7 +6301,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--version' );
+            $status = pl_main( '--version' );
         } );
         $t->exit_is( 0, qq{./c --version} );
         $t->has_no_exception();
@@ -6315,7 +6315,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-h' );
+            $status = pl_main( '-h' );
         } );
         $t->exit_is( 0, qq{./c -h} );
         $t->has_no_exception();
@@ -6323,7 +6323,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--help' );
+            $status = pl_main( '--help' );
         } );
         $t->exit_is( 0, qq{./c --help} );
         $t->has_no_exception();
@@ -6331,7 +6331,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--test-test', '--help' );
+            $status = pl_main( '--test-test', '--help' );
         } );
         $t->exit_is( 0, qq{./c --test-test --help} );
         $t->has_no_exception();
@@ -6346,7 +6346,7 @@ subtest qq{Require ./c} => sub {
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-b', 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )' );
+            $status = pl_main( '-b', 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )' );
         } );
         $t->exit_is( 0, qq{./c -b 's2d( d2s( 0, 24 / 29.53, 0, 0 ), 1 )'} );
         $t->has_no_exception();
@@ -6354,7 +6354,7 @@ subtest qq{Require ./c} => sub {
         $t->stderr_like( qr/\nC \-\- The Flat\-Text Calculator \(Perl Script\)\n/ );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--banner', 'paper_size( 4 )' );
+            $status = pl_main( '--banner', 'paper_size( 4 )' );
         } );
         $t->exit_is( 0, qq{./c --banner 'paper_size( 4 )'} );
         $t->has_no_exception();
@@ -6473,7 +6473,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for vector_angle()} );
     $t->has_no_exception();
-    equal( $res, 180, qq{ang_dist( -100, 100, 100, -100 ) => 180} );
+    is( $res, 180, qq{ang_dist( -100, 100, 100, -100 ) => 180} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6482,7 +6482,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for angle_between_points()} );
     $t->has_no_exception();
-    equal( $res, -135, qq{angle( 100, 100, 0, 0 ) => -135} );
+    is( $res, -135, qq{angle( 100, 100, 0, 0 ) => -135} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6491,7 +6491,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for vector_angle()} );
     $t->has_no_exception();
-    equal( $res, 180, qq{angular_distance( -100, 100, 100, -100 ) => 180} );
+    is( $res, 180, qq{angular_distance( -100, 100, 100, -100 ) => 180} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6500,11 +6500,11 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for dhms2dhms()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{d2d( 0, 24 / SAKUBOU )} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
-    equal( ${ $res }[ 2 ], 48 );
-    equal( ${ $res }[ 3 ], 45.7797882084 );
+    is( scalar( @{ $res } ), 4, qq{d2d( 0, 24 / SAKUBOU )} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
+    is( ${ $res }[ 2 ], 48 );
+    is( ${ $res }[ 3 ], 45.7797882084 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6513,7 +6513,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for dhms2sec()} );
     $t->has_no_exception();
-    equal( $res, 91425, qq{d2s( 1, 1:23:45 ) => 91425} );
+    is( $res, 91425, qq{d2s( 1, 1:23:45 ) => 91425} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6522,7 +6522,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for dist_between_points()} );
     $t->has_no_exception();
-    equal( $res, 141.421356237, qq{dist( 100, 100, 0, 0 ) => 141.421356237} );
+    is( $res, 141.421356237, qq{dist( 100, 100, 0, 0 ) => 141.421356237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6531,13 +6531,13 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for epoch2gmt()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{アポロ11号が月面に着陸した時: e2g( -14182940 )} );
-    equal( ${ $res }[ 0 ], 1969 );
-    equal( ${ $res }[ 1 ], 7 );
-    equal( ${ $res }[ 2 ], 20 );
-    equal( ${ $res }[ 3 ], 20 );
-    equal( ${ $res }[ 4 ], 17 );
-    equal( ${ $res }[ 5 ], 40 );
+    is( scalar( @{ $res } ), 6, qq{アポロ11号が月面に着陸した時: e2g( -14182940 )} );
+    is( ${ $res }[ 0 ], 1969 );
+    is( ${ $res }[ 1 ], 7 );
+    is( ${ $res }[ 2 ], 20 );
+    is( ${ $res }[ 3 ], 20 );
+    is( ${ $res }[ 4 ], 17 );
+    is( ${ $res }[ 5 ], 40 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6546,13 +6546,13 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for epoch2local()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{アポロ11号が月面に着陸した時: e2l( -14182940 )} );
-    equal( ${ $res }[ 0 ], 1969 );
-    equal( ${ $res }[ 1 ], 7 );
-    equal( ${ $res }[ 2 ], 21 );
-    equal( ${ $res }[ 3 ], 5 );
-    equal( ${ $res }[ 4 ], 17 );
-    equal( ${ $res }[ 5 ], 40 );
+    is( scalar( @{ $res } ), 6, qq{アポロ11号が月面に着陸した時: e2l( -14182940 )} );
+    is( ${ $res }[ 0 ], 1969 );
+    is( ${ $res }[ 1 ], 7 );
+    is( ${ $res }[ 2 ], 21 );
+    is( ${ $res }[ 3 ], 5 );
+    is( ${ $res }[ 4 ], 17 );
+    is( ${ $res }[ 5 ], 40 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6561,7 +6561,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for gmt2epoch()} );
     $t->has_no_exception();
-    equal( $res, -14182940, qq{アポロ11号が月面に着陸した時: g2e( 1969年7月20日 20時17分40秒 ) => -14182940} );
+    is( $res, -14182940, qq{アポロ11号が月面に着陸した時: g2e( 1969年7月20日 20時17分40秒 ) => -14182940} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6570,10 +6570,10 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo2xyz()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 3, qq{g2xyz( deg2rad( $deg_Tokyo_St ) )} );
-    equal( ${ $res }[ 0 ], -3959659.21279 );
-    equal( ${ $res }[ 1 ],  3350075.51702 );
-    equal( ${ $res }[ 2 ],  3699524.90488 );
+    is( scalar( @{ $res } ), 3, qq{g2xyz( deg2rad( $deg_Tokyo_St ) )} );
+    is( ${ $res }[ 0 ], -3959659.21279 );
+    is( ${ $res }[ 1 ],  3350075.51702 );
+    is( ${ $res }[ 2 ],  3699524.90488 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6582,7 +6582,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_rl_azimuth()} );
     $t->has_no_exception();
-    equal( $res, 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
+    is( $res, 216.733277422, qq{東京駅から昭和基地までの等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6591,7 +6591,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_azimuth()} );
     $t->has_no_exception();
-    equal( $res, 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
+    is( $res, 206.108012524, qq{東京駅から昭和基地までの方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6600,9 +6600,9 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_dist_km_and_azimuth()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14056.1311832, qq{大圏航路の距離（km）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{大圏航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14056.1311832, qq{大圏航路の距離（km）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{大圏航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6611,7 +6611,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_distance_km()} );
     $t->has_no_exception();
-    equal( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（大圏航路）（km）} );
+    is( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（大圏航路）（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6620,9 +6620,9 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_dist_m_and_azimuth()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14056131.1832, qq{大圏航路の距離（m）} );
-    equal( ${ $res }[ 1 ], 206.108012524, qq{大圏航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14056131.1832, qq{大圏航路の距離（m）} );
+    is( ${ $res }[ 1 ], 206.108012524, qq{大圏航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6631,7 +6631,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_distance_m()} );
     $t->has_no_exception();
-    equal( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（大圏航路）（m->km）} );
+    is( $res, 14056.1311832, qq{東京駅から昭和基地までの距離（大圏航路）（m->km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6640,9 +6640,9 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_rl_dist_km_and_azimuth()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14484.2565649, qq{等角航路の距離（km）} );
-    equal( ${ $res }[ 1 ], 216.733277422, qq{等角航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14484.2565649, qq{等角航路の距離（km）} );
+    is( ${ $res }[ 1 ], 216.733277422, qq{等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6651,7 +6651,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_rl_distance_km()} );
     $t->has_no_exception();
-    equal( $res, 14484.2565649, qq{東京駅から昭和基地までの距離（等角航路）（km）} );
+    is( $res, 14484.2565649, qq{東京駅から昭和基地までの距離（等角航路）（km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6660,9 +6660,9 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_rl_dist_m_and_azimuth()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
-    equal( ${ $res }[ 0 ], 14484256.5649, qq{等角航路の距離（m）} );
-    equal( ${ $res }[ 1 ], 216.733277422, qq{等角航路の方角（度）} );
+    is( scalar( @{ $res } ), 2, qq{東京駅から昭和基地まで} );
+    is( ${ $res }[ 0 ], 14484256.5649, qq{等角航路の距離（m）} );
+    is( ${ $res }[ 1 ], 216.733277422, qq{等角航路の方角（度）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6671,7 +6671,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for geo_rl_distance_m()} );
     $t->has_no_exception();
-    equal( $res, 14484.2565649, qq{東京駅から昭和基地までの距離（等角航路）（m->km）} );
+    is( $res, 14484.2565649, qq{東京駅から昭和基地までの距離（等角航路）（m->km）} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6680,7 +6680,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for kgf2newton()} );
     $t->has_no_exception();
-    equal( $res, 63.743225, qq{kgf2n( 6.5 ) => 63.743225} );
+    is( $res, 63.743225, qq{kgf2n( 6.5 ) => 63.743225} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6689,7 +6689,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for local2epoch()} );
     $t->has_no_exception();
-    equal( $res, -14182940, qq{アポロ11号が月面に着陸した時: l2e( 1969年7月21日 5時17分40秒 ) => -14182940} );
+    is( $res, -14182940, qq{アポロ11号が月面に着陸した時: l2e( 1969年7月21日 5時17分40秒 ) => -14182940} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6698,9 +6698,9 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for midpt_between_points()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 2, qq{midpt( 100, 100, 0, 0 )} );
-    equal( ${ $res }[ 0 ], 50 );
-    equal( ${ $res }[ 1 ], 50 );
+    is( scalar( @{ $res } ), 2, qq{midpt( 100, 100, 0, 0 )} );
+    is( ${ $res }[ 0 ], 50 );
+    is( ${ $res }[ 1 ], 50 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6709,7 +6709,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for math_mod()} );
     $t->has_no_exception();
-    equal( $res, -0.8, qq{mmod( 10, -1.2 ) => -0.8} );
+    is( $res, -0.8, qq{mmod( 10, -1.2 ) => -0.8} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6718,7 +6718,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for moon_age_instant()} );
     $t->has_no_exception();
-    equal( $res, 14.705978187, qq{moon_age_i( l2e( 2025, 12, 5, 12 ) ) => 14.705978187} );
+    is( $res, 14.705978187, qq{moon_age_i( l2e( 2025, 12, 5, 12 ) ) => 14.705978187} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6727,7 +6727,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for newton2kgf()} );
     $t->has_no_exception();
-    equal( $res, 6.52618376306, qq{n2kgf( 64 ) => 6.52618376306} );
+    is( $res, 6.52618376306, qq{n2kgf( 64 ) => 6.52618376306} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6736,11 +6736,11 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for normalize_ratio()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{./c 'nr( -100pi, -43, 0, 129 )'} );
-    equal( ${ $res }[ 0 ], -7.30602942695 );
-    equal( ${ $res }[ 1 ], -1 );
-    equal( ${ $res }[ 2 ],  0 );
-    equal( ${ $res }[ 3 ],  3 );
+    is( scalar( @{ $res } ), 4, qq{./c 'nr( -100pi, -43, 0, 129 )'} );
+    is( ${ $res }[ 0 ], -7.30602942695 );
+    is( ${ $res }[ 1 ], -1 );
+    is( ${ $res }[ 2 ],  0 );
+    is( ${ $res }[ 3 ],  3 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6749,7 +6749,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for percentage()} );
     $t->has_no_exception();
-    equal( $res, 66.7, qq{pct( 2, 3, 1 ) => 66.7} );
+    is( $res, 66.7, qq{pct( 2, 3, 1 ) => 66.7} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6758,13 +6758,13 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for prime_factorize()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 6, qq{pf( 1234567890 )} );
-    equal( ${ $res }[ 0 ], 2 );
-    equal( ${ $res }[ 1 ], 3 );
-    equal( ${ $res }[ 2 ], 3 );
-    equal( ${ $res }[ 3 ], 5 );
-    equal( ${ $res }[ 4 ], 3607 );
-    equal( ${ $res }[ 5 ], 3803 );
+    is( scalar( @{ $res } ), 6, qq{pf( 1234567890 )} );
+    is( ${ $res }[ 0 ], 2 );
+    is( ${ $res }[ 1 ], 3 );
+    is( ${ $res }[ 2 ], 3 );
+    is( ${ $res }[ 3 ], 5 );
+    is( ${ $res }[ 4 ], 3607 );
+    is( ${ $res }[ 5 ], 3803 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6773,7 +6773,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for pow()} );
     $t->has_no_exception();
-    equal( $res, 256, qq{power( 2, 8 ) => 256} );
+    is( $res, 256, qq{power( 2, 8 ) => 256} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6782,7 +6782,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for ratio_scaling()} );
     $t->has_no_exception();
-    equal( $res, 66.6666666667, qq{rs( 3, 10, 20 ) => 66.6666666667} );
+    is( $res, 66.6666666667, qq{rs( 3, 10, 20 ) => 66.6666666667} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6791,11 +6791,11 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for sec2dhms()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{s2d( 86400 + 7200 + 180 + 4 )} );
-    equal( ${ $res }[ 0 ], 1 );
-    equal( ${ $res }[ 1 ], 2 );
-    equal( ${ $res }[ 2 ], 3 );
-    equal( ${ $res }[ 3 ], 4 );
+    is( scalar( @{ $res } ), 4, qq{s2d( 86400 + 7200 + 180 + 4 )} );
+    is( ${ $res }[ 0 ], 1 );
+    is( ${ $res }[ 1 ], 2 );
+    is( ${ $res }[ 2 ], 3 );
+    is( ${ $res }[ 3 ], 4 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6804,11 +6804,11 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for simplify_ratio()} );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{./c 'sr( -100pi, -43, 0, 129 )'} );
-    equal( ${ $res }[ 0 ], -7306029426953 );
-    equal( ${ $res }[ 1 ], -1000000000000 );
-    equal( ${ $res }[ 2 ],              0 );
-    equal( ${ $res }[ 3 ],  3000000000000 );
+    is( scalar( @{ $res } ), 4, qq{./c 'sr( -100pi, -43, 0, 129 )'} );
+    is( ${ $res }[ 0 ], -7306029426953 );
+    is( ${ $res }[ 1 ], -1000000000000 );
+    is( ${ $res }[ 2 ],              0 );
+    is( ${ $res }[ 3 ],  3000000000000 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6817,7 +6817,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for vector_angle()} );
     $t->has_no_exception();
-    equal( $res, 0, qq{va( 100, 100, 100, 100 ) => 0} );
+    is( $res, 0, qq{va( 100, 100, 100, 100 ) => 0} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6827,7 +6827,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for ri2meter()} );
     $t->has_no_exception();
-    equal( $res, 3927.27272727, qq{里→メートル( 1 ) => 3927.27272727} );
+    is( $res, 3927.27272727, qq{里→メートル( 1 ) => 3927.27272727} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6836,7 +6836,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for meter2ri()} );
     $t->has_no_exception();
-    equal( $res, 1.01851851852, qq{メートル→里( 4000 ) => 1.01851851852} );
+    is( $res, 1.01851851852, qq{メートル→里( 4000 ) => 1.01851851852} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6845,7 +6845,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for mile2meter()} );
     $t->has_no_exception();
-    equal( $res, 1609.344, qq{マイル→メートル( 1 ) => 1609.344} );
+    is( $res, 1609.344, qq{マイル→メートル( 1 ) => 1609.344} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6854,7 +6854,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for meter2mile()} );
     $t->has_no_exception();
-    equal( $res, 1.24274238447, qq{メートル→マイル( 2000 ) => 1.24274238447} );
+    is( $res, 1.24274238447, qq{メートル→マイル( 2000 ) => 1.24274238447} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6863,7 +6863,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for nautical_mile2meter()} );
     $t->has_no_exception();
-    equal( $res, 1852, qq{海里→メートル( 1 ) => 1852} );
+    is( $res, 1852, qq{海里→メートル( 1 ) => 1852} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6872,7 +6872,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for meter2nautical_mile()} );
     $t->has_no_exception();
-    equal( $res, 1.07991360691, qq{メートル→海里( 2000 ) => 1.07991360691} );
+    is( $res, 1.07991360691, qq{メートル→海里( 2000 ) => 1.07991360691} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6881,7 +6881,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for pound2gram()} );
     $t->has_no_exception();
-    equal( $res, 453.59237, qq{ポンド→グラム( 1 ) => 453.59237} );
+    is( $res, 453.59237, qq{ポンド→グラム( 1 ) => 453.59237} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6890,7 +6890,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for gram2pound()} );
     $t->has_no_exception();
-    equal( $res, 1.10231131092, qq{グラム→ポンド( 500 ) => 1.10231131092} );
+    is( $res, 1.10231131092, qq{グラム→ポンド( 500 ) => 1.10231131092} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6899,7 +6899,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for ounce2gram()} );
     $t->has_no_exception();
-    equal( $res, 28.349523125, qq{オンス→グラム( 1 ) => 28.349523125} );
+    is( $res, 28.349523125, qq{オンス→グラム( 1 ) => 28.349523125} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6908,7 +6908,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for gram2ounce()} );
     $t->has_no_exception();
-    equal( $res, 1.05821885849, qq{グラム→オンス( 30 ) => 1.05821885849} );
+    is( $res, 1.05821885849, qq{グラム→オンス( 30 ) => 1.05821885849} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6917,7 +6917,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for kgf2newton()} );
     $t->has_no_exception();
-    equal( $res, 22.0649625, qq{キログラム重→ニュートン( 2.25 ) => 22.0649625} );
+    is( $res, 22.0649625, qq{キログラム重→ニュートン( 2.25 ) => 22.0649625} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6926,7 +6926,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for kgf2newton()} );
     $t->has_no_exception();
-    equal( $res, 24.516625, qq{キログラム→ニュートン( 2.5 ) => 24.516625} );
+    is( $res, 24.516625, qq{キログラム→ニュートン( 2.5 ) => 24.516625} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6935,7 +6935,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for newton2kgf()} );
     $t->has_no_exception();
-    equal( $res, 1.73351756206, qq{ニュートン→キログラム重( 17 ) => 1.73351756206} );
+    is( $res, 1.73351756206, qq{ニュートン→キログラム重( 17 ) => 1.73351756206} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6944,7 +6944,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0, qq{Alias for newton2kgf()} );
     $t->has_no_exception();
-    equal( $res, 2.03943242596, qq{ニュートン→キログラム( 20 ) => 2.03943242596} );
+    is( $res, 2.03943242596, qq{ニュートン→キログラム( 20 ) => 2.03943242596} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6954,11 +6954,11 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( scalar( @{ $res } ), 4, qq{日時分秒} );
-    equal( ${ $res }[ 0 ], 0 );
-    equal( ${ $res }[ 1 ], 0 );
-    equal( ${ $res }[ 2 ], 48 );
-    equal( ${ $res }[ 3 ], 45.78 );
+    is( scalar( @{ $res } ), 4, qq{日時分秒} );
+    is( ${ $res }[ 0 ], 0 );
+    is( ${ $res }[ 1 ], 0 );
+    is( ${ $res }[ 2 ], 48 );
+    is( ${ $res }[ 3 ], 45.78 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6967,7 +6967,7 @@ subtest qq{aliases (In-Proc Test)} => sub{
     } );
     $t->exit_is( 0 );
     $t->has_no_exception();
-    equal( $res, 66.564, qq{(90-CHIJIKU) => 66.564} );
+    is( $res, 66.564, qq{(90-CHIJIKU) => 66.564} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -7028,12 +7028,12 @@ subtest qq{-u, --user-defined} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $t->has_no_exception();
-    equal( $res, 403.822719846 );
+    is( $res, 403.822719846 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
     #`rm -f .c.rc`;
-    # ！ &CORE::unlink だと呼び出せないので注意 ！
+    # ！ CORE::unlink だと呼び出せないので注意 ！
     CORE::unlink( '.c.rc' );
 
     $t = tests::Tester->run_cmd( qq{./c -u} );
@@ -7068,7 +7068,7 @@ subtest qq{-u, --user-defined} => sub{
     $t->stdout_is( qq{} );
     $t->stderr_like( qr/c: lexer: error: .*\/\.c\.rc: Failed to load user rc file: / );
 
-    &CORE::rename( '.c.rc.duplicate', '.c.rc' );
+    CORE::rename( '.c.rc.duplicate', '.c.rc' );
 
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{_VERBOSE} );
@@ -7078,11 +7078,11 @@ subtest qq{-u, --user-defined} => sub{
     $c->formula( qq{_NO_VERBOSE} );
     $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )' -v} );
     $t->has_no_exception();
-    equal( $res, 403.822719846 );
+    is( $res, 403.822719846 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{c: lexer: warn: "osaka_st_coord": "deg2rad( 34.70248, 135.49595 )" -> "deg2rad( 34.70248, 135.49595 )": Overwrites the existing definition.\n} );
 
-    &CORE::rename( '.c.rc.deploy', '.c.rc' );
+    CORE::rename( '.c.rc.deploy', '.c.rc' );
 
     $t = tests::Tester->run_cmd( qq{./c --user-defined} );
     $t->exit_is( 0, qq{./c --user-defined} );
@@ -7097,7 +7097,7 @@ subtest qq{-u, --user-defined} => sub{
     } );
     $t->exit_is( 0, qq{./c 'geo_distance_km( TOKYO_ST_COORD, OSAKA_ST_COORD )'} );
     $t->has_no_exception();
-    equal( $res, 403.822719846 );
+    is( $res, 403.822719846 );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 

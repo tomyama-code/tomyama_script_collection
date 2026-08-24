@@ -263,8 +263,8 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 Other more basic references
 
-- [perl](https://metacpan.org/pod/perl)(1)
-- sort(1)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
+- [`sort(1)`](https://metacpan.org/pod/sort%281%29)
 
 # AUTHOR
 

@@ -58,6 +58,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
+- [`FTCalc.pm -- Perl interface for The Flat-Text Calculator`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md)
 - [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR

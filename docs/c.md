@@ -350,10 +350,22 @@ In an easy-to-understand format:
     $ c 'epoch2local( now )'
     ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
+Convert Namibia time to local time: (Use the included timezone\_id)
+
+    $ timezone_id Namibia
+    SDT    SDT    Lat, Lon               IANA TZ id       Country Code
+    +02:00 CAT    -22.56493, 17.08421    Africa/Windhoek  NA
+
+    $ TZ='Africa/Windhoek' c 'local2epoch( 2026-08-24 09:17 )'
+    1787555820
+
+    $ c 'epoch2local( 1787555820 )'
+    ( 2026, 8, 24, 16, 17, 0 )
+
 Time elapsed since a specified date:
 
     $ c 'sec2dhms( now - local2epoch( 2011, 03, 11, 14, 46 ) )'
-    ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
+    ( 5372, 15, 51, 18.7487299442 )   # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 1 hour and 45 minutes before two days later:
 
@@ -2654,6 +2666,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 # SEE ALSO
 
 - [`FTCalc.pm -- Perl interface for The Flat-Text Calculator`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md)
+- [`timezone_id -- List IANA timezone IDs`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/timezone_id.md)
 - [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR

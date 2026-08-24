@@ -1,9 +1,13 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+################################################################################
+## - $Revision: 1.2 $
+################################################################################
+
+use strict;                     # first released with perl 5
+use warnings;                   # first released with perl v5.6.0
 
 #use lib '.';
-use FindBin;            # first released with perl 5.00307
+use FindBin;                    # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
@@ -12,13 +16,13 @@ subtest qq{Normal} => sub{
 
     $t = tests::Tester->run_cmd( qq{./holiday | cat -} );
     $t->exit_is( 0, qq{./holiday | cat -} );
-    $t->stdout_like( qr/^## \$Revision: 20/ );
+    $t->stdout_like( qr/^## \$[R]evision: 20/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{PAGER=cat ./holiday} );
     $t->exit_is( 0, qq{PAGER=cat ./holiday} );
-    $t->stdout_like( qr/^## \$Revision: 20/ );
+    $t->stdout_like( qr/^## \$[R]evision: 20/ );
     $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
@@ -30,7 +34,7 @@ subtest qq{Normal} => sub{
 
     $t = tests::Tester->run_cmd( qq{./holiday unknown_argument | cat -} );
     $t->exit_is( 0, qq{./holiday unknown_argument | cat -} );
-    $t->stdout_like( qr/^## \$Revision: 20/ );
+    $t->stdout_like( qr/^## \$[R]evision: 20/ );
     $t->stderr_is( qq{holiday: warn: unknown_argument: unknown argument\n} );
     undef( $t );
 

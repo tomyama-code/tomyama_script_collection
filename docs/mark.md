@@ -120,33 +120,34 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 When you want to examine the regular expression,
 please refer to an online manual of **Perl**.
 
-- [perlre](https://metacpan.org/pod/perlre)(1)
+- [`perlre(1)`](https://metacpan.org/pod/perlre%281%29)
 
     Perl regular expressions
 
-- [perlrequick](https://metacpan.org/pod/perlrequick)(1)
+- [`perlrequick(1)`](https://metacpan.org/pod/perlrequick%281%29)
 
     Perl regular expressions quick start
 
-- [perlreref](https://metacpan.org/pod/perlreref)(1)
+- [`perlreref(1)`](https://metacpan.org/pod/perlreref%281%29)
 
     Perl Regular Expressions Reference
 
-- [perlretut](https://metacpan.org/pod/perlretut)(1)
+- [`perlretut(1)`](https://metacpan.org/pod/perlretut%281%29)
 
     Perl regular expressions tutorial
 
-- [perlfaq6](https://metacpan.org/pod/perlfaq6)(1)
+- [`perlfaq6(1)`](https://metacpan.org/pod/perlfaq6%281%29)
 
     Regular Expressions
 
-- regex(7)
+- [`regex(7)`](https://metacpan.org/pod/regex%287%29)
 
     POSIX 1003.2 regular expressions
 
 Other more basic references
 
-[perl](https://metacpan.org/pod/perl)(1), grep(1)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
+- [`grep(1)`](https://metacpan.org/pod/grep%281%29)
 
 # AUTHOR
 

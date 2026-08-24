@@ -5,7 +5,7 @@
 ## - Displays the holiday data "cl.holiday" in the pager.
 ##
 ## - Version: 1
-## - $Revision: 1.7 $
+## - $Revision: 1.8 $
 ##
 ## - Author: 2022-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -15,9 +15,9 @@
 ## All rights reserved.
 ################################################################################
 
-use strict;
-use warnings;
-use File::Basename qw(dirname basename);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 
 use constant HOLIDAY_DATA => 'cl.holiday';
 
@@ -48,8 +48,8 @@ sub pl_main( @ )
 sub init_script()
 {
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $0 );
-    $main::appname = &File::Basename::basename( $0 );
+    $main::apppath = File::Basename::dirname( $0 );
+    $main::appname = File::Basename::basename( $0 );
 #    $main::debug = 0;
 #    $main::bIsStdoutATty = -t STDOUT;
     ##############
@@ -146,7 +146,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.7 $};
+    my $rev = q{$Revision: 1.8 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -235,15 +235,9 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<perl>(1)
+=item L<C<cl -- CLOCK PROGRAM>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/cl.md>
 
-=item L<constant>
-
-=item L<File::Basename>
-
-=item L<strict>
-
-=item L<warnings>
+=item L<C<perl(1)>>
 
 =back
 

@@ -1,13 +1,13 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.11 $
+## - $Revision: 1.12 $
 ################################################################################
 
 use strict;                     # first released with perl 5
 use warnings;                   # first released with perl v5.6.0
 
 use Exporter 'import';          # first released with perl 5
-our @EXPORT = qw(capture dies equal t_like
+our @EXPORT = qw(capture dies
     done_testing
     subtest
     note
@@ -19,14 +19,14 @@ our @EXPORT = qw(capture dies equal t_like
     unlike
 );
 
-use Carp qw(carp croak);        # first released with perl 5
-use Test::More;                 # first released with perl v5.6.2
+use Carp qw();                  # first released with perl 5
+use Test::More qw();            # first released with perl v5.6.2
                                 # done_testing(), subtest(), ...
 
-use File::Temp qw(tempfile);    # first released with perl v5.6.1
+use File::Temp qw();            # first released with perl v5.6.1
 
 use FindBin;                    # first released with perl 5.00307
-use Cwd 'getcwd';               # first released with perl 5
+use Cwd qw();                   # first released with perl 5
 
 ## --- テスト対象のコード内でexitさせない ---
 #
@@ -48,7 +48,22 @@ use Cwd 'getcwd';               # first released with perl 5
 
 my %phrase;
 $phrase{apppath} = $FindBin::Bin;
-$phrase{proj_root} = getcwd();
+$phrase{proj_root} = Cwd::getcwd();
+
+sub done_testing()
+{
+    Test::More::done_testing();
+}
+
+sub subtest( $& )
+{
+    Test::More::subtest( @_ );
+}
+
+sub note( @ )
+{
+    Test::More::note( @_ );
+}
 
 sub get_phrase()
 {
@@ -60,8 +75,8 @@ sub capture( & )
     my $code = shift;
 
     # キャプチャ用の一時ファイルを作成
-    my( $tmp_out_fh, $tmp_out_file ) = &File::Temp::tempfile();
-    my( $tmp_err_fh, $tmp_err_file ) = &File::Temp::tempfile();
+    my( $tmp_out_fh, $tmp_out_file ) = File::Temp::tempfile();
+    my( $tmp_err_fh, $tmp_err_file ) = File::Temp::tempfile();
 
     # 現在の STDOUT と STDERR を複製して退避
     open( my $old_out, ">&", \*STDOUT ) || die( $! );
@@ -108,7 +123,7 @@ sub capture( & )
 #        print( qq{\$captured_out="$captured_out"\n} );
 #        print( qq{\$captured_err="$captured_err"\n} );
 #        print( qq{\$code_ret="$code_ret"\n} );
-        croak( $e )
+        Carp::croak( $e )
     }  # ブロック内で死んだ場合は再スロー
 
     # キャプチャした文字列を返す
@@ -119,7 +134,7 @@ sub dies( & )
 {
     my $code = shift( @_ );
     defined( wantarray ) ||
-        carp( "Useless use of dies() in void context" );
+        Carp::carp( "Useless use of dies() in void context" );
     local( $@, $!, $? );
     my $ok = eval{
         $code->();
@@ -150,7 +165,7 @@ sub run_cmd( $@ )
     #my $cmd_str = qq{\Q$cmd\E}; # 恐らく use utf8 が必要
     my $cmd_str = $cmd;
     $cmd_str =~ s/\n/\\n/go;
-    note( qq{$filename: $line: $cmd_str\n} );
+    Test::More::note( qq{$filename: $line: $cmd_str\n} );
 
     my $exit_code = 0;
     my( $stdout, $stderr ) = capture{
@@ -178,7 +193,7 @@ sub run_blk( $& )
     my $code = shift( @_ );
 
     my( $package, $filename, $line ) = caller( 0 );
-    note( qq{$filename: $line} );
+    Test::More::note( qq{$filename: $line} );
 
     my $exit_code = 255;
     my( $stdout, $stderr, $exception ) = capture{
@@ -220,14 +235,40 @@ sub get_stdout( $ )
     return $self->{stdout};
 }
 
-#sub ok( $;$ )
-#{
-#    my( $expr, $msg ) = @_;
-#    $msg = "expression is $expr" if( !defined( $msg ) );
-#    ok( $expr, $msg );
-#}
+sub ok( $;$ )
+{
+    my( $expr, $msg ) = @_;
 
-sub equal( $$;$ )
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $msg = "expression is $expr" if( !defined( $msg ) );
+    Test::More::ok( $expr, $msg );
+}
+
+sub isa_ok( $$;$ )
+{
+    my( $object, $class_name, $object_name ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $object_name = "$class_name ?" if( !defined( $object_name ) );
+    Test::More::isa_ok( $object, $class_name, $object_name );
+}
+
+sub is( $$;$ )
+{
+    my( $got, $expected, $msg ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $msg = qq{$got == $expected} if( !defined( $msg ) );
+    Test::More::is( $got, $expected, $msg );
+}
+
+sub isnt( $$;$ )
 {
     my( $got, $expected, $name ) = @_;
 
@@ -235,10 +276,10 @@ sub equal( $$;$ )
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     $name = qq{$got == $expected} if( !defined( $name ) );
-    &Test::More::is( $got, $expected, $name );
+    Test::More::isnt( $got, $expected, $name );
 }
 
-sub t_like( $$;$ )
+sub like( $$;$ )
 {
     my( $got, $expected, $name ) = @_;
 
@@ -246,7 +287,18 @@ sub t_like( $$;$ )
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     $name = qq{like( qq{$got}, qr/$expected/ )} if( !defined( $name ) );
-    &Test::More::like( $got, $expected, $name );
+    Test::More::like( $got, $expected, $name );
+}
+
+sub unlike( $$;$ )
+{
+    my( $got, $expected, $name ) = @_;
+
+    # 呼出元の行番号を Test::More に正しく報告するためのマジック
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $name = qq{unlike( qq{$got}, qr/$expected/ )} if( !defined( $name ) );
+    Test::More::unlike( $got, $expected, $name );
 }
 
 sub exit_is( $$;$ )
@@ -257,7 +309,7 @@ sub exit_is( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    is( $self->{exit_code}, $expected, $msg );
+    Test::More::is( $self->{exit_code}, $expected, $msg );
 }
 
 sub exit_isnt( $$;$ )
@@ -268,7 +320,7 @@ sub exit_isnt( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    isnt( $self->{exit_code}, $expected, $msg );
+    Test::More::isnt( $self->{exit_code}, $expected, $msg );
 }
 
 sub has_exception( $;$ )
@@ -280,7 +332,7 @@ sub has_exception( $;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    return ok( defined( $self->exception ), $msg );
+    return Test::More::ok( defined( $self->exception ), $msg );
 }
 
 sub has_no_exception( $;$ )
@@ -292,7 +344,7 @@ sub has_no_exception( $;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    return ok( !defined( $self->exception ), $msg );
+    return Test::More::ok( !defined( $self->exception ), $msg );
 }
 
 sub stdout_is( $$;$ )
@@ -308,7 +360,7 @@ sub stdout_is( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    is( $self->{stdout}, $expected, $msg );
+    Test::More::is( $self->{stdout}, $expected, $msg );
 }
 
 sub stderr_is( $$;$ )
@@ -324,7 +376,7 @@ sub stderr_is( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    is( $self->{stderr}, $expected, $msg );
+    Test::More::is( $self->{stderr}, $expected, $msg );
 }
 
 sub exception_is( $$;$ )
@@ -341,7 +393,7 @@ sub exception_is( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    is( $self->{exception}, $expected, $msg );
+    Test::More::is( $self->{exception}, $expected, $msg );
 }
 
 sub stdout_like( $$;$ )
@@ -352,7 +404,7 @@ sub stdout_like( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    like($self->{stdout}, $pattern, $msg );
+    Test::More::like( $self->{stdout}, $pattern, $msg );
 }
 
 sub stdout_unlike( $$;$ )
@@ -363,7 +415,7 @@ sub stdout_unlike( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    unlike($self->{stdout}, $pattern, $msg );
+    Test::More::unlike( $self->{stdout}, $pattern, $msg );
 }
 
 sub stderr_like( $$;$ )
@@ -374,7 +426,7 @@ sub stderr_like( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    like($self->{stderr}, $pattern, $msg );
+    Test::More::like( $self->{stderr}, $pattern, $msg );
 }
 
 sub stderr_unlike( $$;$ )
@@ -385,7 +437,7 @@ sub stderr_unlike( $$;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    unlike($self->{stderr}, $pattern, $msg );
+    Test::More::unlike( $self->{stderr}, $pattern, $msg );
 }
 
 sub exception( $ )
@@ -407,10 +459,10 @@ sub exception_like( $$;$ )
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     if( !defined( $self->{exception} ) ){
-        ok( defined( $self->{exception} ), $msg );
+        Test::More::ok( defined( $self->{exception} ), $msg );
         return;
     }
-    like( $self->{exception}, $pattern, $msg );
+    Test::More::like( $self->{exception}, $pattern, $msg );
 }
 
 sub exception_unlike( $$;$ )
@@ -422,10 +474,10 @@ sub exception_unlike( $$;$ )
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     if( !defined( $self->{exception} ) ){
-        ok( defined( $self->{exception} ), $msg );
+        Test::More::ok( defined( $self->{exception} ), $msg );
         return;
     }
-    unlike( $self->{exception}, $pattern, $msg );
+    Test::More::unlike( $self->{exception}, $pattern, $msg );
 }
 
 1;

@@ -35,11 +35,11 @@ use FTCalc;
 #        #$t->dump();
 #        $t->exit_is( 0, qq{./c 'geo_all_km( 1, -4, 1, 4 )'} );
 #        $t->has_no_exception();
-#        equal( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
-#        equal( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
-#        equal( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
-#        equal( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
-#        equal( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
+#        is( scalar( @{ $res } ), 4, qq{座標の正規化 ; same: geo_all_km( 1, 2.28318530717959, 1, -2.28318530717959 ) ; ( P  A B  dec ) = ( 1  0 1  0 )} );
+#        is( ${ $res }[ 0 ], 5386.30789906, qq{大圏航路（Great Circle）の距離（km）} );
+#        is( ${ $res }[ 1 ], 45.7429575198, qq{大圏航路（Great Circle）の方角（度）} );
+#        is( ${ $res }[ 2 ], 5930.42524018, qq{等角航路（Rhumb Line）の距離（km）} );
+#        is( ${ $res }[ 3 ], 90           , qq{等角航路（Rhumb Line）の方角（度）} );
 #        $t->stdout_is( qq{} );
 #        $t->stderr_like( qr/^Coordinates out of range: /, qq{警告メッセージが出力されること} );
 #
@@ -50,7 +50,7 @@ use FTCalc;
 #        $t->has_no_exception();
 #        $t->stdout_is( qq{} );
 #        $t->stderr_is( qq{} );
-#        equal( $res, $idx );
+#        is( $res, $idx );
 #    }
 #
 #};
@@ -61,17 +61,17 @@ use FTCalc;
 subtest 'テスト前準備: モジュールのデフォルト値を変更しておく' => sub{
     my %def_val;
     $def_val{def_autoflush} = 1;
-    &FTCalc::set_default_value( %def_val );
+    FTCalc::set_default_value( %def_val );
     undef( %def_val );
     $def_val{def_timeout} = 3.0;
-    &FTCalc::set_default_value( %def_val );
+    FTCalc::set_default_value( %def_val );
     undef( %def_val );
     $def_val{def_b_verbose} = 1;
-    &FTCalc::set_default_value( %def_val );
+    FTCalc::set_default_value( %def_val );
     undef( %def_val );
     $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
-    &FTCalc::set_default_value( %def_val );
-    %def_val = &FTCalc::get_default_value();
+    FTCalc::set_default_value( %def_val );
+    %def_val = FTCalc::get_default_value();
     is( $def_val{def_autoflush}, 1, 'autoflush は 1' );
     is( $def_val{def_timeout},   3, 'timeout は 3.0' );
     is( $def_val{def_b_verbose}, 1, 'b_verbose は 1' );
@@ -82,7 +82,7 @@ subtest 'テスト前準備: モジュールのデフォルト値を変更して
 # コンストラクタ: 異常系のテスト
 # --------------------------------------------------------
 subtest 'コンストラクタ: 異常系のテスト' => sub{
-    &FTCalc::_set_action_flag( _FTC_FAIL_OPEN3 );
+    FTCalc::_set_action_flag( _FTC_FAIL_OPEN3 );
     my $t;
 
     $t = tests::Tester->run_blk( sub{
@@ -453,7 +453,7 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
 
         $t = tests::Tester->run_blk( sub{
             $c = FTCalc->new();
-            &FTCalc::_set_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
+            FTCalc::_set_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
         } );
 
         $t = tests::Tester->run_blk( sub{
@@ -462,7 +462,7 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
         ok( !defined( $t->exception ), '例外（die）が発生していないこと' );
         $t->stdout_like( qr/_getTimeout\(\): _FTC_FAIL_ONETIME_TIMEOUT\n/, 'テストの前提条件を満たしていること' );
         $t->stderr_like( qr/^warn: Timeout: No response from the c script\./, 'タイムアウトのパスを通ること' );
-        equal( $res, '', '計算結果が得られていないこと' );
+        is( $res, '', '計算結果が得られていないこと' );
 
         # タイムアウトしたインスタンスに対するリトライ処理
         $t = tests::Tester->run_blk( sub{
@@ -471,7 +471,7 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
         ok( !defined( $t->exception ), '例外（die）が発生していないこと' );
         $t->stdout_unlike( qr/_getTimeout\(\): _FTC_FAIL_ONETIME_TIMEOUT\n/, 'テストの前提条件を満たしていること' );
         $t->stderr_is( "", 'STDERR is silent.' );
-        equal( $res, 2, 'リトライで正しい計算結果が得られること' );
+        is( $res, 2, 'リトライで正しい計算結果が得られること' );
 
         $c->_setVerbos( 0 );    # DESTROY 出力を抑止
     };
@@ -483,7 +483,7 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
 
         $t = tests::Tester->run_blk( sub{
             $c = FTCalc->new();
-            &FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
+            FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
         } );
 
         $t = tests::Tester->run_blk( sub{
@@ -508,7 +508,7 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
 
         $t = tests::Tester->run_blk( sub{
             $c = FTCalc->new();
-            &FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
+            FTCalc::_set_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
         } );
 
         $t = tests::Tester->run_blk( sub{

@@ -160,8 +160,9 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [c -- The Flat-Text Calculator (Perl Script)](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md)
-- [perl(1)](http://man.he.net/man1/perl)
+- [`c -- The Flat-Text Calculator (Perl Script)`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md)
+- [`tsc_bin_path.pl -- Prints the installation path or project root directory`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/tsc_bin_path.pl.md)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR
 

@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.26 $
+## - $Revision: 5.27 $
 ##
 ## - Script Structure
 ##   - main
@@ -37,8 +37,8 @@
 
 ## Revision: 1.1
 package OutputFunc;
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 # OutputFunc コンストラクタ
 sub new
@@ -86,38 +86,38 @@ sub GetHelpMsg( $ )
 {
     my $self = shift( @_ );
 
-    my $ver = &GetVersion();
+    my $ver = GetVersion();
 
     my $trm_columns = ( $self->GetTermSize() )[ 0 ];
     #print( qq{$trm_columns\n} );
 
-    my $ops = join( ' ', &TableProvider::GetOperatorsList() );
-    my $fns = &ArrayFitToDeviceWidth( $trm_columns, 4, &TableProvider::GetFunctionsList() );
+    my $ops = join( ' ', TableProvider::GetOperatorsList() );
+    my $fns = ArrayFitToDeviceWidth( $trm_columns, 4, TableProvider::GetFunctionsList() );
 
     my $ops_help = qq{<OPERATORS>\n};
-    my $idx_max = &TableProvider::GetOpeCatLen();
+    my $idx_max = TableProvider::GetOpeCatLen();
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         my $cat = $TableProvider::ope_cat_lists[ $idx ];
-        my @operations = &TableProvider::GetOperatorsList( $idx );
+        my @operations = TableProvider::GetOperatorsList( $idx );
         if( scalar( @operations ) ){
             $ops_help .= "\n  " . $cat . "\n";
 
             for my $fn( @operations ){
-                $ops_help .= &FmtHelp( $trm_columns, $fn );
+                $ops_help .= FmtHelp( $trm_columns, $fn );
             }
         }
     }
 
     my $fns_help = qq{<FUNCTIONS>\n};
-    $idx_max = &TableProvider::GetFuncCatLen();
+    $idx_max = TableProvider::GetFuncCatLen();
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         my $cat = $TableProvider::fnc_cat_lists[ $idx ];
-        my @functions = &TableProvider::GetFunctionsList( $idx );
+        my @functions = TableProvider::GetFunctionsList( $idx );
         if( scalar( @functions ) ){
             $fns_help .= "\n  " . $cat . "\n";
 
             for my $fn( @functions ){
-                $fns_help .= &FmtHelp( $trm_columns, $fn );
+                $fns_help .= FmtHelp( $trm_columns, $fn );
             }
         }
     }
@@ -172,14 +172,14 @@ sub GetHelpMsg( $ )
 ## Revision: 1.2
 sub PrintVersion()
 {
-    my $ver = &GetVersion();
+    my $ver = GetVersion();
     my $v = qq{Version: $ver\n} .
             qq{   Perl: $^V\n};
     print( $v );
 }
 sub GetVersion()
 {
-    my $rev = &GetRevision();
+    my $rev = GetRevision();
 
     my $major = 1;
     my( $minor, $revision ) = split( /\./, $rev );
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.26 $};
+    my $rev = q{$Revision: 5.27 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -202,7 +202,7 @@ sub PrintBannerMsg( $ )
         qq{--------------------------------------------------\n} .
         uc( $self->{APPCONFIG}->{APPNAME} ) . qq{ -- The Flat-Text Calculator (Perl Script)\n} .
         qq{- Turn your formulas into reusable data.\n} .
-        qq{- Version: } . &GetVersion() . "\n" .
+        qq{- Version: } . GetVersion() . "\n" .
         qq{- Document: https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/$self->{APPCONFIG}->{APPNAME}.md\n} .
         qq{--------------------------------------------------\n};
     print STDERR ( $banner_msg );
@@ -221,7 +221,7 @@ sub GetTermSize( $ )
     # Try stty
     if( $self->{APPCONFIG}->GetBIsStdoutTty() ){
         #my( $trm_columns, $trm_lines,
-        #    $trm_width, $trm_height ) = &Term::ReadKey::GetTerminalSize();
+        #    $trm_width, $trm_height ) = Term::ReadKey::GetTerminalSize();
         # ビルド要件を増やさない為に使用しない。
 
         my $stty_out = `stty size 2>/dev/null`;
@@ -270,7 +270,7 @@ sub FmtHelp( $$ )
         $line = ' ' x $indent_len;
     }
 
-    my $help = &TableProvider::GetHelp( $ope );
+    my $help = TableProvider::GetHelp( $ope );
     if( !defined( $help ) ){
         $help = '';
     }
@@ -376,8 +376,8 @@ sub GenMsg( $$@ )
 
 
 package FormulaToken;
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 use constant {
     BIT_OPERAND  => 0x01,
@@ -490,12 +490,12 @@ sub GetTokenSymbol( $ )
 
 
 package TableProvider;
-use strict;
-use warnings;
-use POSIX qw/fmod hypot floor ceil/;
-use List::Util qw(min max shuffle uniq sum);
-use Time::Local qw(timelocal timegm);
-use Time::HiRes qw(time);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use POSIX qw();                     # first released with perl 5
+use List::Util qw();                # first released with perl v5.7.3
+use Time::Local qw();               # first released with perl 5
+use Time::HiRes qw();               # first released with perl v5.7.3
 
 use constant {
     O_INDX => 0,
@@ -578,7 +578,7 @@ use constant E_ACT => qw(
 );
 
 ## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
-use constant pi => 4 * &CORE::atan2( 1, 1 );
+use constant pi => 4 * CORE::atan2( 1, 1 );
 
 # 天文学における平均朔望月（月の満ち欠けの平均周期）
 use constant SAKUBOU => 29.530588853;
@@ -1000,9 +1000,9 @@ sub new
     $TableProvider::opf = OutputFunc->new( $TableProvider::CAppConfig, 'tbl_prvdr' );
     $self->Reset();
     if( $TableProvider::CAppConfig->GetBTest() ){
-        my $opeIdx = &GetOperatorsInfo( '_', O_INDX );
+        my $opeIdx = GetOperatorsInfo( '_', O_INDX );
         $TableProvider::opf->dPrint( qq{test: \$opeIdx="$opeIdx"\n} );
-        my $bSentinel = &IsSentinel( '_' );
+        my $bSentinel = IsSentinel( '_' );
         $TableProvider::opf->dPrint( qq{test: \$bSentinel="$bSentinel"\n} );
         $self->Reset();
     }
@@ -1052,8 +1052,8 @@ sub GetPriorityOrderBetweenTokens( $$ )
         [ E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_RIGH, E_UNKN, E_UNKN, E_REMV, E_RIGH, E_REMV ], ## 19 BEGIN
     );
 
-    my $numLast = &TableProvider::GetTokenTblIdx( $last );
-    my $numCurr = &TableProvider::GetTokenTblIdx( $curr );
+    my $numLast = TableProvider::GetTokenTblIdx( $last );
+    my $numCurr = TableProvider::GetTokenTblIdx( $curr );
     my $retval = $token_precedence_table[ $numLast ]->[ $numCurr ];
     $TableProvider::opf->dPrint( qq{GetPriorityOrderBetweenTokens(): [[ "$last" : "$curr" ]] -> } . ( E_ACT )[ $retval ] . "\n" );
     return $retval;
@@ -1233,8 +1233,8 @@ use constant {
     '-'                           => [    1, T_OPERATOR, O_ARIT,     2, H_MINU, sub{ $_[ 0 ] - $_[ 1 ] } ],
     'Neg'                         => [    2, T_OPERATOR, O_ARIT,     1, undef , sub{ 0 - $_[ 0 ] } ],
     '*'                           => [    3, T_OPERATOR, O_ARIT,     2, H_MULT, sub{ $_[ 0 ] * $_[ 1 ] } ],
-    '/'                           => [    4, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ &_C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
-    '%'                           => [    5, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    '/'                           => [    4, T_OPERATOR, O_ARIT,     2, H_DIVI, sub{ _C_DIV( $_[ 0 ], $_[ 1 ] ) } ],
+    '%'                           => [    5, T_OPERATOR, O_ARIT,     2, H_MODU, sub{ _C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
     '**'                          => [    6, T_OPERATOR, O_ARIT,     2, H_EXPO, sub{ $_[ 0 ] ** $_[ 1 ] } ],
     '|'                           => [    7, T_OPERATOR, O_BITW,     2, H_BWOR, sub{ $_[ 0 ] | $_[ 1 ] } ],
     '&'                           => [    8, T_OPERATOR, O_BITW,     2, H_BWAN, sub{ $_[ 0 ] & $_[ 1 ] } ],
@@ -1251,168 +1251,168 @@ use constant {
     'BEGIN'                       => [   19, T_OTHER   , F_UCLS,     0, undef  ],
     '#'                           => [   20, T_SENTINEL, F_UCLS,    -1, undef  ],
     'testfunc'                    => [   21, T_OTHER   , F_UCLS,     1, undef  ],
-    'fmod'                        => [ 1010, T_FUNCTION, F_MATH,     2, H_FMOD, sub{ &_C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
-    'math_mod'                    => [ 1020, T_FUNCTION, F_MATH,     2, H_MMOD, sub{ &math_mod( $_[ 0 ], $_[ 1 ] ) } ],
-    'abs'                         => [ 1030, T_FUNCTION, F_MATH,    VA, H_ABS_, sub{ &_C_ABS( @_ ) } ],
-    'int'                         => [ 1040, T_FUNCTION, F_MATH,    VA, H_INT_, sub{ &_C_INT( @_ ) } ],
-    'floor'                       => [ 1050, T_FUNCTION, F_MATH,    VA, H_FLOR, sub{ &_C_FLOOR( @_ ) } ],
-    'ceil'                        => [ 1060, T_FUNCTION, F_MATH,    VA, H_CEIL, sub{ &_C_CEIL( @_ ) } ],
-    'rounddown'                   => [ 1070, T_FUNCTION, F_MATH,    VA, H_RODD, sub{ &rounddown( @_ ) } ],
-    'round'                       => [ 1080, T_FUNCTION, F_MATH,    VA, H_ROUD, sub{ &round( @_ ) } ],
-    'roundup'                     => [ 1090, T_FUNCTION, F_MATH,    VA, H_RODU, sub{ &roundup( @_ ) } ],
-    'percentage'                  => [ 1100, T_FUNCTION, F_MATH, '2-3', H_PCTG, sub{ &percentage( @_ ) } ],
-    'ratio_scaling'               => [ 1110, T_FUNCTION, F_MATH, '3-4', H_RASC, sub{ &ratio_scaling( @_ ) } ],
-    'is_prime'                    => [ 1120, T_FUNCTION, F_MATH,    VA, H_PRIM, sub{ &is_prime( @_ ) } ],
-    'prime_factorize'             => [ 1130, T_FUNCTION, F_MATH,     1, H_PRFR, sub{ &prime_factorize( $_[ 0 ] ) } ],
-    'get_prime'                   => [ 1140, T_FUNCTION, F_MATH,     1, H_GPRM, sub{ &get_prime_num( $_[ 0 ] ) } ],
-    'gcd'                         => [ 1150, T_FUNCTION, F_MATH,    VA, H_GCD_, sub{ &gcd( @_ ) } ],
-    'lcm'                         => [ 1160, T_FUNCTION, F_MATH,    VA, H_LCM_, sub{ &lcm( @_ ) } ],
-    'rand'                        => [ 1170, T_FUNCTION, F_MATH, '1-2', H_RAND, sub{ &_C_RAND( @_ ) } ],
-    'exp'                         => [ 1180, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ &_C_EXP( @_ ) } ],
-    'exp2'                        => [ 1190, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ &_C_EXP2( @_ ) } ],
-    'exp10'                       => [ 1200, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ &_C_EXP10( @_ ) } ],
-    'log'                         => [ 1210, T_FUNCTION, F_MATH,    VA, H_LOGA, sub{ &_C_LOG( @_ ) } ],
-    'log2'                        => [ 1220, T_FUNCTION, F_MATH,    VA, H_LOG2, sub{ &_C_LOG2( @_ ) } ],
-    'log10'                       => [ 1230, T_FUNCTION, F_MATH,    VA, H_LG10, sub{ &_C_LOG10( @_ ) } ],
-    'sqrt'                        => [ 1240, T_FUNCTION, F_MATH,    VA, H_SQRT, sub{ &_C_SQRT( @_ ) } ],
+    'fmod'                        => [ 1010, T_FUNCTION, F_MATH,     2, H_FMOD, sub{ _C_MOD( $_[ 0 ], $_[ 1 ] ) } ],
+    'math_mod'                    => [ 1020, T_FUNCTION, F_MATH,     2, H_MMOD, sub{ math_mod( $_[ 0 ], $_[ 1 ] ) } ],
+    'abs'                         => [ 1030, T_FUNCTION, F_MATH,    VA, H_ABS_, sub{ _C_ABS( @_ ) } ],
+    'int'                         => [ 1040, T_FUNCTION, F_MATH,    VA, H_INT_, sub{ _C_INT( @_ ) } ],
+    'floor'                       => [ 1050, T_FUNCTION, F_MATH,    VA, H_FLOR, sub{ _C_FLOOR( @_ ) } ],
+    'ceil'                        => [ 1060, T_FUNCTION, F_MATH,    VA, H_CEIL, sub{ _C_CEIL( @_ ) } ],
+    'rounddown'                   => [ 1070, T_FUNCTION, F_MATH,    VA, H_RODD, sub{ rounddown( @_ ) } ],
+    'round'                       => [ 1080, T_FUNCTION, F_MATH,    VA, H_ROUD, sub{ round( @_ ) } ],
+    'roundup'                     => [ 1090, T_FUNCTION, F_MATH,    VA, H_RODU, sub{ roundup( @_ ) } ],
+    'percentage'                  => [ 1100, T_FUNCTION, F_MATH, '2-3', H_PCTG, sub{ percentage( @_ ) } ],
+    'ratio_scaling'               => [ 1110, T_FUNCTION, F_MATH, '3-4', H_RASC, sub{ ratio_scaling( @_ ) } ],
+    'is_prime'                    => [ 1120, T_FUNCTION, F_MATH,    VA, H_PRIM, sub{ is_prime( @_ ) } ],
+    'prime_factorize'             => [ 1130, T_FUNCTION, F_MATH,     1, H_PRFR, sub{ prime_factorize( $_[ 0 ] ) } ],
+    'get_prime'                   => [ 1140, T_FUNCTION, F_MATH,     1, H_GPRM, sub{ get_prime_num( $_[ 0 ] ) } ],
+    'gcd'                         => [ 1150, T_FUNCTION, F_MATH,    VA, H_GCD_, sub{ _c_gcd( @_ ) } ],
+    'lcm'                         => [ 1160, T_FUNCTION, F_MATH,    VA, H_LCM_, sub{ _c_lcm( @_ ) } ],
+    'rand'                        => [ 1170, T_FUNCTION, F_MATH, '1-2', H_RAND, sub{ _C_RAND( @_ ) } ],
+    'exp'                         => [ 1180, T_FUNCTION, F_MATH,    VA, H_POEX, sub{ _C_EXP( @_ ) } ],
+    'exp2'                        => [ 1190, T_FUNCTION, F_MATH,    VA, H_EXP2, sub{ _C_EXP2( @_ ) } ],
+    'exp10'                       => [ 1200, T_FUNCTION, F_MATH,    VA, H_EP10, sub{ _C_EXP10( @_ ) } ],
+    'log'                         => [ 1210, T_FUNCTION, F_MATH,    VA, H_LOGA, sub{ _C_LOG( @_ ) } ],
+    'log2'                        => [ 1220, T_FUNCTION, F_MATH,    VA, H_LOG2, sub{ _C_LOG2( @_ ) } ],
+    'log10'                       => [ 1230, T_FUNCTION, F_MATH,    VA, H_LG10, sub{ _C_LOG10( @_ ) } ],
+    'sqrt'                        => [ 1240, T_FUNCTION, F_MATH,    VA, H_SQRT, sub{ _C_SQRT( @_ ) } ],
     'pow'                         => [ 1250, T_FUNCTION, F_MATH,     2, H_POWE, sub{ $_[ 0 ] ** $_[ 1 ] } ],
-    'pow_inv'                     => [ 1260, T_FUNCTION, F_MATH,     2, H_PWIV, sub{ &pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
-    'ncr'                         => [ 1270, T_FUNCTION, F_LIST,     2, H_NCHR, sub{ &nCr( $_[ 0 ], $_[ 1 ] ) } ],
-    'min'                         => [ 1280, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ &List::Util::min( @_ ) } ],
-    'max'                         => [ 1290, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ &List::Util::max( @_ ) } ],
-    'shuffle'                     => [ 1300, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ &List::Util::shuffle( @_ ) } ],
-    'sample'                      => [ 1310, T_FUNCTION, F_LIST,    VA, H_SMPL, sub{ &_C_SAMPLE( @_ ) } ],
-    'first'                       => [ 1320, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ &_C_FIRST( @_ ) } ],
-    'head'                        => [ 1330, T_FUNCTION, F_LIST,    VA, H_HEAD, sub{ &_C_HEAD( @_ ) } ],
-    'tail'                        => [ 1340, T_FUNCTION, F_LIST,    VA, H_TAIL, sub{ &_C_TAIL( @_ ) } ],
-    'slice'                       => [ 1350, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ &_C_SLICE( @_ ) } ],
-    'uniq'                        => [ 1360, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ &List::Util::uniq( @_ ) } ],
-    'sum'                         => [ 1370, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ &List::Util::sum( @_ ) } ],
-    'prod'                        => [ 1380, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ &prod( @_ ) } ],
-    'avg'                         => [ 1390, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ &_C_AVG( @_ ) } ],
-    'add_each'                    => [ 1400, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ &add_each( @_ ) } ],
-    'mul_each'                    => [ 1410, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ &mul_each( @_ ) } ],
-    'div_each'                    => [ 1420, T_FUNCTION, F_LIST,    VA, H_DVEC, sub{ &div_each( @_ ) } ],
-    'simplify_ratio'              => [ 1430, T_FUNCTION, F_LIST,    VA, H_SMRT, sub{ &simplify_ratio( @_ ) } ],
-    'normalize_ratio'             => [ 1440, T_FUNCTION, F_LIST,    VA, H_NMRT, sub{ &normalize_ratio( @_ ) } ],
-    'linspace'                    => [ 1450, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ &linspace( @_ ) } ],
-    'linstep'                     => [ 1460, T_FUNCTION, F_LIST,     3, H_LNST, sub{ &linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'mul_growth'                  => [ 1470, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ &mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'gen_fibo_seq'                => [ 1480, T_FUNCTION, F_LIST,     3, H_GFIS, sub{ &gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'is_leap'                     => [ 1490, T_FUNCTION, F_TIME,    VA, H_LEAP, sub{ &is_leap( @_ ) } ],
-    'age'                         => [ 1500, T_FUNCTION, F_TIME, '1-2', H_AGE_, sub{ &age( @_ ) } ],
-    'moon_age'                    => [ 1510, T_FUNCTION, F_TIME,     3, H_AOMN, sub{ &moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
-    'moon_age_instant'            => [ 1520, T_FUNCTION, F_TIME, '0-1', H_AOMI, sub{ &moon_age_instant( @_ ) } ],
-    'get_next_moon_age_epoch'     => [ 1530, T_FUNCTION, F_TIME, '1-2', H_GMAE, sub{ &get_next_moon_age_epoch( @_ ) } ],
-    'local2epoch'                 => [ 1540, T_FUNCTION, F_TIME, '3-6', H_L2EP, sub{ &local2epoch( @_ ) } ],
-    'gmt2epoch'                   => [ 1550, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ &gmt2epoch( @_ ) } ],
-    'epoch2local'                 => [ 1560, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ &epoch2local( $_[ 0 ] ) } ],
-    'epoch2gmt'                   => [ 1570, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ &epoch2gmt( $_[ 0 ] ) } ],
-    'local2gmt'                   => [ 1580, T_FUNCTION, F_TIME, '3-6', H_L2GM, sub{ &local2gmt( @_ ) } ],
-    'gmt2local'                   => [ 1590, T_FUNCTION, F_TIME, '3-6', H_GM2L, sub{ &gmt2local( @_ ) } ],
-    'sec2dhms'                    => [ 1600, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ &sec2dhms( @_ ) } ],
-    'dhms2sec'                    => [ 1610, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ &dhms2sec( @_ ) } ],
-    'dhms2dhms'                   => [ 1620, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ &dhms2dhms( @_ ) } ],
-    'laptimer'                    => [ 1630, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ &laptimer( $_[ 0 ] ) } ],
-    'timer'                       => [ 1640, T_FUNCTION, F_TIME, '1-2', H_TIMR, sub{ &timer( @_ ) } ],
-    'stopwatch'                   => [ 1650, T_FUNCTION, F_TIME,     0, H_STWC, sub{ &stopwatch() } ],
-    'bpm'                         => [ 1660, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ &bpm( $_[ 0 ], $_[ 1 ] ) } ],
-    'bpm15'                       => [ 1670, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ &bpm15() } ],
-    'bpm30'                       => [ 1680, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ &bpm30() } ],
-    'tachymeter'                  => [ 1690, T_FUNCTION, F_TIME,     1, H_TACH, sub{ &tachymeter( $_[ 0 ] ) } ],
-    'telemeter'                   => [ 1700, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ &telemeter( @_ ) } ],
-    'telemeter_m'                 => [ 1710, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ &telemeter_m( @_ ) } ],
-    'telemeter_km'                => [ 1720, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ &telemeter_km( @_ ) } ],
-    'rad2deg'                     => [ 1730, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ &_C_RAD2DEG_LIST( @_ ) } ],
-    'deg2rad'                     => [ 1740, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ &_C_DEG2RAD_LIST( @_ ) } ],
-    'dms2rad'                     => [ 1750, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ &DMS2RAD( @_ ) } ],
-    'dms2deg'                     => [ 1760, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ &DMS2DEG( @_ ) } ],
-    'deg2dms'                     => [ 1770, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ &DEG2DMS( @_ ) } ],
-    'dms2dms'                     => [ 1780, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ &DMS2DMS( @_ ) } ],
-    'sin'                         => [ 1790, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ &CORE::sin( $_[ 0 ] ) } ],
-    'cos'                         => [ 1800, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ &CORE::cos( $_[ 0 ] ) } ],
-    'tan'                         => [ 1810, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ &_C_TAN( $_[ 0 ] ) } ],
-    'asin'                        => [ 1820, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ &_C_ASIN( $_[ 0 ] ) } ],
-    'acos'                        => [ 1830, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ &_C_ACOS( $_[ 0 ] ) } ],
-    'atan'                        => [ 1840, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ &_C_ATAN( $_[ 0 ] ) } ],
-    'atan2'                       => [ 1850, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ &CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
-    'hypot'                       => [ 1860, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ &POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
-    'angle_deg'                   => [ 1870, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ &angle_deg( @_ ) } ],
-    'dist_between_points'         => [ 1880, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ &dist_between_points( @_ ) } ],
-    'midpt_between_points'        => [ 1890, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ &midpt_between_points( @_ ) } ],
-    'angle_between_points'        => [ 1900, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ &angle_between_points( @_ ) } ],
-    'vector_angle'                => [ 1910, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ &vector_angle( @_ ) } ],
-    'geo2xyz'                     => [ 1920, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ &geo2xyz( @_ ) } ],
-    'geo_radius'                  => [ 1930, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ &geocentric_radius( $_[ 0 ] ) } ],
-    'geo_radius_of_lat_circle'    => [ 1940, T_FUNCTION, F_GIS_,     1, H_GRAC, sub{ &geo_radius_of_lat_circle( $_[ 0 ] ) } ],
-    'geo_distance_m'              => [ 1950, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ &geo_distance_m( @_ ) } ],
-    'geo_distance_km'             => [ 1960, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ &geo_distance_km( @_ ) } ],
-    'geo_azimuth'                 => [ 1970, T_FUNCTION, F_GIS_,     4, H_GAZM, sub{ &geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_m_and_azimuth'      => [ 1980, T_FUNCTION, F_GIS_,     4, H_GDAM, sub{ &geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_dist_km_and_azimuth'     => [ 1990, T_FUNCTION, F_GIS_,     4, H_GDAK, sub{ &geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_m'           => [ 2000, T_FUNCTION, F_GIS_,     4, H_GRDM, sub{ &geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_distance_km'          => [ 2010, T_FUNCTION, F_GIS_,     4, H_GRDK, sub{ &geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_azimuth'              => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRAZ, sub{ &geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_m_and_azimuth'   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GRMA, sub{ &geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_rl_dist_km_and_azimuth'  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ &geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_m'                   => [ 2050, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ &geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'geo_all_km'                  => [ 2060, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ &geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon2xyz'                    => [ 2070, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ &moon2xyz( @_ ) } ],
-    'moon_radius_of_lat_circle'   => [ 2080, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ &moon_radius_of_lat_circle( $_[ 0 ] ) } ],
-    'moon_distance_m'             => [ 2090, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ &moon_distance_m( @_ ) } ],
-    'moon_distance_km'            => [ 2100, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ &moon_distance_km( @_ ) } ],
-    'moon_azimuth'                => [ 2110, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ &moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_m_and_azimuth'     => [ 2120, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ &moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_dist_km_and_azimuth'    => [ 2130, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ &moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_m'          => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ &moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_distance_km'         => [ 2150, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ &moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_azimuth'             => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ &moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_m_and_azimuth'  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ &moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_rl_dist_km_and_azimuth' => [ 2180, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ &moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_m'                  => [ 2190, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ &moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'moon_all_km'                 => [ 2200, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ &moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
-    'gis_mercator_y'              => [ 2210, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ &gis_mercator_y( $_[ 0 ] ) } ],
-    'gis_miller_y'                => [ 2220, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ &gis_miller_y( $_[ 0 ] ) } ],
-    'the_solar_system'            => [ 2230, T_FUNCTION, F_GIS_,  '0-', H_TSLS, sub{ &the_solar_system( @_ ) } ],
-    'km_per_h'                    => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ &km_per_h( @_ ) } ],
-    'mph'                         => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ &mph( @_ ) } ],
-    'kn'                          => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ &kn( @_ ) } ],
-    'm_per_s'                     => [ 2270, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ &m_per_s( @_ ) } ],
-    'mach'                        => [ 2280, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ &Mach( @_ ) } ],
-    'speed_of_light'              => [ 2290, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ &speed_of_light( @_ ) } ],
-    'au2km'                       => [ 2300, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ &au2km( $_[ 0 ] ) } ],
-    'km2au'                       => [ 2310, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ &km2au( $_[ 0 ] ) } ],
-    'ri2meter'                    => [ 2320, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ &ri2meter( $_[ 0 ] ) } ],
-    'meter2ri'                    => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ &meter2ri( $_[ 0 ] ) } ],
-    'mile2meter'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ &mile2meter( $_[ 0 ] ) } ],
-    'meter2mile'                  => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ &meter2mile( $_[ 0 ] ) } ],
-    'nautical_mile2meter'         => [ 2360, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ &nautical_mile2meter( $_[ 0 ] ) } ],
-    'meter2nautical_mile'         => [ 2370, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ &meter2nautical_mile( $_[ 0 ] ) } ],
-    'inch2mm'                     => [ 2380, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ &inch2mm( $_[ 0 ] ) } ],
-    'mm2inch'                     => [ 2390, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ &mm2inch( $_[ 0 ] ) } ],
-    'pound2gram'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ &pound2gram( $_[ 0 ] ) } ],
-    'gram2pound'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ &gram2pound( $_[ 0 ] ) } ],
-    'ounce2gram'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ &ounce2gram( $_[ 0 ] ) } ],
-    'gram2ounce'                  => [ 2430, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ &gram2ounce( $_[ 0 ] ) } ],
-    'kgf2newton'                  => [ 2440, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ &kgf2newton( $_[ 0 ] ) } ],
-    'newton2kgf'                  => [ 2450, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ &newton2kgf( $_[ 0 ] ) } ],
-    'kpa'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ &kPa( @_ ) } ],
-    'kgf_per_cm2'                 => [ 2470, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ &kgf_per_cm2( @_ ) } ],
-    'psi'                         => [ 2480, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ &PSI( @_ ) } ],
-    'bar'                         => [ 2490, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ &bar( @_ ) } ],
-    'paper_size'                  => [ 2500, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ &paper_size( @_ ) } ],
+    'pow_inv'                     => [ 1260, T_FUNCTION, F_MATH,     2, H_PWIV, sub{ pow_inv( $_[ 0 ], $_[ 1 ] ) } ],
+    'ncr'                         => [ 1270, T_FUNCTION, F_LIST,     2, H_NCHR, sub{ nCr( $_[ 0 ], $_[ 1 ] ) } ],
+    'min'                         => [ 1280, T_FUNCTION, F_LIST,    VA, H_MIN_, sub{ List::Util::min( @_ ) } ],
+    'max'                         => [ 1290, T_FUNCTION, F_LIST,    VA, H_MAX_, sub{ List::Util::max( @_ ) } ],
+    'shuffle'                     => [ 1300, T_FUNCTION, F_LIST,    VA, H_SHFL, sub{ List::Util::shuffle( @_ ) } ],
+    'sample'                      => [ 1310, T_FUNCTION, F_LIST,    VA, H_SMPL, sub{ _C_SAMPLE( @_ ) } ],
+    'first'                       => [ 1320, T_FUNCTION, F_LIST,    VA, H_FRST, sub{ _C_FIRST( @_ ) } ],
+    'head'                        => [ 1330, T_FUNCTION, F_LIST,    VA, H_HEAD, sub{ _C_HEAD( @_ ) } ],
+    'tail'                        => [ 1340, T_FUNCTION, F_LIST,    VA, H_TAIL, sub{ _C_TAIL( @_ ) } ],
+    'slice'                       => [ 1350, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ _C_SLICE( @_ ) } ],
+    'uniq'                        => [ 1360, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ List::Util::uniq( @_ ) } ],
+    'sum'                         => [ 1370, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ List::Util::sum( @_ ) } ],
+    'prod'                        => [ 1380, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ prod( @_ ) } ],
+    'avg'                         => [ 1390, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ _C_AVG( @_ ) } ],
+    'add_each'                    => [ 1400, T_FUNCTION, F_LIST,    VA, H_ADEC, sub{ add_each( @_ ) } ],
+    'mul_each'                    => [ 1410, T_FUNCTION, F_LIST,    VA, H_MLEC, sub{ mul_each( @_ ) } ],
+    'div_each'                    => [ 1420, T_FUNCTION, F_LIST,    VA, H_DVEC, sub{ div_each( @_ ) } ],
+    'simplify_ratio'              => [ 1430, T_FUNCTION, F_LIST,    VA, H_SMRT, sub{ simplify_ratio( @_ ) } ],
+    'normalize_ratio'             => [ 1440, T_FUNCTION, F_LIST,    VA, H_NMRT, sub{ normalize_ratio( @_ ) } ],
+    'linspace'                    => [ 1450, T_FUNCTION, F_LIST, '3-4', H_LNSP, sub{ linspace( @_ ) } ],
+    'linstep'                     => [ 1460, T_FUNCTION, F_LIST,     3, H_LNST, sub{ linstep( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'mul_growth'                  => [ 1470, T_FUNCTION, F_LIST,     3, H_MLGT, sub{ mul_growth( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'gen_fibo_seq'                => [ 1480, T_FUNCTION, F_LIST,     3, H_GFIS, sub{ gen_fibo_seq( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'is_leap'                     => [ 1490, T_FUNCTION, F_TIME,    VA, H_LEAP, sub{ is_leap( @_ ) } ],
+    'age'                         => [ 1500, T_FUNCTION, F_TIME, '1-2', H_AGE_, sub{ age( @_ ) } ],
+    'moon_age'                    => [ 1510, T_FUNCTION, F_TIME,     3, H_AOMN, sub{ moon_age( $_[ 0 ], $_[ 1 ], $_[ 2 ] ) } ],
+    'moon_age_instant'            => [ 1520, T_FUNCTION, F_TIME, '0-1', H_AOMI, sub{ moon_age_instant( @_ ) } ],
+    'get_next_moon_age_epoch'     => [ 1530, T_FUNCTION, F_TIME, '1-2', H_GMAE, sub{ get_next_moon_age_epoch( @_ ) } ],
+    'local2epoch'                 => [ 1540, T_FUNCTION, F_TIME, '3-6', H_L2EP, sub{ local2epoch( @_ ) } ],
+    'gmt2epoch'                   => [ 1550, T_FUNCTION, F_TIME, '3-6', H_G2EP, sub{ gmt2epoch( @_ ) } ],
+    'epoch2local'                 => [ 1560, T_FUNCTION, F_TIME,     1, H_EP2L, sub{ epoch2local( $_[ 0 ] ) } ],
+    'epoch2gmt'                   => [ 1570, T_FUNCTION, F_TIME,     1, H_EP2G, sub{ epoch2gmt( $_[ 0 ] ) } ],
+    'local2gmt'                   => [ 1580, T_FUNCTION, F_TIME, '3-6', H_L2GM, sub{ local2gmt( @_ ) } ],
+    'gmt2local'                   => [ 1590, T_FUNCTION, F_TIME, '3-6', H_GM2L, sub{ gmt2local( @_ ) } ],
+    'sec2dhms'                    => [ 1600, T_FUNCTION, F_TIME, '1-2', H_SHMS, sub{ sec2dhms( @_ ) } ],
+    'dhms2sec'                    => [ 1610, T_FUNCTION, F_TIME, '1-4', H_HMSS, sub{ dhms2sec( @_ ) } ],
+    'dhms2dhms'                   => [ 1620, T_FUNCTION, F_TIME, '1-5', H_DHMS, sub{ dhms2dhms( @_ ) } ],
+    'laptimer'                    => [ 1630, T_FUNCTION, F_TIME,     1, H_LPTM, sub{ laptimer( $_[ 0 ] ) } ],
+    'timer'                       => [ 1640, T_FUNCTION, F_TIME, '1-2', H_TIMR, sub{ timer( @_ ) } ],
+    'stopwatch'                   => [ 1650, T_FUNCTION, F_TIME,     0, H_STWC, sub{ stopwatch() } ],
+    'bpm'                         => [ 1660, T_FUNCTION, F_TIME,     2, H_BPMR, sub{ bpm( $_[ 0 ], $_[ 1 ] ) } ],
+    'bpm15'                       => [ 1670, T_FUNCTION, F_TIME,     0, H_BPM1, sub{ bpm15() } ],
+    'bpm30'                       => [ 1680, T_FUNCTION, F_TIME,     0, H_BPM3, sub{ bpm30() } ],
+    'tachymeter'                  => [ 1690, T_FUNCTION, F_TIME,     1, H_TACH, sub{ tachymeter( $_[ 0 ] ) } ],
+    'telemeter'                   => [ 1700, T_FUNCTION, F_TIME, '1-2', H_TLMR, sub{ telemeter( @_ ) } ],
+    'telemeter_m'                 => [ 1710, T_FUNCTION, F_TIME, '1-2', H_TM_M, sub{ telemeter_m( @_ ) } ],
+    'telemeter_km'                => [ 1720, T_FUNCTION, F_TIME, '1-2', H_TMKM, sub{ telemeter_km( @_ ) } ],
+    'rad2deg'                     => [ 1730, T_FUNCTION, F_TRIG,    VA, H_R2DG, sub{ _C_RAD2DEG_LIST( @_ ) } ],
+    'deg2rad'                     => [ 1740, T_FUNCTION, F_TRIG,    VA, H_D2RD, sub{ _C_DEG2RAD_LIST( @_ ) } ],
+    'dms2rad'                     => [ 1750, T_FUNCTION, F_TRIG,  '3M', H_DM2R, sub{ DMS2RAD( @_ ) } ],
+    'dms2deg'                     => [ 1760, T_FUNCTION, F_TRIG,  '3M', H_DEGM, sub{ DMS2DEG( @_ ) } ],
+    'deg2dms'                     => [ 1770, T_FUNCTION, F_TRIG,    VA, H_D2DM, sub{ DEG2DMS( @_ ) } ],
+    'dms2dms'                     => [ 1780, T_FUNCTION, F_TRIG,  '3M', H_DMDM, sub{ DMS2DMS( @_ ) } ],
+    'sin'                         => [ 1790, T_FUNCTION, F_TRIG,     1, H_SINE, sub{ CORE::sin( $_[ 0 ] ) } ],
+    'cos'                         => [ 1800, T_FUNCTION, F_TRIG,     1, H_COSI, sub{ CORE::cos( $_[ 0 ] ) } ],
+    'tan'                         => [ 1810, T_FUNCTION, F_TRIG,     1, H_TANG, sub{ _C_TAN( $_[ 0 ] ) } ],
+    'asin'                        => [ 1820, T_FUNCTION, F_TRIG,     1, H_ASIN, sub{ _C_ASIN( $_[ 0 ] ) } ],
+    'acos'                        => [ 1830, T_FUNCTION, F_TRIG,     1, H_ACOS, sub{ _C_ACOS( $_[ 0 ] ) } ],
+    'atan'                        => [ 1840, T_FUNCTION, F_TRIG,     1, H_ATAN, sub{ _C_ATAN( $_[ 0 ] ) } ],
+    'atan2'                       => [ 1850, T_FUNCTION, F_TRIG,     2, H_ATN2, sub{ CORE::atan2( $_[ 0 ], $_[ 1 ] ) } ],
+    'hypot'                       => [ 1860, T_FUNCTION, F_TRIG,     2, H_HYPT, sub{ POSIX::hypot( $_[ 0 ], $_[ 1 ] ) } ],
+    'angle_deg'                   => [ 1870, T_FUNCTION, F_TRIG, '2-3', H_SLPD, sub{ angle_deg( @_ ) } ],
+    'dist_between_points'         => [ 1880, T_FUNCTION, F_TRIG, '4-6', H_DIST, sub{ dist_between_points( @_ ) } ],
+    'midpt_between_points'        => [ 1890, T_FUNCTION, F_TRIG, '4-6', H_MIDP, sub{ midpt_between_points( @_ ) } ],
+    'angle_between_points'        => [ 1900, T_FUNCTION, F_TRIG, '4-7', H_ANGL, sub{ angle_between_points( @_ ) } ],
+    'vector_angle'                => [ 1910, T_FUNCTION, F_TRIG, '4-7', H_VANG, sub{ vector_angle( @_ ) } ],
+    'geo2xyz'                     => [ 1920, T_FUNCTION, F_GIS_, '2-3', H_GXYZ, sub{ geo2xyz( @_ ) } ],
+    'geo_radius'                  => [ 1930, T_FUNCTION, F_GIS_,     1, H_GERA, sub{ geocentric_radius( $_[ 0 ] ) } ],
+    'geo_radius_of_lat_circle'    => [ 1940, T_FUNCTION, F_GIS_,     1, H_GRAC, sub{ geo_radius_of_lat_circle( $_[ 0 ] ) } ],
+    'geo_distance_m'              => [ 1950, T_FUNCTION, F_GIS_,     4, H_GDIM, sub{ geo_distance_m( @_ ) } ],
+    'geo_distance_km'             => [ 1960, T_FUNCTION, F_GIS_,     4, H_GDKM, sub{ geo_distance_km( @_ ) } ],
+    'geo_azimuth'                 => [ 1970, T_FUNCTION, F_GIS_,     4, H_GAZM, sub{ geo_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_m_and_azimuth'      => [ 1980, T_FUNCTION, F_GIS_,     4, H_GDAM, sub{ geo_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_dist_km_and_azimuth'     => [ 1990, T_FUNCTION, F_GIS_,     4, H_GDAK, sub{ geo_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_m'           => [ 2000, T_FUNCTION, F_GIS_,     4, H_GRDM, sub{ geo_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_distance_km'          => [ 2010, T_FUNCTION, F_GIS_,     4, H_GRDK, sub{ geo_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_azimuth'              => [ 2020, T_FUNCTION, F_GIS_,     4, H_GRAZ, sub{ geo_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_m_and_azimuth'   => [ 2030, T_FUNCTION, F_GIS_,     4, H_GRMA, sub{ geo_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_rl_dist_km_and_azimuth'  => [ 2040, T_FUNCTION, F_GIS_,     4, H_GRKA, sub{ geo_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_m'                   => [ 2050, T_FUNCTION, F_GIS_,     4, H_GALM, sub{ geo_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'geo_all_km'                  => [ 2060, T_FUNCTION, F_GIS_,     4, H_GALK, sub{ geo_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon2xyz'                    => [ 2070, T_FUNCTION, F_GIS_, '2-3', H_MXYZ, sub{ moon2xyz( @_ ) } ],
+    'moon_radius_of_lat_circle'   => [ 2080, T_FUNCTION, F_GIS_,     1, H_MRAC, sub{ moon_radius_of_lat_circle( $_[ 0 ] ) } ],
+    'moon_distance_m'             => [ 2090, T_FUNCTION, F_GIS_,     4, H_MDIM, sub{ moon_distance_m( @_ ) } ],
+    'moon_distance_km'            => [ 2100, T_FUNCTION, F_GIS_,     4, H_MDKM, sub{ moon_distance_km( @_ ) } ],
+    'moon_azimuth'                => [ 2110, T_FUNCTION, F_GIS_,     4, H_MAZM, sub{ moon_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_m_and_azimuth'     => [ 2120, T_FUNCTION, F_GIS_,     4, H_MDAM, sub{ moon_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_dist_km_and_azimuth'    => [ 2130, T_FUNCTION, F_GIS_,     4, H_MDAK, sub{ moon_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_m'          => [ 2140, T_FUNCTION, F_GIS_,     4, H_MRDM, sub{ moon_rl_distance_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_distance_km'         => [ 2150, T_FUNCTION, F_GIS_,     4, H_MRDK, sub{ moon_rl_distance_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_azimuth'             => [ 2160, T_FUNCTION, F_GIS_,     4, H_MRAZ, sub{ moon_rl_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_m_and_azimuth'  => [ 2170, T_FUNCTION, F_GIS_,     4, H_MRMA, sub{ moon_rl_dist_m_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_rl_dist_km_and_azimuth' => [ 2180, T_FUNCTION, F_GIS_,     4, H_MRKA, sub{ moon_rl_dist_km_and_azimuth( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_m'                  => [ 2190, T_FUNCTION, F_GIS_,     4, H_MALM, sub{ moon_all_m( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'moon_all_km'                 => [ 2200, T_FUNCTION, F_GIS_,     4, H_MALK, sub{ moon_all_km( $_[ 0 ], $_[ 1 ], $_[ 2 ], $_[ 3 ] ) } ],
+    'gis_mercator_y'              => [ 2210, T_FUNCTION, F_GIS_,     1, H_MCTY, sub{ gis_mercator_y( $_[ 0 ] ) } ],
+    'gis_miller_y'                => [ 2220, T_FUNCTION, F_GIS_,     1, H_MLRY, sub{ gis_miller_y( $_[ 0 ] ) } ],
+    'the_solar_system'            => [ 2230, T_FUNCTION, F_GIS_,  '0-', H_TSLS, sub{ the_solar_system( @_ ) } ],
+    'km_per_h'                    => [ 2240, T_FUNCTION, F_UCNV, '1-2', H_KM_H, sub{ km_per_h( @_ ) } ],
+    'mph'                         => [ 2250, T_FUNCTION, F_UCNV, '1-2', H_MPH_, sub{ mph( @_ ) } ],
+    'kn'                          => [ 2260, T_FUNCTION, F_UCNV, '1-2', H_KNOT, sub{ kn( @_ ) } ],
+    'm_per_s'                     => [ 2270, T_FUNCTION, F_UCNV, '1-2', H_M_SC, sub{ m_per_s( @_ ) } ],
+    'mach'                        => [ 2280, T_FUNCTION, F_UCNV, '1-2', H_MACH, sub{ Mach( @_ ) } ],
+    'speed_of_light'              => [ 2290, T_FUNCTION, F_UCNV, '1-2', H_SOFL, sub{ speed_of_light( @_ ) } ],
+    'au2km'                       => [ 2300, T_FUNCTION, F_UCNV,     1, H_AU2K, sub{ au2km( $_[ 0 ] ) } ],
+    'km2au'                       => [ 2310, T_FUNCTION, F_UCNV,     1, H_K2AU, sub{ km2au( $_[ 0 ] ) } ],
+    'ri2meter'                    => [ 2320, T_FUNCTION, F_UCNV,     1, H_RI2M, sub{ ri2meter( $_[ 0 ] ) } ],
+    'meter2ri'                    => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ meter2ri( $_[ 0 ] ) } ],
+    'mile2meter'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ mile2meter( $_[ 0 ] ) } ],
+    'meter2mile'                  => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ meter2mile( $_[ 0 ] ) } ],
+    'nautical_mile2meter'         => [ 2360, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ nautical_mile2meter( $_[ 0 ] ) } ],
+    'meter2nautical_mile'         => [ 2370, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ meter2nautical_mile( $_[ 0 ] ) } ],
+    'inch2mm'                     => [ 2380, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ inch2mm( $_[ 0 ] ) } ],
+    'mm2inch'                     => [ 2390, T_FUNCTION, F_UCNV,     1, H_MM2I, sub{ mm2inch( $_[ 0 ] ) } ],
+    'pound2gram'                  => [ 2400, T_FUNCTION, F_UCNV,     1, H_LB2G, sub{ pound2gram( $_[ 0 ] ) } ],
+    'gram2pound'                  => [ 2410, T_FUNCTION, F_UCNV,     1, H_G2LB, sub{ gram2pound( $_[ 0 ] ) } ],
+    'ounce2gram'                  => [ 2420, T_FUNCTION, F_UCNV,     1, H_OZ2G, sub{ ounce2gram( $_[ 0 ] ) } ],
+    'gram2ounce'                  => [ 2430, T_FUNCTION, F_UCNV,     1, H_G2OZ, sub{ gram2ounce( $_[ 0 ] ) } ],
+    'kgf2newton'                  => [ 2440, T_FUNCTION, F_UCNV,     1, H_KG2N, sub{ kgf2newton( $_[ 0 ] ) } ],
+    'newton2kgf'                  => [ 2450, T_FUNCTION, F_UCNV,     1, H_N2KG, sub{ newton2kgf( $_[ 0 ] ) } ],
+    'kpa'                         => [ 2460, T_FUNCTION, F_UCNV, '1-2', H_KPAS, sub{ kPa( @_ ) } ],
+    'kgf_per_cm2'                 => [ 2470, T_FUNCTION, F_UCNV, '1-2', H_KGC2, sub{ kgf_per_cm2( @_ ) } ],
+    'psi'                         => [ 2480, T_FUNCTION, F_UCNV, '1-2', H_PD2I, sub{ PSI( @_ ) } ],
+    'bar'                         => [ 2490, T_FUNCTION, F_UCNV, '1-2', H_BAR_, sub{ bar( @_ ) } ],
+    'paper_size'                  => [ 2500, T_FUNCTION, F_UTLY, '1-2', H_PASZ, sub{ paper_size( @_ ) } ],
 );
 
 sub IsOperatorExists( $ )
 {
     my $operator = $_[ 0 ];
-    return &IsDefinitionExists( $operator, T_OPERATOR );
+    return IsDefinitionExists( $operator, T_OPERATOR );
 }
 
 sub IsFunctionExists( $ )
 {
     my $operator = $_[ 0 ];
-    return &IsDefinitionExists( $operator, T_FUNCTION );
+    return IsDefinitionExists( $operator, T_FUNCTION );
 }
 
 sub IsDefinitionExists( $$ )
@@ -1436,7 +1436,7 @@ sub GetOperatorsInfo( $$ )
 
     my $ret_val = undef;
 
-    if( &IsDefinitionExists( $operator, ( T_OPERATOR | T_FUNCTION | T_SENTINEL ) ) ){
+    if( IsDefinitionExists( $operator, ( T_OPERATOR | T_FUNCTION | T_SENTINEL ) ) ){
         if( defined( $TableProvider::operators{ $operator }[ $column ] ) ){
             $ret_val = $TableProvider::operators{ $operator }[ $column ];
         }
@@ -1457,7 +1457,7 @@ sub FilterOperatorsList( $ )
 {
     my $filter = shift( @_ );
     my @array = ();
-    for my $f( &GetAllOperatorsList() ){
+    for my $f( GetAllOperatorsList() ){
         if( $TableProvider::operators{ $f }[ O_TYPE ] & $filter ){
             if( defined( $TableProvider::operators{ $f }[ O_HELP ] ) ){
                 push( @array, $f );
@@ -1467,16 +1467,16 @@ sub FilterOperatorsList( $ )
     return @array;
 }
 
-sub GetOperatorsList( $ )
+sub GetOperatorsList( ;$ )
 {
     my( $category ) = @_;
-    my @ope_lists = &FilterOperatorsList( T_OPERATOR );
+    my @ope_lists = FilterOperatorsList( T_OPERATOR );
     if( defined( $category ) ){
         my @filtered_ope_lists = ();
         my $idx_len = scalar( @ope_lists );
         for( my $idx=0; $idx<$idx_len; $idx++ ){
             my $ope = $ope_lists[ $idx ];
-            my $cat = &GetOperatorsInfo( $ope, O_CATG );
+            my $cat = GetOperatorsInfo( $ope, O_CATG );
             #print( qq{$ope, $cat, $category\n} );
             if( $cat == $category ){
                 push( @filtered_ope_lists, $ope );
@@ -1487,16 +1487,16 @@ sub GetOperatorsList( $ )
     return @ope_lists;
 }
 
-sub GetFunctionsList( $ )
+sub GetFunctionsList( ;$ )
 {
     my( $category ) = @_;
-    my @fnc_lists = &FilterOperatorsList( T_FUNCTION );
+    my @fnc_lists = FilterOperatorsList( T_FUNCTION );
     if( defined( $category ) ){
         my @filtered_func_lists = ();
         my $idx_len = scalar( @fnc_lists );
         for( my $idx=0; $idx<$idx_len; $idx++ ){
             my $ope = $fnc_lists[ $idx ];
-            my $cat = &GetOperatorsInfo( $ope, O_CATG );
+            my $cat = GetOperatorsInfo( $ope, O_CATG );
             #print( qq{$ope, $cat, $category\n} );
             if( $cat == $category ){
                 push( @filtered_func_lists, $ope );
@@ -1514,7 +1514,7 @@ sub GetTokenTblIdx( $ )
     ## ここでは関数名は共通名'fn('として扱う
     $ope = 'fn(' if( $ope =~ m/^.+\($/o );
 
-    my $ret_val = &GetOperatorsInfo( $ope, O_INDX );
+    my $ret_val = GetOperatorsInfo( $ope, O_INDX );
 
     return $ret_val;
 }
@@ -1523,7 +1523,7 @@ sub GetArgc( $ )
 {
     my $ope = $_[ 0 ];
 
-    my $ret_val = &GetOperatorsInfo( $ope, O_ARGC );
+    my $ret_val = GetOperatorsInfo( $ope, O_ARGC );
 
     return $ret_val;
 }
@@ -1532,7 +1532,7 @@ sub GetHelp( $ )
 {
     my $ope = $_[ 0 ];
 
-    my $ret_val = &GetOperatorsInfo( $ope, O_HELP );
+    my $ret_val = GetOperatorsInfo( $ope, O_HELP );
 
     return $ret_val;
 }
@@ -1541,7 +1541,7 @@ sub GetSubroutine( $ )
 {
     my $ope = $_[ 0 ];
 
-    my $ret_val = &GetOperatorsInfo( $ope, O_SUBR );
+    my $ret_val = GetOperatorsInfo( $ope, O_SUBR );
 
     return $ret_val;
 }
@@ -1551,7 +1551,7 @@ sub IsSentinel( $ )
     my $ope = $_[ 0 ];
 
     my $bSentinel = 0;
-    my $ope_type = &GetOperatorsInfo( $ope, O_TYPE );
+    my $ope_type = GetOperatorsInfo( $ope, O_TYPE );
     if( defined( $ope_type ) && $ope_type == T_SENTINEL ){
         $bSentinel = 1;
     }
@@ -1588,7 +1588,7 @@ sub _C_MOD( $$ )
         die( qq{Division by zero: Illegal modulus operand.\n} );
     }
 
-    return &POSIX::fmod( $dividend, $divisor );
+    return POSIX::fmod( $dividend, $divisor );
 }
 
 # 床関数ベースのmod()関数
@@ -1602,7 +1602,7 @@ sub _C_MOD( $$ )
 #     c "$dividend - ( $divisor * floor( $dividend / $divisor ) )"
 sub math_mod( $$ ){
     my( $dividend, $divisor ) = @_;
-    my $res = &_C_MOD( $dividend, $divisor );   # ゼロ方向切り捨てベースのmod()関数
+    my $res = _C_MOD( $dividend, $divisor );   # ゼロ方向切り捨てベースのmod()関数
 
     #print( qq{\$res=$res\n} );
     #my $a = ( $res < 0 ) ? 1 : 0;
@@ -1640,7 +1640,7 @@ sub _C_FLOOR( @ )
 {
     my @ret_vals = ();
     for my $arg( @_ ){
-        push( @ret_vals, &POSIX::floor( $arg ) );
+        push( @ret_vals, POSIX::floor( $arg ) );
     }
     return @ret_vals;
 }
@@ -1649,7 +1649,7 @@ sub _C_CEIL( @ )
 {
     my @ret_vals = ();
     for my $arg( @_ ){
-        push( @ret_vals, &POSIX::ceil( $arg ) );
+        push( @ret_vals, POSIX::ceil( $arg ) );
     }
     return @ret_vals;
 }
@@ -1660,7 +1660,7 @@ sub rounddown( @ )
     if( $argc < 2 ){
         die( qq{rounddown(): \$argc=$argc: Insufficient arguments.\n} );
     }
-    return &round_rf( @_, 0 );
+    return round_rf( @_, 0 );
 }
 
 sub round( @ )
@@ -1669,7 +1669,7 @@ sub round( @ )
     if( $argc < 2 ){
         die( qq{round(): \$argc=$argc: Insufficient arguments.\n} );
     }
-    return &round_rf( @_, 0.5 );
+    return round_rf( @_, 0.5 );
 }
 
 sub roundup( @ )
@@ -1678,7 +1678,7 @@ sub roundup( @ )
     if( $argc < 2 ){
         die( qq{roundup(): \$argc=$argc: Insufficient arguments.\n} );
     }
-    return &round_rf( @_, 1 );
+    return round_rf( @_, 1 );
 }
 
 sub round_rf( @ )
@@ -1715,7 +1715,7 @@ sub percentage( $$;$ )
     $decimal_places = shift( @_ ) if( defined( $_[ 0 ] ) );
     my $ret_value = $numerator * 100 / $denominator;
     if( defined( $decimal_places ) ){
-        $ret_value = ( &round_rf( $ret_value, $decimal_places, 0.5 ) )[ 0 ];
+        $ret_value = ( round_rf( $ret_value, $decimal_places, 0.5 ) )[ 0 ];
     }
     return $ret_value;
 }
@@ -1729,7 +1729,7 @@ sub ratio_scaling( $$$;$ )
     my $forecast_quantity = ( $number_of_targets *
         $observation_unit / $number_of_observations );
     if( defined( $decimal_places ) ){
-        $forecast_quantity = ( &round_rf( $forecast_quantity, $decimal_places, 0.5 ) )[ 0 ];
+        $forecast_quantity = ( round_rf( $forecast_quantity, $decimal_places, 0.5 ) )[ 0 ];
     }
     return $forecast_quantity;
 }
@@ -1761,7 +1761,7 @@ sub is_prime( @ )
 {
     my @ret_vals = ();
     for my $num( @_ ){
-        push( @ret_vals, &is_prime_num( $num ) );
+        push( @ret_vals, is_prime_num( $num ) );
     }
     return @ret_vals;
 }
@@ -1823,13 +1823,13 @@ sub get_prime_num( $ )
         my $end = ( $random | 0x3 );
         #printf( qq{0x%08X - 0x%08X\n}, $random, $end );
         for( my $num=$random; $num<=$end; $num+=2 ){
-            return $num if( &is_prime_num( $num ) );
+            return $num if( is_prime_num( $num ) );
         }
     }
 }
 
 # 2つの数の最大公約数を求める（ユークリッドの互除法・ループ版）
-sub _gcd2( $$ )
+sub _c_gcd2( $$ )
 {
     my( $a, $b ) = @_;
     while( $b ){
@@ -1838,20 +1838,21 @@ sub _gcd2( $$ )
     return $a;
 }
 
-sub gcd( $@ )
+sub _c_gcd( @ )
 {
     my $gcd = shift( @_ );
+    #print( qq{\$gcd=$gcd\n} );
     for( @_ ){
-        $gcd = &_gcd2( $gcd, $_ );
+        $gcd = _c_gcd2( $gcd, $_ );
     }
     return $gcd;
 }
 
-sub lcm( $@ )
+sub _c_lcm( @ )
 {
     my $lcm = shift( @_ );
     for( @_ ){
-        my $g = &_gcd2( $lcm, $_ );
+        my $g = _c_gcd2( $lcm, $_ );
         if( $g == 0 ){
             $lcm = 0;
         }else{
@@ -1873,7 +1874,7 @@ sub _C_RAND( $;$ )
     }
     my @ret_vals = ();
     for( my $idx=0; $idx<$count; $idx++ ){
-        $ret_vals[ $idx ] = &CORE::rand( $rand_max );
+        $ret_vals[ $idx ] = CORE::rand( $rand_max );
     }
     if( $count == 1 ){
         return $ret_vals[ 0 ];
@@ -1952,7 +1953,7 @@ sub _C_SQRT( @ )
 {
     my @ret_vals = ();
     for my $arg( @_ ){
-        push( @ret_vals, &CORE::sqrt( $arg ) );
+        push( @ret_vals, CORE::sqrt( $arg ) );
     }
     return @ret_vals;
 }
@@ -1976,10 +1977,10 @@ sub nCr( $$ )
     if( ( $r <= 0 ) || ( $r != int( $r ) ) ){
         die( qq{nCr( $n, $r ): R[=$r] must be a positive integer.\n} );
     }
-    my @numerator_array = &linstep( $n, -1, $r );
-    my @denominator_array = &linstep( $r, -1, $r );
-    my $numerator = &prod( @numerator_array );
-    my $denominator = &prod( @denominator_array );
+    my @numerator_array = linstep( $n, -1, $r );
+    my @denominator_array = linstep( $r, -1, $r );
+    my $numerator = prod( @numerator_array );
+    my $denominator = prod( @denominator_array );
     my $res = $numerator / $denominator;
     return $res;
 }
@@ -1998,7 +1999,7 @@ sub _C_SAMPLE( @ )
     if( $count =~ m/\./o ){
         die( qq{sample(): \$count=$count: COUNT must be an integer.\n} );
     }
-    my @sets = &List::Util::sample( $count, @argv );
+    my @sets = List::Util::sample( $count, @argv );
     my $got_len = scalar( @sets );
     if( $got_len < $count ){
         $TableProvider::opf->warnPrint( qq{sample(): The specified quantity is $count, but the quantity obtained is $got_len.\n} );
@@ -2025,7 +2026,7 @@ sub _C_HEAD( @ )
     if( $length =~ m/\./o ){
         die( qq{head(): \$length=$length: LENGTH must be an integer.\n} );
     }
-    my @sets = &List::Util::head( $length, @argv );
+    my @sets = List::Util::head( $length, @argv );
     my $got_len = scalar( @sets );
     if( $got_len < $length ){
         $TableProvider::opf->warnPrint( qq{head(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
@@ -2047,7 +2048,7 @@ sub _C_TAIL( @ )
     if( $length =~ m/\./o ){
         die( qq{tail(): \$length=$length: LENGTH must be an integer.\n} );
     }
-    my @sets = &List::Util::tail( $length, @argv );
+    my @sets = List::Util::tail( $length, @argv );
     my $got_len = scalar( @sets );
     if( $got_len < $length ){
         $TableProvider::opf->warnPrint( qq{tail(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
@@ -2104,7 +2105,7 @@ sub prod( @ )
 
 sub _C_AVG( @ )
 {
-    my $total = &List::Util::sum( @_ );
+    my $total = List::Util::sum( @_ );
     my $len = scalar( @_ );
     return $total / $len;
 }
@@ -2165,17 +2166,19 @@ sub simplify_ratio( @ )
         my $ope_str = sprintf( '%s', $operand + 0 );
         if( $ope_str =~ m!\.(\d+)$!o ){
             my $len = length( $1 );
-            $int_factor = &List::Util::max( $len, $int_factor );
+            $int_factor = List::Util::max( $len, $int_factor );
         }
     }
     #print( qq{\$int_factor=$int_factor\n} );
     my @integers = ();
     for my $operand( @_ ){
-        my $int_num = $operand * ( 10 ** $int_factor );
+        my $int_num = int( $operand * ( 10 ** $int_factor ) );
         #print( qq{\$int_num=$int_num\n} );
         push( @integers, $int_num );
     }
-    my $divisor = &gcd( @integers );
+    #print( qq{\@integers = ( } . join( ', ', @integers ) . qq{ )\n} );
+    my $divisor = _c_gcd( @integers );
+    #print( qq{\$divisor=$divisor\n} );
     if( $divisor == 0 ){
         die( qq{simplify_ratio(): A ratio cannot be formed with zeros alone.\n} );
     }
@@ -2197,7 +2200,7 @@ sub normalize_ratio( @ )
     }
     my $divisor = undef;
     for my $operand( @_ ){
-        my $opd_abs = &CORE::abs( $operand );
+        my $opd_abs = CORE::abs( $operand );
         if( $opd_abs == 0 ){
             next;
         }elsif( !defined( $divisor ) ){
@@ -2242,7 +2245,7 @@ sub linspace( $$$;$ )
 
         # 第4引数 $decimal_places の桁で丸める
         if( defined( $decimal_places ) ){
-            $value = ( &round_rf( $value, $decimal_places, 0.5 ) )[ 0 ];
+            $value = ( round_rf( $value, $decimal_places, 0.5 ) )[ 0 ];
         }
 
         push( @ret_vals, $value );
@@ -2339,7 +2342,7 @@ sub is_leap( @ )
 {
     my @ret_vals = ();
     for my $year( @_ ){
-        push( @ret_vals, &is_leap_year( $year ) );
+        push( @ret_vals, is_leap_year( $year ) );
     }
     return @ret_vals;
 }
@@ -2347,7 +2350,7 @@ sub is_leap( @ )
 sub age( $;$ )
 {
     my( $birthday_epoch, $ref_date_epoch ) = @_;
-    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
+    $ref_date_epoch = CORE::time() if( !defined( $ref_date_epoch ) );
 
     my $negFlag = 0;
     if( $birthday_epoch > $ref_date_epoch ){
@@ -2357,8 +2360,8 @@ sub age( $;$ )
         $ref_date_epoch = $tmp_epoch;
     }
 
-    my( $bY, $bm, $bd, $bH, $bM, $bS ) = &epoch2local( $birthday_epoch );
-    my( $rY, $rm, $rd, $rH, $rM, $rS ) = &epoch2local( $ref_date_epoch );
+    my( $bY, $bm, $bd, $bH, $bM, $bS ) = epoch2local( $birthday_epoch );
+    my( $rY, $rm, $rd, $rH, $rM, $rS ) = epoch2local( $ref_date_epoch );
 
     my $bYear = sprintf( "%04d.%02d%02d", $bY, $bm, $bd );
     my $rYear = sprintf( "%04d.%02d%02d", $rY, $rm, $rd );
@@ -2369,7 +2372,7 @@ sub age( $;$ )
     my $bmmdd = sprintf( "%02d%02d", $bm, $bd );
     my $rmmdd = sprintf( "%02d%02d", $rm, $rd );
     $lY -= 1 if( $bmmdd > $rmmdd );
-    my $lastbirthday_epoch = &local2epoch( $lY, $bm, $bd, $bH, $bM, $bS );
+    my $lastbirthday_epoch = local2epoch( $lY, $bm, $bd, $bH, $bM, $bS );
 
     my $days = int( ( $ref_date_epoch - $lastbirthday_epoch ) / 86400 );
 
@@ -2404,9 +2407,9 @@ sub moon_age( $$$ )
 
     # 指定されたローカル日時の「その日の正午（12時）」のエポック秒を作る
 #    $y -= 1900; # timelocal()は4桁の西暦を解釈できる。4桁で渡すべき。
-    my $epoch = &Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
+    my $epoch = Time::Local::timelocal( 0, 0, 12, $d, $m - 1, $y );
 
-    my $age = &moon_age_instant( $epoch );
+    my $age = moon_age_instant( $epoch );
 
     # 小数第1位に丸めて出力
     return sprintf( "%.1f", $age );
@@ -2459,10 +2462,10 @@ sub print_moon_age_AA_if_necessary( $ )
 sub moon_age_instant( ;$ )
 {
     my $epoch = shift( @_ );
-    $epoch = &CORE::time() if( !defined( $epoch ) );
-    my $age = &moon_age_instant_raw( $epoch );
+    $epoch = CORE::time() if( !defined( $epoch ) );
+    my $age = moon_age_instant_raw( $epoch );
 
-    &print_moon_age_AA_if_necessary( $age );
+    print_moon_age_AA_if_necessary( $age );
 
     # コア用途のため丸めずに返す
     return $age;
@@ -2508,14 +2511,14 @@ sub moon_age_instant_raw( $ )
 sub get_next_moon_age_epoch( $;$ )
 {
     my( $moon_age, $ref_date_epoch ) = @_;
-    $ref_date_epoch = &CORE::time() if( !defined( $ref_date_epoch ) );
+    $ref_date_epoch = CORE::time() if( !defined( $ref_date_epoch ) );
     #print( qq{\$ref_date_epoch="$ref_date_epoch"\n} );
 
     if( !( 0 <= $moon_age && $moon_age < SAKUBOU ) ){
         die( qq{"$moon_age": MOON_AGE is out of range.\n} );
     }
 
-    my $age_raw = &moon_age_instant_raw( $ref_date_epoch );
+    my $age_raw = moon_age_instant_raw( $ref_date_epoch );
 
     my $age_diff = $moon_age - $age_raw;
     if( $age_diff < 0 ){
@@ -2524,13 +2527,13 @@ sub get_next_moon_age_epoch( $;$ )
     #print( qq{\$age_diff="$age_diff"\n} );
 
     # 月齢の 1日（＝86400秒） を 秒数 に変換
-    my $seconds_to_wait = &POSIX::ceil( $age_diff * 86400 );
+    my $seconds_to_wait = POSIX::ceil( $age_diff * 86400 );
     #print( qq{\$seconds_to_wait="$seconds_to_wait"\n} );
 
     my $next_future_epoch = $ref_date_epoch + $seconds_to_wait;
     #print( qq{\$next_future_epoch="$next_future_epoch"\n} );
 
-    &print_moon_age_AA_if_necessary( $moon_age );
+    print_moon_age_AA_if_necessary( $moon_age );
 
     return $next_future_epoch;
 }
@@ -2543,7 +2546,7 @@ sub local2epoch( $$$;$$$ )
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
     $sec = 0 if( !defined( $sec ) );
-    my $epoch = &Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
+    my $epoch = Time::Local::timelocal( $sec, $minute, $hour, $mday, $month, $year );
     return $epoch;
 }
 
@@ -2555,7 +2558,7 @@ sub gmt2epoch( $$$;$$$ )
     $hour = 0 if( !defined( $hour ) );
     $minute = 0 if( !defined( $minute ) );
     $sec = 0 if( !defined( $sec ) );
-    my $epoch = &Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
+    my $epoch = Time::Local::timegm( $sec, $minute, $hour, $mday, $month, $year );
     return $epoch;
 }
 
@@ -2579,12 +2582,14 @@ sub epoch2gmt( $ )
 
 sub local2gmt( $$$;$$$ )
 {
-    return &epoch2gmt( &local2epoch( @_ ) );
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+    return epoch2gmt( local2epoch( $year, $month, $mday, $hour, $minute, $sec ) );
 }
 
 sub gmt2local( $$$;$$$ )
 {
-    return &epoch2local( &gmt2epoch( @_ ) );
+    my( $year, $month, $mday, $hour, $minute, $sec ) = @_;
+    return epoch2local( gmt2epoch( $year, $month, $mday, $hour, $minute, $sec ) );
 }
 
 sub sec2dhms( $;$ )
@@ -2595,11 +2600,11 @@ sub sec2dhms( $;$ )
     my $bNeg = ( $duration < 0 ? 1 : 0 );
     my $duration_abs = abs( $duration );
     if( defined( $decimal_places ) ){
-        $duration_abs = ( &round_rf( $duration_abs, $decimal_places, 0.5 ) )[ 0 ];
+        $duration_abs = ( round_rf( $duration_abs, $decimal_places, 0.5 ) )[ 0 ];
         #print( qq{\$duration_abs="$duration_abs", \$decimal_places="$decimal_places"\n} );
     }
 
-    my $sec = &_C_MOD( $duration_abs, 60 );
+    my $sec = _C_MOD( $duration_abs, 60 );
     ## support:
     ##   $ ./c 'sec2dhms( dhms2sec( 0, 24 / SAKUBOU, 0, 0 ), 3 )'
     ##   ( 0, 0, 48, 45.7800000000002 ) -> 45.78
@@ -2610,9 +2615,9 @@ sub sec2dhms( $;$ )
         $sec = sprintf( "%.${decimal_places}f", $sec )
     }
     my $remain = int( $duration_abs / 60 );
-    my $minute = &_C_MOD( $remain, 60 );
+    my $minute = _C_MOD( $remain, 60 );
     $remain = int( $remain / 60 );
-    my $hour = &_C_MOD( $remain, 24 );
+    my $hour = _C_MOD( $remain, 24 );
     my $days = int( $remain / 24 );
 
     if( $bNeg ){
@@ -2644,7 +2649,7 @@ sub dhms2sec( $;$$$ )
 sub dhms2dhms( $;$$$$ )
 {
     my( $days, $hour, $minute, $sec, $decimal_places ) = @_;
-    return &sec2dhms( &dhms2sec( $days, $hour, $minute, $sec ), $decimal_places );
+    return sec2dhms( dhms2sec( $days, $hour, $minute, $sec ), $decimal_places );
 }
 
 sub msec2hms( $ )
@@ -2652,7 +2657,7 @@ sub msec2hms( $ )
     my $duration = shift( @_ );
     #print( qq{\$duration="$duration"\n} );
 
-    my $sec = &_C_MOD( $duration, 60 );
+    my $sec = _C_MOD( $duration, 60 );
     #print( qq{\$sec="$sec"\n} );
     my $remain = int( $duration / 60 );
     my $minute = $remain % 60;
@@ -2685,7 +2690,7 @@ sub waitEnter( $;$ )
     while( 1 ){
         my $bel = '';
         # 1. タイマーの計算と表示
-        my $lap     = &Time::HiRes::time();
+        my $lap     = Time::HiRes::time();
         my $elapsed = $lap - $zero_time;
         if( $elapsed >= 0 ){
             #print( qq{\$elapsed="$elapsed"\n} );
@@ -2730,7 +2735,7 @@ sub waitEnter( $;$ )
         if( $nfound > 0 ){
             # バッファリングしない sysread を使う
             my $char;
-            my $bytes = &_C_SYSREAD( \*STDIN, $char, 1 );
+            my $bytes = _C_SYSREAD( \*STDIN, $char, 1 );
 
             if( defined( $bytes ) ){
                 if( $bytes > 0 ){
@@ -2760,7 +2765,7 @@ sub waitEnter( $;$ )
     return $line;
 }
 
-use Errno qw(EINTR);
+use Errno qw();                     # first released with perl 5.005
 my $_c_sysread_counter = 0;
 sub _C_SYSREAD( *\$$;$ )
 {
@@ -2771,7 +2776,7 @@ sub _C_SYSREAD( *\$$;$ )
     if( $TableProvider::CAppConfig->GetBTestTestTest() ){
         $TableProvider::CAppConfig->SetBTestTestTest( 0 );
         $_c_sysread_counter = 10;
-        $! = EINTR;
+        $! = Errno::EINTR;
         return undef;
     }elsif( $_c_sysread_counter > 0 ){
         $_c_sysread_counter--;
@@ -2789,7 +2794,7 @@ sub laptimer( $ )
     $b_rich_print = 0 if( $cycle < 0 );
     $cycle = int( abs( $cycle ) );
     my $remain = $cycle;
-    my $beg = &Time::HiRes::time();
+    my $beg = Time::HiRes::time();
     #print( qq{\$beg=$beg\n} );
     my $lap_last = $beg;
     my $spl_time = 0;
@@ -2809,11 +2814,11 @@ sub laptimer( $ )
         my $seq = $cycle - $remain;
         #print( qq{\$remain=$remain\n} );
         #print( qq{\$line="$line"\n} );
-        my $line = &waitEnter( $lap_old );
+        my $line = waitEnter( $lap_old );
         if( $line ne '' ){
             $remain = 0;
         }
-        my $lap = &Time::HiRes::time();
+        my $lap = Time::HiRes::time();
         $lap_old = $lap;
         $spl_time = $lap - $beg;
         my $lap_time = $lap - $lap_last;
@@ -2821,8 +2826,8 @@ sub laptimer( $ )
         my( $sec, $minute, $hour, $mday, $month, $year ) = localtime( int( $lap ) );
         $year += 1900;  # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
         $month += 1;
-        my @st = &msec2hms( $spl_time );
-        my @lt = &msec2hms( $lap_time );
+        my @st = msec2hms( $spl_time );
+        my @lt = msec2hms( $lap_time );
         if( $b_rich_print ){
             if( $cycle == 1 ){
                 printf( qq{\r%02d:%02d:%06.3f  } .
@@ -2850,7 +2855,7 @@ sub timer( $;$ )
 {
     my( $target, $b_continue_after_zero ) = @_;
 
-    my $start_time = &Time::HiRes::time();
+    my $start_time = Time::HiRes::time();
     my $zero_time = $target;
     $b_continue_after_zero = 0 if( !defined( $b_continue_after_zero ) );
 
@@ -2866,9 +2871,9 @@ sub timer( $;$ )
     printf( qq{%04d-%02d-%02d %02d:%02d:%02d.%03d  TARGET\n},
         $year, $month, $mday, $hour, $minute, $sec, $msec );
 
-    &waitEnter( $zero_time, $b_continue_after_zero );
+    waitEnter( $zero_time, $b_continue_after_zero );
 
-    my $end_time = &Time::HiRes::time();
+    my $end_time = Time::HiRes::time();
     ( $sec, $minute, $hour, $mday, $month, $year ) = localtime( $end_time );
     $year += 1900;  # localtime/gmtimeは1900年からのオフセット。エポック秒のゼロは1970年。ANSI Cと同じ。
     $month += 1;
@@ -2881,7 +2886,7 @@ sub timer( $;$ )
 
 sub stopwatch()
 {
-    my $t = &laptimer( -1 );
+    my $t = laptimer( -1 );
     print( qq{stopwatch() = $t sec.\n} );
     return $t;
 }
@@ -2895,14 +2900,14 @@ sub bpm( $$ )
 
 sub bpm15()
 {
-    my $t = &stopwatch();
-    return &bpm( 15, $t );
+    my $t = stopwatch();
+    return bpm( 15, $t );
 }
 
 sub bpm30()
 {
-    my $t = &stopwatch();
-    return &bpm( 30, $t );
+    my $t = stopwatch();
+    return bpm( 30, $t );
 }
 
 sub tachymeter( $ )
@@ -2931,12 +2936,14 @@ sub telemeter( $;$ )
 
 sub telemeter_m( $;$ )
 {
-    return &telemeter( @_ );
+    my( $sec, $temperature ) = @_;
+    return telemeter( $sec, $temperature );
 }
 
 sub telemeter_km( $;$ )
 {
-    return &telemeter( @_ ) / 1000;
+    my( $sec, $temperature ) = @_;
+    return telemeter( $sec, $temperature ) / 1000;
 }
 
 ## Trigonometry & Geometry
@@ -2951,7 +2958,7 @@ sub _C_RAD2DEG_LIST( @ )
     my @deg_array = ();
     for my $rad( @_ ){
         #print( qq{\$rad="$rad"\n} );
-        my $deg = &RAD2DEG( $rad );
+        my $deg = RAD2DEG( $rad );
         push( @deg_array, $deg );
     }
     return $deg_array[ 0 ] if( scalar( @deg_array ) == 1 );
@@ -2968,7 +2975,7 @@ sub _C_DEG2RAD_LIST( @ )
     my @rad_array = ();
     for my $deg( @_ ){
         #print( qq{\$deg="$deg"\n} );
-        my $rad = &DEG2RAD( $deg );
+        my $rad = DEG2RAD( $deg );
         push( @rad_array, $rad );
     }
     return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
@@ -2982,7 +2989,7 @@ sub DMS2RAD( $$$ )
         my $degrees = shift( @_ );
         my $min = shift( @_ );
         my $sec = shift( @_ );
-        my $rad = &DEG2RAD( &DMS2DEG( $degrees, $min, $sec ) );
+        my $rad = DEG2RAD( DMS2DEG( $degrees, $min, $sec ) );
         push( @rad_array, $rad );
     }
     return $rad_array[ 0 ] if( scalar( @rad_array ) == 1 );
@@ -3025,29 +3032,29 @@ sub DMS2DMS( $$$ )
         my $deg = shift( @_ );
         my $min = shift( @_ );
         my $sec = shift( @_ );
-        push( @dms_array, &DEG2DMS( DMS2DEG( $deg, $min, $sec ) ) );
+        push( @dms_array, DEG2DMS( DMS2DEG( $deg, $min, $sec ) ) );
     }
     return @dms_array;
 }
 
 sub _C_TAN( $ )
 {
-    return &CORE::sin( $_[0] ) / &CORE::cos( $_[0] );
+    return CORE::sin( $_[0] ) / CORE::cos( $_[0] );
 }
 
 sub _C_ASIN( $ )
 {
-    return &CORE::atan2( $_[0], &CORE::sqrt( 1 - ( $_[0] ** 2 ) ) );
+    return CORE::atan2( $_[0], CORE::sqrt( 1 - ( $_[0] ** 2 ) ) );
 }
 
 sub _C_ACOS( $ )
 {
-    return &CORE::atan2( &CORE::sqrt( 1 - ( $_[0] ** 2 ) ), $_[0] );
+    return CORE::atan2( CORE::sqrt( 1 - ( $_[0] ** 2 ) ), $_[0] );
 }
 
 sub _C_ATAN( $ )
 {
-    return &CORE::atan2( $_[0], 1 );
+    return CORE::atan2( $_[0], 1 );
 }
 
 sub angle_deg( $$;$ )
@@ -3056,7 +3063,7 @@ sub angle_deg( $$;$ )
     if( !defined( $is_azimuth ) ){
         $is_azimuth = 0;
     }
-    my $degree = ( &angle_between_points( 0, 0, $x, $y, $is_azimuth ) )[ 0 ];
+    my $degree = ( angle_between_points( 0, 0, $x, $y, $is_azimuth ) )[ 0 ];
     return $degree;
 }
 
@@ -3073,13 +3080,13 @@ sub dist_between_points( $$$$;$$ )
     my $ret_val = 0;
     if( $b3d ){
         my( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z ) = @_;
-        $ret_val = &CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
-                                ( ( $p2y - $p1y ) ** 2 ) +
-                                ( ( $p2z - $p1z ) ** 2 ) );
+        $ret_val = CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                               ( ( $p2y - $p1y ) ** 2 ) +
+                               ( ( $p2z - $p1z ) ** 2 ) );
     }else{
         my( $p1x, $p1y, $p2x, $p2y ) = @_;
-        $ret_val = &CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
-                                ( ( $p2y - $p1y ) ** 2 ) );
+        $ret_val = CORE::sqrt( ( ( $p2x - $p1x ) ** 2 ) +
+                               ( ( $p2y - $p1y ) ** 2 ) );
     }
 
     return $ret_val;
@@ -3129,14 +3136,14 @@ sub angle_between_points( $$$$;$$$ )
     my @ret_val = ();
     if( $b3d ){
         ( $p1x, $p1y, $p1z, $p2x, $p2y, $p2z, $is_azimuth ) = @_;
-        my $hypotenuse_x_y = &dist_between_points( $p1x, $p1y, $p2x, $p2y );
-        $elevation = &RAD2DEG( &CORE::atan2( $p2z - $p1z, $hypotenuse_x_y ) );
+        my $hypotenuse_x_y = dist_between_points( $p1x, $p1y, $p2x, $p2y );
+        $elevation = RAD2DEG( CORE::atan2( $p2z - $p1z, $hypotenuse_x_y ) );
         unshift( @ret_val, $elevation );
     }else{
         ( $p1x, $p1y, $p2x, $p2y, $is_azimuth ) = @_;
     }
 
-    my $bearing = &RAD2DEG( &CORE::atan2( $p2y - $p1y, $p2x - $p1x ) );
+    my $bearing = RAD2DEG( CORE::atan2( $p2y - $p1y, $p2x - $p1x ) );
     if( defined( $is_azimuth ) ){
         if( $is_azimuth ){
             $bearing = 90 - $bearing;
@@ -3172,25 +3179,25 @@ sub vector_angle( $$$$;$$$ )
         $p2z = 0;
     }
 
-    my $radian = &_C_ACOS(
+    my $radian = _C_ACOS(
                    ( $p1x * $p2x + $p1y * $p2y + $p1z * $p2z ) /
-                   &CORE::sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
-                                ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
+                   CORE::sqrt( ( $p1x ** 2 + $p1y ** 2 + $p1z ** 2 ) *
+                               ( $p2x ** 2 + $p2y ** 2 + $p2z ** 2 ) )
                  );
 
     return $radian if( $is_radian );
-    return &RAD2DEG( $radian );
+    return RAD2DEG( $radian );
 }
 
 ## Geographic & Navigation (GIS)
 
 sub geo2xyz( $$;$ )
 {
-    return &gis2xyz( \%wgs84_param, @_ );
+    return gis2xyz( \%wgs84_param, @_ );
 }
 sub moon2xyz( $$;$ )
 {
-    return &gis2xyz( \%moon_param, @_ );
+    return gis2xyz( \%moon_param, @_ );
 }
 sub gis2xyz( \%$$;$ )
 {
@@ -3202,13 +3209,13 @@ sub gis2xyz( \%$$;$ )
     my $e2  = ${ $ref_param }{POW_E};
 
     # 緯度からその場所の「卯酉線曲率半径 (N)」を計算
-    my $sin_lat = &CORE::sin( $lat );
-    my $n = $a / &CORE::sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
+    my $sin_lat = CORE::sin( $lat );
+    my $n = $a / CORE::sqrt( 1 - $e2 * ( $sin_lat ** 2 ) );
 
     # 三角関数の計算値をキャッシュしておく
-    my $cos_lat = &CORE::cos( $lat );
-    my $cos_lon = &CORE::cos( $lon );
-    my $sin_lon = &CORE::sin( $lon );
+    my $cos_lat = CORE::cos( $lat );
+    my $cos_lon = CORE::cos( $lon );
+    my $sin_lon = CORE::sin( $lon );
 
     # 厳密な楕円体公式によるXYZの算出
     my $x = ( $n + $h ) * $cos_lat * $cos_lon;
@@ -3236,11 +3243,11 @@ sub normalize_coordinates( $$ )
         !(       -pi <= $lon_rad && $lon_rad <= pi ) ){
 
         # 経度の正規化 (-pi ～ pi)
-        my $lon_rad_new = &math_mod( ($lon_rad + pi), $two_pi ) - pi;
+        my $lon_rad_new = math_mod( ($lon_rad + pi), $two_pi ) - pi;
 
         # 緯度の正規化（-pi/2 ～ pi/2）と、それに伴う経度の反転処理
 
-        my $lat_rad_new = &math_mod( $lat_rad, $two_pi );
+        my $lat_rad_new = math_mod( $lat_rad, $two_pi );
 
         # 2*pi の余りが pi (180度) を超えたら、-pi ～ pi の範囲に変換
         if( $lat_rad_new > pi ){
@@ -3252,12 +3259,12 @@ sub normalize_coordinates( $$ )
             $lat_rad_new =  pi - $lat_rad_new;
 
             # 経度を180度反転
-            $lon_rad_new = &math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
+            $lon_rad_new = math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
         }elsif( $lat_rad_new < -$half_pi ){
             $lat_rad_new = -pi - $lat_rad_new;
 
             # 経度を180度反転
-            $lon_rad_new = &math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
+            $lon_rad_new = math_mod( $lon_rad_new + $two_pi, $two_pi ) - pi;
         }
 
         warn( qq{Coordinates out of range: $lat_rad, $lon_rad: } .
@@ -3276,13 +3283,13 @@ sub geocentric_radius( $ )
 {
     my $latitude_rad = shift( @_ );
 
-    my $sin_lat = &CORE::sin( $latitude_rad );
-    my $cos_lat = &CORE::cos( $latitude_rad );
+    my $sin_lat = CORE::sin( $latitude_rad );
+    my $cos_lat = CORE::cos( $latitude_rad );
 
     # 正確な動径Rを求める公式
     my $numerator = ( WGS84_EQUATORIAL_RADIUS_M ** 2 * $cos_lat ) ** 2 + ( WGS84_POLAR_RADIUS_M ** 2 * $sin_lat ) ** 2;
     my $denominator = (WGS84_EQUATORIAL_RADIUS_M * $cos_lat ) ** 2 + ( WGS84_POLAR_RADIUS_M * $sin_lat ) ** 2;
-    my $R = &CORE::sqrt( $numerator / $denominator );
+    my $R = CORE::sqrt( $numerator / $denominator );
 
     return $R;
 }
@@ -3292,22 +3299,22 @@ sub geocentric_radius( $ )
 # 戻り値: 緯線の半径 (メートル)
 sub geo_radius_of_lat_circle( $ )
 {
-    return &gis_radius_of_lat_circle( \%wgs84_param, @_ );
+    return gis_radius_of_lat_circle( \%wgs84_param, @_ );
 }
 sub moon_radius_of_lat_circle( $ )
 {
-    return &gis_radius_of_lat_circle( \%moon_param, @_ );
+    return gis_radius_of_lat_circle( \%moon_param, @_ );
 }
 sub gis_radius_of_lat_circle( \%$ )
 {
     my $ref_param = shift( @_ );
     my $latitude_rad = shift( @_ );
 
-    my $sin_lat = &CORE::sin( $latitude_rad );
-    my $cos_lat = &CORE::cos( $latitude_rad );
+    my $sin_lat = CORE::sin( $latitude_rad );
+    my $cos_lat = CORE::cos( $latitude_rad );
 
     # 卯酉線曲率半径 N を計算
-    my $W = &CORE::sqrt( 1 - ${ $ref_param }{POW_E} * $sin_lat ** 2 );
+    my $W = CORE::sqrt( 1 - ${ $ref_param }{POW_E} * $sin_lat ** 2 );
     my $N = ${ $ref_param }{EQUATORIAL_RADIUS_M} / $W;
 
     my $r = $N * $cos_lat;
@@ -3325,39 +3332,39 @@ sub gis_radius_of_lat_circle( \%$ )
 ## 戻り値: 2地点間の距離 (メートル)
 sub geo_distance_m( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my( $dist_m, $azimuth ) = geo_great_circle_route_Vincenty( @_ );
     return $dist_m;
 }
 
 sub geo_distance_km( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my( $dist_m, $azimuth ) = geo_great_circle_route_Vincenty( @_ );
     my $dist_km = $dist_m / 1000;
     return $dist_km;
 }
 
 sub geo_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my( $dist, $azimuth ) = geo_great_circle_route_Vincenty( @_ );
     return $azimuth;
 }
 
 sub moon_distance_m( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &moon_great_circle_route_Vincenty( @_ );
+    my( $dist_m, $azimuth ) = moon_great_circle_route_Vincenty( @_ );
     return $dist_m;
 }
 
 sub moon_distance_km( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &moon_great_circle_route_Vincenty( @_ );
+    my( $dist_m, $azimuth ) = moon_great_circle_route_Vincenty( @_ );
     my $dist_km = $dist_m / 1000;
     return $dist_km;
 }
 
 sub moon_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &moon_great_circle_route_Vincenty( @_ );
+    my( $dist, $azimuth ) = moon_great_circle_route_Vincenty( @_ );
     return $azimuth;
 }
 
@@ -3394,16 +3401,16 @@ sub moon_azimuth( $$$$ )
 #    my $dlat = $latB_rad - $latA_rad;
 #
 #    # ハバーサイン公式の計算
-#    my $a = ( &CORE::sin( $dlat / 2 ) * &CORE::sin( $dlat / 2 ) ) +
-#            ( &CORE::cos( $latA_rad ) * &CORE::cos( $latB_rad ) *
-#              &CORE::sin( $dlon / 2 ) * &CORE::sin( $dlon / 2 ) );
-#    my $distance = 2 * &CORE::atan2( &CORE::sqrt( $a ), &CORE::sqrt( 1 - $a ) );
+#    my $a = ( CORE::sin( $dlat / 2 ) * CORE::sin( $dlat / 2 ) ) +
+#            ( CORE::cos( $latA_rad ) * CORE::cos( $latB_rad ) *
+#              CORE::sin( $dlon / 2 ) * CORE::sin( $dlon / 2 ) );
+#    my $distance = 2 * CORE::atan2( CORE::sqrt( $a ), CORE::sqrt( 1 - $a ) );
 #
 #    # 地球の半径 (メートル)
 #    my $earth_radius_m = 6371008.7714; # 平均半径 (メートル)
 ##    my $earth_radius_m = WGS84_EQUATORIAL_RADIUS_M; # 赤道半径（長半径）
-##    my $P = &_C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
-##    my $earth_radius_m = &geocentric_radius( $P );  # 緯度$Pの半径 (メートル)
+##    my $P = _C_AVG( $latB_rad, $latA_rad );        # 2点の緯度の平均
+##    my $earth_radius_m = geocentric_radius( $P );  # 緯度$Pの半径 (メートル)
 ##    print( qq{\$earth_radius_m="$earth_radius_m", \$P="$P"\n} );
 #
 #    my $distance_m = $earth_radius_m * $distance;
@@ -3421,15 +3428,15 @@ sub moon_azimuth( $$$$ )
 #
 #    my $Dy = $latB_rad - $latA_rad;             # 2点の緯度（ラジアン）の差
 #    my $Dx = $lonB_rad - $lonA_rad;             # 2点の経度（ラジアン）の差
-#    my $P  = &_C_AVG( $latB_rad, $latA_rad );   # 2点の緯度の平均
+#    my $P  = _C_AVG( $latB_rad, $latA_rad );    # 2点の緯度の平均
 #    my $Rx = WGS84_EQUATORIAL_RADIUS_M;         # 長半径（赤道半径）
 #    my $Ry = WGS84_POLAR_RADIUS_M;              # 短半径（極半径）
-#    my $W  = &CORE::sqrt( 1 - ( ( WGS84_POW_E ) * ( &CORE::sin( $P ) ** 2 ) ) );
+#    my $W  = CORE::sqrt( 1 - ( ( WGS84_POW_E ) * ( CORE::sin( $P ) ** 2 ) ) );
 #    my $M = ( $Rx * ( 1 - ( WGS84_POW_E ) ) ) / # 子午線曲率半径
 #            ( $W ** 3 );
 #    my $N = $Rx / $W;                           # 卯酉線曲線半径
 #
-#    my $D = &CORE::sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * &CORE::cos( $P ) ) ** 2 ) );
+#    my $D = CORE::sqrt( ( ( $Dy * $M ) ** 2 ) + ( ( $Dx * $N * CORE::cos( $P ) ) ** 2 ) );
 #
 #    my $distance_m = $D;
 #
@@ -3438,22 +3445,24 @@ sub moon_azimuth( $$$$ )
 
 ## See: geo_distance_m_r4.162.pdf
 sub geo_great_circle_route_Vincenty( $$$$ )
-{       # WGS84 楕円体定数 を使ってVincentyアルゴリズムをコール
-    return &gis_great_circle_route_Vincenty( \%wgs84_param, @_ );
+{   # WGS84 楕円体定数 を使ってVincentyアルゴリズムをコール
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return gis_great_circle_route_Vincenty( \%wgs84_param, $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 }
 sub moon_great_circle_route_Vincenty( $$$$ )
-{       # 月の 楕円体定数 を使ってVincentyアルゴリズムをコール
-    return &gis_great_circle_route_Vincenty( \%moon_param, @_ );
+{   # 月の 楕円体定数 を使ってVincentyアルゴリズムをコール
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return gis_great_circle_route_Vincenty( \%moon_param, $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 }
 sub gis_great_circle_route_Vincenty( \%$$$$ )
 {
     my $ref_param = shift( @_ );
     my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
     my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    ( $latA_rad, $lonA_rad ) = &normalize_coordinates( $latA_rad, $lonA_rad );
+    ( $latA_rad, $lonA_rad ) = normalize_coordinates( $latA_rad, $lonA_rad );
     my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
     my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-    ( $latB_rad, $lonB_rad ) = &normalize_coordinates( $latB_rad, $lonB_rad );
+    ( $latB_rad, $lonB_rad ) = normalize_coordinates( $latB_rad, $lonB_rad );
 
     # 同一地点の場合は距離 0、方位角 0 を返す
     if( abs( $latA_rad - $latB_rad) < 1e-12 && abs( $lonA_rad - $lonB_rad ) < 1e-12 ){
@@ -3471,10 +3480,10 @@ sub gis_great_circle_route_Vincenty( \%$$$$ )
     elsif( $L < -pi ){ $L += 2 * pi; }
 
     # 補助緯度 (Reduced Latitude) の計算
-    my $U1 = &_C_ATAN( ( 1 - $f ) * &_C_TAN( $latA_rad ) );
-    my $U2 = &_C_ATAN( ( 1 - $f ) * &_C_TAN( $latB_rad ) );
-    my $sinU1 = &CORE::sin( $U1 ); my $cosU1 = &CORE::cos( $U1 );
-    my $sinU2 = &CORE::sin( $U2 ); my $cosU2 = &CORE::cos( $U2 );
+    my $U1 = _C_ATAN( ( 1 - $f ) * _C_TAN( $latA_rad ) );
+    my $U2 = _C_ATAN( ( 1 - $f ) * _C_TAN( $latB_rad ) );
+    my $sinU1 = CORE::sin( $U1 ); my $cosU1 = CORE::cos( $U1 );
+    my $sinU2 = CORE::sin( $U2 ); my $cosU2 = CORE::cos( $U2 );
 
     # Vincenty法の反復計算
     my $lambda = $L;
@@ -3487,16 +3496,16 @@ sub gis_great_circle_route_Vincenty( \%$$$$ )
     for( my $i = 0; $i < 100; $i++ ){
         $lambda_prev = $lambda;
 
-        my $sin_lambda = &CORE::sin( $lambda );
-        my $cos_lambda = &CORE::cos( $lambda );
+        my $sin_lambda = CORE::sin( $lambda );
+        my $cos_lambda = CORE::cos( $lambda );
 
-        $sin_sigma = &CORE::sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
+        $sin_sigma = CORE::sqrt( ( $cosU2 * $sin_lambda ) ** 2 + ( $cosU1 * $sinU2 - $sinU1 * $cosU2 * $cos_lambda ) ** 2 );
 
         # 対蹠点（真裏）などの特殊なケースでゼロ割を防ぐ
         if( $sin_sigma == 0 ){ return ( 0, 0 ); }
 
         $cos_sigma = $sinU1 * $sinU2 + $cosU1 * $cosU2 * $cos_lambda;
-        $sigma = &CORE::atan2( $sin_sigma, $cos_sigma );
+        $sigma = CORE::atan2( $sin_sigma, $cos_sigma );
 
         $sin_alpha = $cosU1 * $cosU2 * $sin_lambda / $sin_sigma;
         $cos2_alpha = 1 - $sin_alpha ** 2;
@@ -3528,12 +3537,12 @@ sub gis_great_circle_route_Vincenty( \%$$$$ )
     # ----------------------------------------
     # 初期方位角 (azimuth) の計算
     # ----------------------------------------
-    my $y = &CORE::sin( $lambda ) * $cosU2;
-    my $x = $cosU1 * $sinU2 - $sinU1 * $cosU2 * &CORE::cos( $lambda );
-    my $azimuth_rad = &CORE::atan2( $y, $x );
+    my $y = CORE::sin( $lambda ) * $cosU2;
+    my $x = $cosU1 * $sinU2 - $sinU1 * $cosU2 * CORE::cos( $lambda );
+    my $azimuth_rad = CORE::atan2( $y, $x );
 
     # ラジアンを「0度〜360度」の範囲に変換
-    my $azimuth = &RAD2DEG( $azimuth_rad );
+    my $azimuth = RAD2DEG( $azimuth_rad );
     if( $azimuth < 0 ){ $azimuth += 360; }
 
     # 距離と方位角をペアで返す
@@ -3542,14 +3551,16 @@ sub gis_great_circle_route_Vincenty( \%$$$$ )
 
 sub geo_dist_m_and_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = geo_great_circle_route_Vincenty( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 
     return ( $dist, $azimuth );
 }
 
 sub geo_dist_km_and_azimuth( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &geo_great_circle_route_Vincenty( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist_m, $azimuth ) = geo_great_circle_route_Vincenty( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     my $dist_km = $dist_m / 1000;
 
     return ( $dist_km, $azimuth );
@@ -3557,14 +3568,16 @@ sub geo_dist_km_and_azimuth( $$$$ )
 
 sub moon_dist_m_and_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &moon_great_circle_route_Vincenty( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = moon_great_circle_route_Vincenty( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 
     return ( $dist, $azimuth );
 }
 
 sub moon_dist_km_and_azimuth( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &moon_great_circle_route_Vincenty( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist_m, $azimuth ) = moon_great_circle_route_Vincenty( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     my $dist_km = $dist_m / 1000;
 
     return ( $dist_km, $azimuth );
@@ -3573,21 +3586,23 @@ sub moon_dist_km_and_azimuth( $$$$ )
 ## 等角航路（Rhumb Line）, 漸長緯度航法
 sub geo_rhumb_line( $$$$ )
 {
-    return &gis_rhumb_line( \%wgs84_param, @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return gis_rhumb_line( \%wgs84_param, $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 }
 sub moon_rhumb_line( $$$$ )
 {
-    return &gis_rhumb_line( \%moon_param, @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return gis_rhumb_line( \%moon_param, $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
 }
 sub gis_rhumb_line( \%$$$$ )
 {
     my $ref_param = shift( @_ );
     my $latA_rad = shift( @_ ); # 引数1: 緯度A (ラジアン)
     my $lonA_rad = shift( @_ ); # 引数2: 経度A (ラジアン)
-    ( $latA_rad, $lonA_rad ) = &normalize_coordinates( $latA_rad, $lonA_rad );
+    ( $latA_rad, $lonA_rad ) = normalize_coordinates( $latA_rad, $lonA_rad );
     my $latB_rad = shift( @_ ); # 引数3: 緯度B (ラジアン)
     my $lonB_rad = shift( @_ ); # 引数4: 経度B (ラジアン)
-    ( $latB_rad, $lonB_rad ) = &normalize_coordinates( $latB_rad, $lonB_rad );
+    ( $latB_rad, $lonB_rad ) = normalize_coordinates( $latB_rad, $lonB_rad );
 
     # 同一地点の場合は距離 0、方位角 0 を返す
     if( abs( $latA_rad - $latB_rad ) < 1e-12 &&
@@ -3598,7 +3613,7 @@ sub gis_rhumb_line( \%$$$$ )
     # 楕円体定数
     my $a = ${ $ref_param }{EQUATORIAL_RADIUS_M};
     my $f = ${ $ref_param }{FLATTENING};        # 扁平率
-    my $e = &CORE::sqrt( 2 * $f - $f * $f );    # 第一離心率 (約 0.081819191)
+    my $e = CORE::sqrt( 2 * $f - $f * $f );    # 第一離心率 (約 0.081819191)
     #printf( qq{\$f=$f, \$e=$e\n} );
 
     my $dlat = $latB_rad - $latA_rad;
@@ -3615,18 +3630,18 @@ sub gis_rhumb_line( \%$$$$ )
 
     # 緯度をメルカトル図法上の「y座標」に変換する式
     # 楕円体における漸長緯度 (Isometric Latitude) の差を計算
-    my $m_A = log( &_C_TAN( pi / 4 + $latA_rad / 2 ) ) -
-              ( $e / 2 ) * log( ( 1 + $e * &CORE::sin( $latA_rad ) ) / ( 1 - $e * &CORE::sin( $latA_rad ) ) );
-    my $m_B = log( &_C_TAN( pi / 4 + $latB_rad / 2 ) ) -
-              ( $e / 2 ) * log( ( 1 + $e * &CORE::sin( $latB_rad ) ) / ( 1 - $e * &CORE::sin( $latB_rad ) ) );
+    my $m_A = log( _C_TAN( pi / 4 + $latA_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * CORE::sin( $latA_rad ) ) / ( 1 - $e * CORE::sin( $latA_rad ) ) );
+    my $m_B = log( _C_TAN( pi / 4 + $latB_rad / 2 ) ) -
+              ( $e / 2 ) * log( ( 1 + $e * CORE::sin( $latB_rad ) ) / ( 1 - $e * CORE::sin( $latB_rad ) ) );
     my $dm = $m_B - $m_A;
 #    printf( qq{\$dm=$dm\n} );
 
     # 方位角を算出
     # 真北を0とし、時計回りのラジアンを返す
-    my $azimuth_rad = &CORE::atan2( $dlon, $dm );
+    my $azimuth_rad = CORE::atan2( $dlon, $dm );
     # ラジアンを「0度〜360度」の範囲に変換
-    my $azimuth = &RAD2DEG( $azimuth_rad );
+    my $azimuth = RAD2DEG( $azimuth_rad );
     if( $azimuth < 0 ){ $azimuth += 360; }
 
     # ------------------------------------------------------------------
@@ -3638,8 +3653,8 @@ sub gis_rhumb_line( \%$$$$ )
     if( abs( $dlat ) < 1e-11 ){
         # 【ケースA】完全な真東・真西（同緯度）の移動
         # この場合は南北移動がないため、平行圏曲率半径（卯酉線曲率半径×cos緯度）から直接算出
-        my $N = $a / &CORE::sqrt( 1 - $e * $e * &CORE::sin( $latA_rad ) * &CORE::sin( $latA_rad ) );
-        $distance_m = $N * &CORE::cos( $latA_rad ) * abs( $dlon );
+        my $N = $a / CORE::sqrt( 1 - $e * $e * CORE::sin( $latA_rad ) * CORE::sin( $latA_rad ) );
+        $distance_m = $N * CORE::cos( $latA_rad ) * abs( $dlon );
     }else{
         # 【ケースB】南北の移動がある場合（日本から南極など、ほとんどのケース）
         # クロップ（Klotz）の展開式を用いて、赤道からの正確な子午線弧長を算出（積分展開）
@@ -3652,14 +3667,14 @@ sub gis_rhumb_line( \%$$$$ )
         my $C_coeff = $a / ( 1.0 + $n ) * ( ( 15.0 / 16.0)  * $n2 );
         my $D_coeff = $a / ( 1.0 + $n ) * ( ( 35.0 / 48.0)  * $n3 );
 
-        my $s_A = $A_coeff * $latA_rad - $B_coeff * &CORE::sin( 2 * $latA_rad ) + $C_coeff * &CORE::sin( 4 * $latA_rad) - $D_coeff * &CORE::sin( 6 * $latA_rad );
-        my $s_B = $A_coeff * $latB_rad - $B_coeff * &CORE::sin( 2 * $latB_rad ) + $C_coeff * &CORE::sin( 4 * $latB_rad) - $D_coeff * &CORE::sin( 6 * $latB_rad );
+        my $s_A = $A_coeff * $latA_rad - $B_coeff * CORE::sin( 2 * $latA_rad ) + $C_coeff * CORE::sin( 4 * $latA_rad) - $D_coeff * CORE::sin( 6 * $latA_rad );
+        my $s_B = $A_coeff * $latB_rad - $B_coeff * CORE::sin( 2 * $latB_rad ) + $C_coeff * CORE::sin( 4 * $latB_rad) - $D_coeff * CORE::sin( 6 * $latB_rad );
 
         # 厳密な南北の距離（子午線弧長）
         my $S_M = abs( $s_B - $s_A );
 
         # 等角航路の総距離 ＝ 南北距離 ÷ cos(方位角)
-        $distance_m = $S_M / abs( &CORE::cos( $azimuth_rad ) );
+        $distance_m = $S_M / abs( CORE::cos( $azimuth_rad ) );
     }
 
     return ( $distance_m, $azimuth );
@@ -3667,60 +3682,70 @@ sub gis_rhumb_line( \%$$$$ )
 
 sub geo_rl_distance_m( $$$$ )
 {
-    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = geo_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return $dist;
 }
 
 sub geo_rl_distance_km( $$$$ )
 {
-    return &geo_rl_distance_m( @_ ) / 1000;
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return geo_rl_distance_m( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) / 1000;
 }
 
 sub geo_rl_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = geo_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return $azimuth;
 }
 
 sub moon_rl_distance_m( $$$$ )
 {
-    my( $dist, $azimuth ) = &moon_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = moon_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return $dist;
 }
 
 sub moon_rl_distance_km( $$$$ )
 {
-    return &moon_rl_distance_m( @_ ) / 1000;
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    return moon_rl_distance_m( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) / 1000;
 }
 
 sub moon_rl_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &moon_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = moon_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return $azimuth;
 }
 
 sub geo_rl_dist_m_and_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &geo_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = geo_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return ( $dist, $azimuth );
 }
 
 sub geo_rl_dist_km_and_azimuth( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &geo_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist_m, $azimuth ) = geo_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     my $dist_km = $dist_m / 1000;
     return ( $dist_km, $azimuth );
 }
 
 sub moon_rl_dist_m_and_azimuth( $$$$ )
 {
-    my( $dist, $azimuth ) = &moon_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist, $azimuth ) = moon_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     return ( $dist, $azimuth );
 }
 
 sub moon_rl_dist_km_and_azimuth( $$$$ )
 {
-    my( $dist_m, $azimuth ) = &moon_rhumb_line( @_ );
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
+    my( $dist_m, $azimuth ) = moon_rhumb_line( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad );
     my $dist_km = $dist_m / 1000;
     return ( $dist_km, $azimuth );
 }
@@ -3728,36 +3753,40 @@ sub moon_rl_dist_km_and_azimuth( $$$$ )
 ## 大圏航路（Great Circle）と 等角航路（Rhumb Line）
 sub geo_all_m( $$$$ )
 {
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
     my @ret_vals = ();
-    push( @ret_vals, &geo_dist_m_and_azimuth( @_ ) );
-    push( @ret_vals, &geo_rl_dist_m_and_azimuth( @_ ) );
+    push( @ret_vals, geo_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, geo_rl_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
 
     return @ret_vals;
 }
 
 sub geo_all_km( $$$$ )
 {
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
     my @ret_vals = ();
-    push( @ret_vals, &geo_dist_km_and_azimuth( @_ ) );
-    push( @ret_vals, &geo_rl_dist_km_and_azimuth( @_ ) );
+    push( @ret_vals, geo_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, geo_rl_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
 
     return @ret_vals;
 }
 
 sub moon_all_m( $$$$ )
 {
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
     my @ret_vals = ();
-    push( @ret_vals, &moon_dist_m_and_azimuth( @_ ) );
-    push( @ret_vals, &moon_rl_dist_m_and_azimuth( @_ ) );
+    push( @ret_vals, moon_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, moon_rl_dist_m_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
 
     return @ret_vals;
 }
 
 sub moon_all_km( $$$$ )
 {
+    my( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) = @_;
     my @ret_vals = ();
-    push( @ret_vals, &moon_dist_km_and_azimuth( @_ ) );
-    push( @ret_vals, &moon_rl_dist_km_and_azimuth( @_ ) );
+    push( @ret_vals, moon_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
+    push( @ret_vals, moon_rl_dist_km_and_azimuth( $latA_rad, $lonA_rad, $latB_rad, $lonB_rad ) );
 
     return @ret_vals;
 }
@@ -3765,26 +3794,26 @@ sub moon_all_km( $$$$ )
 sub gis_mercator_y_core( $ )
 {
     my( $lat_rad ) = @_;
-    return &CORE::log( &_C_TAN( ( pi / 4 ) + ( $lat_rad / 2 ) ) )
+    return CORE::log( _C_TAN( ( pi / 4 ) + ( $lat_rad / 2 ) ) )
 }
 
 sub gis_mercator_y( $ )
 {
     my( $lat_rad ) = @_;
-    if( $lat_rad <= &DEG2RAD( -90 ) || &DEG2RAD( 90 ) <= $lat_rad ){
+    if( $lat_rad <= DEG2RAD( -90 ) || DEG2RAD( 90 ) <= $lat_rad ){
         die( qq{gis_mercator_y(): \$lat_rad[=$lat_rad] is out of range.\n} );
     }
-    return &gis_mercator_y_core( $lat_rad );
+    return gis_mercator_y_core( $lat_rad );
 }
 
 sub gis_miller_y( $ )
 {
     my( $lat_rad ) = @_;
     # 0.8倍する前に範囲チェックしておく
-    if( $lat_rad <= &DEG2RAD( -90 ) || &DEG2RAD( 90 ) <= $lat_rad ){
+    if( $lat_rad <= DEG2RAD( -90 ) || DEG2RAD( 90 ) <= $lat_rad ){
         die( qq{gis_miller_y(): \$lat_rad[=$lat_rad] is out of range.\n} );
     }
-    return &gis_mercator_y_core( $lat_rad * 0.8 ) * 1.25;
+    return gis_mercator_y_core( $lat_rad * 0.8 ) * 1.25;
 }
 
 ## https://ja.wikipedia.org/wiki/%E5%A4%AA%E9%99%BD%E7%B3%BB#%E4%B8%BB%E3%81%AA%E5%A4%A9%E4%BD%93%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF
@@ -3878,11 +3907,11 @@ sub the_solar_system( ;$@ )
 
     my @results = ();
     for my $celestial_body( @_ ){
-        push( @results, &the_solar_system_core( $column, $celestial_body ) );
+        push( @results, the_solar_system_core( $column, $celestial_body ) );
     }
 
     if( scalar( @results ) == 0 ){
-        push( @results, &the_solar_system_core( $column ) );
+        push( @results, the_solar_system_core( $column ) );
     }
 
     return @results;
@@ -3933,7 +3962,7 @@ sub km_h_to( $$ )
 sub km_per_h( $ )
 {
     my( $km_per_hour, $target_unit ) = @_;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -3941,7 +3970,7 @@ sub mph( $ )
 {
     my( $mph, $target_unit ) = @_;
     my $km_per_hour = $mph * 1.609344;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -3949,7 +3978,7 @@ sub kn( $ )
 {
     my( $kn, $target_unit ) = @_;
     my $km_per_hour = $kn * 1.852;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -3957,7 +3986,7 @@ sub m_per_s( $ )
 {
     my( $meter_per_second, $target_unit ) = @_;
     my $km_per_hour = $meter_per_second * 3.600;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -3965,7 +3994,7 @@ sub Mach( $ )
 {
     my( $mach, $target_unit ) = @_;
     my $km_per_hour = $mach * 1_191.6;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -3974,7 +4003,7 @@ sub speed_of_light( $ )
     my( $speed_of_light, $target_unit ) = @_;
     my $meter_per_second = $speed_of_light * 299_792_458;
     my $km_per_hour = $meter_per_second * 3.600;
-    my @velocities = &km_h_to( $km_per_hour, $target_unit );
+    my @velocities = km_h_to( $km_per_hour, $target_unit );
     return @velocities;
 }
 
@@ -4141,7 +4170,7 @@ sub kPa( $;$ )
 {
     my( $kpa, $target_unit ) = @_;
 
-    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+    my @air_pressure_units = kPa_to( $kpa, $target_unit );
 
     return @air_pressure_units;
 }
@@ -4151,7 +4180,7 @@ sub kgf_per_cm2( $;$ )
     my( $kgf, $target_unit ) = @_;
 
     my $kpa = $kgf / 0.0101972;
-    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+    my @air_pressure_units = kPa_to( $kpa, $target_unit );
 
     return @air_pressure_units;
 }
@@ -4161,7 +4190,7 @@ sub PSI( $;$ )
     my( $psi, $target_unit ) = @_;
 
     my $kpa = $psi / 0.145038;
-    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+    my @air_pressure_units = kPa_to( $kpa, $target_unit );
 
     return @air_pressure_units;
 }
@@ -4171,7 +4200,7 @@ sub bar( $;$ )
     my( $bar, $target_unit ) = @_;
 
     my $kpa = $bar / 0.01;
-    my @air_pressure_units = &kPa_to( $kpa, $target_unit );
+    my @air_pressure_units = kPa_to( $kpa, $target_unit );
 
     return @air_pressure_units;
 }
@@ -4195,8 +4224,8 @@ sub paper_size( $$ )
     if( defined( $type ) && $type == 1 ){
         $paper_type = 'B';
         ## B判はA判の面積の1.5倍という思想。計算で出すなら以下のようになる。
-        ## $long_side  = &POSIX::floor( $long_side * &CORE::sqrt( 1.5 ) );
-        ## $short_side = &POSIX::floor( $short_side * &CORE::sqrt( 1.5 ) );
+        ## $long_side  = POSIX::floor( $long_side * CORE::sqrt( 1.5 ) );
+        ## $short_side = POSIX::floor( $short_side * CORE::sqrt( 1.5 ) );
         $long_side  = 1456;
         $short_side = 1030;
     }
@@ -4206,7 +4235,7 @@ sub paper_size( $$ )
     my $bWarnShortSide = 1;
     while( $counter-- ){
         my $paper_size = $paper_type . ( $size - $counter );
-        my $short_side_next = &POSIX::floor( $long_side / 2 );
+        my $short_side_next = POSIX::floor( $long_side / 2 );
         $long_side = $short_side;
         if( $long_side == 0 && $bWarnLongSide ){
             $bWarnLongSide = 0;
@@ -4225,11 +4254,11 @@ sub paper_size( $$ )
 
 
 package FormulaParser;
-use strict;
-use warnings;
-use base qq{OutputFunc};
-use utf8;
-use Encode qw(decode encode);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use base qq{OutputFunc};            # first released with perl 5.00405
+use utf8;                           # first released with perl v5.6.0
+use Encode qw();                    # first released with perl v5.7.3
 
 # FormulaParser コンストラクタ
 sub new
@@ -4289,7 +4318,7 @@ sub FormulaNormalizationOneLine( $ )
 
     ##########
     ## コーディングが面倒になるので全角文字はこの区間内に留める事。
-    $expr = &str2p( $expr );
+    $expr = str2p( $expr );
     $expr =~ tr!Ａ-Ｚａ-ｚ０-９，、．：＋＊・･／＾（）＝　”゛“’′!a-za-z0-9,,.:+***/^()= """''!;
     ## tr///で使えなかった → －
     $expr =~ s!－!-!go;
@@ -4322,7 +4351,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!ポンド!pound!go;
     $expr =~ s!オンス!ounce!go;
     $expr =~ s!ニュートン!newton!go;
-    $expr = &p2str( $expr );
+    $expr = p2str( $expr );
     ##########
 
     $expr =~ s!^\s+!!o;
@@ -4401,7 +4430,7 @@ sub RouteDetermination()
     my $el_L = $self->Stack->GetNewer();
     my $tokenL = $el_L->GetTokenSymbol();
     my $tokenR = $curr_token->GetTokenSymbol();
-    my $act = &TableProvider::GetPriorityOrderBetweenTokens( $tokenL, $tokenR );
+    my $act = TableProvider::GetPriorityOrderBetweenTokens( $tokenL, $tokenR );
 
     if( $curr_token->IsOperand() ){         ## オペランドなら出力
         $self->Queuing( $ref_parser_output, $curr_token, $act );
@@ -4412,7 +4441,7 @@ sub RouteDetermination()
         $self->Queuing( $ref_parser_output, $stack_out, $act );
         $el_L = $self->Stack->GetNewer();
         $tokenL = $el_L->GetTokenSymbol();
-        $act = &TableProvider::GetPriorityOrderBetweenTokens( $tokenL, $tokenR );
+        $act = TableProvider::GetPriorityOrderBetweenTokens( $tokenL, $tokenR );
     }
 
     if( $act == TableProvider::E_RIGH ){
@@ -4466,8 +4495,8 @@ sub Queuing( \@$$ )
             $bFunc = 1;
         }
 
-        if( !defined( &TableProvider::GetSubroutine( $simple_name ) ) &&
-            !( &TableProvider::IsSentinel( $simple_name ) ) ){
+        if( !defined( TableProvider::GetSubroutine( $simple_name ) ) &&
+            !( TableProvider::IsSentinel( $simple_name ) ) ){
             my $msg = '';
             if( $simple_name eq '(' ){
                 $msg = qq{The position of the ")" is incorrect.\n};
@@ -4498,11 +4527,11 @@ sub str2p
 {
     my $argc = scalar( @_ );
 #    if( $argc == 1 ){
-        return &Encode::decode( STR_CHAR_CODE, $_[ 0 ] );
+        return Encode::decode( STR_CHAR_CODE, $_[ 0 ] );
 #    }else{
 #        my @a = ();
 #        for my $arg( @_ ){
-#            push( @a, &Encode::decode( STR_CHAR_CODE, $arg ) );
+#            push( @a, Encode::decode( STR_CHAR_CODE, $arg ) );
 #        }
 #        return @a;
 #    }
@@ -4513,11 +4542,11 @@ sub p2str
 {
     my $argc = scalar( @_ );
 #    if( $argc == 1 ){
-        return &Encode::encode( STR_CHAR_CODE, $_[ 0 ] );
+        return Encode::encode( STR_CHAR_CODE, $_[ 0 ] );
 #    }else{
 #        my @a = ();
 #        for my $arg( @_ ){
-#            push( @a, &Encode::encode( STR_CHAR_CODE, $arg ) );
+#            push( @a, Encode::encode( STR_CHAR_CODE, $arg ) );
 #        }
 #        return @a;
 #    }
@@ -4525,12 +4554,12 @@ sub p2str
 
 
 package FormulaLexer;
-use strict;
-use warnings;
-use base qq{OutputFunc};
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use base qq{OutputFunc};            # first released with perl 5.00405
 
 ## Perlの標準関数 atan2 を使った、最も正確なパイ（π）の求め方
-use constant pi => 4 * &CORE::atan2( 1, 1 );
+use constant pi => 4 * CORE::atan2( 1, 1 );
 
 #use constant SHIFT_REG_LEN => 2;
 
@@ -4564,7 +4593,7 @@ sub LoadConstants( $ )
     my $self = shift( @_ );
     my $ref_user_const = \%{ $self->{CONSTANTS} };
 
-    my $now_epoch = &Time::HiRes::time();
+    my $now_epoch = Time::HiRes::time();
 
     # ハッシュリファレンスの中身を空にする
     my $len = scalar( keys( %{ $ref_user_const } ) );
@@ -4709,7 +4738,7 @@ sub IsTokenOperator( \$\$ )
     my $operator = '';
     if( $$ref_str =~ m!^([\S]{2})!o ){
         $operator = $1;
-        if( &TableProvider::IsOperatorExists( $operator ) ){
+        if( TableProvider::IsOperatorExists( $operator ) ){
             $$ref_str = substr( $$ref_str, 2 );
             $$ref_ope = $operator;
             return 1;
@@ -4717,7 +4746,7 @@ sub IsTokenOperator( \$\$ )
     }
     $$ref_str =~ m!^([\S])!o;
     $operator = $1;
-    if( &TableProvider::IsOperatorExists( $operator ) ){
+    if( TableProvider::IsOperatorExists( $operator ) ){
         $$ref_str = substr( $$ref_str, 1 );
         $$ref_ope = $operator;
         return 1;
@@ -4766,14 +4795,14 @@ sub GetToken( $\$ )
             }
 
             if( $bSigned ){
-                $el_d = &FormulaToken::NewOperand( "$operator$operand", $bHex );
+                $el_d = FormulaToken::NewOperand( "$operator$operand", $bHex );
 
                 ## オペレータとオペランドの間にスペースを付加して式を組み立てなおす
                 if( $self->IsNeedInsert( $operator, $el_d, " $operand_str $$ref_expr", $ref_expr ) ){
                     return $ret_obj;
                 }
             }else{
-                $el_d = &FormulaToken::NewOperand( $operand, $bHex );
+                $el_d = FormulaToken::NewOperand( $operand, $bHex );
 
                 ## 必要であれば暗黙の乗算子を挿入
                 if( $self->IsNeedInsert( '*', $el_d, " $operand $$ref_expr", $ref_expr ) ){
@@ -4790,15 +4819,15 @@ sub GetToken( $\$ )
             my $funcname = $2;
             my $bFunction = 0;
             if( $operator ne '(' ){
-                if( ! &TableProvider::IsFunctionExists( $funcname ) ){
-                    my $fns = join( ', ', &TableProvider::GetFunctionsList() );
+                if( ! TableProvider::IsFunctionExists( $funcname ) ){
+                    my $fns = join( ', ', TableProvider::GetFunctionsList() );
                     my $info = $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
                     $self->Die( qq{"$funcname()": unknown function.\n$info} );
                 }
                 $bFunction = 1;
             }
 
-            my $el_r = &FormulaToken::NewOperator( $operator, $bFunction );
+            my $el_r = FormulaToken::NewOperator( $operator, $bFunction );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -4835,7 +4864,7 @@ sub GetToken( $\$ )
                 }
             }
 
-            my $el_r = &FormulaToken::NewOperator( $operator );
+            my $el_r = FormulaToken::NewOperator( $operator );
             ## 必要であれば暗黙の乗算子を挿入
             if( $self->IsNeedInsert( '*', $el_r, "$operator$$ref_expr", $ref_expr ) ){
                 return $ret_obj;
@@ -4848,8 +4877,8 @@ sub GetToken( $\$ )
             # The implicit multiplication insertion process runs on the next turn.
 
         }else{
-            my $ops = join( ' ', &TableProvider::GetOperatorsList() );
-            my $fns = join( ', ', &TableProvider::GetFunctionsList() );
+            my $ops = join( ' ', TableProvider::GetOperatorsList() );
+            my $fns = join( ', ', TableProvider::GetFunctionsList() );
             my $info = $self->GenMsg( 'info', qq{Supported operators: "$ops"\n} );
             $info .= $self->GenMsg( 'info', qq{Supported functions: $fns\n} );
             #$info .= $self->GenMsg( 'info', qq{User Defined:\n} );
@@ -4888,7 +4917,7 @@ sub IsNeedInsert( $$$$\$ )
     ## ここでは関数名は単なる括弧（始）'('として扱う
     $curr_tkndata = '(' if( $curr_tkndata =~ m/\($/o );
 
-#    &dPrintf( qq{last="$last_tkndata", curr="$curr_tkndata"\n} );
+#    dPrintf( qq{last="$last_tkndata", curr="$curr_tkndata"\n} );
     my $bInsert = 0;
 
     if( ( defined( $last_token ) ) &&
@@ -4961,9 +4990,9 @@ sub GetHere( $$ )
 
 
 package FormulaStack;
-use strict;
-use warnings;
-use base qq{OutputFunc};
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use base qq{OutputFunc};            # first released with perl 5.00405
 
 # FormulaStack コンストラクタ
 sub new
@@ -5054,9 +5083,9 @@ sub GetNewer( $$ )
 
 
 package FormulaEvaluator;
-use strict;
-use warnings;
-use base qq{OutputFunc};
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use base qq{OutputFunc};            # first released with perl 5.00405
 
 use constant {
     BIT_DISP_HEX => 0x1,
@@ -5147,7 +5176,7 @@ sub Input( $$ )
         if( $token->IsHex() ){
             $self->{FLAGS} |= BIT_DISP_HEX;
         }
-    }elsif( &TableProvider::IsSentinel( $token->data ) ){
+    }elsif( TableProvider::IsSentinel( $token->data ) ){
         ## through...
     }else{
         $op = $token->data;
@@ -5156,10 +5185,10 @@ sub Input( $$ )
         if( ( $op eq '|' ) || ( $op eq '&' ) || ( $op eq '^' ) || ( $op eq '<<' ) || ( $op eq '>>' ) || ( $op eq '~' ) ){
             $self->{FLAGS} |= BIT_DISP_HEX;
         }
-        my $subr = &TableProvider::GetSubroutine( $op );
+        my $subr = TableProvider::GetSubroutine( $op );
         ## GetSubroutine() で undef になるオペレーターは
         ## Parser もしくは この手前で（例えばsentinel）フィルター済み
-        my $argc = &TableProvider::GetArgc( $op );
+        my $argc = TableProvider::GetArgc( $op );
         my $tokens_len = scalar( @{ $self->{TOKENS} } );
         ## check
         my $case = -1;
@@ -5221,7 +5250,7 @@ sub Input( $$ )
         for( $arg_counter=0; $arg_counter<$check_len; $arg_counter++ ){
             my $el = ${ $self->{TOKENS} }[ $arg_counter ];
             if( !( $el->IsOperand() ) ){
-                if( &TableProvider::IsSentinel( $el->data ) ){
+                if( TableProvider::IsSentinel( $el->data ) ){
                     if( $need_argc == TableProvider::VA ){
                         $need_argc = $arg_counter;
                         $self->dPrint( qq{variable arguments: \$need_argc="$need_argc"\n} );
@@ -5264,7 +5293,7 @@ sub Input( $$ )
         }
         $self->RegisterClear();
         my $formula = '';
-        if( &TableProvider::IsOperatorExists( $op ) ){
+        if( TableProvider::IsOperatorExists( $op ) ){
             my $args_len = scalar( @args );
             if( $args_len == 1 ){
                 $formula = qq{$op$args[ 0 ]};
@@ -5318,7 +5347,7 @@ sub GetUsage( $$ )
     my $op = shift( @_ );
     my $info = '';
     my $usage = '';
-    my $help = &TableProvider::GetHelp( $op );
+    my $help = TableProvider::GetHelp( $op );
     if( defined( $help ) ){
         $usage = $help;
         $usage = 'usage: ' . $usage;
@@ -5386,12 +5415,12 @@ sub ResultPrint( $ )
             $reg_raw = sprintf( "%.*f", $round_digits, $val ) + 0;
         }
         my $reg_str = undef;
-        if( &NumberToString( $reg_raw, \$reg_str ) ){
+        if( NumberToString( $reg_raw, \$reg_str ) ){
             $bDispRaw = 1;
         }
         my $reg_hxa = undef;
         my $reg_mns = undef;
-        if( &NumberToHex( $reg_str, \$reg_hxa, \$reg_mns ) ){
+        if( NumberToHex( $reg_str, \$reg_hxa, \$reg_mns ) ){
             $bDispMns = 1;
         }
         push( @raw_vals, $reg_raw );
@@ -5432,13 +5461,14 @@ sub ResultPrint( $ )
     return $self->{REGISTER};
 }
 
-sub NumberToString( $\$ )
+sub NumberToString( $$ )
 {
     my( $number, $ref_str ) = @_;
 
     my $bRet = 0;
 
-    $$ref_str = "$number";
+    $$ref_str = $number;
+    #print( qq{\$\$ref_str="$$ref_str"\n} );
     my $safety_margin = 10;
 
     ## 「浮動小数点リテラル」の「指数表記（科学的記数法）（Scientific Notation）」
@@ -5459,16 +5489,15 @@ sub NumberToString( $\$ )
         $bRet = 1;
     }
 
+    #print( qq{\$bRet=$bRet\n} );
     return $bRet;
 }
 
-sub NumberToHex( $\$\$ )
+sub NumberToHex( $$$ )
 {
-    my $number = shift( @_ );
-    my $ref_hxa = shift( @_ );
-    my $ref_mns = shift( @_ );
+    my( $number, $ref_hxa, $ref_mns ) = @_;
     $$ref_hxa = $number;
-    $$ref_mns = '-';
+    $$ref_mns = $number;
     my $bRet = 0;
 
     if( !( $number =~ m/\d\.\d/o ) ){
@@ -5477,20 +5506,21 @@ sub NumberToHex( $\$\$ )
         #print( qq{\$number="$number", \$signed_int="$signed_int"\n} );
         if( $number != $signed_int ){
             $bRet = 1;
-            &NumberToString( $signed_int, $ref_mns );
+            NumberToString( $signed_int, $ref_mns );
         }
         $$ref_hxa = sprintf( qq{0x%X}, $number );
     }
 
     #$$ref_str = qq{$$ref_str$hex_str$hexadecimal};
 
+    #print( qq{${ $ref_mns }\n} );
     return $bRet;
 }
 
 
 package FormulaHelper;
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 sub new
 {
@@ -5517,9 +5547,9 @@ sub GetHere( $$ )
 
 
 package FormulaEngine;
-use strict;
-use warnings;
-use base qq{OutputFunc};
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use base qq{OutputFunc};            # first released with perl 5.00405vs
 
 # FormulaEngine コンストラクタ
 sub new
@@ -5538,7 +5568,7 @@ sub new
 #    $self->Reset();
 #    $self->dPrint( qq{$self->{APPCONFIG}->{APPNAME}: FormulaEngine: create\n} );
     if( $self->{APPCONFIG}->GetBTest() ){
-        my $help_of_unknown_operator = &OutputFunc::FmtHelp( 100, '***' );
+        my $help_of_unknown_operator = OutputFunc::FmtHelp( 100, '***' );
         $self->dPrint( qq{\$help_of_unknown_operator="$help_of_unknown_operator"\n} );
         $self->Reset();
         my $tblProvider2 = TableProvider->new( $self->{APPCONFIG} );
@@ -5666,8 +5696,8 @@ sub Calculate( $$ )
 
 
 package CAppConfig;
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 # CAppConfig コンストラクタ
 sub new
@@ -5779,9 +5809,9 @@ sub GetBPrintUserDefined( $ )
 
 package main;
 
-use strict;
-use warnings;
-use File::Basename qw(dirname basename);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 
 my $opf = undef;
 
@@ -5791,7 +5821,7 @@ exit( &pl_main( @ARGV ) ) unless caller();
 sub pl_main( @ )
 {
     ## 初期化処理
-    my $conf = &init_script();
+    my $conf = init_script();
 
     my $bContinue = 1;
     my $status = 128;
@@ -5799,7 +5829,7 @@ sub pl_main( @ )
 
     eval{
         ## 引数解析
-        &parse_arg( $conf, @_ );
+        parse_arg( $conf, @_ );
         $fEngine = FormulaEngine->new( $conf );
     };
     if( $@ ){
@@ -5832,8 +5862,8 @@ sub init_script()
 
     my $exec_file = $0;
     $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
-    my $apppath = &File::Basename::dirname( $exec_file );
-    my $appname = &File::Basename::basename( $exec_file );
+    my $apppath = File::Basename::dirname( $exec_file );
+    my $appname = File::Basename::basename( $exec_file );
     my $debug = 0;
     my $bTest = 0;
     my $bTestTestTest = 0;
@@ -6266,10 +6296,22 @@ In an easy-to-understand format:
   $ c 'epoch2local( now )'
   ( 2025, 11, 25, 1, 53, 17 )   # 2025-11-25 01:53:17
 
+Convert Namibia time to local time: (Use the included timezone_id)
+
+  $ timezone_id Namibia
+  SDT    SDT    Lat, Lon               IANA TZ id       Country Code
+  +02:00 CAT    -22.56493, 17.08421    Africa/Windhoek  NA
+
+  $ TZ='Africa/Windhoek' c 'local2epoch( 2026-08-24 09:17 )'
+  1787555820
+
+  $ c 'epoch2local( 1787555820 )'
+  ( 2026, 8, 24, 16, 17, 0 )
+
 Time elapsed since a specified date:
 
   $ c 'sec2dhms( now - local2epoch( 2011, 03, 11, 14, 46 ) )'
-  ( 5372, 15, 51, 18 )  # 5372 days, 15 hours, 51 minutes, and 18 seconds
+  ( 5372, 15, 51, 18.7487299442 )   # 5372 days, 15 hours, 51 minutes, and 18 seconds
 
 1 hour and 45 minutes before two days later:
 
@@ -8636,6 +8678,8 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 =over 4
 
 =item L<C<FTCalc.pm -- Perl interface for The Flat-Text Calculator>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/FTCalc.pm.md>
+
+=item L<C<timezone_id -- List IANA timezone IDs>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/timezone_id.md>
 
 =item L<C<perl(1)>>
 

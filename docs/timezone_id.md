@@ -55,6 +55,10 @@ Each _PATTERN_ can be:
 
     Enable debug output.
 
+- -i, --ignore-case
+
+    Ignore case distinctions in the _PATTERN_.
+
 - --version
 
     Print the version of this script and Perl and exit.
@@ -88,6 +92,7 @@ Each _PATTERN_ can be:
         SDT    SDT    Lat, Lon               IANA TZ id    Country Code
         +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
         +09:00 JST    35.67642, 139.65002    Asia/Tokyo    JP; AU
+
         $ Paris='48.85754, 2.35137'
         $ Tokyo='35.67642, 139.65002'
 
@@ -135,9 +140,9 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [c -- The Flat-Text Calculator (Perl Script)](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md)
-- [cl -- CLOCK PROGRAM](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/cl.md)
-- [perl](https://metacpan.org/pod/perl)(1)
+- [`c -- The Flat-Text Calculator (Perl Script)`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md)
+- [`cl -- CLOCK PROGRAM`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/cl.md)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR
 

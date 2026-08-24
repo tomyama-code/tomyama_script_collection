@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.38 $
+## - $Revision: 2.39 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -16,12 +16,12 @@
 ## All rights reserved.
 ################################################################################
 
-use strict;
-use warnings;
-use File::Basename qw(dirname basename);
-use Time::Local qw{timelocal};
-use POSIX       qw{uname getcwd};
-use Time::HiRes;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
+use Time::Local qw();               # first released with perl 5
+use POSIX       qw();               # first released with perl 5
+use Time::HiRes;                    # first released with perl v5.7.3
 
 use constant FONT_W_LEN =>  6;
 use constant FONT_H_LEN => 10;
@@ -103,8 +103,8 @@ sub pl_main( @ )
 sub init_script()
 {
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $0 );
-    $main::appname = &File::Basename::basename( $0 );
+    $main::apppath = File::Basename::dirname( $0 );
+    $main::appname = File::Basename::basename( $0 );
     $main::interval = 1;
     $main::use_large_font = 0;
 
@@ -194,7 +194,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.38 $};
+    my $rev = q{$Revision: 2.39 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -280,10 +280,10 @@ sub setup_clock_normal()
 
     my $label_w = 5;
     my $myY = 18;
-    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s' (%s, %s)\n}, 'HOST', ( uname() )[ 1, 4, 0 ] );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s' (%s, %s)\n}, 'HOST', ( POSIX::uname() )[ 1, 4, 0 ] );
     my $user_name = getpwuid( $< ); ## "$<": プロセスの実ユーザーID
     &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s', USER: '%s'\n}, 'LOGIN', getlogin(), $user_name );
-    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s'\n}, 'DIR', getcwd() );
+    &pos_printf( 1, $myY++, qq{ %${label_w}s: '%s'\n}, 'DIR', POSIX::getcwd() );
     &pos_printf( 1, $myY++, qq{ %${label_w}s: WIDTH='%d', HEIGHT='%d'\n}, 'TERM', $main::termX, $main::termY );
 }
 
@@ -709,7 +709,8 @@ sub read_holiday()
             die( "$myholiday: line $line: $buff: $myD: out of range\n" );
         }
 
-        $main::holiday{timelocal( 0, 0, 0, $myD, $myM-1, $myY-1900 )} = 1;
+        my $key = Time::Local::timelocal( 0, 0, 0, $myD, $myM-1, $myY-1900 );
+        $main::holiday{$key} = 1;
     }
     close( HOLIDAY );
 
@@ -769,7 +770,7 @@ sub p_cal( $$$$ )
     my $myY  = shift( @_ );
 
     my $lastDay = &getFinalDay( $myMo, $myYe );
-    my $firstWDay = ( localtime( timelocal( 0, 0, 0, 1, $myMo, $myYe ) ) )[ 6 ];
+    my $firstWDay = ( localtime( Time::Local::timelocal( 0, 0, 0, 1, $myMo, $myYe ) ) )[ 6 ];
     my( $nowDa, $nowMo, $nowYe ) = ( localtime( time() ) )[ 3, 4, 5 ];
 
     &pos_printf( $myX, $myY, "%12s %s", $main::month[$myMo], $myYe+1900 );
@@ -788,7 +789,7 @@ sub p_cal( $$$$ )
                     $line_buff .= $CUR_COLOR;
                     $myFlagClo = 1;
                 }
-                my $crnIdx = timelocal( 0, 0, 0, $myDay, $myMo, $myYe );
+                my $crnIdx = Time::Local::timelocal( 0, 0, 0, $myDay, $myMo, $myYe );
                 if( defined( $main::holiday{$crnIdx} ) ){
                     $line_buff .= $HOL_COLOR;
                     $myFlagClo = 1;
@@ -1199,6 +1200,27 @@ Update interval in seconds (1-60). Default is 1.
 
 =back
 
+=head1 ADVANCED USAGE
+
+=over 4
+
+=item *
+
+Run the clock set to French time.
+Use the included timezone_id.
+
+Search for France's time zone:
+
+  $ timezone_id France
+  SDT    SDT    Lat, Lon               IANA TZ id    Country Code
+  +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
+
+Change the time zone only for the duration of execution: (shell feature)
+
+  $ TZ='Europe/Paris' cl
+
+=back
+
 =head1 DEPENDENCIES
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
@@ -1254,7 +1276,11 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<perl>(1)
+=item L<C<holiday -- Displaying holiday data in the pager>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/holiday.md>
+
+=item L<C<timezone_id -- List IANA timezone IDs>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/timezone_id.md>
+
+=item L<C<perl(1)>>
 
 =back
 

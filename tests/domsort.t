@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.4 $
+## - $Revision: 1.5 $
 ################################################################################
 
 use strict;
@@ -23,7 +23,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'NON-EXISTENT-FILES' );
+            $status = pl_main( 'NON-EXISTENT-FILES' );
         } );
         $t->has_exception( qq{./domsort "NON-EXISTENT-FILES} );
         $t->exception_like( qr/^domsort: NON-EXISTENT-FILES: cannot open file: /, q{Open Error} );
@@ -31,7 +31,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( "$TFILE", '-k' );
+            $status = pl_main( "$TFILE", '-k' );
         } );
         $t->has_exception( qq{./domsort "$TFILE" -k} );
         $t->exception_is( qq{Usage: domsort -k <column> <file...>\n} );
@@ -39,7 +39,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-k', "$TFILE" );
+            $status = pl_main( '-k', "$TFILE" );
         } );
         $t->has_exception( qq{./domsort -k "$TFILE"} );
         $t->exception_is( qq{"./tests/address.tab" is not a number.\n} );
@@ -47,7 +47,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( "$TFILE", '-t' );
+            $status = pl_main( "$TFILE", '-t' );
         } );
         $t->has_exception( qq{./domsort "$TFILE" -t} );
         $t->exception_is( qq{Usage: domsort -t <delimiter> <file...>\n} );
@@ -55,7 +55,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( "$TFILE", '-k', '6' );
+            $status = pl_main( "$TFILE", '-k', '6' );
         } );
         $t->has_exception( qq{./domsort "$TFILE" -k 6} );
         $t->exception_is( qq{"1	12.34.56.90	w.x.y.z.co.jp	user1\@w.x.y.z.co.jp	03-1234-5678": There is no data in the 6 column.\n}, qq{Field specification is out of range} );
@@ -81,7 +81,7 @@ subtest qq{In-Proc Test} => sub{
         # 8   12.34.55.78  mail1.abc.com     user8@mail1.abc.com     044-123-7654
         # 9   12.34.55.9   abc.com           user9@abc.com  044-1234-765
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( "$TFILE" );
+            $status = pl_main( "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort "$TFILE"} );
         ok( $status == 0 );
@@ -91,14 +91,14 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-r', "$TFILE" );
+            $status = pl_main( '-r', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -r "$TFILE"} );
         ok( $status == 0 );
         # 評価用の変数を用意する方式
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{9\n8\n7\n6\n5\n4\n3\n2\n10\n1\n}, "Sort by number (reverse order)" );
+        is( $stdout, qq{9\n8\n7\n6\n5\n4\n3\n2\n10\n1\n}, "Sort by number (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort -k 2 "$TFILE"
@@ -113,23 +113,23 @@ subtest qq{In-Proc Test} => sub{
         # 2   12.34.56.78  W.X.Y.Z.CO.JP     user2@W.X.Y.Z.CO.JP     044-1234-568
         # 1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-k', '2', "$TFILE" );
+            $status = pl_main( '-k', '2', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -k 2 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{10\n6\n5\n4\n9\n8\n7\n3\n2\n1\n}, "Sort by IP Address" );
+        is( $stdout, qq{10\n6\n5\n4\n9\n8\n7\n3\n2\n1\n}, "Sort by IP Address" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rk', '2', "$TFILE" );
+            $status = pl_main( '-rk', '2', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rk 2 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{1\n2\n3\n7\n8\n9\n4\n5\n6\n10\n}, "Sort by IP Address (reverse order)" );
+        is( $stdout, qq{1\n2\n3\n7\n8\n9\n4\n5\n6\n10\n}, "Sort by IP Address (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort -k 3 "$TFILE"
@@ -144,23 +144,23 @@ subtest qq{In-Proc Test} => sub{
         # 1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
         # 2   12.34.56.78  W.X.Y.Z.CO.JP     user2@W.X.Y.Z.CO.JP     044-1234-568
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-k', '3', "$TFILE" );
+            $status = pl_main( '-k', '3', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -k 3 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{9\n7\n10\n8\n5\n3\n4\n6\n1\n2\n}, "Sort by Domain Name" );
+        is( $stdout, qq{9\n7\n10\n8\n5\n3\n4\n6\n1\n2\n}, "Sort by Domain Name" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rk', '3', "$TFILE" );
+            $status = pl_main( '-rk', '3', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rk 3 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{2\n1\n6\n4\n3\n5\n8\n10\n7\n9\n}, "Sort by Domain Name (reverse order)" );
+        is( $stdout, qq{2\n1\n6\n4\n3\n5\n8\n10\n7\n9\n}, "Sort by Domain Name (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort -k 4 "$TFILE"
@@ -175,23 +175,23 @@ subtest qq{In-Proc Test} => sub{
         # 1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
         # 2   12.34.56.78  W.X.Y.Z.CO.JP     user2@W.X.Y.Z.CO.JP     044-1234-568
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-k', '4', "$TFILE" );
+            $status = pl_main( '-k', '4', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -k 4 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{9\n7\n10\n8\n5\n3\n4\n6\n1\n2\n}, "Sort by Mail Address" );
+        is( $stdout, qq{9\n7\n10\n8\n5\n3\n4\n6\n1\n2\n}, "Sort by Mail Address" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rk', '4', "$TFILE" );
+            $status = pl_main( '-rk', '4', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rk 4 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{2\n1\n6\n4\n3\n5\n8\n10\n7\n9\n}, "Sort by Mail Address (reverse order)" );
+        is( $stdout, qq{2\n1\n6\n4\n3\n5\n8\n10\n7\n9\n}, "Sort by Mail Address (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort -k 5 "$TFILE"
@@ -206,23 +206,23 @@ subtest qq{In-Proc Test} => sub{
         # 9   12.34.55.9   abc.com           user9@abc.com           044-1234-765
         # 6   12.34.8.9    X.Y.Z.CO.JP       user6@X.Y.Z.CO.JP       08-03-1234-5678
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-k', '5', "$TFILE" );
+            $status = pl_main( '-k', '5', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -k 5 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{4\n1\n7\n3\n10\n8\n5\n2\n9\n6\n}, "Sort by phone number" );
+        is( $stdout, qq{4\n1\n7\n3\n10\n8\n5\n2\n9\n6\n}, "Sort by phone number" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rk', '5', "$TFILE" );
+            $status = pl_main( '-rk', '5', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rk 5 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{6\n9\n2\n5\n8\n10\n3\n7\n1\n4\n}, "Sort by phone number (reverse order)" );
+        is( $stdout, qq{6\n9\n2\n5\n8\n10\n3\n7\n1\n4\n}, "Sort by phone number (reverse order)" );
         $t->stderr_is( qq{} );
 
         #$ ./domsort -dk 5 "$TFILE"
@@ -237,23 +237,23 @@ subtest qq{In-Proc Test} => sub{
         #8   12.34.55.78  mail1.abc.com     user8@mail1.abc.com     044-123-7654
         #6   12.34.8.9    X.Y.Z.CO.JP       user6@X.Y.Z.CO.JP       08-03-1234-5678
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-dk', '5', "$TFILE" );
+            $status = pl_main( '-dk', '5', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -dk 5 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{4\n1\n7\n5\n3\n2\n9\n10\n8\n6\n}, "Sort by phone number ( with -d option )" );
+        is( $stdout, qq{4\n1\n7\n5\n3\n2\n9\n10\n8\n6\n}, "Sort by phone number ( with -d option )" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-drk', '5', "$TFILE" );
+            $status = pl_main( '-drk', '5', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -drk 5 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{6\n8\n10\n9\n2\n3\n5\n7\n1\n4\n}, "Sort by phone number (reverse order) ( with -d option )" );
+        is( $stdout, qq{6\n8\n10\n9\n2\n3\n5\n7\n1\n4\n}, "Sort by phone number (reverse order) ( with -d option )" );
         $t->stderr_is( qq{} );
 
     };
@@ -275,23 +275,23 @@ subtest qq{In-Proc Test} => sub{
         # 4   12.34.8.90   x.y.z.co.jp       user4@x.y.z.co.jp       0123-111-222
         # 1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-fk', '3', "$TFILE" );
+            $status = pl_main( '-fk', '3', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -fk 3 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{7\n10\n3\n6\n2\n5\n9\n8\n4\n1\n}, "Case-sensitive sorting by domain name" );
+        is( $stdout, qq{7\n10\n3\n6\n2\n5\n9\n8\n4\n1\n}, "Case-sensitive sorting by domain name" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rfk', '3', "$TFILE" );
+            $status = pl_main( '-rfk', '3', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rfk 3 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{1\n4\n8\n9\n5\n2\n6\n3\n10\n7\n}, "Case-sensitive sorting by domain name (reverse order)" );
+        is( $stdout, qq{1\n4\n8\n9\n5\n2\n6\n3\n10\n7\n}, "Case-sensitive sorting by domain name (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort -fk 4 "$TFILE"
@@ -306,23 +306,23 @@ subtest qq{In-Proc Test} => sub{
         # 4   12.34.8.90   x.y.z.co.jp       user4@x.y.z.co.jp       0123-111-222
         # 1   12.34.56.90  w.x.y.z.co.jp     user1@w.x.y.z.co.jp     03-1234-5678
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-fk', '4', "$TFILE" );
+            $status = pl_main( '-fk', '4', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -fk 4 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{7\n10\n3\n6\n2\n5\n9\n8\n4\n1\n}, "Case-sensitive sorting by mail address" );
+        is( $stdout, qq{7\n10\n3\n6\n2\n5\n9\n8\n4\n1\n}, "Case-sensitive sorting by mail address" );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-rfk', '4', "$TFILE" );
+            $status = pl_main( '-rfk', '4', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -rfk 4 "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{1\n4\n8\n9\n5\n2\n6\n3\n10\n7\n}, "Case-sensitive sorting by mail address (reverse order)" );
+        is( $stdout, qq{1\n4\n8\n9\n5\n2\n6\n3\n10\n7\n}, "Case-sensitive sorting by mail address (reverse order)" );
         $t->stderr_is( qq{} );
 
         # $ ./domsort "$TF_FAKE_IP"
@@ -331,7 +331,7 @@ subtest qq{In-Proc Test} => sub{
         # 1.256.3.4
         # 256.2.3.4
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( "$TF_FAKE_IP" );
+            $status = pl_main( "$TF_FAKE_IP" );
         } );
         $t->has_no_exception( qq{./domsort "$TF_FAKE_IP"} );
         ok( $status == 0 );
@@ -357,13 +357,13 @@ subtest qq{In-Proc Test} => sub{
         # 8   12.34.55.78  mail1.abc.com     user8@mail1.abc.com     044-123-7654
         # 9   12.34.55.9   abc.com           user9@abc.com  044-1234-765
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-t', '\t', "$TFILE" );
+            $status = pl_main( '-t', '\t', "$TFILE" );
         } );
         $t->has_no_exception( qq{./domsort -t "\t" "$TFILE"} );
         ok( $status == 0 );
         $stdout = $t->get_stdout();
         $stdout =~ s!^(\S+)\t.*$!$1!mgo;    # 第1フィールドだけ残す
-        equal( $stdout, qq{1\n10\n2\n3\n4\n5\n6\n7\n8\n9\n}, "Sort by number" );
+        is( $stdout, qq{1\n10\n2\n3\n4\n5\n6\n7\n8\n9\n}, "Sort by number" );
         $t->stderr_is( qq{} );
 
     };
@@ -373,7 +373,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-h' );
+            $status = pl_main( '-h' );
         } );
         $t->has_no_exception( qq{./domsort -h} );
         ok( $status == 0 );
@@ -381,7 +381,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--help' );
+            $status = pl_main( '--help' );
         } );
         $t->has_no_exception( qq{./domsort --help} );
         ok( $status == 0 );
@@ -395,7 +395,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-v' );
+            $status = pl_main( '-v' );
         } );
         $t->has_no_exception( qq{./domsort -v} );
         ok( $status == 0 );
@@ -404,7 +404,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--version' );
+            $status = pl_main( '--version' );
         } );
         $t->has_no_exception( qq{./domsort --version} );
         ok( $status == 0 );

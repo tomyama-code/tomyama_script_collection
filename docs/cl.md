@@ -70,6 +70,21 @@ $ cl \[_OPTIONS..._\] \[_ARGUMENTS_\]
 
     Update interval in seconds (1-60). Default is 1.
 
+# ADVANCED USAGE
+
+- Run the clock set to French time.
+Use the included timezone\_id.
+
+    Search for France's time zone:
+
+        $ timezone_id France
+        SDT    SDT    Lat, Lon               IANA TZ id    Country Code
+        +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
+
+    Change the time zone only for the duration of execution: (shell feature)
+
+        $ TZ='Europe/Paris' cl
+
 # DEPENDENCIES
 
 This script uses only **core Perl modules**. No external modules from CPAN are required.
@@ -109,7 +124,9 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [perl](https://metacpan.org/pod/perl)(1)
+- [`holiday -- Displaying holiday data in the pager`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/holiday.md)
+- [`timezone_id -- List IANA timezone IDs`](https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/timezone_id.md)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR
 

@@ -1,9 +1,13 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+################################################################################
+## - $Revision: 1.1 $
+################################################################################
+
+use strict;                     # first released with perl 5
+use warnings;                   # first released with perl v5.6.0
 
 #use lib '.';
-use FindBin;            # first released with perl 5.00307
+use FindBin;                    # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 

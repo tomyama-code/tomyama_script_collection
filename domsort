@@ -3,7 +3,7 @@
 ## DOMSORT -- Sort by domain or IP address hierarchy.
 ##
 ## - Version: 1
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -13,9 +13,9 @@
 ## All rights reserved.
 ################################################################################
 
-use strict;
-use warnings;
-use File::Basename qw(dirname basename);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 
 # uncoverable branch false
 exit( &pl_main( @ARGV ) ) unless caller();
@@ -82,8 +82,8 @@ sub init_script()
     $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
 
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $exec_file );
-    $main::appname = &File::Basename::basename( $exec_file );
+    $main::apppath = File::Basename::dirname( $exec_file );
+    $main::appname = File::Basename::basename( $exec_file );
     ##############
 
     ##### DEFAULT PARAMETER ######
@@ -169,7 +169,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.8 $};
+    my $rev = q{$Revision: 1.9 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -563,9 +563,9 @@ Other more basic references
 
 =over 4
 
-=item L<perl>(1)
+=item L<C<perl(1)>>
 
-=item sort(1)
+=item L<C<sort(1)>>
 
 =back
 

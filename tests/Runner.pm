@@ -1,9 +1,13 @@
 package tests::Runner;
-use strict;
-use warnings;
+################################################################################
+## - $Revision: 1.1 $
+################################################################################
 
-use File::Basename qw(dirname); # first released with perl 5
-use POSIX qw();
+use strict;                     # first released with perl 5
+use warnings;                   # first released with perl v5.6.0
+
+use File::Basename qw();        # first released with perl 5
+use POSIX qw();                 # first released with perl 5
 
 my $test_beg_epoch = 0;
 my $test_end_epoch = 0;
@@ -23,7 +27,7 @@ sub _SetTargetCommand( $ )
     #print( qq{\$ENV{TEST_TARGET_NAME} = "$ENV{TEST_TARGET_NAME}"\n} );
 
     # カレントディレクトリを project root に強制する
-    my $apppath = &File::Basename::dirname( $testfilename );
+    my $apppath = File::Basename::dirname( $testfilename );
     chdir( "$apppath/../" );
 }
 
@@ -59,9 +63,9 @@ sub TestPreProc( $@ )
     ##   - $ timedatectl list-timezones --no-pager
     change_time_zone( 'Asia/Tokyo' );
 
-    &_SetTargetCommand( $testfilename );
+    _SetTargetCommand( $testfilename );
 
-    &_PrintTime( $ENV{TEST_TARGET_NAME}, 'Begin', &_FormatTime( $test_beg_epoch ) );
+    _PrintTime( $ENV{TEST_TARGET_NAME}, 'Begin', _FormatTime( $test_beg_epoch ) );
 
     $ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @args ) > 0 );
 
@@ -111,21 +115,21 @@ sub TestPostProc( $ )
     }
 
     $test_end_epoch = time();
-    &_ShowElapsed( $test_beg_epoch, $test_end_epoch, $name );
+    _ShowElapsed( $test_beg_epoch, $test_end_epoch, $name );
 }
 
 sub _ShowElapsed( $$$ )
 {
     my( $beg_epoch, $end_epoch, $name ) = @_;
-    &_PrintTime( $name, 'Begin', &_FormatTime( $beg_epoch ) );
-    &_PrintTime( $name, '  End', &_FormatTime( $end_epoch ) );
+    _PrintTime( $name, 'Begin', _FormatTime( $beg_epoch ) );
+    _PrintTime( $name, '  End', _FormatTime( $end_epoch ) );
     my $elaps = $end_epoch - $beg_epoch;
     my $sec = $elaps % 60;
     my $remain = $elaps - $sec;
     my $minute = ( $remain % 3600 ) / 60;
     $remain -= ( $minute * 60 );
     my $hour = $remain / 3600;
-    &_PrintTime( $name, 'Elaps',
+    _PrintTime( $name, 'Elaps',
         sprintf( qq{           %02d:%02d:%02d}, $hour, $minute, $sec ) );
 }
 

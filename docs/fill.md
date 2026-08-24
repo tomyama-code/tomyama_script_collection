@@ -200,10 +200,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 # SEE ALSO
 
-- [perl](https://metacpan.org/pod/perl)(1)
-- [File::Basename](https://metacpan.org/pod/File%3A%3ABasename)
-- [strict](https://metacpan.org/pod/strict)
-- [warnings](https://metacpan.org/pod/warnings)
+- [`perl(1)`](https://metacpan.org/pod/perl%281%29)
 
 # AUTHOR
 

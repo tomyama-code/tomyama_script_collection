@@ -2,7 +2,7 @@
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.9 $
+## - $Revision: 1.10 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -12,9 +12,9 @@
 ## All rights reserved.
 ################################################################################
 
-use strict ;
-use warnings;
-use File::Basename qw(dirname basename);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 
 # uncoverable branch false
 exit( &pl_main( @ARGV ) ) unless caller();
@@ -177,8 +177,8 @@ sub init_script()
     $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
 
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $exec_file );
-    $main::appname = &File::Basename::basename( $exec_file );
+    $main::apppath = File::Basename::dirname( $exec_file );
+    $main::appname = File::Basename::basename( $exec_file );
     $main::debug = 0;
     $main::bContinue = -1;
     $main::exit_code = -1;
@@ -474,7 +474,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.9 $};
+    my $rev = q{$Revision: 1.10 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -756,13 +756,7 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<perl>(1)
-
-=item L<File::Basename>
-
-=item L<strict>
-
-=item L<warnings>
+=item L<C<perl(1)>>
 
 =back
 

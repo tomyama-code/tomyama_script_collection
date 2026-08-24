@@ -1,17 +1,17 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
-use strict;
-use warnings;
+use strict;                     # first released with perl 5
+use warnings;                   # first released with perl v5.6.0
 
 #use lib '.';
-use FindBin;            # first released with perl 5.00307
+use FindBin;                    # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
-my %phrase = &tests::Tester::get_phrase();
+my %phrase = tests::Tester::get_phrase();
 my $apppath = $phrase{apppath};
 my $proj_root = $phrase{proj_root};
 
@@ -24,7 +24,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main();
+            $status = pl_main();
         } );
         $t->has_no_exception( qq{./mark} );
         ok( $status != 0 );
@@ -33,7 +33,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/\nUsage: mark /, qq{Usage explanation} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--help' );
+            $status = pl_main( '--help' );
         } );
         $t->has_no_exception( qq{./mark --help} );
         ok( $status == 0 );
@@ -41,7 +41,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--help', '123' );
+            $status = pl_main( '--help', '123' );
         } );
         $t->has_no_exception( qq{./mark --help 123} );
         ok( $status == 0 );
@@ -56,7 +56,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'mark', "$proj_root/mark" );
+            $status = pl_main( 'mark', "$proj_root/mark" );
         } );
         $t->has_no_exception( qq{./mark mark $proj_root/mark} );
         ok( $status == 0 );
@@ -65,7 +65,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '^#!/usr', "$proj_root/mark" );
+            $status = pl_main( '^#!/usr', "$proj_root/mark" );
         } );
         $t->has_no_exception( qq{./mark '^#!/usr' $proj_root/mark} );
         ok( $status == 0 );
@@ -74,7 +74,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'c', "$proj_root/mark", "$proj_root/mark" );
+            $status = pl_main( 'c', "$proj_root/mark", "$proj_root/mark" );
         } );
         $t->has_no_exception( qq{./mark c $proj_root/mark $proj_root/mark} );
         ok( $status == 0, "Allows duplicates of existing files." );
@@ -83,7 +83,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'c', "NON-EXISTENT-FILE" );
+            $status = pl_main( 'c', "NON-EXISTENT-FILE" );
         } );
         $t->has_no_exception( qq{./mark c NON-EXISTENT-FILE} );
         ok( $status != 0, "Non-existent files." );
@@ -91,7 +91,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/mark: error: "NON-EXISTENT-FILE": file not found.\n/, qq{Correct error message.} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'c', "A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES" );
+            $status = pl_main( 'c', "A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES" );
         } );
         $t->has_no_exception( qq{./mark c A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES} );
         ok( $status != 0, "Files without read permission." );
@@ -99,7 +99,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/mark: error: "A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES": permission denied.\n/, qq{Correct error message.} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( 'c', "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES" );
+            $status = pl_main( 'c', "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES" );
         } );
         $t->has_exception( qq{./mark c A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES} );
         $t->exception_like( qr/mark: error: "A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES": could not open file: /, qq{Correct error message.} );
@@ -113,7 +113,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-d', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-d', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -d '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -122,7 +122,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--debug', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--debug', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --debug '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -137,7 +137,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -146,7 +146,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -155,7 +155,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -164,7 +164,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -173,7 +173,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -182,7 +182,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -191,7 +191,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -200,7 +200,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -209,7 +209,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -218,7 +218,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -227,7 +227,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -236,7 +236,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -245,7 +245,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -254,7 +254,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -263,7 +263,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -272,7 +272,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -281,7 +281,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -290,7 +290,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0,1,', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0,1,', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status != 0, "Incorrect parameter specification." );
@@ -298,7 +298,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_like( qr/\nmark: error: You have specified "-0,1," for <PATTERN>.\n/, qq{The right warning.} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0, qq{Do not display redundant "skip" messages.} );
@@ -307,7 +307,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f' );
+            $status = pl_main( '-f' );
         } );
         $t->has_no_exception( qq{./mark -f} );
         ok( $status != 0, qq{An error occurs.} );
@@ -321,7 +321,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -329,7 +329,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0h', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0h', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0h '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -339,7 +339,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -349,7 +349,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '--no-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '--no-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 --no-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -359,7 +359,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--no-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--no-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --no-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -375,7 +375,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -383,7 +383,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -391,7 +391,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -399,7 +399,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-Hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-Hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -Hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -407,7 +407,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '--with-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '--with-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 --with-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -415,7 +415,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--with-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--with-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --with-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -423,7 +423,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f1H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f1H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f1H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -439,7 +439,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--version' );
+            $status = pl_main( '--version' );
         } );
         $t->has_no_exception( qq{./mark --version} );
         ok( $status == 0 );
@@ -447,7 +447,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-v' );
+            $status = pl_main( '-v' );
         } );
         $t->has_no_exception( qq{./mark -v} );
         ok( $status == 0 );
@@ -461,7 +461,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -469,7 +469,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0i', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0i', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0i '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -477,7 +477,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-if0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-if0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -if0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -485,7 +485,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f0', '--ignore-case', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f0', '--ignore-case', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f0 --ignore-case '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -493,7 +493,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--ignore-case', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--ignore-case', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --ignore-case -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -501,7 +501,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--ignore-case', '--force-color', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--ignore-case', '--force-color', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --ignore-case --force-color -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -515,7 +515,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -524,7 +524,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '-n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '-n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 -n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -532,7 +532,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-n', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-n', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -n -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -540,7 +540,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '--line-number', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '--line-number', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 --line-number '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -548,7 +548,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--line-number', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--line-number', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --line-number -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -556,7 +556,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f1n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f1n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f1n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -571,7 +571,7 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -580,7 +580,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '-c', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '-c', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 -c '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -588,7 +588,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-c', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-c', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -c -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -596,7 +596,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '-f', '0', '--force-color', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '-f', '0', '--force-color', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark -f 0 --force-color '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );
@@ -604,7 +604,7 @@ subtest qq{In-Proc Test} => sub{
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = &pl_main( '--force-color', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+            $status = pl_main( '--force-color', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
         } );
         $t->has_no_exception( qq{./mark --force-color -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
         ok( $status == 0 );

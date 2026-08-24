@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.9 $
+## - $Revision: 2.10 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -15,9 +15,9 @@
 ## All rights reserved.
 ################################################################################
 
-use strict;
-use warnings;
-use File::Basename qw(dirname basename);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 #use IO::Handle;
 
 # uncoverable branch false
@@ -175,8 +175,8 @@ sub init_script()
     $exec_file =~ s!^.*tests/(.*)\.t$!$1!;
 
     ### GLOBAL ###
-    $main::apppath = &File::Basename::dirname( $exec_file );
-    $main::appname = &File::Basename::basename( $exec_file );
+    $main::apppath = File::Basename::dirname( $exec_file );
+    $main::appname = File::Basename::basename( $exec_file );
     $main::debug = 0;
     $main::numbering = 0;
     $main::prt_fname = 0;
@@ -361,7 +361,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.9 $};
+    my $rev = q{$Revision: 2.10 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -547,27 +547,27 @@ please refer to an online manual of B<Perl>.
 
 =over 4
 
-=item L<perlre>(1)
+=item L<C<perlre(1)>>
 
 Perl regular expressions
 
-=item L<perlrequick>(1)
+=item L<C<perlrequick(1)>>
 
 Perl regular expressions quick start
 
-=item L<perlreref>(1)
+=item L<C<perlreref(1)>>
 
 Perl Regular Expressions Reference
 
-=item L<perlretut>(1)
+=item L<C<perlretut(1)>>
 
 Perl regular expressions tutorial
 
-=item L<perlfaq6>(1)
+=item L<C<perlfaq6(1)>>
 
 Regular Expressions
 
-=item regex(7)
+=item L<C<regex(7)>>
 
 POSIX 1003.2 regular expressions
 
@@ -575,7 +575,13 @@ POSIX 1003.2 regular expressions
 
 Other more basic references
 
-L<perl>(1), grep(1)
+=over 4
+
+=item L<C<perl(1)>>
+
+=item L<C<grep(1)>>
+
+=back
 
 =head1 AUTHOR
 

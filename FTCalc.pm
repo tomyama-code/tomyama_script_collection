@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.14 $
+## - $Revision: 1.15 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -48,15 +48,15 @@ A module that provides an API for manipulating the calculation script "c".
 =cut
 
 package FTCalc;
-use strict;
-use warnings;
-use Carp qw(carp croak);        # first released with perl 5
-use IPC::Open3 qw(open3);       # first released with perl 5
-use Symbol 'gensym';            # first released with perl 5.002
-                                # vivify a separate handle for STDERR
-use IO::Select;                 # first released with perl 5.00307
-use Scalar::Util qw(looks_like_number);     # first released with perl v5.7.3
-use File::Basename qw(dirname);
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use Carp qw();                      # first released with perl 5
+use IPC::Open3 qw();                # first released with perl 5
+use Symbol 'gensym';                # first released with perl 5.002
+                                    # vivify a separate handle for STDERR
+use IO::Select;                     # first released with perl 5.00307
+use Scalar::Util qw();              # first released with perl v5.7.3
+use File::Basename qw();            # first released with perl 5
 use parent 'Exporter';
 
 our @EXPORT = qw(
@@ -120,7 +120,7 @@ sub new
         $pid = &_FtcOpen3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     };
     if( $@ ){
-        &Carp::croak( "FTCalc: _FtcOpen3(): Failed to start '$path_to_c': $!" );
+        Carp::croak( "FTCalc: _FtcOpen3(): Failed to start '$path_to_c': $!" );
     }
 
     # 両方のハンドルをバッファリング無効（即時出力）にする
@@ -304,7 +304,7 @@ sub formula( $$;$ )
         my @ready = $self->{selector}->can_read( $self->_getTimeout() );
 
         if( !@ready ){
-            &Carp::carp( "warn: Timeout: No response from the c script.\n" );
+            Carp::carp( "warn: Timeout: No response from the c script.\n" );
             last;
         }
 
@@ -316,12 +316,12 @@ sub formula( $$;$ )
             if( !defined( $bytes ) ){
                 $self->{selector}->remove( $fh );
                 $fh->close();
-                &Carp::croak( "error: \$fn=$fn: Read error: $!" );
+                Carp::croak( "error: \$fn=$fn: Read error: $!" );
             }
             elsif( $bytes == 0 ){
                 # EOF: 子プロセスが終了した
                 $self->{selector}->remove( $fh );
-                &Carp::croak( "error: \$fn=$fn: The c script closed the stream.\n" );
+                Carp::croak( "error: \$fn=$fn: The c script closed the stream.\n" );
             }
 
             # バッファにデータを追加
@@ -361,7 +361,7 @@ sub formula( $$;$ )
                         }
                     }
 
-                    if( &Scalar::Util::looks_like_number( $calc_result ) ){
+                    if( Scalar::Util::looks_like_number( $calc_result ) ){
                         $turn_completed = 1;
                         $calc_result += 0;
 
@@ -377,7 +377,7 @@ sub formula( $$;$ )
         $msg .= qq{FTCalc: warn: Formula: "$expr"\n};
         my( $package, $filename, $line ) = caller( 0 );
         $msg .= "FTCalc: error: [FATAL] Calculation failed at $filename line $line.\n";
-        &Carp::croak( $msg );
+        Carp::croak( $msg );
     }
 
     if( $output_sel & FTC_FSC_OUTPUT_RESULT ){
@@ -406,7 +406,7 @@ sub _FtcOpen3( $$$@ )
         &_clr_action_flag( _FTC_FAIL_OPEN3 );
         print( qq{_FtcOpen3(): _FTC_FAIL_OPEN3\n} );
         my $msg = qq{_FtcOpen3(): open3: fail test\n};
-        &Carp::croak( $msg );
+        Carp::croak( $msg );
     }else{
         return &IPC::Open3::open3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     }
@@ -611,7 +611,7 @@ sub _get_my_path()
     my $full_path = $INC{ $module_file };
 
     # ディレクトリのパスだけを抽出したい場合
-    my $dir_path = &File::Basename::dirname( $full_path );
+    my $dir_path = File::Basename::dirname( $full_path );
 
     return $dir_path;
 }
@@ -681,9 +681,11 @@ Run C<corelist> for each module to find the first Perl version it appeared in:
 
 =over 4
 
-=item L<c -- The Flat-Text Calculator (Perl Script)|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md>
+=item L<C<c -- The Flat-Text Calculator (Perl Script)>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/c.md>
 
-=item L<perl(1)>
+=item L<C<tsc_bin_path.pl -- Prints the installation path or project root directory>|https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/tsc_bin_path.pl.md>
+
+=item L<C<perl(1)>>
 
 =back
 
