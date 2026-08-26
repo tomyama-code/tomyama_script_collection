@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -66,6 +66,32 @@ subtest 'In-Proc Test' => sub{
 
     subtest q{Option Switch Test} => sub{
 
+        subtest q{Option Switch: --banner, -b} => sub{
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--banner' );
+            } );
+            $t->has_no_exception( q{./timezone_id --banner} );
+            is( $status, 0, 'ロング形式' );
+            $t->stdout_like( qr/^--------------------------------------------------\n/, q{バナー表示} );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '-b' );
+            } );
+            $t->has_no_exception( q{./timezone_id -b} );
+            is( $status, 0, 'ショート形式' );
+            $t->stdout_like( qr/^--------------------------------------------------\n/, q{バナー表示} );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+        };
+
         subtest q{Option Switch: --debug, -d} => sub{
 
             $t = tests::Tester->run_blk( sub{
@@ -90,6 +116,41 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
             $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
             $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+        };
+
+        subtest q{Option Switch: --help, -h} => sub{
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--help' );
+            } );
+            $t->has_no_exception( q{./timezone_id --help} );
+            is( $status, 0, 'ロング形式' );
+            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
+            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '-h' );
+            } );
+            $t->has_no_exception( q{./timezone_id -h} );
+            is( $status, 0, 'ショート形式' );
+            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
+            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--help', '--verbose', 'JST' );
+            } );
+            $t->has_no_exception( q{./timezone_id --help --verbose JST} );
+            is( $status, 0, 'ヘルプのみを出力' );
+            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
+            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
+            $t->stdout_unlike( $expect_hdr_s, qq{ID は出力されないこと} );
+            $t->stdout_unlike( $expect_hdr_l, qq{ID は出力されないこと} );
+            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{ID は出力されないこと} );
+            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{ID は出力されないこと} );
             $t->stderr_is( qq{} );
 
         };
@@ -169,41 +230,6 @@ subtest 'In-Proc Test' => sub{
             is( $status, 0, 'バージョンのみを出力' );
             $t->stdout_like( qr/^Version: \d/ );
             $t->stdout_unlike( $expect_hdr_s, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{ID は出力されないこと} );
-            $t->stderr_is( qq{} );
-
-        };
-
-        subtest q{Option Switch: --help, -h} => sub{
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--help' );
-            } );
-            $t->has_no_exception( q{./timezone_id --help} );
-            is( $status, 0, 'ロング形式' );
-            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
-            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
-            $t->stderr_is( qq{} );
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-h' );
-            } );
-            $t->has_no_exception( q{./timezone_id -h} );
-            is( $status, 0, 'ショート形式' );
-            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
-            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
-            $t->stderr_is( qq{} );
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--help', '--verbose', 'JST' );
-            } );
-            $t->has_no_exception( q{./timezone_id --help --verbose JST} );
-            is( $status, 0, 'ヘルプのみを出力' );
-            $t->stdout_like( qr/^usage: timezone_id \[ <OPTIONS> \] \[ <PATTERN>... \]\n/, qq{最初の行} );
-            $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
-            $t->stdout_unlike( $expect_hdr_s, qq{ID は出力されないこと} );
-            $t->stdout_unlike( $expect_hdr_l, qq{ID は出力されないこと} );
             $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{ID は出力されないこと} );
             $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{ID は出力されないこと} );
             $t->stderr_is( qq{} );

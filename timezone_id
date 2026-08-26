@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.3 $
+## - $Revision: 1.5 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -31,6 +31,18 @@ sub pl_main( @ )
 
     param_print();
 
+    if( $main::banner ){
+        $main::banner = 0;
+        my $banner_msg = '' .
+            qq{--------------------------------------------------\n} .
+            uc( $main::appname ) . qq{ -- List IANA timezone IDs\n} .
+            qq{- This uses bundled IANA data instead of the host system's timezone data.\n} .
+            qq{- Version: } . GetVersion() . "\n" .
+            qq{- Document: https://github.com/tomyama-code/tomyama_script_collection/blob/main/docs/$main::appname.md\n} .
+            qq{--------------------------------------------------\n};
+        print( $banner_msg );
+    }
+
     if( $main::help || $main::version ){
         if( $main::help ){
             $main::help = 0;
@@ -48,6 +60,8 @@ sub pl_main( @ )
     my $line_row = 0;
     my @matched = ();
     my $tz_id_len_max = 0;
+    my $re_flag = '';
+    $re_flag .= 'i' if( $main::ignorecase );
     while( <DATFILE> ){
         $line_row++;
         my $line = $_;
@@ -57,16 +71,10 @@ sub pl_main( @ )
         my $b_disp = 1;
         if( $line_row > 1 && $main::use_filter ){
             for my $filter( @main::filters ){
-                if( $main::ignorecase ){
-                    if( !( $line =~ m/$filter/i ) ){
-                        $b_disp = 0;
-                        last;
-                    }
-                }else{
-                    if( !( $line =~ m/$filter/ ) ){
-                        $b_disp = 0;
-                        last;
-                    }
+                # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                if( !( $line =~ m/(?$re_flag)$filter/ ) ){
+                    $b_disp = 0;
+                    last;
                 }
             }
         }
@@ -113,6 +121,7 @@ sub init_script()
     @main::argv = ();
     $main::argc = 0;
     $main::datafile = "$main::apppath/$main::appname.tab";
+    $main::banner = 0;
     $main::debug = 0;
     $main::ignorecase = 0;
     $main::verbose = 0;
@@ -133,6 +142,7 @@ sub param_print()
              qq{     \$main::appname = "%s"\n} .
              qq{     \@main::argv = (%s)\n} .
              qq{     \$main::argc = %d\n} .
+             qq{     \$main::banner = %d\n} .
              qq{     \$main::debug = %d\n} .
              qq{     \$main::ignorecase = %d\n} .
              qq{     \$main::verbose = %d\n} .
@@ -144,6 +154,7 @@ sub param_print()
         $main::appname,
         array_to_str( @main::argv ),
         $main::argc,
+        $main::banner,
         $main::debug,
         $main::ignorecase,
         $main::verbose,
@@ -173,6 +184,7 @@ sub parse_arg()
     Getopt::Long::Configure("bundling");
 
     Getopt::Long::GetOptions(
+        'banner|b'     => \$main::banner,
         'debug|d'      => \$main::debug,
         'ignorecase|i' => \$main::ignorecase,
         'verbose|v'    => \$main::verbose,
@@ -201,18 +213,30 @@ sub usage( $ )
         qq{  The PATTERN can be described by the Regular-Expression equal with Perl.\n} .
         qq{\n} .
         qq{<OPTIONS>:\n} .
-        qq{  -i, --ignore-case:\n} .
+        qq{  -b, --banner:\n} .
+        qq{    Show script banner.\n} .
+        qq{  -h, --help:\n} .
+        qq{    Display this help and exit\n} .
+        qq{  -i, --ignorecase:\n} .
         qq{    Ignore case distinctions in the <PATTERN>.\n} .
         qq{  -v, --verbose:\n} .
         qq{    The intermediate steps of the calculation will also be displayed.\n} .
-        qq{  -h, --help:\n} .
-        qq{    Display this help and exit\n} .
+        qq{  --version:\n} .
+        qq{    Print the version of this script and Perl and exit.\n} .
         qq{\n} .
-        qq{* simple\n} .
-        qq{  \$ $main::appname\n} .
-        qq{  \$ $main::appname JST --verbose\n} .
-        qq{* advance\n} .
-        qq{  \$ $main::appname 'America/' 'Fr'\n} .
+        qq{How to use:\n} .
+        qq{\n} .
+        qq{  * Show all IDs:\n} .
+        qq{    \$ $main::appname\n} .
+        qq{\n} .
+        qq{  * Filter by a single keyword:\n} .
+        qq{    \$ $main::appname JST\n} .
+        qq{\n} .
+        qq{  * Filter by AND condition:\n} .
+        qq{    \$ $main::appname 'America/' 'Fr'\n} .
+        qq{\n} .
+        qq{  * Filter by OR condition:\n} .
+        qq{    \$ $main::appname 'France|French'\n} .
         qq{\n} .
         qq{Try `perldoc $main::apppath/$main::appname' for more information.\n};
 
@@ -260,7 +284,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.3 $};
+    my $rev = q{$Revision: 1.5 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -280,7 +304,22 @@ TIMEZONE_ID -- List IANA timezone IDs.
 
 =head1 DESCRIPTION
 
-Note: This uses bundled IANA data instead of the host system's timezone data.
+This uses bundled IANA data instead of the host system's timezone data.
+
+Note: How to list the time zone definitions implemented in the system
+
+  Linux:
+    $ timedatectl list-timezones
+
+    $ tzselect
+
+    $ find /usr/share/zoneinfo -type f
+
+  Windows:
+    > tzutil /l
+
+  Mac:
+    # systemsetup -listtimezones
 
 =head1 SYNOPSIS
 
@@ -334,21 +373,29 @@ Use a vertical bar (|) to specify multiple keywords with an OR condition:
 
 =over 4
 
+=item -b, --banner
+
+Show script banner.
+
 =item -d, --debug
 
 Enable debug output.
 
-=item -i, --ignore-case
+=item -h, --help
+
+Display simple help and exit.
+
+=item -i, --ignorecase
 
 Ignore case distinctions in the I<PATTERN>.
+
+=item -v, --verbose
+
+The intermediate steps of the calculation will also be displayed.
 
 =item --version
 
 Print the version of this script and Perl and exit.
-
-=item -h, --help
-
-Display simple help and exit.
 
 =back
 

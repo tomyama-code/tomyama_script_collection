@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.10 $
+## - $Revision: 2.11 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -20,19 +20,16 @@ use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 #use IO::Handle;
 
-# uncoverable branch false
-exit( &pl_main( @ARGV ) ) unless caller();
-
 ##########
 ## スクリプトのエントリポイント
-sub pl_main()
+sub pl_main( @ )
 {
 
     ## 初期化処理
-    &init_script();
+    init_script();
 
     ## 引数解析
-    my $reaction = &parse_arg( @_ );
+    my $reaction = parse_arg( @_ );
     if( $reaction < 0 ){
         return 0;
     }elsif( $reaction > 0 ){
@@ -41,7 +38,7 @@ sub pl_main()
 
     ## デバッグ用 : パラメータ出力
     if( $main::debug ){
-        &prt_param();
+        prt_param();
     }
 
 #    STDIN->autoflush(1);
@@ -66,6 +63,9 @@ sub pl_main()
         open( FI_IN, "<$opn_fname" ) ||
             die( qq{$main::appname: error: "$opn_fname": could not open file: $!\n} );
         my $nr = 0;
+        my $re_flag = '';
+        $re_flag .= 'i' if( $main::ignorecase );
+        #print( qq{\$re_flag="$re_flag"\n} );
         while( <FI_IN> ){
             $nr++;
             my $mybuff = $_;
@@ -74,24 +74,14 @@ sub pl_main()
             ## マーキングする
             my $match_flg = 0;
             if( $main::bUseAnsiEscSeqColor ){
-                if( $main::ignorecase ){
-                    if( $mybuff =~ s/($main::re)/\033[1m$1\033[0m/ig ){
-                        $match_flg = 1;
-                    }
-                }else{
-                    if( $mybuff =~ s/($main::re)/\033[1m$1\033[0m/g ){
-                        $match_flg = 1;
-                    }
+                # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
+                    $match_flg = 1;
                 }
             }else{
-                if( $main::ignorecase ){
-                    if( $mybuff =~ m/$main::re/ig ){
-                        $match_flg = 1;
-                    }
-                }else{
-                    if( $mybuff =~ m/$main::re/g ){
-                        $match_flg = 1;
-                    }
+                # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                if( $mybuff =~ m/(?$re_flag)$main::re/g ){
+                    $match_flg = 1;
                 }
             }
 
@@ -268,10 +258,10 @@ sub parse_arg()
         }elsif( $myparam eq '-h' || $myparam eq '--no-filename' ){
             $opt_nofname = 1;
         }elsif( $myparam eq '--help' ){
-            &usage( 0 );
+            usage( 0 );
             return -1;
         }elsif( $myparam eq '-v' || $myparam eq '--version' ){
-            &PrintVersion();
+            PrintVersion();
             return -1;
         }elsif( $myparam eq '-i' || $myparam eq '--ignore-case' ){
             $main::ignorecase = 1;
@@ -287,22 +277,22 @@ sub parse_arg()
                     my $fi_in_max = scalar( @main::fi_in );
                     for( my $idx=0; $idx<$fi_in_max; $idx++ ){
                         if( $main::fi_in[ $idx ] eq '-' ){
-                            &myerr( qq{"STDIN(-)" cannot be specified more than once.\n} );
+                            myerr( qq{"STDIN(-)" cannot be specified more than once.\n} );
                             return 1;
                         }
                     }
                 }elsif( ( ! -f "$myparam" ) &&
                     ( "$myparam" ne 'A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES' ) ){
                     if( "$myparam" ne 'A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES' ){
-                        &myerr( qq{"$myparam": file not found.\n} );
-                        &myerr( qq{You have specified "$main::re" for <PATTERN>.\n} );
-                        &myerr( qq{So I think of "$myparam" as a <FILE> designation.\n} );
-                        &usage( 1 );
+                        myerr( qq{"$myparam": file not found.\n} );
+                        myerr( qq{You have specified "$main::re" for <PATTERN>.\n} );
+                        myerr( qq{So I think of "$myparam" as a <FILE> designation.\n} );
+                        usage( 1 );
                         return 1;
                     }
                 }elsif( ! -r "$myparam" ){
-                    &myerr( qq{"$myparam": permission denied.\n} );
-                    &usage( 1 );
+                    myerr( qq{"$myparam": permission denied.\n} );
+                    usage( 1 );
                     return 1;
                 }
                 push( @main::fi_in, $myparam );
@@ -314,8 +304,8 @@ sub parse_arg()
     }
 
     if( ! defined( $main::re ) ){
-        &myerr( qq{Please specify the Regular Expressions.\n} );
-        &usage( 1 );
+        myerr( qq{Please specify the Regular Expressions.\n} );
+        usage( 1 );
         return 1;
     }
 
@@ -344,14 +334,14 @@ sub myerr()
 ## Revision: 1.2
 sub PrintVersion()
 {
-    my $ver = &GetVersion();
+    my $ver = GetVersion();
     my $v = qq{Version: $ver\n} .
             qq{   Perl: $^V\n};
     print( $v );
 }
 sub GetVersion()
 {
-    my $rev = &GetRevision();
+    my $rev = GetRevision();
 
     my $major = 1;
     my( $minor, $revision ) = split( /\./, $rev );
@@ -361,7 +351,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.10 $};
+    my $rev = q{$Revision: 2.11 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -408,6 +398,10 @@ sub usage( $ )
 
     return 0;
 }
+
+# uncoverable branch false
+exit( pl_main( @ARGV ) ) unless caller();
+
 __END__
 
 =pod

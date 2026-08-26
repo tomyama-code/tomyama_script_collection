@@ -9,7 +9,22 @@ TIMEZONE\_ID -- List IANA timezone IDs.
 
 # DESCRIPTION
 
-Note: This uses bundled IANA data instead of the host system's timezone data.
+This uses bundled IANA data instead of the host system's timezone data.
+
+Note: How to list the time zone definitions implemented in the system
+
+    Linux:
+      $ timedatectl list-timezones
+
+      $ tzselect
+
+      $ find /usr/share/zoneinfo -type f
+
+    Windows:
+      > tzutil /l
+
+    Mac:
+      # systemsetup -listtimezones
 
 # SYNOPSIS
 
@@ -51,21 +66,29 @@ Each _PATTERN_ can be:
 
 # OPTIONS
 
+- -b, --banner
+
+    Show script banner.
+
 - -d, --debug
 
     Enable debug output.
 
-- -i, --ignore-case
+- -h, --help
+
+    Display simple help and exit.
+
+- -i, --ignorecase
 
     Ignore case distinctions in the _PATTERN_.
+
+- -v, --verbose
+
+    The intermediate steps of the calculation will also be displayed.
 
 - --version
 
     Print the version of this script and Perl and exit.
-
-- -h, --help
-
-    Display simple help and exit.
 
 # ADVANCED USAGE
 

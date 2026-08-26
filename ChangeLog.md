@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.3.13] - 2026-08-26
+### Added
+- `timezone_id` [1.01.003]:
+  - Added the '--banner' and '-b' options.
+
 ## [0.3.12] - 2026-08-25
 ### Added
 - `timezone_id` [1.01.003]:
