@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.98 $
+## - $Revision: 2.99 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.98 $)
+AC_REVISION($Revision: 2.99 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.3.13], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.3.14], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -80,7 +80,7 @@ $ACAM_TMPL{ 'Makefile.am' } = q{##
 # # make install 時に bindir（通常 /usr/local/bin）へコピーされるファイル
 # bin_SCRIPTS = $MY_SCRIPTS$
 # インストールもされるし、配布 tarball にも必ず入る
-dist_bin_SCRIPTS = $MY_SCRIPTS$ $MY_SCR_NOTEST$ cl.holiday timezone_id.tab
+dist_bin_SCRIPTS = $MY_SCRIPTS$ $MY_SCR_NOTEST$ cl.holiday timezone_id.tab*
 
 # make dist したときに tarball に含める追加ファイル
 # automakeが自動的に見つけるファイルは書かない方針
@@ -155,7 +155,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.98 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.99 $';
     $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
     $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );

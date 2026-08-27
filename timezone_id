@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.5 $
+## - $Revision: 1.9 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -17,6 +17,9 @@ use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 use Getopt::Long qw();              # first released with perl 5
+use POSIX qw();                     # first released with perl 5
+use utf8;                           # first released with perl v5.6.0
+use Encode qw();                    # first released with perl v5.7.3
 
 
 ##########
@@ -55,24 +58,42 @@ sub pl_main( @ )
         return 0;
     }
 
+    my @data_loc = ();
+    if( -f $main::datafile_loc || $main::datafile_loc eq 'Non-existent-file' ){
+        #print( qq{\$main::datafile_loc="$main::datafile_loc" ( exists )\n} );
+        open( DATF_LOC, '<', $main::datafile_loc ) ||
+            die( qq{$main::datafile_loc: could not open file: $!} );
+        @data_loc = <DATF_LOC>;
+        close( DATF_LOC );
+    }
+
+    my $re_flag = '';
+    $re_flag .= 'i' if( $main::ignorecase );
+
     open( DATFILE, '<', $main::datafile ) ||
         die( qq{$main::datafile: could not open file: $!} );
     my $line_row = 0;
     my @matched = ();
     my $tz_id_len_max = 0;
-    my $re_flag = '';
-    $re_flag .= 'i' if( $main::ignorecase );
     while( <DATFILE> ){
+        my $line_loc = '';
+        if( defined( $data_loc[ $line_row ] ) ){
+            $line_loc = $data_loc[ $line_row ];
+            $line_loc =~ s/\r?\n$//o;
+        }
         $line_row++;
         my $line = $_;
         $line =~ s/\r?\n$//o;
-        #print( qq{$line\n} );
+        my $concat_line = "$line\t$line_loc";
+        #print( qq{$concat_line\n} );
+        my $concat_line_s = utf82perlstr( $concat_line );
 
         my $b_disp = 1;
         if( $line_row > 1 && $main::use_filter ){
             for my $filter( @main::filters ){
+                my $filter_s = utf82perlstr( $filter );
                 # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                if( !( $line =~ m/(?$re_flag)$filter/ ) ){
+                if( !( $concat_line_s =~ m/(?$re_flag)$filter_s/ ) ){
                     $b_disp = 0;
                     last;
                 }
@@ -82,7 +103,7 @@ sub pl_main( @ )
         if( $b_disp ){
             # SDT: Standard Time, 標準時（冬時間、平時）
             # DST: Daylight Saving Time, 夏時間（日光節約時間）
-            my( $sdt, $dst, $sdt2, $dst2, $tz_id, $cmt, $note, $lat, $lon, $cc, $cname ) =
+            my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname ) =
                 split( /\t/, $line );
             my $tz_id_len = length( $tz_id );
             $tz_id_len_max = $tz_id_len if( $tz_id_len > $tz_id_len_max );
@@ -92,15 +113,15 @@ sub pl_main( @ )
     close( DATFILE );
 
     for my $line( @matched ){
-        my( $sdt, $dst, $sdt2, $dst2, $tz_id, $cmt, $note, $lat, $lon, $cc, $cname ) =
+        my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname ) =
             split( /\t/, $line );
 
         if( $main::verbose ){
-            printf( qq{%-6s %-5s  %-6s %-5s  %-22s %-*s  "%s"  "%s"  %s  %s\n},
-                $sdt, $sdt2, $dst, $dst2, "$lat, $lon", $tz_id_len_max, $tz_id, $cmt, $note, $cc, $cname );
+            printf( qq{%-6s %-5s  %-6s %-5s  %-22s %-*s  %-9s  "%s"  "%s"  %s  %s\n},
+                $sdt, $sdt2, $dst, $dst2, "$lat, $lon", $tz_id_len_max, $tz_id, $type, $note, $cmt, $cc, $cname );
         }else{
-            printf( qq{%-6s %-5s  %-22s %-*s  %s\n},
-                $sdt, $sdt2, "$lat, $lon", $tz_id_len_max, $tz_id, $cc );
+            printf( qq{%-6s %-5s  %-22s %-*s  %-9s  %s\n},
+                $sdt, $sdt2, "$lat, $lon", $tz_id_len_max, $tz_id, $type, $cc );
         }
     }
 
@@ -118,17 +139,21 @@ sub init_script()
     ### GLOBAL ###
     $main::apppath = File::Basename::dirname( $exec_file );
     $main::appname = File::Basename::basename( $exec_file );
-    @main::argv = ();
     $main::argc = 0;
-    $main::datafile = "$main::apppath/$main::appname.tab";
+    @main::argv = ();
     $main::banner = 0;
+    $main::datafile = "$main::apppath/$main::appname.tab";
+    $main::datafile_loc_specify = undef;
     $main::debug = 0;
+    @main::filters = ();
+    $main::help = 0;
     $main::ignorecase = 0;
+    $main::LC_CTYPE = set_locale();
+    set_locale_datafilename( $main::datafile, $main::LC_CTYPE );
+    $main::set_locale = undef;
+    $main::use_filter = 0;
     $main::verbose = 0;
     $main::version = 0;
-    $main::help = 0;
-    @main::filters = ();
-    $main::use_filter = 0;
     ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
 #    $main::bUseAnsiEscSeqColor = -t STDOUT;
 #    $main::bIsStdinATty = -t STDIN;
@@ -140,28 +165,34 @@ sub param_print()
     dPrintf( qq{Parameter Print\n} .
              qq{     \$main::apppath = "%s"\n} .
              qq{     \$main::appname = "%s"\n} .
-             qq{     \@main::argv = (%s)\n} .
              qq{     \$main::argc = %d\n} .
+             qq{     \@main::argv = (%s)\n} .
              qq{     \$main::banner = %d\n} .
+             qq{     \$main::datafile = "%s"\n} .
+             qq{     \$main::datafile_loc = "%s"\n} .
              qq{     \$main::debug = %d\n} .
-             qq{     \$main::ignorecase = %d\n} .
-             qq{     \$main::verbose = %d\n} .
-             qq{     \$main::version = %d\n} .
-             qq{     \$main::help = %d\n} .
              qq{     \@main::filters = (%s)\n} .
-             qq{     \$main::use_filter = %d\n},
+             qq{     \$main::help = %d\n} .
+             qq{     \$main::ignorecase = %d\n} .
+             qq{     \$main::LC_CTYPE = "%s"\n} .
+             qq{     \$main::use_filter = %d\n} .
+             qq{     \$main::verbose = %d\n} .
+             qq{     \$main::version = %d\n},
         $main::apppath,
         $main::appname,
-        array_to_str( @main::argv ),
         $main::argc,
+        array_to_str( @main::argv ),
         $main::banner,
+        $main::datafile,
+        $main::datafile_loc,
         $main::debug,
-        $main::ignorecase,
-        $main::verbose,
-        $main::version,
-        $main::help,
         array_to_str( @main::filters ),
-        $main::use_filter );
+        $main::help,
+        $main::ignorecase,
+        $main::LC_CTYPE,
+        $main::use_filter,
+        $main::verbose,
+        $main::version );
 }
 
 sub array_to_str( @ )
@@ -184,18 +215,30 @@ sub parse_arg()
     Getopt::Long::Configure("bundling");
 
     Getopt::Long::GetOptions(
-        'banner|b'     => \$main::banner,
-        'debug|d'      => \$main::debug,
-        'ignorecase|i' => \$main::ignorecase,
-        'verbose|v'    => \$main::verbose,
-        'version'      => \$main::version,
-        'help|h'       => \$main::help,
-        'datafile=s'   => \$main::datafile,
+        'banner|b'       => \$main::banner,
+        'datafile=s'     => \$main::datafile,
+        'datafile-loc=s' => \$main::datafile_loc_specify,
+        'debug|d'        => \$main::debug,
+        'help|h'         => \$main::help,
+        'ignorecase|i'   => \$main::ignorecase,
+        'set-locale=s'   => \$main::set_locale,
+        'verbose|v'      => \$main::verbose,
+        'version'        => \$main::version,
     ) || die( qq{parse_arg(): error: Failed to parse option switches.\n} );
 
     while( my $myparam = shift( @ARGV ) ){
         push( @main::filters, $myparam );
         #dPrint( qq{filters += "$myparam"\n} );
+    }
+
+    if( defined( $main::set_locale ) ){
+        $main::LC_CTYPE = set_locale( $main::set_locale );
+        set_locale_datafilename( $main::datafile, $main::LC_CTYPE );
+        $main::set_locale = undef;
+    }
+    if( defined( $main::datafile_loc_specify ) ){
+        $main::datafile_loc = $main::datafile_loc_specify;
+        $main::datafile_loc_specify = undef;
     }
 
     $main::use_filter = 1 if( scalar( @main::filters ) > 0 );
@@ -249,6 +292,15 @@ sub usage( $ )
     return 0;
 }
 
+use constant STR_CHAR_CODE => 'utf8';
+## UTF-8 → Perl内部文字列
+sub utf82perlstr( $ )
+{
+    my( $octets  ) = @_;
+    return Encode::decode( STR_CHAR_CODE, $octets  );
+#    return $octets;
+}
+
 #sub dPrint( @ )
 #{
 #    if( $main::debug ){
@@ -284,9 +336,55 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.5 $};
+    my $rev = q{$Revision: 1.9 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
+}
+
+sub set_locale( ;$ )
+{
+    my( $locale ) = @_;
+
+    my $b_need_check = 0;
+    if( defined( $locale ) ){
+        $b_need_check = 1;
+        if( $locale eq '' ){    # システムのデフォルトに戻す
+            delete( $ENV{LANG} );
+            delete( $ENV{LC_CTYPE} );
+            delete( $ENV{LC_ALL} );
+            #print( qq{unset locale\n} );
+        }                       # その他の場合は指定値にセット
+        POSIX::setlocale( POSIX::LC_CTYPE, $locale );
+        POSIX::setlocale( POSIX::LC_ALL, $locale );
+        #print( qq{setlocale: "$locale"\n} );
+        $locale = 'C' if( $locale eq '' );
+    }
+
+    my $got_locale = POSIX::setlocale( POSIX::LC_CTYPE );
+    if( $b_need_check ){
+        $b_need_check = 0;
+        if( $got_locale ne $locale ){
+            die( qq{set_locale(): error: specified_value="$locale": LC_CTYPE="$got_locale": failure.\n} );
+        }
+    }
+    #print( qq{LC_CTYPE: "$got_locale"\n} );
+
+    # Android Termux環境では C と en_US のロケールしか使えない。
+    # これ以外を LC_xxx に設定すると setlocale がエラーを出すので
+    # このスクリプトでは LANG を参照することに。
+    if( $got_locale eq 'C.UTF-8' ){
+        if( defined( $ENV{LANG} ) ){
+            $got_locale = $ENV{LANG};
+        }
+    }
+    return $got_locale;
+}
+
+sub set_locale_datafilename( $$ )
+{
+    my( $base, $locale ) = @_;
+    $locale =~ s!\.utf-?8$!!oi;
+    $main::datafile_loc = "$base.$locale";
 }
 
 # uncoverable branch false

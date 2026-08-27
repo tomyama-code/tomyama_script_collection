@@ -1,13 +1,13 @@
 package tests::Runner;
 ################################################################################
-## - $Revision: 1.1 $
+## - $Revision: 1.2 $
 ################################################################################
 
-use strict;                     # first released with perl 5
-use warnings;                   # first released with perl v5.6.0
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
-use File::Basename qw();        # first released with perl 5
-use POSIX qw();                 # first released with perl 5
+use File::Basename qw();            # first released with perl 5
+use POSIX qw();                     # first released with perl 5
 
 my $test_beg_epoch = 0;
 my $test_end_epoch = 0;
@@ -37,9 +37,9 @@ sub get_time_zone()
     return undef;
 }
 
-sub change_time_zone( $ )
+sub change_tz_and_locale( ;$$ )
 {
-    my( $time_zone ) = @_;
+    my( $time_zone, $locale ) = @_;
 
     if( !defined( $time_zone ) ){
         delete( $ENV{TZ} );
@@ -50,6 +50,12 @@ sub change_time_zone( $ )
     # PerlにTZ環境変数の変更を認識させるための命令
     # OSのCライブラリのタイムゾーンキャッシュをリフレッシュ
     POSIX::tzset();
+
+    if( !defined( $locale ) ){
+        $locale = 'C';
+    }
+    $ENV{LANG} = $locale;
+    POSIX::setlocale( POSIX::LC_ALL, $locale );
 }
 
 sub TestPreProc( $@ )
@@ -61,7 +67,8 @@ sub TestPreProc( $@ )
     ## IANAタイムゾーンID
     ##   - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     ##   - $ timedatectl list-timezones --no-pager
-    change_time_zone( 'Asia/Tokyo' );
+    change_tz_and_locale( 'Asia/Tokyo', 'ja_JP.UTF-8' );
+#    change_tz_and_locale();
 
     _SetTargetCommand( $testfilename );
 

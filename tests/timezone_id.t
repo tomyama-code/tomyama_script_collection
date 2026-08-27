@@ -1,18 +1,23 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.4 $
+## - $Revision: 1.9 $
 ################################################################################
 
-use strict;                     # first released with perl 5
-use warnings;                   # first released with perl v5.6.0
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use POSIX qw();                     # first released with perl 5
 
 #use lib '.';
-use FindBin;                    # first released with perl 5.00307
+use FindBin;                        # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
-my $expect_hdr_s = qr/SDT    SDT    Lat, Lon               IANA TZ id  +Country Code\n/;
-my $expect_hdr_l = qr/SDT    SDT    DST    DST    Lat, Lon               IANA TZ id  +"Embedded comments"  "Notes"  Country Code  Country Name\n/;
+my $lc_ctype_def = POSIX::setlocale( POSIX::LC_CTYPE );
+my $locale_is_available = 1;
+$locale_is_available = 0 if( $lc_ctype_def ne 'ja_JP.UTF-8' );
+
+my $expect_hdr_s = qr/SDT    SDT    Lat, Lon               IANA TZ id  +Type       Country Code\n/;
+my $expect_hdr_l = qr/SDT    SDT    DST    DST    Lat, Lon               IANA TZ id  +Type       "Notes"  "Embedded comments"  Country Code  Country Name\n/;
 
 subtest 'In-Proc Test' => sub{
     require './timezone_id';
@@ -28,8 +33,8 @@ subtest 'In-Proc Test' => sub{
         $t->has_no_exception( q{./timezone_id} );
         is( $status, 0, '引数無しで呼び出す' );
         $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-        $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-        $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+        $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -38,8 +43,8 @@ subtest 'In-Proc Test' => sub{
         $t->has_no_exception( q{./timezone_id JST} );
         is( $status, 0, 'シンプルなフィルター' );
         $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-        $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{最初のレコード} );
-        $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{最後のレコード} );
+        $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -48,8 +53,8 @@ subtest 'In-Proc Test' => sub{
         $t->has_no_exception( q{./timezone_id 'America/' 'Fr'} );
         is( $status, 0, '複数のフィルター' );
         $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-        $t->stdout_like( qr/\n\−04:00 AST    18\.22083, \-66\.59014    America\/Puerto_Rico  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI\n/, qq{最初のレコード} );
-        $t->stdout_like( qr/\n\−03:00 \-3     4\.93797, \-52\.33543     America\/Cayenne      GF\n/, qq{最後のレコード} );
+        $t->stdout_like( qr/\n\−04:00 AST    18\.22083, \-66\.59014    America\/Puerto_Rico  Canonical  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\−03:00 \-3     4\.93797, -52\.33543     America\/Cayenne      Canonical  GF\n/, qq{最後のレコード} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
@@ -58,8 +63,38 @@ subtest 'In-Proc Test' => sub{
         $t->has_no_exception( q{./timezone_id 'France|French'} );
         is( $status, 0, 'ORフィルター' );
         $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-        $t->stdout_like( qr/\n\−10:00 \-10    \-17\.65091, \-149\.42604  Pacific\/Tahiti       PF\n/, qq{最初のレコード} );
-        $t->stdout_like( qr/\n\+05:00 \+5     \-55\.19908, 76\.10015    Indian\/Kerguelen     TF\n/, qq{最後のレコード} );
+        $t->stdout_like( qr/\n\−10:00 \-10    \-17\.65091, \-149\.42604  Pacific\/Tahiti       Canonical  PF\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+05:00 \+5     \-55\.19908, 76\.10015    Indian\/Kerguelen     Link       TF\n/, qq{最後のレコード} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = pl_main( 'パリ|ダカール' );
+        } );
+        $t->has_no_exception( q{./timezone_id 'パリ|ダカール'} );
+        is( $status, 0, '日本語でフィルター（OR検索）' );
+        $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+        $t->stdout_like( qr/\n\+00:00 GMT    14\.71667, \-17\.46768    Africa\/Dakar  Link       SN\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+01:00 CET    48\.85754, 2\.35137      Europe\/Paris  Canonical  FR; MC\n/, qq{最後のレコード} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = pl_main( '基地', 'AQ', '南極', 'Antarctica/' );
+        } );
+        $t->has_no_exception( q{./timezone_id 基地 AQ 南極 Antarctica/} );
+        is( $status, 0, '日本語でフィルター（AND検索）' );
+        $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+        $t->stdout_like( qr/\n\−03:00 \-3     \-64\.77425, \-64\.05382   Antarctica\/Palmer          Canonical  AQ\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+12:00 NZST   \-77\.84551, 166\.66976   Antarctica\/McMurdo         Link       AQ\n/, qq{最後のレコード} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_blk( sub{
+            $status = pl_main( 'A[Q]', '南.大陸/' );
+        } );
+        $t->has_no_exception( q{./timezone_id 'A[Q]' '南.大陸/'} );
+        is( $status, 0, '日本語の文字境界を認識できていること（1文字マッチ）' );
+        $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+        $t->stdout_like( qr/\n\−03:00 \-3     \-64\.77425, \-64\.05382   Antarctica\/Palmer          Canonical  AQ\n/, qq{最初のレコード} );
+        $t->stdout_like( qr/\n\+12:00 NZST   \-77\.84551, 166\.66976   Antarctica\/McMurdo         Link       AQ\n/, qq{最後のレコード} );
         $t->stderr_is( qq{} );
 
     };
@@ -75,8 +110,8 @@ subtest 'In-Proc Test' => sub{
             is( $status, 0, 'ロング形式' );
             $t->stdout_like( qr/^--------------------------------------------------\n/, q{バナー表示} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -86,8 +121,42 @@ subtest 'In-Proc Test' => sub{
             is( $status, 0, 'ショート形式' );
             $t->stdout_like( qr/^--------------------------------------------------\n/, q{バナー表示} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+        };
+
+        subtest q{Option Switch: --datafile} => sub{
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--datafile=Non-existent-file' );
+            } );
+            $t->has_exception( q{./timezone_id --datafile=Non-existent-file} );
+            $t->exception_like( qr/^Non\-existent\-file: could not open file: No such file or directory at /, 'データファイルのオープンに失敗させる' );
+            $t->stdout_is( qq{} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--datafile', './timezone_id.tab' );
+            } );
+            $t->has_no_exception( q{./timezone_id --datafile ./timezone_id.tab} );
+            is( $status, 0, 'データファイルを指定する' );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+        };
+
+        subtest q{Option Switch: --datafile-loc} => sub{
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--datafile-loc=Non-existent-file' );
+            } );
+            $t->has_exception( q{./timezone_id --datafile-loc=Non-existent-file} );
+            $t->exception_like( qr/^Non\-existent\-file: could not open file: No such file or directory at /, 'データファイルのオープンに失敗させる' );
+            $t->stdout_is( qq{} );
             $t->stderr_is( qq{} );
 
         };
@@ -102,8 +171,8 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( qr/^dbg: Parameter Print\n/, qq{デバッグ出力} );
             $t->stdout_like( qr/\n     \$main::debug = 1\n/, qq{デバッグ出力} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -114,8 +183,8 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( qr/^dbg: Parameter Print\n/, qq{デバッグ出力} );
             $t->stdout_like( qr/\n     \$main::debug = 1\n/, qq{デバッグ出力} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157.42781    Pacific\/Kiritimati                Canonical  KI\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
         };
@@ -149,8 +218,6 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( qr/ for more information\.\n/, qq{最後の行} );
             $t->stdout_unlike( $expect_hdr_s, qq{ID は出力されないこと} );
             $t->stdout_unlike( $expect_hdr_l, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{ID は出力されないこと} );
             $t->stderr_is( qq{} );
 
         };
@@ -163,8 +230,8 @@ subtest 'In-Proc Test' => sub{
             $t->has_no_exception( q{./timezone_id jst --ignorecase} );
             is( $status, 0, 'ロング形式' );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -173,8 +240,8 @@ subtest 'In-Proc Test' => sub{
             $t->has_no_exception( q{./timezone_id jst -i} );
             is( $status, 0, 'ショート形式' );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -183,9 +250,78 @@ subtest 'In-Proc Test' => sub{
             $t->has_no_exception( q{./timezone_id jst} );
             is( $status, 0, 'jst は見つからない' );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{最初のレコード} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{最後のレコード} );
+            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
+
+        };
+
+        subtest q{Option Switch: --set-locale} => sub{
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--set-locale', 'en_US.utf9' );
+            } );
+            $t->has_exception( q{./timezone_id --set-locale en_US.utf9} );
+            $t->exception_is( qq{set_locale(): error: specified_value="en_US.utf9": LC_CTYPE="$lc_ctype_def": failure.\n}, 'set_locale() が例外' );
+            $t->stdout_is( qq{} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( 'JST', '--set-locale', '', '--debug' );
+            } );
+            $t->has_no_exception( q{./timezone_id JST --set-locale '' --debug } );
+            is( $status, 0, 'LC_CTYPE がシステムデフォルトに変わること' );
+            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.C"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \$main::LC_CTYPE = "C"\n/, qq{\$main::LC_CTYPE} );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
+            # LANG を戻しておく
+            $ENV{LANG} = $lc_ctype_def if( !defined( $ENV{LANG} ) );
+
+            if( $locale_is_available ){
+
+                # LANG を消しておく
+                delete( $ENV{LANG} ) if( defined( $ENV{LANG} ) );
+
+                $t = tests::Tester->run_blk( sub{
+                    $status = pl_main( 'JST', '--set-locale', 'C.UTF-8', '--debug' );
+                } );
+                $t->has_no_exception( q{./timezone_id JST --set-locale C.UTF-8 --debug} );
+                is( $status, 0, 'LC_CTYPE が指定した値に変わること' );
+                $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.C"\n/, qq{\$main::datafile_loc} );
+                $t->stdout_like( qr/\n     \$main::LC_CTYPE = "C\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
+                $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+                $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+                $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
+
+                # LANG を戻しておく
+                $ENV{LANG} = $lc_ctype_def if( !defined( $ENV{LANG} ) );
+
+                $t = tests::Tester->run_blk( sub{
+                    $status = pl_main( 'JST', '--set-locale', 'C.UTF-8', '--debug' );
+                } );
+                $t->has_no_exception( q{./timezone_id JST --set-locale C.UTF-8 --debug} );
+                is( $status, 0, 'Android Termux 環境用の救済コードが効くこと（ LANGを参照 ）' );
+                $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.ja_JP"\n/, qq{\$main::datafile_loc} );
+                $t->stdout_like( qr/\n     \$main::LC_CTYPE = "ja_JP\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
+                $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+                $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+                $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
+
+                # 初期値に戻しておく ( $lc_ctype_def = 'ja_JP.UTF-8' )
+                $t = tests::Tester->run_blk( sub{
+                    $status = pl_main( 'JST', '--set-locale', 'ja_JP.UTF-8', '--debug' );
+                } );
+                $t->has_no_exception( q{./timezone_id JST --set-locale ja_JP.UTF-8 --debug} );
+                is( $status, 0, 'LC_CTYPE が指定した値に変わること' );
+                $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.ja_JP"\n/, qq{\$main::datafile_loc} );
+                $t->stdout_like( qr/\n     \$main::LC_CTYPE = "ja_JP\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
+                $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+                $t->stdout_like( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+                $t->stdout_like( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       Link       JP\n/, qq{最後のレコード} );
+
+            }
 
         };
 
@@ -197,8 +333,8 @@ subtest 'In-Proc Test' => sub{
             $t->has_no_exception( q{./timezone_id --verbose} );
             is( $status, 0, 'ロング形式' );
             $t->stdout_like( $expect_hdr_l, qq{ヘッダ（verbose版）} );
-            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        ""  "Sign is intentionally inverted\. See the Etc area description\."    \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                "Line Islands"  ""  KI  Kiribati\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  "Sign is intentionally inverted\. See the Etc area description\."  ""    \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                Canonical  ""  "Line Islands"  KI  Kiribati\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -207,8 +343,8 @@ subtest 'In-Proc Test' => sub{
             $t->has_no_exception( q{./timezone_id -v} );
             is( $status, 0, 'ショート形式' );
             $t->stdout_like( $expect_hdr_l, qq{ヘッダ（verbose版）} );
-            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        ""  "Sign is intentionally inverted\. See the Etc area description\."    \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                "Line Islands"  ""  KI  Kiribati\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  "Sign is intentionally inverted\. See the Etc area description\."  ""    \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                Canonical  ""  "Line Islands"  KI  Kiribati\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
         };
@@ -230,30 +366,7 @@ subtest 'In-Proc Test' => sub{
             is( $status, 0, 'バージョンのみを出力' );
             $t->stdout_like( qr/^Version: \d/ );
             $t->stdout_unlike( $expect_hdr_s, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    35\.67642, 139\.65002    Asia\/Tokyo  JP; AU\n/, qq{ID は出力されないこと} );
-            $t->stdout_unlike( qr/\n\+09:00 JST    34\.64938, 135\.00147    Japan       JP\n/, qq{ID は出力されないこと} );
-            $t->stderr_is( qq{} );
-
-        };
-
-        subtest q{Option Switch: --datafile} => sub{
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--datafile=Non-existent-file' );
-            } );
-            $t->has_exception( q{./timezone_id --datafile=Non-existent-file} );
-            $t->exception_like( qr/^Non\-existent\-file: could not open file: No such file or directory at /, 'データファイルのオープンに失敗させる' );
-            $t->stdout_is( qq{} );
-            $t->stderr_is( qq{} );
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--datafile', './timezone_id.tab' );
-            } );
-            $t->has_no_exception( q{./timezone_id --datafile ./timezone_id.tab} );
-            is( $status, 0, 'データファイルを指定する' );
-            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
-            $t->stdout_like( qr/\n\−12:00 \-12    0, \-180                Etc\/GMT\+12                        \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                KI\n/, qq{最後のレコード} );
+            $t->stdout_unlike( $expect_hdr_l, qq{ID は出力されないこと} );
             $t->stderr_is( qq{} );
 
         };
@@ -268,8 +381,8 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( qr/^dbg: Parameter Print\n/, qq{デバッグ出力} );
             $t->stdout_like( qr/\n     \$main::debug = 1\n/, qq{デバッグ出力} );
             $t->stdout_like( $expect_hdr_l, qq{ヘッダ（verbose版）} );
-            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        ""  "Sign is intentionally inverted\. See the Etc area description\."    \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                "Line Islands"  ""  KI  Kiribati\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  "Sign is intentionally inverted\. See the Etc area description\."  ""    \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                Canonical  ""  "Line Islands"  KI  Kiribati\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -280,8 +393,8 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_like( qr/^dbg: Parameter Print\n/, qq{デバッグ出力} );
             $t->stdout_like( qr/\n     \$main::debug = 1\n/, qq{デバッグ出力} );
             $t->stdout_like( $expect_hdr_l, qq{ヘッダ（verbose版）} );
-            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        ""  "Sign is intentionally inverted\. See the Etc area description\."    \n/, qq{最初のレコード} );
-            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                "Line Islands"  ""  KI  Kiribati\n/, qq{最後のレコード} );
+            $t->stdout_like( qr/\n\−12:00 \-12    \−12:00 \-12    0, \-180                Etc\/GMT\+12                        Canonical  "Sign is intentionally inverted\. See the Etc area description\."  ""    \n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+14:00 \+14    \+14:00 \+14    1\.87213, \-157\.42781    Pacific\/Kiritimati                Canonical  ""  "Line Islands"  KI  Kiribati\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{

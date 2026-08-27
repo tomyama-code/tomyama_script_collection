@@ -7,9 +7,17 @@
 ### Changed
 - xxx
 
+## [0.3.14] - 2026-08-28
+### Added
+- `timezone_id.tab.ja_JP`:
+  - Added a file for the Japanese locale.
+- `timezone_id` [1.01.009]:
+  - Enabled filtering using Japanese keywords.
+  - Added a 'type' column to the data.
+
 ## [0.3.13] - 2026-08-26
 ### Added
-- `timezone_id` [1.01.003]:
+- `timezone_id` [1.01.005]:
   - Added the '--banner' and '-b' options.
 
 ## [0.3.12] - 2026-08-25
