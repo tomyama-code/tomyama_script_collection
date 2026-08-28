@@ -7,6 +7,11 @@
 ### Changed
 - xxx
 
+## [0.3.15] - 2026-08-29
+### Added
+- `timezone_id` [1.01.011]:
+  - Added the '--sort-order-by' options.
+
 ## [0.3.14] - 2026-08-28
 ### Added
 - `timezone_id.tab.ja_JP`:

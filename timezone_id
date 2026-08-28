@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.9 $
+## - $Revision: 1.11 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -76,7 +76,7 @@ sub pl_main( @ )
     my @matched = ();
     my $tz_id_len_max = 0;
     while( <DATFILE> ){
-        my $line_loc = '';
+        my $line_loc = "\t";
         if( defined( $data_loc[ $line_row ] ) ){
             $line_loc = $data_loc[ $line_row ];
             $line_loc =~ s/\r?\n$//o;
@@ -107,21 +107,52 @@ sub pl_main( @ )
                 split( /\t/, $line );
             my $tz_id_len = length( $tz_id );
             $tz_id_len_max = $tz_id_len if( $tz_id_len > $tz_id_len_max );
-            push( @matched, $line );
+            push( @matched, $concat_line );
         }
     }
     close( DATFILE );
 
-    for my $line( @matched ){
-        my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname ) =
+    my @sorted = @matched;
+    if( $main::sort_order_by ne '' ){
+        my $sort_order_by = lc( $main::sort_order_by );
+        if( $sort_order_by eq 'lat' ){
+            @sorted = sort { ( split( /\t/, $a ) )[ 8 ] <=> ( split( /\t/, $b ) )[ 8 ] } ( @matched[ 1..$#matched ] );
+        }elsif( $sort_order_by eq 'lon' ){
+            @sorted = sort { ( split( /\t/, $a ) )[ 9 ] <=> ( split( /\t/, $b ) )[ 9 ] } ( @matched[ 1..$#matched ] );
+        }elsif( $sort_order_by eq 'id' ){
+            @sorted = sort { ( split( /\t/, $a ) )[ 4 ] cmp ( split( /\t/, $b ) )[ 4 ] } ( @matched[ 1..$#matched ] );
+        }else{
+            die( qq{$main::appname: --sort-order-by "$main::sort_order_by": Unsupported field name.\n} );
+        }
+        unshift( @sorted, $matched[ 0 ] );
+    }
+
+    for my $line( @sorted ){
+        my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname, $id_loc, $cname_loc ) =
             split( /\t/, $line );
 
+        sub coord_fmt( $ )
+        {
+            my( $coord ) = @_;
+            $coord = "+$coord" if( $coord =~ m/^\d[\d\.]+$/o );
+            my $padding = 6;
+            if( $coord =~ m/\.(\d+)$/o ){
+                my $digit = length( $1 );
+                $padding = 5 - $digit;
+            }
+            $coord = $coord . ' ' x $padding;
+            return $coord;
+        }
+        $lat = coord_fmt( $lat );
+        $lon = coord_fmt( $lon );
+        my $coordinate = sprintf( qq{%9s, %10s}, $lat, $lon );
+
         if( $main::verbose ){
-            printf( qq{%-6s %-5s  %-6s %-5s  %-22s %-*s  %-9s  "%s"  "%s"  %s  %s\n},
-                $sdt, $sdt2, $dst, $dst2, "$lat, $lon", $tz_id_len_max, $tz_id, $type, $note, $cmt, $cc, $cname );
+            printf( qq{%-6s %-5s  %-6s %-5s  %-22s %-*s  %-9s  "%s"  "%s"  "%s"  "%s"  "%s"  %s\n},
+                $sdt, $sdt2, $dst, $dst2, $coordinate, $tz_id_len_max, $tz_id, $type, $note, $cmt, $cc, $cname, $cname_loc, $id_loc );
         }else{
             printf( qq{%-6s %-5s  %-22s %-*s  %-9s  %s\n},
-                $sdt, $sdt2, "$lat, $lon", $tz_id_len_max, $tz_id, $type, $cc );
+                $sdt, $sdt2, $coordinate, $tz_id_len_max, $tz_id, $type, $cc );
         }
     }
 
@@ -151,6 +182,7 @@ sub init_script()
     $main::LC_CTYPE = set_locale();
     set_locale_datafilename( $main::datafile, $main::LC_CTYPE );
     $main::set_locale = undef;
+    $main::sort_order_by = '';
     $main::use_filter = 0;
     $main::verbose = 0;
     $main::version = 0;
@@ -175,6 +207,7 @@ sub param_print()
              qq{     \$main::help = %d\n} .
              qq{     \$main::ignorecase = %d\n} .
              qq{     \$main::LC_CTYPE = "%s"\n} .
+             qq{     \$main::sort_order_by = "%s"\n} .
              qq{     \$main::use_filter = %d\n} .
              qq{     \$main::verbose = %d\n} .
              qq{     \$main::version = %d\n},
@@ -190,6 +223,7 @@ sub param_print()
         $main::help,
         $main::ignorecase,
         $main::LC_CTYPE,
+        $main::sort_order_by,
         $main::use_filter,
         $main::verbose,
         $main::version );
@@ -215,15 +249,16 @@ sub parse_arg()
     Getopt::Long::Configure("bundling");
 
     Getopt::Long::GetOptions(
-        'banner|b'       => \$main::banner,
-        'datafile=s'     => \$main::datafile,
-        'datafile-loc=s' => \$main::datafile_loc_specify,
-        'debug|d'        => \$main::debug,
-        'help|h'         => \$main::help,
-        'ignorecase|i'   => \$main::ignorecase,
-        'set-locale=s'   => \$main::set_locale,
-        'verbose|v'      => \$main::verbose,
-        'version'        => \$main::version,
+        'banner|b'        => \$main::banner,
+        'datafile=s'      => \$main::datafile,
+        'datafile-loc=s'  => \$main::datafile_loc_specify,
+        'debug|d'         => \$main::debug,
+        'help|h'          => \$main::help,
+        'ignorecase|i'    => \$main::ignorecase,
+        'set-locale=s'    => \$main::set_locale,
+        'sort-order-by=s' => \$main::sort_order_by,
+        'verbose|v'       => \$main::verbose,
+        'version'         => \$main::version,
     ) || die( qq{parse_arg(): error: Failed to parse option switches.\n} );
 
     while( my $myparam = shift( @ARGV ) ){
@@ -252,6 +287,8 @@ sub usage( $ )
     my $msg = "usage: " .
         qq{$main::appname [ <OPTIONS> ] [ <PATTERN>... ]\n} .
         qq{\n} .
+        qq{  List IANA timezone IDs.\n} .
+        qq{\n} .
         qq{<PATTERN>:\n} .
         qq{  The PATTERN can be described by the Regular-Expression equal with Perl.\n} .
         qq{\n} .
@@ -262,6 +299,9 @@ sub usage( $ )
         qq{    Display this help and exit\n} .
         qq{  -i, --ignorecase:\n} .
         qq{    Ignore case distinctions in the <PATTERN>.\n} .
+        qq{  --sort-order-by <FIELD_NAME>:\n} .
+        qq{    "Lat", "Lon", and "ID" can be specified for <FIELD_NAME>.\n} .
+        qq{    By default, they are sorted by the magnitude of the offset time difference.\n} .
         qq{  -v, --verbose:\n} .
         qq{    The intermediate steps of the calculation will also be displayed.\n} .
         qq{  --version:\n} .
@@ -336,7 +376,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.9 $};
+    my $rev = q{$Revision: 1.11 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -402,7 +442,11 @@ TIMEZONE_ID -- List IANA timezone IDs.
 
 =head1 DESCRIPTION
 
-This uses bundled IANA data instead of the host system's timezone data.
+This uses the data bundled with the script rather than the host system's time zone data.
+This design was chosen because the goal was to use the data simply as regional information from around the world, without relying on the system.
+
+The data (table) was created using IANA Timezone IDs as keys.
+It does not contain information such as the dates for transitions between daylight saving time and standard time. Since this tool only identifies the ID itself, the assumption is that you will use other tools—such as the `zdump` command—to look up further details.
 
 Note: How to list the time zone definitions implemented in the system
 
@@ -419,6 +463,23 @@ Note: How to list the time zone definitions implemented in the system
   Mac:
     # systemsetup -listtimezones
 
+Note: How to check when the time zone switches between daylight saving time and standard time:
+
+  # If you want to check for Paris in 2025
+  $ zdump -v -c 2025,2026 Europe/Paris
+  Europe/Paris  -9223372036854775808 (gmtime failed) = -9223372036854775808 (localtime failed)
+  Europe/Paris  -67768040609741362 (gmtime failed) = -67768040609741362 (localtime failed)
+  Europe/Paris  -67768040609741361 (gmtime failed) = Mon Jan  1 00:00:00 -2147481748 LMT isdst=0 gmtoff=561
+  Europe/Paris  -67768040609740801 (gmtime failed) = Mon Jan  1 00:09:20 -2147481748 LMT isdst=0 gmtoff=561
+  Europe/Paris  Mon Jan  1 00:00:00 -2147481748 UT = Mon Jan  1 00:09:21 -2147481748 LMT isdst=0 gmtoff=561
+  Europe/Paris  Sun Mar 30 00:59:59 2025 UT = Sun Mar 30 01:59:59 2025 CET isdst=0 gmtoff=3600
+  Europe/Paris  Sun Mar 30 01:00:00 2025 UT = Sun Mar 30 03:00:00 2025 CEST isdst=1 gmtoff=7200
+  Europe/Paris  Sun Oct 26 00:59:59 2025 UT = Sun Oct 26 02:59:59 2025 CEST isdst=1 gmtoff=7200
+  Europe/Paris  Sun Oct 26 01:00:00 2025 UT = Sun Oct 26 02:00:00 2025 CET isdst=0 gmtoff=3600
+  Europe/Paris  67768036191673199 (gmtime failed) = Wed Dec 31 23:59:59 2147485547 CET isdst=0 gmtoff=3600
+  Europe/Paris  67768036191673200 (gmtime failed) = 67768036191673200 (localtime failed)
+  Europe/Paris  9223372036854775807 (gmtime failed) = 9223372036854775807 (localtime failed)
+
 =head1 SYNOPSIS
 
 $ timezone_id [ I<OPTIONS> ] [ I<PATTERN>... ]
@@ -434,36 +495,36 @@ Each I<PATTERN> can be:
 Filter by a single keyword:
 
   $ timezone_id JST
-  SDT    SDT    Lat, Lon               IANA TZ id  Country Code
-  +09:00 JST    35.67642, 139.65002    Asia/Tokyo  JP; AU
-  +09:00 JST    34.64938, 135.00147    Japan       JP
+  SDT    SDT    Lat, Lon               IANA TZ id  Type       Country Code
+  +09:00 JST    +35.67642, +139.65002  Asia/Tokyo  Canonical  JP; AU
+  +09:00 JST    +34.64938, +135.00147  Japan       Link       JP
 
 =item *
 
 Specifying multiple keywords results in an AND condition:
 
   $ timezone_id 'America/' 'Fr'
-  SDT    SDT    Lat, Lon               IANA TZ id           Country Code
-  −04:00 AST    18.22083, -66.59014    America/Puerto_Rico  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
-  −04:00 AST    18.06751, -63.08246    America/Marigot      MF
-  −03:00 -3     4.93797, -52.33543     America/Cayenne      GF
+  SDT    SDT    Lat, Lon               IANA TZ id           Type       Country Code
+  −04:00 AST    +18.22083,  -66.59014  America/Puerto_Rico  Canonical  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
+  −04:00 AST    +18.06751,  -63.08246  America/Marigot      Link       MF
+  −03:00 -3      +4.93797,  -52.33543  America/Cayenne      Canonical  GF
 
 =item *
 
 Use a vertical bar (|) to specify multiple keywords with an OR condition:
 
   $ timezone_id 'France|French'
-  SDT    SDT    Lat, Lon               IANA TZ id           Country Code
-  −10:00 -10    -17.65091, -149.42604  Pacific/Tahiti       PF
-  −09:30 -930   -9.78121, -139.08171   Pacific/Marquesas    PF
-  −09:00 -9     -23.10965, -134.97434  Pacific/Gambier      PF
-  −04:00 AST    18.22083, -66.59014    America/Puerto_Rico  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
-  −04:00 AST    18.06751, -63.08246    America/Marigot      MF
-  −03:00 -3     4.93797, -52.33543     America/Cayenne      GF
-  +01:00 CET    48.85754, 2.35137      Europe/Paris         FR; MC
-  +04:00 +4     25.20484, 55.27078     Asia/Dubai           AE; OM; RE; SC; TF
-  +05:00 +5     3.20277, 73.22068      Indian/Maldives      MV; TF
-  +05:00 +5     -55.19908, 76.10015    Indian/Kerguelen     TF
+  SDT    SDT    Lat, Lon               IANA TZ id           Type       Country Code
+  −10:00 -10    -17.65091, -149.42604  Pacific/Tahiti       Canonical  PF
+  −09:30 -930    -9.78121, -139.08171  Pacific/Marquesas    Canonical  PF
+  −09:00 -9     -23.10965, -134.97434  Pacific/Gambier      Canonical  PF
+  −04:00 AST    +18.22083,  -66.59014  America/Puerto_Rico  Canonical  PR; AG; CA; AI; AW; BL; BQ; CW; DM; GD; GP; KN; LC; MF; MS; SX; TT; VC; VG; VI
+  −04:00 AST    +18.06751,  -63.08246  America/Marigot      Link       MF
+  −03:00 -3      +4.93797,  -52.33543  America/Cayenne      Canonical  GF
+  +01:00 CET    +48.85754,   +2.35137  Europe/Paris         Canonical  FR; MC
+  +04:00 +4     +25.20484,  +55.27078  Asia/Dubai           Canonical  AE; OM; RE; SC; TF
+  +05:00 +5      +3.20277,  +73.22068  Indian/Maldives      Canonical  MV; TF
+  +05:00 +5     -55.19908,  +76.10015  Indian/Kerguelen     Link       TF
 
 =back
 
@@ -487,9 +548,39 @@ Display simple help and exit.
 
 Ignore case distinctions in the I<PATTERN>.
 
+=item --sort-order-by I<FIELD_NAME>
+
+C<Lat>, C<Lon>, and C<ID> can be specified for I<FIELD_NAME>.
+By default, they are sorted by the magnitude of the offset time difference.
+
+Sort by longitude:
+
+  $ timezone_id --sort-order-by 'Lon' 'Antarctica/' 'Link'
+  SDT    SDT    Lat      ,  Lon        IANA TZ id                 Type       Country Code
+  +12:00 NZST   -90      ,    0        Antarctica/South_Pole      Link       AQ
+  +03:00 +3     -69.00439,  +39.5822   Antarctica/Syowa           Link       AQ
+  +10:00 +10    -66.66359, +140.00325  Antarctica/DumontDUrville  Link       AQ
+  +12:00 NZST   -77.84551, +166.66976  Antarctica/McMurdo         Link       AQ
+
 =item -v, --verbose
 
-The intermediate steps of the calculation will also be displayed.
+Additional columns will be displayed.
+
+  $ timezone_id 'Antarctica/' 'Link' --verbose
+  SDT    SDT    DST    DST    Lat      ,  Lon        IANA TZ id                 Type       "Notes"  "Embedded comments"  "Country Code"  "Country Name"  ""
+  +03:00 +3     +03:00 +3     -69.00439,  +39.5822   Antarctica/Syowa           Link       "Link to Asia/Riyadh"  "Syowa"  "AQ"  "Antarctica"  ""
+  +10:00 +10    +10:00 +10    -66.66359, +140.00325  Antarctica/DumontDUrville  Link       "Link to Pacific/Port_Moresby"  "Dumont-d'Urville"  "AQ"  "Antarctica"  ""
+  +12:00 NZST   +13:00 NZDT   -77.84551, +166.66976  Antarctica/McMurdo         Link       "Link to Pacific/Auckland"  "New Zealand time – McMurdo, South Pole"  "AQ"  "Antarctica"  ""
+  +12:00 NZST   +13:00 NZDT   -90      ,    0        Antarctica/South_Pole      Link       "Link to Pacific/Auckland"  ""  "AQ"  "Antarctica"  ""
+
+If LC_CTYPE is set to C<ja_JP.UTF-8>, Japanese information will also be displayed.
+
+  $ timezone_id 'Antarctica/' 'Link' --verbose
+  SDT    SDT    DST    DST    Lat      ,  Lon        IANA TZ id                 Type       "Notes"  "Embedded comments"  "Country Code"  "Country Name"  "Countries"  ID
+  +03:00 +3     +03:00 +3     -69.00439,  +39.5822   Antarctica/Syowa           Link       "Link to Asia/Riyadh"  "Syowa"  "AQ"  "Antarctica"  "南極大陸"  南極大陸/昭和基地
+  +10:00 +10    +10:00 +10    -66.66359, +140.00325  Antarctica/DumontDUrville  Link       "Link to Pacific/Port_Moresby"  "Dumont-d'Urville"  "AQ"  "Antarctica"  "南極大陸"  南極大陸/デュモン・デュルヴィル基地
+  +12:00 NZST   +13:00 NZDT   -77.84551, +166.66976  Antarctica/McMurdo         Link       "Link to Pacific/Auckland"  "New Zealand time – McMurdo, South Pole"  "AQ"  "Antarctica"  "南極大陸"  南極大陸/マクマード基地
+  +12:00 NZST   +13:00 NZDT   -90      ,    0        Antarctica/South_Pole      Link       "Link to Pacific/Auckland"  ""  "AQ"  "Antarctica"  "南極大陸"  南極大陸/南極点
 
 =item --version
 
@@ -508,13 +599,14 @@ Run the clock set to French time.
 Search for France's time zone:
 
   $ timezone_id France
-  SDT    SDT    Lat, Lon               IANA TZ id    Country Code
-  +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
+  SDT    SDT    Lat, Lon               IANA TZ id    Type       Country Code
+  +01:00 CET    48.85754, 2.35137      Europe/Paris  Canonical  FR; MC
 
 Change the time zone only for the duration of execution: (shell feature)
 
-  $ TZ='Europe/Paris' date
+  $ TZ='Europe/Paris' date && date
   Sat Aug 22 18:06:02 CEST 2026
+  Sun Aug 23 01:06:02 JST 2026
 
 Run the clock:
 
@@ -523,12 +615,14 @@ Run the clock:
 Using latitude and longitude in a C<c script>:
 
   $ timezone_id 'Tokyo|Paris'
-  SDT    SDT    Lat, Lon               IANA TZ id    Country Code
-  +01:00 CET    48.85754, 2.35137      Europe/Paris  FR; MC
-  +09:00 JST    35.67642, 139.65002    Asia/Tokyo    JP; AU
+  SDT    SDT    Lat      ,  Lon        IANA TZ id     Type       Country Code
+  +01:00 CET    +48.85754,   +2.35137  Europe/Paris   Canonical  FR; MC
+  +01:00 CET    +43.73841,   +7.42461  Europe/Monaco  Link       MC
+  +09:00 JST    +35.67642, +139.65002  Asia/Tokyo     Canonical  JP; AU
+  +09:00 JST    +34.64938, +135.00147  Japan          Link       JP
 
-  $ Paris='48.85754, 2.35137'
-  $ Tokyo='35.67642, 139.65002'
+  $ Paris='+48.85754,   +2.35137'
+  $ Tokyo='+35.67642, +139.65002'
 
   # What's the distance?
   $ c "geo_distance_km( deg2rad( $Paris, $Tokyo ) )"
@@ -537,6 +631,8 @@ Using latitude and longitude in a C<c script>:
   # Which direction?
   $ c "geo_azimuth( deg2rad( $Paris, $Tokyo ) )"
   33.4304455215
+  # Since the Earth is a sphere, the shortest route (great-circle route)
+  # follows a northerly course passing near the North Pole.
 
 =back
 
@@ -548,11 +644,19 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
+=item * L<constant> - first released with perl 5.004
+
+=item * L<Encode> - first released with perl v5.7.3
+
 =item * L<File::Basename> — first included in perl 5
 
 =item * L<Getopt::Long> - first released with perl 5
 
+=item * L<POSIX> - first released with perl 5
+
 =item * L<strict> — first included in perl 5
+
+=item * L<utf8> - first released with perl v5.6.0
 
 =item * L<warnings> — first included in perl v5.6.0
 
