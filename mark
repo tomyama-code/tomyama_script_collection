@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.11 $
+## - $Revision: 2.13 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -18,7 +18,7 @@
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
-#use IO::Handle;
+use Getopt::Long qw();              # first released with perl 5
 
 ##########
 ## スクリプトのエントリポイント
@@ -29,16 +29,25 @@ sub pl_main( @ )
     init_script();
 
     ## 引数解析
-    my $reaction = parse_arg( @_ );
-    if( $reaction < 0 ){
-        return 0;
-    }elsif( $reaction > 0 ){
+    if( parse_arg( @_ ) ){
         return 1;
     }
 
     ## デバッグ用 : パラメータ出力
     if( $main::debug ){
         prt_param();
+    }
+
+    if( $main::help || $main::version ){
+        if( $main::help ){
+            $main::help = 0;
+            usage( 0 );
+        }
+        if( $main::version ){
+            $main::version = 0;
+            PrintVersion();
+        }
+        return 0;
     }
 
 #    STDIN->autoflush(1);
@@ -62,25 +71,35 @@ sub pl_main( @ )
 
         open( FI_IN, "<$opn_fname" ) ||
             die( qq{$main::appname: error: "$opn_fname": could not open file: $!\n} );
-        my $nr = 0;
         my $re_flag = '';
         $re_flag .= 'i' if( $main::ignorecase );
         #print( qq{\$re_flag="$re_flag"\n} );
-        while( <FI_IN> ){
-            $nr++;
-            my $mybuff = $_;
+        my @lines = <FI_IN>;
+        my $line_len = scalar( @lines );
+        my $line_max = $line_len;   # 行番号は1から始まるので行数と最後の行番号は同じになる
+        for(my $idx=0; $idx<$line_len; $idx++ ){
+            my $nr = $idx + 1;
+            my $mybuff = $lines[ $idx ];
             $mybuff =~ s/\r?\n$//o;
 
             ## マーキングする
             my $match_flg = 0;
-            if( $main::bUseAnsiEscSeqColor ){
-                # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
-                    $match_flg = 1;
+            if( defined( $main::re ) ){
+                if( $main::bUseAnsiEscSeqColor ){
+                    # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                    if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
+                        $match_flg = 1;
+                    }
+                }else{
+                    # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                    if( $mybuff =~ m/(?$re_flag)$main::re/g ){
+                        $match_flg = 1;
+                    }
                 }
-            }else{
-                # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                if( $mybuff =~ m/(?$re_flag)$main::re/g ){
+            }
+
+            if( $main::flag_head_tail ){
+                if( ( $nr == 1 ) || ( $nr == $line_max ) ){
                     $match_flg = 1;
                 }
             }
@@ -167,12 +186,16 @@ sub init_script()
     ### GLOBAL ###
     $main::apppath = File::Basename::dirname( $exec_file );
     $main::appname = File::Basename::basename( $exec_file );
+    $main::argc = 0;
     $main::debug = 0;
     $main::numbering = 0;
-    $main::prt_fname = 0;
+    $main::prt_fname = undef;
+    $main::help = 0;
+    $main::version = 0;
+    $main::flag_head_tail = 0;
     $main::flag_filter = 0;
-    $main::buffer_pre  = 0;
-    $main::buffer_post = 0;
+    $main::buffer_pre  = 5;
+    $main::buffer_post = 5;
     @main::pre_buffer = ();
     $main::post_buffer_counter = 0;
     $main::ignorecase = 0;
@@ -187,134 +210,127 @@ sub init_script()
 ## デバッグ用 : パラメータ出力
 sub prt_param()
 {
-    print STDERR ( qq{ ***** PARAMETER *****\n} );
-    print STDERR ( qq{\$main::apppath = "$main::apppath"\n} );
-    print STDERR ( qq{\$main::appname = "$main::appname"\n} );
-    print STDERR ( qq{\$main::debug = $main::debug\n} );
-    print STDERR ( qq{\$main::bUseAnsiEscSeqColor = $main::bUseAnsiEscSeqColor\n} );
-    print STDERR ( qq{\$main::numbering = $main::numbering\n} );
-    print STDERR ( qq{\$main::prt_fname = $main::prt_fname\n} );
-    print STDERR ( qq{\$main::flag_filter = $main::flag_filter\n} );
-    print STDERR ( qq{\$main::buffer_pre = $main::buffer_pre\n} );
-    print STDERR ( qq{\$main::buffer_post = $main::buffer_post\n} );
-    print STDERR ( qq{\$main::ignorecase = $main::ignorecase\n} );
-    print STDERR ( qq{\$main::re = "$main::re"\n} );
-    my $idx_max = scalar( @main::fi_in );
-    print STDERR ( qq{\@main::fi_in = $idx_max\n} );
-    for( my $idx = 0; $idx < $idx_max; $idx++ ){
-        print STDERR ( qq{\$main::fi_in[ $idx ] = "$main::fi_in[ $idx ]"\n} );
-    }
+    printf STDERR ( qq{ ***** PARAMETER *****\n} .
+                   qq{\$main::apppath = "$main::apppath"\n} .
+                   qq{\$main::appname = "$main::appname"\n} .
+                   qq{\$main::argc = $main::argc\n} .
+                   qq{\$main::debug = $main::debug\n} .
+                   qq{\$main::bUseAnsiEscSeqColor = $main::bUseAnsiEscSeqColor\n} .
+                   qq{\$main::numbering = $main::numbering\n} .
+                   qq{\$main::prt_fname = %s\n} .
+                   qq{\$main::flag_head_tail = $main::flag_head_tail\n} .
+                   qq{\$main::flag_filter = $main::flag_filter\n} .
+                   qq{\$main::buffer_pre = $main::buffer_pre\n} .
+                   qq{\$main::buffer_post = $main::buffer_post\n} .
+                   qq{scalar( \@main::pre_buffer ) = %d\n} .
+                   qq{\$main::post_buffer_counter = $main::post_buffer_counter\n} .
+                   qq{\$main::ignorecase = $main::ignorecase\n} .
+                   qq{\$main::re = %s\n} .
+                   qq{\@main::fi_in = (%s)\n},
+                   defined( $main::prt_fname ) ? qq{"$main::prt_fname"} : 'undef',
+                   scalar( @main::pre_buffer ),
+                   defined( $main::re ) ? qq{"$main::re"} : 'undef',
+                   array_to_str( @main::fi_in ) );
+}
+
+sub array_to_str( @ )
+{
+    return q{ '} . join( q{', '}, @_ ) . q{' } if( scalar( @_ ) > 0 );
+    return '';
 }
 
 ##########
 ## 引数解析
-sub parse_arg()
+sub parse_arg( @ )
 {
-    my @val = @_;
+    @main::argv = @_;
+    $main::argc = scalar( @main::argv );
 
-    my $opt_nofname = 0;
+    # Getopt::Long が動くように局所的に変更して騙す
+    local @ARGV = @main::argv;
 
-    ## 引数分のループを回す
-    while( my $myparam = shift( @val ) ){
-        ## アルファベットは1文字ずつ（-d, -h, -w）
-        if( $myparam =~ s/^-([dfhHvinc])([dfhHvinc\d,]+)$/-$1/o ){
-            my $remainparam = "-$2";
-            ## （"(\d+)"の部分はperlの最大マッチに依存した記述。変更時は注意）
-            if( $myparam eq '-f' ){
-                if( $remainparam =~ s/^-(\d+(?:,\d+)?)([dfhHvinc]*)$/-$2/o ){
-                    if( $remainparam ne '-' ){
-                        unshift( @val, $remainparam );
-                    }
-                    unshift( @val, "$1" );
-                }else{
-                    unshift( @val, $remainparam );
+    # 設定: ショートオプションのまとめ指定（バンドリング）を有効化
+    Getopt::Long::Configure("bundling");
+
+    Getopt::Long::GetOptions(
+        'debug|d'   => \$main::debug,
+        'head-tail' => sub{
+            $main::flag_head_tail = 1;
+            $main::flag_filter = 1;
+        },
+        'f:s' => sub{
+            my( $optname, $arg ) = @_;
+            $main::flag_filter = 1;
+            #print( qq{f arg: "$arg"\n} );
+
+            if( $arg =~ m/^(\d+)(?:,(\d+))?$/o ){
+                $main::buffer_pre  = $1;
+                $main::buffer_post = $1;
+                if( defined( $2 ) ){
+                    $main::buffer_post = $2;
                 }
             }else{
-                unshift( @val, $remainparam );
+                push( @ARGV, $arg );
             }
-        }
+        },
+        'with-filename|H' => \$main::prt_fname,
+        'no-filename|h' => sub{ $main::prt_fname = 0; },
+        'help'          => \$main::help,
+        'version|v'     => \$main::version,
+        'ignore-case|i' => \$main::ignorecase,
+        'line-number|n' => \$main::numbering,
+        'force-color|c' => \$main::bUseAnsiEscSeqColor,
+        'NON-EXISTENT-FILE' => sub{ push( @main::fi_in, 'NON-EXISTENT-FILE' ) },
+    ) || die( qq{parse_arg(): error: Failed to parse option switches.\n} );
 
-        ## デバッグモードOn
-        if    ( $myparam eq '-d' || $myparam eq '--debug' ){
-                $main::debug = 1;
-        }elsif( $myparam eq '-f' ){
-                $main::flag_filter = 1;
-                $main::buffer_pre  = 5;
-                $main::buffer_post = 5;
-            if( defined( $val[ 0 ] ) ){
-                if( $val[ 0 ] =~ m/^(\d+)(?:,(\d+))?$/o ){
-                    ## 捨てる
-                    shift( @val );
-
-                    $main::buffer_pre  = $1;
-                    $main::buffer_post = $1;
-                    if( defined( $2 ) ){
-                        $main::buffer_post = $2;
-                    }
-                }
-            }
-        }elsif( $myparam eq '-H' || $myparam eq '--with-filename' ){
-            $main::prt_fname = 1;
-        }elsif( $myparam eq '-h' || $myparam eq '--no-filename' ){
-            $opt_nofname = 1;
-        }elsif( $myparam eq '--help' ){
-            usage( 0 );
-            return -1;
-        }elsif( $myparam eq '-v' || $myparam eq '--version' ){
-            PrintVersion();
-            return -1;
-        }elsif( $myparam eq '-i' || $myparam eq '--ignore-case' ){
-            $main::ignorecase = 1;
-        }elsif( $myparam eq '-n' || $myparam eq '--line-number' ){
-            $main::numbering = 1;
-        }elsif( $myparam eq '-c' || $myparam eq '--force-color' ){
-            $main::bUseAnsiEscSeqColor = 1;
-        }else{
-            if( ! defined( $main::re ) ){
-                $main::re = $myparam;
-            }else{
-                if( "$myparam" eq '-' ){
-                    my $fi_in_max = scalar( @main::fi_in );
-                    for( my $idx=0; $idx<$fi_in_max; $idx++ ){
-                        if( $main::fi_in[ $idx ] eq '-' ){
-                            myerr( qq{"STDIN(-)" cannot be specified more than once.\n} );
-                            return 1;
-                        }
-                    }
-                }elsif( ( ! -f "$myparam" ) &&
-                    ( "$myparam" ne 'A_FICTITIOUS_UNREADABLE_FILE_FOR_TESTING_PURPOSES' ) ){
-                    if( "$myparam" ne 'A_FICTITIOUS_FILE_FOR_TESTING_PURPOSES' ){
-                        myerr( qq{"$myparam": file not found.\n} );
-                        myerr( qq{You have specified "$main::re" for <PATTERN>.\n} );
-                        myerr( qq{So I think of "$myparam" as a <FILE> designation.\n} );
-                        usage( 1 );
-                        return 1;
-                    }
-                }elsif( ! -r "$myparam" ){
-                    myerr( qq{"$myparam": permission denied.\n} );
-                    usage( 1 );
-                    return 1;
-                }
-                push( @main::fi_in, $myparam );
-            }
-        }
-        if( $main::debug ){
-            printf STDERR ( qq{arg="$myparam", \@val=%d\n}, scalar( @val ) );
-        }
+    if( $main::help || $main::version ){
+        return 0;
     }
 
-    if( ! defined( $main::re ) ){
-        myerr( qq{Please specify the Regular Expressions.\n} );
-        usage( 1 );
-        return 1;
+    while( my $myparam = shift( @ARGV ) ){
+        #print( qq{\$myparam = "$myparam"\n} );
+        if( $myparam eq '-' ){
+            my $fi_in_len = scalar( @main::fi_in );
+            for( my $idx=0; $idx<$fi_in_len; $idx++ ){
+                if( $main::fi_in[ $idx ] eq '-' ){
+                    myerr( qq{"STDIN(-)" cannot be specified more than once.\n} );
+                    return 1;
+                }
+            }
+            push( @main::fi_in, $myparam );
+        }elsif( -f $myparam ){
+            push( @main::fi_in, $myparam );
+        }else{
+            if( defined( $main::re ) ){
+                myerr( qq{"$myparam": <PATTERN> has already been specified as "$main::re".\n} );
+                return 1;
+            }else{
+                $main::re = $myparam;
+            }
+        }
     }
 
     my $fi_in_nums = scalar( @main::fi_in );
+
+    if( ( !defined( $main::re ) ) && ( $main::flag_head_tail == 0 ) ){
+        if( $fi_in_nums > 0 ){
+            $main::re = shift( @main::fi_in );
+            $fi_in_nums--;
+        }else{
+            myerr( qq{Please specify <PATTERN>.\n} );
+            usage( 1 );
+            return 1;
+        }
+    }
+
     if( $fi_in_nums == 0 ){
         push( @main::fi_in, '-' );
-    }elsif( $fi_in_nums > 1 ){
-        if( $opt_nofname == 0 ){
+    }
+    if( !defined( $main::prt_fname ) ){
+        if( $fi_in_nums > 1 ){
             $main::prt_fname = 1;
+        }else{
+            $main::prt_fname = 0;
         }
     }
 
@@ -351,7 +367,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.11 $};
+    my $rev = q{$Revision: 2.13 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -361,19 +377,29 @@ sub GetRevision()
 ## Revision: 1.2
 sub usage( $ )
 {
-    my $msg = "Usage: " .
-        qq{$main::appname [<OPTIONS...>] <PATTERN> [<FILE...>]\n} .
+    my $msg = "Usage:\n" .
+        qq{  $main::appname [<OPTIONS...>] <PATTERN> [<FILE...>]\n} .
+        qq{  $main::appname --head-tail [<OPTIONS...>] [<PATTERN>] [<FILE...>]\n} .
         qq{\n} .
-        qq{<PATTERN>: The PATTERN can be described by the Regular-Expression equal with Perl.\n} .
+        qq{The "mark" utility behaves like a marker pen.\n} .
+        qq{It searches for the specified PATTERN and emphasizes matching text.\n} .
         qq{\n} .
-        qq{<FILE>: specifies the input file name. If it is a standard input, "-" is given.\n} .
+        qq{<PATTERN>: A Perl-compatible regular expression (PCRE).\n} .
+        qq{<FILE>   : Input file name. Use "-" for standard input (stdin).\n} .
         qq{\n} .
         qq{<OPTIONS>\n} .
-        qq{  -f [num-forward[,num-rear]]:\n} .
-        qq{    It works like a filter program. If you omit the value,\n} .
-        qq{    the default is to display 5 lines before and after.\n} .
-        qq{    If you specify 0 for <num>, only lines that match <PATTERN> will be displayed.\n} .
-        qq{    If you specify 0, grep is more convenient.\n} .
+        qq{  -f [before[,after]]:\n} .
+        qq{    Filter mode. Displays context lines before and after the match.\n} .
+        qq{    Defaults to 5 lines before and after if values are omitted.\n} .
+        qq{    If 0 is specified, only the matching lines are displayed.\n} .
+        qq{\n} .
+        qq{  --head-tail\n} .
+        qq{    Display mode. Shows only the beginning and end of the file.\n} .
+        qq{    Automatically enables filter mode (-f). The number of lines displayed\n} .
+        qq{    at the top and bottom of the file (or around matches) can be customized\n} .
+        qq{    using the '-f' option (e.g., -f 2,3).\n} .
+        qq{    When using this option, providing a <PATTERN> is optional.\n} .
+        qq{\n} .
         qq{  -h, --no-filename:\n} .
         qq{    Suppress the prefixing of filenames on output when multiple files are searched.\n} .
         qq{  -H, --with-filename:\n} .
@@ -381,12 +407,13 @@ sub usage( $ )
         qq{  -i, --ignore-case:\n} .
         qq{    Ignore case distinctions in the <PATTERN>.\n} .
         qq{  -n, --line-number:\n} .
-        qq{    Prefix each line of output with the line number within its input file.\n} .
+        qq{    Prefix each line of output with its line number within the file.\n} .
         qq{  -c, --force-color:\n} .
-        qq{    Enable highlighting even if STDOUT is not a TTY (pipe, redirect).\n} .
+        qq{    Enable highlighting even if STDOUT is not a TTY (e.g., pipes, redirects).\n} .
         qq{  -v, --version:\n} .
-        qq{    Print the version of this script and Perl and exit.\n} .
-        qq{  --help: Display this help and exit.\n} .
+        qq{    Print the version of this script and Perl, then exit.\n} .
+        qq{  --help:\n} .
+        qq{    Display this help and exit.\n} .
         qq{\n} .
         qq{Try "perldoc $main::apppath/$main::appname" for more information.\n};
 

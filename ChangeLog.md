@@ -7,6 +7,15 @@
 ### Changed
 - xxx
 
+## [0.3.16] - 2026-08-30
+### Added
+- `mark` [1.01.013]:
+  - Added the '--head-tail' options.
+
+### Changed
+- `mark` [1.01.013]:
+  - Introduced the 'Getopt::Long' module and rewrote the argument parsing logic.
+
 ## [0.3.15] - 2026-08-29
 ### Added
 - `timezone_id` [1.01.011]:

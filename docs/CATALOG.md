@@ -148,7 +148,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.11 $
+- $Revision: 2.13 $
 
 - Author: 2006-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -244,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.100 $
+- $Revision: 2.101 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

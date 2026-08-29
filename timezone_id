@@ -30,7 +30,7 @@ sub pl_main( @ )
     init_script();
 
     ## 引数解析
-    my $reaction = parse_arg( @_ );
+    parse_arg( @_ );
 
     param_print();
 
@@ -237,7 +237,7 @@ sub array_to_str( @ )
 
 ##########
 ## 引数解析
-sub parse_arg()
+sub parse_arg( @ )
 {
     @main::argv = @_;
     $main::argc = scalar( @main::argv );
