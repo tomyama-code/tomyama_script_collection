@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.13 $
+## - $Revision: 2.17 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -19,6 +19,8 @@ use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 use Getopt::Long qw();              # first released with perl 5
+use Fcntl;                          # first released with perl 5
+use Errno qw();                     # first released with perl 5.005
 
 ##########
 ## スクリプトのエントリポイント
@@ -50,7 +52,29 @@ sub pl_main( @ )
         return 0;
     }
 
-#    STDIN->autoflush(1);
+    sub print_line( $$$$$ )
+    {
+        my( $line, $nr, $ref_nr_of_last_output, $num_char_disp_area, $opn_fname ) = @_;
+        if( $nr <= $$ref_nr_of_last_output ){
+            return;
+        }
+
+        ## 必要に応じてファイル名を出力
+        my $fn_str = '';
+        if( $main::prt_fname ){
+            $fn_str = sprintf( "%-*s:", $num_char_disp_area, $opn_fname );
+        }
+        ## 必要に応じて行番号を出力
+        my $nr_str = '';
+        if( $main::numbering ){
+            $nr_str = sprintf( "%7d:", $nr );
+        }
+        ## 出力する
+        print( "$fn_str$nr_str$line\n" );
+
+        $$ref_nr_of_last_output = $nr;
+        return;
+    }
 
     my $file_num = scalar( @main::fi_in );
     my $file_name_len_max = 0;
@@ -71,103 +95,127 @@ sub pl_main( @ )
 
         open( FI_IN, "<$opn_fname" ) ||
             die( qq{$main::appname: error: "$opn_fname": could not open file: $!\n} );
+        my $flag_filter = $main::flag_filter;
         my $re_flag = '';
         $re_flag .= 'i' if( $main::ignorecase );
         #print( qq{\$re_flag="$re_flag"\n} );
-        my @lines = <FI_IN>;
-        my $line_len = scalar( @lines );
-        my $line_max = $line_len;   # 行番号は1から始まるので行数と最後の行番号は同じになる
-        for(my $idx=0; $idx<$line_len; $idx++ ){
-            my $nr = $idx + 1;
-            my $mybuff = $lines[ $idx ];
+        my $nr_first_eof = -1;
+        my $nr_of_last_output = 0;
+        for( my $nr=1; 1; $nr++ ){
+            my $mybuff = '';
+            my $len = read_one_line( \*FI_IN, \$mybuff );
+            my $cancel_match_check = 0;
+            if( $len < 0 ){
+                $nr--;
+                if( $main::flag_head_tail && $nr_first_eof < 0 ){
+                    $cancel_match_check = 1;
+                }else{
+                    last;
+                }
+            }elsif( $len == 0 ){
+                $nr--;
+                if( $main::flag_head_tail && $nr_first_eof < 0 ){
+                    $cancel_match_check = 1;
+                }else{
+                    next;
+                }
+            }
+
             $mybuff =~ s/\r?\n$//o;
 
             ## マーキングする
             my $match_flg = 0;
-            if( defined( $main::re ) ){
-                if( $main::bUseAnsiEscSeqColor ){
-                    # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                    if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
-                        $match_flg = 1;
-                    }
-                }else{
-                    # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                    if( $mybuff =~ m/(?$re_flag)$main::re/g ){
-                        $match_flg = 1;
+            if( $cancel_match_check ){
+                $nr_first_eof = $nr;
+                $cancel_match_check = 1;
+                if( scalar( @main::pre_buffer ) ){
+                    $mybuff = pop( @main::pre_buffer );
+                }
+                #print( qq{\$nr=$nr, \$nr_first_eof=$nr_first_eof\n} );
+            }else{
+                if( defined( $main::re ) ){
+                    if( $main::bUseAnsiEscSeqColor ){
+                        # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                        if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
+                            $match_flg = 1;
+                        }
+                    }else{
+                        # インライン修飾子 (?imsx) を埋め込んだ正規表現
+                        if( $mybuff =~ m/(?$re_flag)$main::re/g ){
+                            $match_flg = 1;
+                        }
                     }
                 }
             }
 
+            my $post_buffer_counter_wait = 0;
             if( $main::flag_head_tail ){
-                if( ( $nr == 1 ) || ( $nr == $line_max ) ){
+                if( $nr == 1 ){
+                    $post_buffer_counter_wait = -1;
+                    $match_flg = 1;
+                }elsif( $nr == $nr_first_eof ){
                     $match_flg = 1;
                 }
             }
 
-            ## マッチしていなかったら
-            if( $main::flag_filter && ! $match_flg ){
-                ## 後方行の出力
-                $main::post_buffer_counter--;
-                if( $main::post_buffer_counter >= 0 ){
-                    goto PRINTOUT;
-                }
+            if( $flag_filter ){
+                ## マッチしていなかったら
+                if( $match_flg == 0 ){
 
-                ## 前方行をバッファに溜めておく
-                ## buffer_pre=0 の場合はバッファは必要無し
-                if( $main::buffer_pre == 0 ){
-                    next;
-                ## バッファが満杯であれば整理しておく
-                }elsif( scalar( @main::pre_buffer ) >= $main::buffer_pre ){
-                    shift( @main::pre_buffer );
-                }
-
-                ## バッファに溜める
-                push( @main::pre_buffer, $mybuff );
-                next;
-            ## マッチしていたら
-            }elsif( $main::flag_filter ){
-                ## 読み易いように、skip...を出力
-                if( $main::post_buffer_counter + scalar( @main::pre_buffer ) < 0 ){
-                    if( $main::bUseAnsiEscSeqColor ){
-                        print( "        \033[34m*** skip ***\033[0m\n" );
+                    ## 後方行の出力
+                    $main::post_buffer_counter--;
+                    if( $main::post_buffer_counter < 0 ){
+                        $main::post_buffer_counter = 0;
                     }else{
-                        print( "        *** skip ***\n" );
+                        goto PRINTOUT;
+                    }
+
+                    ## 前方行をバッファに溜めておく
+                    ## buffer_pre=0 の場合はバッファは必要無し
+                    if( $main::buffer_pre == 0 ){
+                        next;
+                    ## バッファが満杯であれば整理しておく
+                    }elsif( scalar( @main::pre_buffer ) >= $main::buffer_pre ){
+                        shift( @main::pre_buffer );
+                    }
+
+                    ## バッファに溜める
+                    push( @main::pre_buffer, $mybuff );
+                    next;
+                ## マッチしていたら
+                }else{
+                    ## バッファを吐き出す
+                    my $pre_buffer_size = scalar( @main::pre_buffer );
+                    my $nr_first = $nr - $pre_buffer_size;
+                    ## 読み易いように、skip...を出力
+                    if( ( $nr_first - $nr_of_last_output ) > 1 ){
+                        if( $main::bUseAnsiEscSeqColor ){
+                            print( "        \033[34m*** skip ***\033[0m\n" );
+                        }else{
+                            print( "        *** skip ***\n" );
+                        }
+                    }
+
+                    for( my $pre_buffer_idx=0; $pre_buffer_idx<$pre_buffer_size; $pre_buffer_idx++ ){
+                        print_line(
+                            $main::pre_buffer[ $pre_buffer_idx ],
+                            $nr_first + $pre_buffer_idx,
+                            \$nr_of_last_output,
+                            $num_char_disp_area, $opn_fname );
+                    }
+                    @main::pre_buffer = ();
+
+                    ## 後方行出力用のカウンタをセットする
+                    $main::post_buffer_counter = $main::buffer_post + $post_buffer_counter_wait;
+
+                    if( $cancel_match_check ){
+                        $flag_filter = 0;
                     }
                 }
-
-                ## バッファを吐き出す
-                my $pre_buffer_size = scalar( @main::pre_buffer );
-                my $nr_first = $nr - $pre_buffer_size;
-                for( my $pre_buffer_idx=0; $pre_buffer_idx<$pre_buffer_size; $pre_buffer_idx++ ){
-                    ## 必要に応じてファイル名を出力
-                    if( $main::prt_fname ){
-                        printf( "%-${num_char_disp_area}s:", $opn_fname );
-                    }
-                    ## 必要に応じて行番号を出力
-                    if( $main::numbering ){
-                        printf( "%7d:", $nr_first + $pre_buffer_idx ) ;
-                    }
-                    ## 出力する
-                    print( "$main::pre_buffer[ $pre_buffer_idx ]\n" );
-                }
-                @main::pre_buffer = ();
-#                undef( @main::pre_buffer );
-
-                ## 後方行出力用のカウンタをセットする
-                $main::post_buffer_counter = $main::buffer_post;
             }
 
             PRINTOUT:
-            ## 必要に応じてファイル名を出力
-            if( $main::prt_fname ){
-                printf( "%-${num_char_disp_area}s:", $opn_fname );
-            }
-            ## 必要に応じて行番号を出力
-            if( $main::numbering ){
-                printf( "%7d:", $nr );
-            }
-            ## 出力する
-            print( "$mybuff\n" );
+                print_line( $mybuff, $nr, \$nr_of_last_output, $num_char_disp_area, $opn_fname );
         }
         close( FI_IN );
     }
@@ -201,6 +249,7 @@ sub init_script()
     $main::ignorecase = 0;
     $main::re = undef;
     @main::fi_in = ();
+    $main::syscall_act = 0;
     ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
     $main::bUseAnsiEscSeqColor = -t STDOUT;
     ##############
@@ -226,11 +275,13 @@ sub prt_param()
                    qq{\$main::post_buffer_counter = $main::post_buffer_counter\n} .
                    qq{\$main::ignorecase = $main::ignorecase\n} .
                    qq{\$main::re = %s\n} .
-                   qq{\@main::fi_in = (%s)\n},
+                   qq{\@main::fi_in = (%s)\n} .
+                   qq{\$main::syscall_act = 0x%02X\n},
                    defined( $main::prt_fname ) ? qq{"$main::prt_fname"} : 'undef',
                    scalar( @main::pre_buffer ),
                    defined( $main::re ) ? qq{"$main::re"} : 'undef',
-                   array_to_str( @main::fi_in ) );
+                   array_to_str( @main::fi_in ),
+                   $main::syscall_act );
 }
 
 sub array_to_str( @ )
@@ -281,6 +332,7 @@ sub parse_arg( @ )
         'line-number|n' => \$main::numbering,
         'force-color|c' => \$main::bUseAnsiEscSeqColor,
         'NON-EXISTENT-FILE' => sub{ push( @main::fi_in, 'NON-EXISTENT-FILE' ) },
+        'syscall-act=o' => \$main::syscall_act,
     ) || die( qq{parse_arg(): error: Failed to parse option switches.\n} );
 
     if( $main::help || $main::version ){
@@ -337,6 +389,144 @@ sub parse_arg( @ )
     return 0;
 }
 
+# https://perldoc.jp/func/fcntl
+sub _fcntl( *$$ )
+{
+    my( $filehandle, $function, $val ) = @_;
+    if( $function == F_GETFL ){
+        if( $main::syscall_act & 0x01 ){
+            $main::syscall_act &= ~0x01;
+            #printf( qq{\$main::syscall_act = 0x%02X\n}, $main::syscall_act );
+            $! = Errno::EACCES;
+            return 0;
+        }
+    }else{  # ( $function == F_SETFL )
+        if( $val & O_NONBLOCK ){
+            if( $main::syscall_act & 0x08 ){
+                $main::syscall_act &= ~0x08;
+                $! = Errno::EACCES;
+                return 0;
+            }
+        }else{
+            if( $main::syscall_act & 0x10 ){
+                $main::syscall_act &= ~0x10;
+                $! = Errno::EACCES;
+                return 0;
+            }
+        }
+    }
+    return fcntl( $filehandle, $function, $val );
+}
+
+# https://perldoc.jp/func/select
+sub _select( $$$$ )
+{
+    my( $rbits, $wbits, $ebits, $timeout ) = @_;
+    if( $main::syscall_act & 0x02 ){
+        $main::syscall_act &= ~0x02;
+        $! = Errno::EPIPE;
+        return -1;
+    }elsif( $main::syscall_act & 0x04 ){
+        $main::syscall_act &= ~0x04;
+        $! = Errno::EAGAIN;
+        return 0;
+    }
+    return select( $rbits, $wbits, $ebits, $timeout );
+}
+
+# https://perldoc.jp/func/sysread
+sub _sysread( *$$ )
+{
+    my( $filehandle, $ref_buf, $length ) = @_;
+    if( $main::syscall_act & 0x20 ){
+        $main::syscall_act &= ~0x20;
+        $! = Errno::EACCES;
+        return undef;
+    }
+    return sysread( $filehandle, $$ref_buf, $length );
+}
+
+sub read_one_line( *$ )
+{
+    my( $fh, $ref_buff ) = @_;
+
+    my $old_status = $fh->autoflush( 1 );
+    my $old_flags = _fcntl( $fh, F_GETFL, 0 ) ||
+        die( "fcntl F_GETFL failure: $!" );
+
+    # vec(ビットベクトル)を作成
+    my $rin = '';
+    vec( $rin, fileno( $fh ), 1 ) = 1;
+
+    my $line = '';
+    my $len = 0;
+    my $errmsg = undef;
+    while( 1 ){
+
+        # select(読込待ちベクトル, 書込待ち, 例外待ち, タイムアウト秒)
+#        my $nfound = _select( my $rout = $rin, undef, undef, 1.0 );
+        my $nfound = _select( my $rout = $rin, undef, undef, 0.1 );
+        if( $nfound < 0 ){  # -1
+            $errmsg = sprintf( "error: select(): %d: $!", __LINE__ );
+            $len = -256;
+            last;
+        }elsif( $nfound == 0 ){
+            $len = 0;
+            last;
+        }else{              # ( $nfound > 0 )
+
+            # --- 【超重要】ファイルハンドル を非ブロックモードに設定 ---
+            _fcntl( $fh, F_SETFL, $old_flags | O_NONBLOCK ) ||
+                die( "fcntl F_SETFL: Failed to set NONBLOCK: $!" );
+            # --------------------------------------------------
+
+            # バッファリングしない sysread を使う
+            my $char;
+            my $bytes = _sysread( $fh, \$char, 1 );
+
+            # --- 【超重要】ファイルハンドル を元のブロックモードに復元 ---
+            _fcntl( $fh, F_SETFL, $old_flags ) ||
+                die( "fcntl F_SETFL: Failed to restore the original mode: $!" );
+            # --------------------------------------------------
+
+            if( !defined( $bytes ) ){
+                $errmsg = sprintf( "error: sysread(): %d: $!", __LINE__ );
+                $len = -128;
+                last;
+            }else{
+                if( $bytes > 0 ){
+                    # 1文字ずつ $line に蓄積していく
+                    $line .= $char;
+                    $len += $bytes;
+
+                    if( $char eq "\n" ){
+                        # 末尾のキャリッジリターン（\r）は削る
+                        if( $line =~ s/\r$//o ){
+                            $len--;
+                        }
+                        last;   # 1行の読み込みが完了
+                    }
+                }else{  # 0 byte
+                    # パイプが閉じられた
+                    $len = -1;
+                    last;
+                }
+            }
+        }
+
+    }
+
+    $fh->autoflush( $old_status );
+
+    $$ref_buff = $line;
+
+    if( defined( $errmsg ) ){
+        die( $errmsg );
+    }
+
+    return $len;
+}
+
 #sub mywarn()
 #{
 #    warn( qq{$main::appname: warn: }, @_ );
@@ -367,7 +557,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.13 $};
+    my $rev = q{$Revision: 2.17 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -439,21 +629,26 @@ __END__
 
 MARK - emphasizes part matching a pattern
 
+=head1 DESCRIPTION
+
+The "B<mark>" utility behaves like a marker pen.
+It searches for the specified I<PATTERN> and emphasizes matching text.
+
 =head1 SYNOPSIS
 
 $ mark [I<OPTIONS...>] I<PATTERN> [I<FILE...>]
 
-=head1 DESCRIPTION
+$ mark --head-tail [I<OPTIONS...>] [I<PATTERN>] [I<FILE...>]
 
-The "B<mark>" behaves like the marker pen.
-The specified I<PATTERN> is searched out and that part is emphasized.
+=head2 I<PATTERN>
 
-The I<PATTERN> can be described by the Regular-Expression equal with B<Perl>.
+A Perl-compatible regular expression (PCRE).
 
-I<FILE> specifies the input file name.
-If it is a standard input, "B<->" is given.
+=head2 I<FILE>
 
-=head1 OPTIONS
+Input file name. Use B<-> for standard input (stdin).
+
+=head2 I<OPTIONS>
 
 =over 4
 
@@ -461,20 +656,19 @@ If it is a standard input, "B<->" is given.
 
 Debugging mode is on.
 
-=item -f [I<num-forward>[,I<num-rear>]]
+=item -f [I<before>[,I<after>]]
 
-It works like a filter program. If you omit the value,
-the default is to display 5 lines before and after.
-If you specify 0 for I<num>, only lines that match I<PATTERN> will be displayed.
-If you specify 0, grep is more convenient.
+Filter mode. Displays context lines I<before> and I<after> the match.
+Defaults to 5 lines I<before> and I<after> if values are omitted.
+If 0 is specified, only the matching lines are displayed.
 
-=item --help
+=item --head-tail
 
-Display simple help and exit.
-
-=item -v, --version
-
-Print the version of this script and Perl and exit.
+Display mode. Shows only the beginning and end of the file.
+Automatically enables filter mode (C<-f>). The number of lines displayed
+at the top and bottom of the file (or around matches) can be customized
+using the C<-f> option (e.g., C<-f 2,3>).
+When using this option, providing a I<PATTERN> is optional.
 
 =item -h, --no-filename
 
@@ -490,11 +684,19 @@ Ignore case distinctions in the I<PATTERN>.
 
 =item -n, --line-number
 
-Prefix each line of output with the line number within its input file.
+Prefix each line of output with its line number within the file.
 
 =item -c, --force-color
 
-Enable highlighting even if STDOUT is not a TTY (pipe, redirect).
+Enable highlighting even if STDOUT is not a TTY (e.g., pipes, redirects).
+
+=item -v, --version
+
+Print the version of this script and Perl, then exit.
+
+=item --help
+
+Display simple help and exit.
 
 =back
 
@@ -526,7 +728,13 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
+=item * L<Errno> - first released with perl 5.005
+
+=item * L<Fcntl> - first released with perl 5
+
 =item * L<File::Basename> — first included in perl 5
+
+=item * L<Getopt::Long> - first released with perl 5
 
 =item * L<strict> — first included in perl 5
 

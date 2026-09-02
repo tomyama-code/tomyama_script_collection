@@ -7,13 +7,20 @@
 ### Changed
 - xxx
 
+## [0.3.17] - 2026-09-02
+### Changed
+- `mark` [1.02.017]:
+  - Fixed a script that was no longer operating on a line-by-line basis (likely since it was rewritten in Perl).
+    - I was aware of this issue, but since my current role doesn't involve checking logs, I had left it unaddressed.
+    - It should be able to handle input like `tail -f` as well.
+
 ## [0.3.16] - 2026-08-30
 ### Added
-- `mark` [1.01.013]:
+- `mark` [1.02.013]:
   - Added the '--head-tail' options.
 
 ### Changed
-- `mark` [1.01.013]:
+- `mark` [1.02.013]:
   - Introduced the 'Getopt::Long' module and rewrote the argument parsing logic.
 
 ## [0.3.15] - 2026-08-29

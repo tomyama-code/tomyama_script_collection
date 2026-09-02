@@ -7,40 +7,44 @@
 
 MARK - emphasizes part matching a pattern
 
+# DESCRIPTION
+
+The "**mark**" utility behaves like a marker pen.
+It searches for the specified _PATTERN_ and emphasizes matching text.
+
 # SYNOPSIS
 
 $ mark \[_OPTIONS..._\] _PATTERN_ \[_FILE..._\]
 
-# DESCRIPTION
+$ mark --head-tail \[_OPTIONS..._\] \[_PATTERN_\] \[_FILE..._\]
 
-The "**mark**" behaves like the marker pen.
-The specified _PATTERN_ is searched out and that part is emphasized.
+## _PATTERN_
 
-The _PATTERN_ can be described by the Regular-Expression equal with **Perl**.
+A Perl-compatible regular expression (PCRE).
 
-_FILE_ specifies the input file name.
-If it is a standard input, "**-**" is given.
+## _FILE_
 
-# OPTIONS
+Input file name. Use **-** for standard input (stdin).
+
+## _OPTIONS_
 
 - -d, --debug
 
     Debugging mode is on.
 
-- -f \[_num-forward_\[,_num-rear_\]\]
+- -f \[_before_\[,_after_\]\]
 
-    It works like a filter program. If you omit the value,
-    the default is to display 5 lines before and after.
-    If you specify 0 for _num_, only lines that match _PATTERN_ will be displayed.
-    If you specify 0, grep is more convenient.
+    Filter mode. Displays context lines _before_ and _after_ the match.
+    Defaults to 5 lines _before_ and _after_ if values are omitted.
+    If 0 is specified, only the matching lines are displayed.
 
-- --help
+- --head-tail
 
-    Display simple help and exit.
-
-- -v, --version
-
-    Print the version of this script and Perl and exit.
+    Display mode. Shows only the beginning and end of the file.
+    Automatically enables filter mode (`-f`). The number of lines displayed
+    at the top and bottom of the file (or around matches) can be customized
+    using the `-f` option (e.g., `-f 2,3`).
+    When using this option, providing a _PATTERN_ is optional.
 
 - -h, --no-filename
 
@@ -56,11 +60,19 @@ If it is a standard input, "**-**" is given.
 
 - -n, --line-number
 
-    Prefix each line of output with the line number within its input file.
+    Prefix each line of output with its line number within the file.
 
 - -c, --force-color
 
-    Enable highlighting even if STDOUT is not a TTY (pipe, redirect).
+    Enable highlighting even if STDOUT is not a TTY (e.g., pipes, redirects).
+
+- -v, --version
+
+    Print the version of this script and Perl, then exit.
+
+- --help
+
+    Display simple help and exit.
 
 # ADVANCED USAGE
 
@@ -88,7 +100,10 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 ## Core Modules Used
 
+- [Errno](https://metacpan.org/pod/Errno) - first released with perl 5.005
+- [Fcntl](https://metacpan.org/pod/Fcntl) - first released with perl 5
 - [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
+- [Getopt::Long](https://metacpan.org/pod/Getopt%3A%3ALong) - first released with perl 5
 - [strict](https://metacpan.org/pod/strict) — first included in perl 5
 - [warnings](https://metacpan.org/pod/warnings) — first included in perl v5.6.0
 
