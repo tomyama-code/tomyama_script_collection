@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.27 $
+## - $Revision: 5.28 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.27 $};
+    my $rev = q{$Revision: 5.28 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -588,6 +588,7 @@ use constant SAKUBOU => 29.530588853;
 use constant UCFACTOR_AU            => 149_597_870.700;     # kilometers
 use constant UCFACTOR_RI            => 3_927.2727272727;    # meters
 use constant UCFACTOR_MILE          => 1_609.344;   # meters
+use constant UCFACTOR_FT            => 0.3048;
 use constant UCFACTOR_NAUTICAL_MILE => 1_852;       # meters, 1海里は、緯度の 1 分の距離
     # 緯度1分の定義は「子午線の曲率」に基づくため、厳密には場所によって以下の通り変化します：
     # - 赤道付近: 約 1843 m（地球のカーブが急なため、1分あたりの距離は短い）
@@ -1211,6 +1212,8 @@ use constant {
     H_M2RI => qq{meter2ri( METER ) --Convert-to--> RI: Length and distance conversion. alias: メートル→里(), メートル２里().},
     H_MI2M => qq{mile2meter( MILE ) --Convert-to--> METER: Length and distance conversion. alias: マイル→メートル(), マイル２メートル().},
     H_M2MI => qq{meter2mile( METER ) --Convert-to--> MILE: Length and distance conversion. alias: メートル→マイル(), メートル２マイル().},
+    H_FT2M => qq{ft2meter( FT ) --Convert-to--> METER: Length and distance conversion. alias: フィート→メートル(), フィート２メートル().},
+    H_M2FT => qq{meter2ft( METER ) --Convert-to--> FT: Length and distance conversion. alias: メートル→フィート(), メートル２フィート().},
     H_NM2M => qq{nautical_mile2meter( NAUTICAL_MILE ) --Convert-to--> METER: Length and distance conversion. alias: 海里→メートル(), 海里２メートル().},
     H_M2NM => qq{meter2nautical_mile( METER ) --Convert-to--> NAUTICAL_MILE: Length and distance conversion. alias: メートル→海里(), メートル２海里().},
     H_I2MM => qq{inch2mm( INCH ) --Convert-to--> MM: Length and distance conversion.},
@@ -1386,6 +1389,8 @@ use constant {
     'meter2ri'                    => [ 2330, T_FUNCTION, F_UCNV,     1, H_M2RI, sub{ meter2ri( $_[ 0 ] ) } ],
     'mile2meter'                  => [ 2340, T_FUNCTION, F_UCNV,     1, H_MI2M, sub{ mile2meter( $_[ 0 ] ) } ],
     'meter2mile'                  => [ 2350, T_FUNCTION, F_UCNV,     1, H_M2MI, sub{ meter2mile( $_[ 0 ] ) } ],
+    'ft2meter'                    => [ 2354, T_FUNCTION, F_UCNV,     1, H_FT2M, sub{ ft2meter( $_[ 0 ] ) } ],
+    'meter2ft'                    => [ 2355, T_FUNCTION, F_UCNV,     1, H_M2FT, sub{ meter2ft( $_[ 0 ] ) } ],
     'nautical_mile2meter'         => [ 2360, T_FUNCTION, F_UCNV,     1, H_NM2M, sub{ nautical_mile2meter( $_[ 0 ] ) } ],
     'meter2nautical_mile'         => [ 2370, T_FUNCTION, F_UCNV,     1, H_M2NM, sub{ meter2nautical_mile( $_[ 0 ] ) } ],
     'inch2mm'                     => [ 2380, T_FUNCTION, F_UCNV,     1, H_I2MM, sub{ inch2mm( $_[ 0 ] ) } ],
@@ -4055,6 +4060,22 @@ sub meter2mile( $ )
     return $mile;
 }
 
+## 長さ変換: フィート[ft]→メートル[m]
+sub ft2meter( $ )
+{
+    my $ft = shift( @_ );
+    my $meter = $ft * UCFACTOR_FT;
+    return $meter;
+}
+
+## 長さ変換: メートル[m]→フィート[ft]
+sub meter2ft( $ )
+{
+    my $meter = shift( @_ );
+    my $ft = $meter / UCFACTOR_FT;
+    return $ft;
+}
+
 ## 長さ変換: 海里→メートル[m]
 sub nautical_mile2meter( $ )
 {
@@ -4343,6 +4364,7 @@ sub FormulaNormalizationOneLine( $ )
     $expr =~ s!→!2!go;
     $expr =~ s!メートル!meter!go;
     $expr =~ s!マイル!mile!go;
+    $expr =~ s!フィート!ft!go;
     $expr =~ s!海里!nautical_mile!go;
     $expr =~ s!里!ri!go;
     $expr =~ s!キログラム重!kgf!go;
@@ -6072,9 +6094,9 @@ geo_all_km, moon2xyz, moon_radius_of_lat_circle, moon_distance_m, moon_distance_
 moon_dist_m_and_azimuth, moon_dist_km_and_azimuth, moon_rl_distance_m, moon_rl_distance_km,
 moon_rl_azimuth, moon_rl_dist_m_and_azimuth, moon_rl_dist_km_and_azimuth, moon_all_m, moon_all_km,
 gis_mercator_y, gis_miller_y, the_solar_system, km_per_h, mph, kn, m_per_s, mach, speed_of_light, au2km,
-km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical_mile2meter, meter2nautical_mile, inch2mm,
-mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf_per_cm2, psi,
-bar, paper_size
+km2au, ri2meter, meter2ri, mile2meter, meter2mile, ft2meter, meter2ft, nautical_mile2meter,
+meter2nautical_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, kpa, kgf_per_cm2, psi, bar, paper_size
 
 =head1 OPTIONS
 
@@ -8431,6 +8453,24 @@ alias: メートル→マイル(), メートル２マイル().
 
   $ c 'meter2mile( 2_000 )'
   1.24274238447
+
+=item C<ft2meter>
+
+ft2meter( I<FT> ) --Convert-to--> I<METER>:
+Length and distance conversion.
+alias: フィート→メートル(), フィート２メートル().
+
+  $ c 'ft2meter( 3_000 )'
+  914.4
+
+=item C<meter2ft>
+
+meter2ft( I<METER> ) --Convert-to--> I<FT>:
+Length and distance conversion.
+alias: メートル→フィート(), メートル２フィート().
+
+  $ c 'meter2ft( 1_000 )'
+  3280.83989501
 
 =item C<nautical_mile2meter>
 

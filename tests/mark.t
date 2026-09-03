@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.7 $
+## - $Revision: 1.8 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -851,6 +851,46 @@ subtest qq{Ex-Proc Test} => sub{
             qq{015: 03: ef0123456789abcd\n} .
             qq{016: 04: f0123456789abcde\n},
             q{漏れなく出力できること: if( scalar( @main::pre_buffer ) )} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_cmd( qq{./tests/output_slowly_and_gradually.pl | ./mark '0123456789' -f 2 --head-tail} );
+        $t->exit_is( 0, q{./tests/output_slowly_and_gradually.pl | ./mark '0123456789' -f 2 --head-tail} );
+        $t->stdout_is(
+            qq{001: 01: 0123456789abcdef\n} .
+            qq{002: 02: 123456789abcdef0\n} .
+            qq{003: 03: 23456789abcdef01\n} .
+            qq{        *** skip ***\n} .
+            qq{007: 07: 6789abcdef012345\n} .
+            qq{008: 08: 789abcdef0123456\n} .
+            qq{009: 01: 89abcdef01234567\n} .
+            qq{010: 02: 9abcdef012345678\n} .
+            qq{011: 03: abcdef0123456789\n} .
+            qq{012: 04: bcdef0123456789a\n} .
+            qq{013: 05: cdef0123456789ab\n} .
+            qq{014: 06: def0123456789abc\n} .
+            qq{015: 07: ef0123456789abcd\n} .
+            qq{016: 08: f0123456789abcde\n},
+            q{3行目が出力できること} );
+        $t->stderr_is( qq{} );
+
+        $t = tests::Tester->run_cmd( qq{./tests/output_slowly_and_gradually.pl | ./mark 'abcdef0123456' -f 2 --head-tail} );
+        $t->exit_is( 0, q{./tests/output_slowly_and_gradually.pl | ./mark 'abcdef0123456' -f 2 --head-tail} );
+        $t->stdout_is(
+            qq{001: 01: 0123456789abcdef\n} .
+            qq{002: 02: 123456789abcdef0\n} .
+            qq{        *** skip ***\n} .
+            qq{006: 06: 56789abcdef01234\n} .
+            qq{007: 07: 6789abcdef012345\n} .
+            qq{008: 08: 789abcdef0123456\n} .
+            qq{009: 01: 89abcdef01234567\n} .
+            qq{010: 02: 9abcdef012345678\n} .
+            qq{011: 03: abcdef0123456789\n} .
+            qq{012: 04: bcdef0123456789a\n} .
+            qq{013: 05: cdef0123456789ab\n} .
+            qq{014: 06: def0123456789abc\n} .
+            qq{015: 07: ef0123456789abcd\n} .
+            qq{016: 08: f0123456789abcde\n},
+            q{6行目が出力できること} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_cmd( qq{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number} );

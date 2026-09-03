@@ -130,9 +130,9 @@ geo\_all\_km, moon2xyz, moon\_radius\_of\_lat\_circle, moon\_distance\_m, moon\_
 moon\_dist\_m\_and\_azimuth, moon\_dist\_km\_and\_azimuth, moon\_rl\_distance\_m, moon\_rl\_distance\_km,
 moon\_rl\_azimuth, moon\_rl\_dist\_m\_and\_azimuth, moon\_rl\_dist\_km\_and\_azimuth, moon\_all\_m, moon\_all\_km,
 gis\_mercator\_y, gis\_miller\_y, the\_solar\_system, km\_per\_h, mph, kn, m\_per\_s, mach, speed\_of\_light, au2km,
-km2au, ri2meter, meter2ri, mile2meter, meter2mile, nautical\_mile2meter, meter2nautical\_mile, inch2mm,
-mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton, newton2kgf, kpa, kgf\_per\_cm2, psi,
-bar, paper\_size
+km2au, ri2meter, meter2ri, mile2meter, meter2mile, ft2meter, meter2ft, nautical\_mile2meter,
+meter2nautical\_mile, inch2mm, mm2inch, pound2gram, gram2pound, ounce2gram, gram2ounce, kgf2newton,
+newton2kgf, kpa, kgf\_per\_cm2, psi, bar, paper\_size
 
 # OPTIONS
 
@@ -2446,6 +2446,24 @@ The **c** script was created with the following in mind:
 
         $ c 'meter2mile( 2_000 )'
         1.24274238447
+
+- `ft2meter`
+
+    ft2meter( _FT_ ) --Convert-to--> _METER_:
+    Length and distance conversion.
+    alias: フィート→メートル(), フィート２メートル().
+
+        $ c 'ft2meter( 3_000 )'
+        914.4
+
+- `meter2ft`
+
+    meter2ft( _METER_ ) --Convert-to--> _FT_:
+    Length and distance conversion.
+    alias: メートル→フィート(), メートル２フィート().
+
+        $ c 'meter2ft( 1_000 )'
+        3280.83989501
 
 - `nautical_mile2meter`
 

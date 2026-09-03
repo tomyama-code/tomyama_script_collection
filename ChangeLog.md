@@ -7,6 +7,20 @@
 ### Changed
 - xxx
 
+## [0.3.18] - 2026-09-03
+### Added
+- `c` [1.05.028]:
+  - Added unit conversion functions:
+    - ft2meter( FT ) --Convert-to--> METER
+    - meter2ft( METER ) --Convert-to--> FT
+
+### Changed
+- `mark` [1.02.018]:
+  - Fixed a bug where, when using the `--head-tail` option,
+    if the first line matched a keyword,
+    the `head` line count took precedence,
+    resulting in one less line being output.
+
 ## [0.3.17] - 2026-09-02
 ### Changed
 - `mark` [1.02.017]:

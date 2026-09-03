@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.17 $
+## - $Revision: 2.18 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -151,8 +151,10 @@ sub pl_main( @ )
             my $post_buffer_counter_wait = 0;
             if( $main::flag_head_tail ){
                 if( $nr == 1 ){
-                    $post_buffer_counter_wait = -1;
-                    $match_flg = 1;
+                    if( $match_flg == 0 ){
+                        $post_buffer_counter_wait = -1;
+                        $match_flg = 1;
+                    }
                 }elsif( $nr == $nr_first_eof ){
                     $match_flg = 1;
                 }
@@ -557,7 +559,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.17 $};
+    my $rev = q{$Revision: 2.18 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

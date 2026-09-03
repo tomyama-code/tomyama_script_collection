@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.58 $
+## - $Revision: 1.59 $
 ################################################################################
 
 use strict;
@@ -3029,6 +3029,24 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t->exit_is( 0 );
     $t->has_no_exception();
     is( $res, 1.24274238447, qq{meter2mile( 2000 ) => 1.24274238447} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{ft2meter( 3_000 )} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    is( $res, 914.4, qq{ft2meter( 3_000 ) => 914.4} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{meter2ft( 1_000 )} );
+    } );
+    $t->exit_is( 0 );
+    $t->has_no_exception();
+    is( $res, 3280.83989501, qq{meter2ft( 1_000 ) => 3280.83989501} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6855,6 +6873,24 @@ subtest qq{aliases (In-Proc Test)} => sub{
     $t->exit_is( 0, qq{Alias for meter2mile()} );
     $t->has_no_exception();
     is( $res, 1.24274238447, qq{メートル→マイル( 2000 ) => 1.24274238447} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{フィート→メートル( 3_000 )} );
+    } );
+    $t->exit_is( 0, qq{Alias for ft2meter()} );
+    $t->has_no_exception();
+    is( $res, 914.4, qq{フィート→メートル( 3_000 ) => 914.4} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = $c->formula( qq{メートル→フィート( 1_000 )} );
+    } );
+    $t->exit_is( 0, qq{Alias for meter2ft()} );
+    $t->has_no_exception();
+    is( $res, 3280.83989501, qq{メートル→フィート( 1_000 ) => 3280.83989501} );
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
