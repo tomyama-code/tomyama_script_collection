@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -12,7 +12,7 @@ use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
 my %phrase = tests::Tester::get_phrase();
-my $apppath = $phrase{apppath};
+#my $apppath = $phrase{apppath};
 my $proj_root = $phrase{proj_root};
 
 subtest qq{In-Proc Test} => sub{
@@ -154,18 +154,18 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-d', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-d', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -d '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -d '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
             $t->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--debug', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--debug', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --debug '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --debug '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
@@ -187,173 +187,173 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\njklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\ntuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrs$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\ntuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrs\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f3', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f3 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f2,4', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f2,4 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqr\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f2,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f2,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijkl\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f11,22', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f11,22 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJ$/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f11,0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f11,0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\*\ndefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0,1,', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0,1,', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status != 0, "Incorrect parameter specification." );
             $t->stdout_is( qq{} );
             $t->stderr_is( qq{mark: error: "0,1,": <PATTERN> has already been specified as "^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$".\n}, qq{The right warning.} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk' $apppath/testdata_uniq_line.txt} );
-            ok( $status == 0, qq{Do not display redundant "skip" messages.} );
+            $t->has_no_exception( qq{./mark -f0 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk' ./tests/testdata_uniq_line.txt} );
+            ok( $status == 0, qq{Do not display redundant messages.} );
             $t->stdout_like( qr/\*\nlmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\nrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopq\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
@@ -375,7 +375,7 @@ subtest qq{In-Proc Test} => sub{
             } );
             $t->has_no_exception( qq{./mark --head-tail LICENSE} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\n\n        \*\*\* skip \*\*\*\nDAMAGES \(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n/, qq{headの最後とtailの最初} );
+            $t->stdout_like( qr/\n\n        \*\*\* \(filtered\) \*\*\*\nDAMAGES \(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n/, qq{headの最後とtailの最初} );
             $t->stderr_is( qq{} );
 
         };
@@ -385,51 +385,62 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt", "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
+            $t->stdout_like( qr/\n\.\/tests\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt", "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_is(
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n},
+                qq{The effect of '--no-filename'} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '--no-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt", "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 --no-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_is(
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n},
+                qq{The effect of '--no-filename'} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '--no-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--no-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt", "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 --no-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --no-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
-            $t->stderr_is( qq{} );
-
-            $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--no-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
-            } );
-            $t->has_no_exception( qq{./mark --no-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
-            ok( $status == 0 );
-            $t->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_is(
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{ ***** [ ./tests/testdata_uniq_line.txt ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n} .
+                qq{        *** (filtered) ***\n},
+                qq{The effect of '--no-filename'} );
             $t->stderr_is( qq{} );
 
         };
@@ -439,61 +450,61 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_unlike( qr/\/testdata_uniq_line.txt/, qq{The file name is not displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt", "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt", "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-Hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-Hf0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -Hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -Hf0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '--with-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '--with-filename', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 --with-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 --with-filename '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--with-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--with-filename', '-f0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --with-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --with-filename -f0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f1', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f1', '-H', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f1 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f1 -H '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/\/testdata_uniq_line.txt/, qq{The file name is displayed.} );
             $t->stdout_like( qr/:nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklm\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
         };
@@ -525,51 +536,51 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_is( qq{}, qq{No lines match.} );
+            $t->stdout_is( qq{        *** (filtered) ***\n}, qq{No lines match.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '-i', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '-i', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 -i '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 -i '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n        \*\*\* \(filtered\) \*\*\*\n$/, qq{Match with optional effects.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-if0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-if0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -if0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -if0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n        \*\*\* \(filtered\) \*\*\*\n$/, qq{Match with optional effects.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f0', '--ignore-case', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f0', '--ignore-case', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f0 --ignore-case '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f0 --ignore-case '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n        \*\*\* \(filtered\) \*\*\*\n$/, qq{Match with optional effects.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--ignore-case', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--ignore-case', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --ignore-case -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --ignore-case -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Match with optional effects.} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n        \*\*\* \(filtered\) \*\*\*\n$/, qq{Match with optional effects.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--ignore-case', '--force-color', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--ignore-case', '--force-color', '-f0', '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --ignore-case --force-color -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --ignore-case --force-color -f0 '^opqrstuvwxygabcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+            $t->stdout_like( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m\n        \033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n$/, qq{It will be highlighted.} );
             $t->stderr_is( qq{} );
 
         };
@@ -579,53 +590,53 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_unlike( qr/25/, qq{Line numbers are not displayed.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '-n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '-n', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 -n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 -n '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{The line number is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-n', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-n', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -n -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -n -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{The line number is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '--line-number', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '--line-number', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 --line-number '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 --line-number '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{The line number is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--line-number', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--line-number', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --line-number -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --line-number -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{The line number is displayed.} );
+            $t->stdout_like( qr/\*\n     25:opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n/, qq{The line number is displayed.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-nf1', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-nf1', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -nf1 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -nf1 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
             $t->stdout_like( qr/24:nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklm\n/, qq{Display from the correct point} );
-            $t->stdout_like( qr/26:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno$/, qq{Display to the correct point} );
+            $t->stdout_like( qr/26:pqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmno\n/, qq{Display to the correct point} );
             $t->stderr_is( qq{} );
 
         };
@@ -635,44 +646,44 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_unlike( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n/, qq{Not highlighted.} );
-            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$/, qq{Not highlighted.} );
+            $t->stdout_unlike( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n/, qq{Not highlighted.} );
+            $t->stdout_like( qr/\*\nopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\n        \*\*\* \(filtered\) \*\*\*\n$/, qq{Not highlighted.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '-c', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '-c', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 -c '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 -c '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+            $t->stdout_like( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m\n        \033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n$/, qq{It will be highlighted.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-c', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-c', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -c -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -c -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+            $t->stdout_like( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m\n        \033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n$/, qq{It will be highlighted.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '-f', '0', '--force-color', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '-f', '0', '--force-color', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark -f 0 --force-color '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark -f 0 --force-color '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+            $t->stdout_like( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m\n        \033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n$/, qq{It will be highlighted.} );
             $t->stderr_is( qq{} );
 
             $t = tests::Tester->run_blk( sub{
-                $status = pl_main( '--force-color', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "$apppath/testdata_uniq_line.txt" );
+                $status = pl_main( '--force-color', '-f', '0', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
-            $t->has_no_exception( qq{./mark --force-color -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' $apppath/testdata_uniq_line.txt} );
+            $t->has_no_exception( qq{./mark --force-color -f 0 '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status == 0 );
-            $t->stdout_like( qr/\033\[34m\*\*\* skip \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m$/, qq{It will be highlighted.} );
+            $t->stdout_like( qr/\033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n\033\[1mopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\033\[0m\n        \033\[34m\*\*\* \(filtered\) \*\*\*\033\[0m\n$/, qq{It will be highlighted.} );
             $t->stderr_is( qq{} );
 
         };
@@ -816,7 +827,7 @@ subtest qq{Ex-Proc Test} => sub{
             qq{001: 01: 0123456789abcdef\n} .
             qq{002: 02: 123456789abcdef0\n} .
             qq{003: 03: 23456789abcdef01\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{006: 06: 56789abcdef01234\n} .
             qq{007: 07: 6789abcdef012345\n} .
             qq{008: 08: 789abcdef0123456\n} .
@@ -859,7 +870,7 @@ subtest qq{Ex-Proc Test} => sub{
             qq{001: 01: 0123456789abcdef\n} .
             qq{002: 02: 123456789abcdef0\n} .
             qq{003: 03: 23456789abcdef01\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{007: 07: 6789abcdef012345\n} .
             qq{008: 08: 789abcdef0123456\n} .
             qq{009: 01: 89abcdef01234567\n} .
@@ -878,7 +889,7 @@ subtest qq{Ex-Proc Test} => sub{
         $t->stdout_is(
             qq{001: 01: 0123456789abcdef\n} .
             qq{002: 02: 123456789abcdef0\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{006: 06: 56789abcdef01234\n} .
             qq{007: 07: 6789abcdef012345\n} .
             qq{008: 08: 789abcdef0123456\n} .
@@ -920,7 +931,7 @@ subtest qq{Ex-Proc Test} => sub{
         $t->stdout_is(
             qq{      1:001: 01: 0123456789abcdef\n} .
             qq{      2:002: 02: 123456789abcdef0\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{      7:007: 07: 6789abcdef012345\n} .
             qq{      8:008: 08: 789abcdef0123456\n} .
             qq{      9:009: 01: 89abcdef01234567\n} .
@@ -937,9 +948,10 @@ subtest qq{Ex-Proc Test} => sub{
         $t = tests::Tester->run_cmd( qq{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 - LICENSE} );
         $t->exit_is( 0, q{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 - LICENSE} );
         $t->stdout_is(
+            qq{ ***** [ - ] *****\n} .
             qq{-      :      1:001: 01: 0123456789abcdef\n} .
             qq{-      :      2:002: 02: 123456789abcdef0\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{-      :      7:007: 07: 6789abcdef012345\n} .
             qq{-      :      8:008: 08: 789abcdef0123456\n} .
             qq{-      :      9:009: 01: 89abcdef01234567\n} .
@@ -950,9 +962,10 @@ subtest qq{Ex-Proc Test} => sub{
             qq{-      :     14:014: 06: def0123456789abc\n} .
             qq{-      :     15:015: 07: ef0123456789abcd\n} .
             qq{-      :     16:016: 08: f0123456789abcde\n} .
+            qq{ ***** [ LICENSE ] *****\n} .
             qq{LICENSE:      1:BSD 2-Clause License\n} .
             qq{LICENSE:      2:\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
             qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n},
             q{どちらのファイルもフィルターされていること} );
@@ -961,14 +974,16 @@ subtest qq{Ex-Proc Test} => sub{
         $t = tests::Tester->run_cmd( qq{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 LICENSE -} );
         $t->exit_is( 0, q{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 LICENSE -} );
         $t->stdout_is(
+            qq{ ***** [ LICENSE ] *****\n} .
             qq{LICENSE:      1:BSD 2-Clause License\n} .
             qq{LICENSE:      2:\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
             qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n} .
+            qq{ ***** [ - ] *****\n} .
             qq{-      :      1:001: 01: 0123456789abcdef\n} .
             qq{-      :      2:002: 02: 123456789abcdef0\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{-      :      7:007: 07: 6789abcdef012345\n} .
             qq{-      :      8:008: 08: 789abcdef0123456\n} .
             qq{-      :      9:009: 01: 89abcdef01234567\n} .
@@ -985,9 +1000,10 @@ subtest qq{Ex-Proc Test} => sub{
         $t = tests::Tester->run_cmd( q{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 '\b(A|THE)\b' LICENSE -} );
         $t->exit_is( 0, q{./tests/output_slowly_and_gradually.pl --row 8 | ./mark --head-tail --line-number -f 2 '\b(A|THE)\b' LICENSE -} );
         $t->stdout_is(
+            qq{ ***** [ LICENSE ] *****\n} .
             qq{LICENSE:      1:BSD 2-Clause License\n} .
             qq{LICENSE:      2:\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{LICENSE:     14:   and/or other materials provided with the distribution.\n} .
             qq{LICENSE:     15:\n} .
             qq{LICENSE:     16:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n} .
@@ -1000,9 +1016,10 @@ subtest qq{Ex-Proc Test} => sub{
             qq{LICENSE:     23:CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n} .
             qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
             qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n} .
+            qq{ ***** [ - ] *****\n} .
             qq{-      :      1:001: 01: 0123456789abcdef\n} .
             qq{-      :      2:002: 02: 123456789abcdef0\n} .
-            qq{        *** skip ***\n} .
+            qq{        *** (filtered) ***\n} .
             qq{-      :      7:007: 07: 6789abcdef012345\n} .
             qq{-      :      8:008: 08: 789abcdef0123456\n} .
             qq{-      :      9:009: 01: 89abcdef01234567\n} .

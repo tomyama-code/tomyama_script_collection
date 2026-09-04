@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.3.19] - 2026-09-04
+### Changed
+- `mark` [1.02.021]:
+  - Changed the specifications for the `*** skip ***` output.
+    - Changed the label: `*** skip ***` -> `*** (filtered) ***`
+    - Changed the timing of the output.
+      - Before: When outputting a matching line.
+      - After : When a sequence of non-matching lines confirms that skipping is taking place.
+    - `*** (filtered) ***` is now displayed even if there are no matching lines at all.
+
 ## [0.3.18] - 2026-09-03
 ### Added
 - `c` [1.05.028]:

@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.18 $
+## - $Revision: 2.21 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -52,9 +52,9 @@ sub pl_main( @ )
         return 0;
     }
 
-    sub print_line( $$$$$ )
+    sub print_line( $$$$$$ )
     {
-        my( $line, $nr, $ref_nr_of_last_output, $num_char_disp_area, $opn_fname ) = @_;
+        my( $line, $nr, $ref_nr_of_last_output, $num_char_disp_area, $opn_fname, $ref_is_skipping ) = @_;
         if( $nr <= $$ref_nr_of_last_output ){
             return;
         }
@@ -71,6 +71,8 @@ sub pl_main( @ )
         }
         ## 出力する
         print( "$fn_str$nr_str$line\n" );
+
+        $$ref_is_skipping = 0;
 
         $$ref_nr_of_last_output = $nr;
         return;
@@ -89,8 +91,8 @@ sub pl_main( @ )
     for( my $file_idx=0; $file_idx<$file_num; $file_idx++ ){
         my $opn_fname = $main::fi_in[ $file_idx ];
 
-        if( $main::debug ){
-            print STDERR ( qq{ ***** [ $opn_fname ] *****\n});
+        if( $main::multiple_input_files ){
+            print( qq{ ***** [ $opn_fname ] *****\n});
         }
 
         open( FI_IN, "<$opn_fname" ) ||
@@ -101,6 +103,7 @@ sub pl_main( @ )
         #print( qq{\$re_flag="$re_flag"\n} );
         my $nr_first_eof = -1;
         my $nr_of_last_output = 0;
+        my $is_skipping = 0;
         for( my $nr=1; 1; $nr++ ){
             my $mybuff = '';
             my $len = read_one_line( \*FI_IN, \$mybuff );
@@ -161,6 +164,20 @@ sub pl_main( @ )
             }
 
             if( $flag_filter ){
+
+                ## 読み易いように、snip...を出力
+                #print( qq{\$nr=$nr, \$nr_of_last_output=$nr_of_last_output\n} );
+                if( ( $nr - $main::buffer_pre - $nr_of_last_output ) == 2 ){
+                    if( $is_skipping == 0 ){
+                        $is_skipping = 1;
+                        if( $main::bUseAnsiEscSeqColor ){
+                            print( "        \033[34m*** (filtered) ***\033[0m\n" );
+                        }else{
+                            print( "        *** (filtered) ***\n" );
+                        }
+                    }
+                }
+
                 ## マッチしていなかったら
                 if( $match_flg == 0 ){
 
@@ -168,42 +185,34 @@ sub pl_main( @ )
                     $main::post_buffer_counter--;
                     if( $main::post_buffer_counter < 0 ){
                         $main::post_buffer_counter = 0;
-                    }else{
-                        goto PRINTOUT;
-                    }
 
-                    ## 前方行をバッファに溜めておく
-                    ## buffer_pre=0 の場合はバッファは必要無し
-                    if( $main::buffer_pre == 0 ){
+                        ## 前方行をバッファに溜めておく
+                        ## buffer_pre=0 の場合はバッファは必要無し
+                        if( $main::buffer_pre ){
+                            ## バッファが満杯であれば整理しておく
+                            if( scalar( @main::pre_buffer ) >= $main::buffer_pre ){
+                                shift( @main::pre_buffer );
+                            }
+
+                            ## バッファに溜める
+                            push( @main::pre_buffer, $mybuff );
+                        }
+
                         next;
-                    ## バッファが満杯であれば整理しておく
-                    }elsif( scalar( @main::pre_buffer ) >= $main::buffer_pre ){
-                        shift( @main::pre_buffer );
                     }
 
-                    ## バッファに溜める
-                    push( @main::pre_buffer, $mybuff );
-                    next;
                 ## マッチしていたら
                 }else{
                     ## バッファを吐き出す
                     my $pre_buffer_size = scalar( @main::pre_buffer );
                     my $nr_first = $nr - $pre_buffer_size;
-                    ## 読み易いように、skip...を出力
-                    if( ( $nr_first - $nr_of_last_output ) > 1 ){
-                        if( $main::bUseAnsiEscSeqColor ){
-                            print( "        \033[34m*** skip ***\033[0m\n" );
-                        }else{
-                            print( "        *** skip ***\n" );
-                        }
-                    }
-
                     for( my $pre_buffer_idx=0; $pre_buffer_idx<$pre_buffer_size; $pre_buffer_idx++ ){
                         print_line(
                             $main::pre_buffer[ $pre_buffer_idx ],
                             $nr_first + $pre_buffer_idx,
                             \$nr_of_last_output,
-                            $num_char_disp_area, $opn_fname );
+                            $num_char_disp_area, $opn_fname,
+                            \$is_skipping );
                     }
                     @main::pre_buffer = ();
 
@@ -216,8 +225,7 @@ sub pl_main( @ )
                 }
             }
 
-            PRINTOUT:
-                print_line( $mybuff, $nr, \$nr_of_last_output, $num_char_disp_area, $opn_fname );
+            print_line( $mybuff, $nr, \$nr_of_last_output, $num_char_disp_area, $opn_fname, \$is_skipping );
         }
         close( FI_IN );
     }
@@ -252,6 +260,7 @@ sub init_script()
     $main::re = undef;
     @main::fi_in = ();
     $main::syscall_act = 0;
+    $main::multiple_input_files = 0;
     ## ［ANSIエスケープシーケンス］を使うか否かの判定で使う
     $main::bUseAnsiEscSeqColor = -t STDOUT;
     ##############
@@ -278,7 +287,8 @@ sub prt_param()
                    qq{\$main::ignorecase = $main::ignorecase\n} .
                    qq{\$main::re = %s\n} .
                    qq{\@main::fi_in = (%s)\n} .
-                   qq{\$main::syscall_act = 0x%02X\n},
+                   qq{\$main::syscall_act = 0x%02X\n} .
+                   qq{\$main::multiple_input_files = $main::multiple_input_files\n},
                    defined( $main::prt_fname ) ? qq{"$main::prt_fname"} : 'undef',
                    scalar( @main::pre_buffer ),
                    defined( $main::re ) ? qq{"$main::re"} : 'undef',
@@ -379,6 +389,7 @@ sub parse_arg( @ )
 
     if( $fi_in_nums == 0 ){
         push( @main::fi_in, '-' );
+        $fi_in_nums++;
     }
     if( !defined( $main::prt_fname ) ){
         if( $fi_in_nums > 1 ){
@@ -386,6 +397,9 @@ sub parse_arg( @ )
         }else{
             $main::prt_fname = 0;
         }
+    }
+    if( $fi_in_nums > 1 ){
+        $main::multiple_input_files = 1;
     }
 
     return 0;
@@ -559,7 +573,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.18 $};
+    my $rev = q{$Revision: 2.21 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
