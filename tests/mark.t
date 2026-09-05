@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.9 $
+## - $Revision: 1.10 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -13,7 +13,7 @@ use tests::Tester;
 
 my %phrase = tests::Tester::get_phrase();
 #my $apppath = $phrase{apppath};
-my $proj_root = $phrase{proj_root};
+#my $proj_root = $phrase{proj_root};
 
 subtest qq{In-Proc Test} => sub{
 
@@ -111,29 +111,29 @@ subtest qq{In-Proc Test} => sub{
         my $status;
 
         $t = tests::Tester->run_blk( sub{
-            $status = pl_main( 'mark', "$proj_root/mark" );
+            $status = pl_main( 'mark', "./mark" );
         } );
-        $t->has_no_exception( qq{./mark mark $proj_root/mark} );
+        $t->has_no_exception( qq{./mark mark ./mark} );
         ok( $status == 0 );
-        $t->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+        $t->stdout_like( qr/^#!\/usr\/bin\/env perl\n/, qq{Display from the beginning} );
         $t->stdout_like( qr/=cut$/, qq{Display to the end} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = pl_main( '^#!/usr', "$proj_root/mark" );
+            $status = pl_main( '^#!/usr', "./mark" );
         } );
-        $t->has_no_exception( qq{./mark '^#!/usr' $proj_root/mark} );
+        $t->has_no_exception( qq{./mark '^#!/usr' ./mark} );
         ok( $status == 0 );
-        $t->stdout_like( qr/^#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+        $t->stdout_like( qr/^#!\/usr\/bin\/env perl\n/, qq{Display from the beginning} );
         $t->stdout_like( qr/=cut$/, qq{Display to the end} );
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{
-            $status = pl_main( 'c', "$proj_root/mark", "$proj_root/mark" );
+            $status = pl_main( 'c', "./mark", "./mark" );
         } );
-        $t->has_no_exception( qq{./mark perl $proj_root/mark $proj_root/mark} );
+        $t->has_no_exception( qq{./mark perl ./mark ./mark} );
         ok( $status == 0, "Allows duplicates of existing files." );
-        $t->stdout_like( qr/#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+        $t->stdout_like( qr/#!\/usr\/bin\/env perl\n/, qq{Display from the beginning} );
         $t->stdout_like( qr/=cut$/, qq{Display to the end} );
         $t->stderr_is( qq{} );
 
@@ -743,9 +743,9 @@ subtest qq{Ex-Proc Test} => sub{
         $t->stderr_like( qr/mark: error: "STDIN\(-\)" cannot be specified more than once.\n/, qq{The number of input files is correct} );
         undef( $t );
 
-        $t = tests::Tester->run_cmd( qq{echo "123" | ./mark c $proj_root/mark -} );
+        $t = tests::Tester->run_cmd( qq{echo "123" | ./mark c ./mark -} );
         $t->exit_is( 0, "Allows duplicates of existing files." );
-        $t->stdout_like( qr/#!\/usr\/bin\/perl -w\n/, qq{Display from the beginning} );
+        $t->stdout_like( qr/#!\/usr\/bin\/env perl\n/, qq{Display from the beginning} );
         $t->stdout_like( qr/:123$/, qq{Display to the end} );
         $t->stderr_is( qq{}, qq{stderr is silent} );
         undef( $t );

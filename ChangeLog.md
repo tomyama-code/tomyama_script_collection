@@ -7,6 +7,13 @@
 ### Changed
 - xxx
 
+## [0.3.20] - 2026-09-05
+### Changed
+- Added support for building packages in FreeBSD environments.
+  - Modified the first line (shebang) of the script.
+    - FreeBSD uses a specific path for invoking Perl (`/usr/local/bin/perl`).
+    - Changed `#!/usr/bin/perl` to `#!/usr/bin/env perl`.
+
 ## [0.3.19] - 2026-09-04
 ### Changed
 - `mark` [1.02.021]:

@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.10 $
+## - $Revision: 1.11 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
@@ -314,6 +314,12 @@ sh_showMarkdownDoc()
     glow "$1"
 }
 
+sh_get_epoch_sec_of_last_update_time()
+{
+    targetfile="$1"
+    perl -e 'print( ( stat( $ARGV[ 0 ] ) )[ 9 ], "\n" )' "$targetfile"
+}
+
 sh_isUpdateNecessary()
 {
     basefile="$1"
@@ -324,10 +330,10 @@ sh_isUpdateNecessary()
         exit 1
     fi
 
-    epoch_base="`stat '--format=%Y' \"$basefile\"`"
+    epoch_base="`sh_get_epoch_sec_of_last_update_time \"$basefile\"`"
 
     if [ -f "$genfile" ]; then
-        epoch_genfile="`stat '--format=%Y' \"$genfile\"`"
+        epoch_genfile="`sh_get_epoch_sec_of_last_update_time \"$genfile\"`"
 
         if [ "$epoch_genfile" -ge "$epoch_base" ]; then
             return 0

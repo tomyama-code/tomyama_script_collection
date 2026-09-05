@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ################################################################################
 ## CL -- CLOCK PROGRAM
 ##
@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.39 $
+## - $Revision: 2.40 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -194,7 +194,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.39 $};
+    my $rev = q{$Revision: 2.40 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

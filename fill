@@ -1,8 +1,8 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ################################################################################
 ## FILL -- Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 ##
-## - $Revision: 1.10 $
+## - $Revision: 1.11 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -474,7 +474,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.10 $};
+    my $rev = q{$Revision: 1.11 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

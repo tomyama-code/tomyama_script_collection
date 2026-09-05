@@ -1,9 +1,9 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #####
 ## ゆっくりと少しずつ出力する
 ##
 ## - ex) ./trials/output_slowly_and_gradually.pl | ./mark --head-tail -
-## - $Revision: 1.4 $
+## - $Revision: 1.5 $
 #####
 
 use strict;                         # first released with perl 5

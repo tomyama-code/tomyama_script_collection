@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ################################################################################
 ## gen_autotools_acam.pl -- Generate and manage autotools "ac" and "am" files from a single source.
 ##
@@ -8,7 +8,7 @@
 ## - If any files have been updated, it will exit with 0.
 ## - If no files have been updated, it will exit with a value other than 0.
 ##
-## - $Revision: 1.10 $
+## - $Revision: 1.11 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.

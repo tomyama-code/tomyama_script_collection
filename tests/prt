@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ##
 ## Support for environments where the -e option of the echo command does not work.
 ## ex) Test::Command on Android Termux

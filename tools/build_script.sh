@@ -5,7 +5,7 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.5 $
+## - $Revision: 1.6 $
 ##
 ## - Author: 2025, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -134,7 +134,7 @@ sh_exec()
 
 sh_getDistributionArchiveName()
 {
-  cat configure.ac | awk '
+  cat configure.ac | gawk '
     /^AC_INIT/{
       args = getArgs( $0 );
       split( args, ARGS, ", *" );

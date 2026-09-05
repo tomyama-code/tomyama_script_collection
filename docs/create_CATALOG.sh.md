@@ -3,7 +3,7 @@
 * * *
 # NAME
 
-     create_CATALOG.sh - manual page for create_CATALOG.sh 1.10)
+     create_CATALOG.sh - manual page for create_CATALOG.sh 1.11)
 
 # SYNOPSIS
 

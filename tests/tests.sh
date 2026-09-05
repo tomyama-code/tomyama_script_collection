@@ -129,7 +129,7 @@ sh_summary_cov_filter()
         my %sz;
         $sz{Total} = 0;
         for my $targ( @files ){
-            $sz{$targ} = `stat --format="%s" $targ` + 0;
+            $sz{$targ} = ( stat( $targ ) )[ 7 ];
             #print( qq{$targ: "$sz{$targ}"\n} );
             $sz{Total} += $sz{$targ};
         }

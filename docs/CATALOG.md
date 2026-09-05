@@ -42,7 +42,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 5.28 $
+- $Revision: 5.29 $
 
 - Script Structure
   - main
@@ -73,7 +73,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.39 $
+- $Revision: 2.40 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -91,7 +91,7 @@ For details, please refer to [cl.md](cl.md).
 Sort by domain or IP address hierarchy.
 
 - Version: 1
-- $Revision: 1.9 $
+- $Revision: 1.10 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -108,7 +108,7 @@ For details, please refer to [domsort.md](domsort.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.10 $
+- $Revision: 1.11 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -128,7 +128,7 @@ Displaying holiday data in the pager
 - Displays the holiday data "cl.holiday" in the pager.
 
 - Version: 1
-- $Revision: 1.8 $
+- $Revision: 1.10 $
 
 - Author: 2022-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -148,7 +148,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.21 $
+- $Revision: 2.22 $
 
 - Author: 2006-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -165,7 +165,7 @@ For details, please refer to [mark.md](mark.md).
 
 List IANA timezone IDs.
 
-- $Revision: 1.12 $
+- $Revision: 1.13 $
 - Note: This uses bundled IANA data instead of the host system's timezone data.
 
 - Author: 2026, tomyama
@@ -206,7 +206,7 @@ A script that describes the build steps
 - A script describing the build steps in an environment
   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.5 $
+- $Revision: 1.6 $
 
 - Author: 2025, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -227,7 +227,7 @@ Generate and manage autotools "ac" and "am" files from a single source.
 - If any files have been updated, it will exit with 0.
 - If no files have been updated, it will exit with a value other than 0.
 
-- $Revision: 1.10 $
+- $Revision: 1.11 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -244,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.104 $
+- $Revision: 2.105 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -264,7 +264,7 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.10 $
+- $Revision: 1.11 $
 
 - Tools required for this script
   - Perl 5.10 or later

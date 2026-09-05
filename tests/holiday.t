@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -30,6 +30,12 @@ subtest qq{Normal} => sub{
     $t->exit_isnt( 0, qq{PAGER=non-existent-command ./holiday} );
     $t->stdout_is( qq{}, qq{STDOUT is silent.} );
     $t->stderr_like( qr/\nnon\-existent\-command \.\/cl\.holiday: failed: status=\-1: / );
+    undef( $t );
+
+    $t = tests::Tester->run_cmd( qq{env -u PAGER ./holiday | cat -} );
+    $t->exit_is( 0, qq{env -u PAGER ./holiday | cat -} );
+    $t->stdout_like( qr/^## \$[R]evision: 20/ );
+    $t->stderr_is( qq{}, qq{STDERR is silent.} );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{./holiday unknown_argument | cat -} );

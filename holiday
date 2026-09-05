@@ -1,11 +1,11 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ################################################################################
 ## HOLIDAY -- Displaying holiday data in the pager
 ##
 ## - Displays the holiday data "cl.holiday" in the pager.
 ##
 ## - Version: 1
-## - $Revision: 1.8 $
+## - $Revision: 1.10 $
 ##
 ## - Author: 2022-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -31,7 +31,7 @@ sub pl_main( @ )
     &parse_arg( @_ );
 
     my $holiday_data = "$main::apppath/" . HOLIDAY_DATA;
-    my $pattern_of_today = '^#\s西暦' . ( ( localtime( time() ) )[ 5 ] + 1900 );
+    my $pattern_of_today = '^#[[:space:]]西暦' . ( ( localtime( time() ) )[ 5 ] + 1900 );
     my $pager = qq{less --LINE-NUMBERS --pattern=$pattern_of_today};
     if( defined( $ENV{PAGER} ) ){
         $pager = $ENV{PAGER};
@@ -146,7 +146,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.8 $};
+    my $rev = q{$Revision: 1.10 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
