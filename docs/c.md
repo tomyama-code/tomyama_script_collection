@@ -996,7 +996,6 @@ The **c** script was created with the following in mind:
     sample( _NUMBER1_, .., _COUNT_ ):
     Randomly select one from the set.
     _COUNT_ is an integer greater than or equal to 1.
-    \[List::Util\]
 
         $ c 'sample( 402, 670, 804, 1 )'
         670
@@ -1025,7 +1024,6 @@ The **c** script was created with the following in mind:
     head( _NUMBER1_, .. _LENGTH_ ):
     Returns the first _LENGTH_ elements from the set.
     _LENGTH_ is an integer greater than or equal to 1.
-    \[List::Util\]
 
         $ c 'head( 100, 200, 300, 2 )'
         ( 100, 200 )
@@ -1035,7 +1033,6 @@ The **c** script was created with the following in mind:
     tail( _NUMBER1_, .. _LENGTH_ ):
     Returns the last _LENGTH_ elements from the set.
     _LENGTH_ is an integer greater than or equal to 1.
-    \[List::Util\]
 
         $ c 'tail( 100, 200, 300, 2 )'
         ( 200, 300 )
@@ -1056,7 +1053,6 @@ The **c** script was created with the following in mind:
     Filters a list of values to remove subsequent duplicates,
     as judged by a DWIM-ish string equality or "undef" test.
     Preserves the order of unique elements, and retains the first value of any duplicate set.
-    \[List::Util\]
 
         $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
         ( 2, 3, 67 )

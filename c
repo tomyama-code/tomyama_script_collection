@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.29 $
+## - $Revision: 5.30 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.29 $};
+    my $rev = q{$Revision: 5.30 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1107,12 +1107,12 @@ use constant {
     H_MIN_ => qq{min( NUMBER1, .. ): Returns the entry in the list with the lowest numerical value. [List::Util]},
     H_MAX_ => qq{max( NUMBER1, .. ): Returns the entry in the list with the highest numerical value. [List::Util]},
     H_SHFL => qq{shuffle( NUMBER1, .. ): Returns the values of the input in a random order. [List::Util]},
-    H_SMPL => qq{sample( NUMBER1, .., COUNT ): Randomly select one from the set. COUNT is an integer greater than or equal to 1. [List::Util]},
+    H_SMPL => qq{sample( NUMBER1, .., COUNT ): Randomly select one from the set. COUNT is an integer greater than or equal to 1.},
     H_FRST => qq{first( NUMBER1, .. ): Returns the head of the set. Same as head( NUMBER1,.. , 1 ), slice( NUMBER1,.. , 0, 1 ).},
-    H_HEAD => qq{head( NUMBER1, .., LENGTH ): Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
-    H_TAIL => qq{tail( NUMBER1, .., LENGTH ): Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1. [List::Util]},
+    H_HEAD => qq{head( NUMBER1, .., LENGTH ): Returns the first LENGTH elements from the set. LENGTH is an integer greater than or equal to 1.},
+    H_TAIL => qq{tail( NUMBER1, .., LENGTH ): Returns the last LENGTH elements from the set. LENGTH is an integer greater than or equal to 1.},
     H_SPLC => qq{slice( NUMBER1, .., OFFSET, LENGTH ): Extracts elements specified by OFFSET and LENGTH from a set.},
-    H_UNIQ => qq{uniq( NUMBER1, .. ): Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set. [List::Util]},
+    H_UNIQ => qq{uniq( NUMBER1, .. ): Filters a list of values to remove subsequent duplicates, as judged by a DWIM-ish string equality or "undef" test. Preserves the order of unique elements, and retains the first value of any duplicate set.},
     H_SUM_ => qq{sum( NUMBER1, .. ): Returns the numerical sum of all the elements in the list. [List::Util]},
     H_PROD => qq{prod( NUMBER1, .. ): Returns the product of each value.},
     H_AVRG => qq{avg( NUMBER1, .. ): Returns the average value of all elements in a list.},
@@ -1289,7 +1289,7 @@ use constant {
     'head'                        => [ 1330, T_FUNCTION, F_LIST,    VA, H_HEAD, sub{ _C_HEAD( @_ ) } ],
     'tail'                        => [ 1340, T_FUNCTION, F_LIST,    VA, H_TAIL, sub{ _C_TAIL( @_ ) } ],
     'slice'                       => [ 1350, T_FUNCTION, F_LIST,    VA, H_SPLC, sub{ _C_SLICE( @_ ) } ],
-    'uniq'                        => [ 1360, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ List::Util::uniq( @_ ) } ],
+    'uniq'                        => [ 1360, T_FUNCTION, F_LIST,    VA, H_UNIQ, sub{ _C_UNIQ( @_ ) } ],
     'sum'                         => [ 1370, T_FUNCTION, F_LIST,    VA, H_SUM_, sub{ List::Util::sum( @_ ) } ],
     'prod'                        => [ 1380, T_FUNCTION, F_LIST,    VA, H_PROD, sub{ prod( @_ ) } ],
     'avg'                         => [ 1390, T_FUNCTION, F_LIST,    VA, H_AVRG, sub{ _C_AVG( @_ ) } ],
@@ -1998,13 +1998,19 @@ sub _C_SAMPLE( @ )
         die( qq{sample(): \$argc=$argc: Not enough arguments.\n} );
     }
     my $count = pop( @argv ) + 0;
+    $argc--;
     if( $count < 1 ){
         die( qq{sample(): \$count=$count: Argument value is out of range.\n} );
     }
     if( $count =~ m/\./o ){
         die( qq{sample(): \$count=$count: COUNT must be an integer.\n} );
     }
-    my @sets = List::Util::sample( $count, @argv );
+
+    ## List::Util::sample() ← 新しめの関数なので使うのは止めることに。
+    ##   Perl 5.32.0 (2020-05-20)  List::Util v1.54 (2020-02-02)
+    #my @sets = List::Util::sample( $count, @argv );
+    my @shuffled = List::Util::shuffle( @argv );
+    my @sets = _C_HEAD( @shuffled, List::Util::min( $count, $argc ) );
     my $got_len = scalar( @sets );
     if( $got_len < $count ){
         $TableProvider::opf->warnPrint( qq{sample(): The specified quantity is $count, but the quantity obtained is $got_len.\n} );
@@ -2025,13 +2031,20 @@ sub _C_HEAD( @ )
         die( qq{head(): \$argc=$argc: Not enough arguments.\n} );
     }
     my $length = pop( @argv ) + 0;
+    $argc--;
     if( $length < 1 ){
         die( qq{head(): \$length=$length: Argument value is out of range.\n} );
     }
     if( $length =~ m/\./o ){
         die( qq{head(): \$length=$length: LENGTH must be an integer.\n} );
     }
-    my @sets = List::Util::head( $length, @argv );
+    ## List::Util::head() ← 新しめの関数なので使うのは止めることに。
+    ##   Perl 5.28.0 (2018-05-20)  List::Util v1.50 (2018-02-20)
+    #my @sets = List::Util::head( $length, @argv );
+    my @sets = ();
+    for( my $idx=0; $idx<$length && $idx<$argc; $idx++ ){
+        push( @sets, $argv[ $idx ] );
+    }
     my $got_len = scalar( @sets );
     if( $got_len < $length ){
         $TableProvider::opf->warnPrint( qq{head(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
@@ -2047,13 +2060,23 @@ sub _C_TAIL( @ )
         die( qq{tail(): \$argc=$argc: Not enough arguments.\n} );
     }
     my $length = pop( @argv ) + 0;
+    $argc--;
     if( $length < 1 ){
         die( qq{tail(): \$length=$length: Argument value is out of range.\n} );
     }
     if( $length =~ m/\./o ){
         die( qq{tail(): \$length=$length: LENGTH must be an integer.\n} );
     }
-    my @sets = List::Util::tail( $length, @argv );
+    ## List::Util::tail() ← 新しめの関数なので使うのは止めることに。
+    ##   Perl 5.28.0 (2018-05-20)  List::Util v1.50 (2018-02-20)
+    #my @sets = List::Util::tail( $length, @argv );
+    my @sets = ();
+    my $offset = $argc - $length;
+    $offset = 0 if( $offset < 0 );
+    #print( qq{\$offset=$offset, \$argc=$argc, \$length=$length\n} );
+    for( my $idx=0; $idx<$length && $idx<$argc; $idx++ ){
+        push( @sets, $argv[ $idx + $offset ] );
+    }
     my $got_len = scalar( @sets );
     if( $got_len < $length ){
         $TableProvider::opf->warnPrint( qq{tail(): The specified quantity is $length, but the quantity obtained is $got_len.\n} );
@@ -2097,6 +2120,26 @@ sub _C_SLICE( @ )
     my @ret_vals = splice( @argv, $offset, $length );
 
     return @ret_vals;
+}
+
+
+## List::Util::uniq() ← 新しめの関数なので使うのは止めることに。
+##   Perl 5.26.0 (2017-05-30)  List::Util v1.45 (2016-03-25)
+sub _C_UNIQ( @ )
+{
+    my @argv = @_;
+    my $argc = scalar( @argv );
+    my %dic = ();
+    my @sets = ();
+    for( my $idx=0; $idx<$argc; $idx++ ){
+        my $number = $argv[ $idx ];
+        if( !exists( $dic{$number} ) ){
+            #print( qq{\$number=$number\n} );
+            $dic{$number} = 1;
+            push( @sets, $number );
+        }
+    }
+    return @sets;
 }
 
 sub prod( @ )
@@ -6986,7 +7029,6 @@ Returns the values of the input in a random order.
 sample( I<NUMBER1>, .., I<COUNT> ):
 Randomly select one from the set.
 I<COUNT> is an integer greater than or equal to 1.
-[List::Util]
 
   $ c 'sample( 402, 670, 804, 1 )'
   670
@@ -7015,7 +7057,6 @@ Same as head( I<NUMBER1>,.. , 1 ), slice( I<NUMBER1>,.. , 0, 1 ).
 head( I<NUMBER1>, .. I<LENGTH> ):
 Returns the first I<LENGTH> elements from the set.
 I<LENGTH> is an integer greater than or equal to 1.
-[List::Util]
 
   $ c 'head( 100, 200, 300, 2 )'
   ( 100, 200 )
@@ -7025,7 +7066,6 @@ I<LENGTH> is an integer greater than or equal to 1.
 tail( I<NUMBER1>, .. I<LENGTH> ):
 Returns the last I<LENGTH> elements from the set.
 I<LENGTH> is an integer greater than or equal to 1.
-[List::Util]
 
   $ c 'tail( 100, 200, 300, 2 )'
   ( 200, 300 )
@@ -7046,7 +7086,6 @@ uniq( I<NUMBER1>, .. ):
 Filters a list of values to remove subsequent duplicates,
 as judged by a DWIM-ish string equality or "undef" test.
 Preserves the order of unique elements, and retains the first value of any duplicate set.
-[List::Util]
 
   $ c 'uniq( 2, 3, 2, 3, 67, 3 )'
   ( 2, 3, 67 )

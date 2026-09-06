@@ -7,6 +7,16 @@
 ### Changed
 - xxx
 
+## [0.3.21] - 2026-09-06
+### Changed
+- `c` [1.05.030]:
+  - Since `head()`, `tail()`, `sample()`, and `uniq()` in `List::Util` are relatively new functions,
+    I switched to using custom implementations.
+    - List::Util::head  : 1.50  Perl 5.28.0 (2018-05-20)
+    - List::Util::tail  : 1.50  Perl 5.28.0 (2018-05-20)
+    - List::Util::sample: 1.54  Perl 5.32.0 (2020-05-20)
+    - List::Util::uniq  : 1.45  Perl 5.26.0 (2017-05-30)
+
 ## [0.3.20] - 2026-09-05
 ### Changed
 - Added support for building packages in FreeBSD environments.

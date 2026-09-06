@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.59 $
+## - $Revision: 1.60 $
 ################################################################################
 
 use strict;
@@ -4988,7 +4988,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) =} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, q{./c 'uniq( 5, 4, 3, 1, 2, 9, 8, 7, 6 ) ='} );
     $t->has_no_exception();
     is( scalar( @{ $res } ), 9 );
     is( ${ $res }[ 0 ], 5 );
@@ -5006,7 +5006,7 @@ subtest qq{Normal (In-Proc Test)} => sub{
     $t = tests::Tester->run_blk( sub{
         $res = $c->formula( qq{uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) =} );
     } );
-    $t->exit_is( 0 );
+    $t->exit_is( 0, q{./c 'uniq( 5, 4, 3, 1, 2, 1, 3, 4, 5, 9, 8, 7, 6 ) ='} );
     $t->has_no_exception();
     is( scalar( @{ $res } ), 9 );
     is( ${ $res }[ 0 ], 5 );
