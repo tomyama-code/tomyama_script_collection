@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.60 $
+## - $Revision: 1.61 $
 ################################################################################
 
 use strict;
@@ -10,6 +10,11 @@ use warnings;
 use FindBin;            # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
+
+my $perl_ver = $];
+#print( qq{\$perl_ver="$perl_ver"\n} );    # $perl_ver="5.040003"
+my $earlier_than_v5_30 = ( $perl_ver < 5.030_000 ? 1 : 0 );
+#print( qq{\$earlier_than_v5_30 = $earlier_than_v5_30\n} );
 
 my $UV_bit_width = log( ~0 + 1 ) / log( 2 );    # perlの整数は固定幅ではないので桁溢れしない。
 #print( qq{\$UV_bit_width="$UV_bit_width"\n} );
@@ -1555,7 +1560,11 @@ subtest qq{Normal (In-Proc Test)} => sub{
     is( scalar( @{ $res } ), 3, qq{リストを受け取る} );
     is( ${ $res }[ 0 ], -18, qq{リストを受け取る} );
     is( ${ $res }[ 1 ], -46, qq{リストを受け取る} );
-    is( ${ $res }[ 2 ], -0.984000000006, qq{リストを受け取る} );
+    {
+        my $expect = -0.984000000006;
+        $expect = -0.983999999993 if( $earlier_than_v5_30 );
+        is( ${ $res }[ 2 ], $expect, qq{リストを受け取る} );
+    }
     $t->stdout_is( qq{} );
     $t->stderr_is( qq{} );
 
@@ -6229,17 +6238,21 @@ subtest qq{Require ./c} => sub {
         } );
         $t->exit_is( 0, qq{./c 'km_per_h( 1 )' --verbose} );
         $t->has_no_exception();
-        $t->stdout_is( qq{Available Units:\n} .
-                       qq{  0:  km_per_h  km/h\n} .
-                       qq{  1:  mph       mph\n} .
-                       qq{  2:  kn        kn\n} .
-                       qq{  3:  m_per_s   m/s\n} .
-                       qq{  4:  Mach      Mach\n} .
-                       qq{  5:  sol       speed_of_light\n} .
-                       qq{km_per_h( 1 ) = ( 1, 0.621371192237334, 0.539956803455723, 0.277777777777778, 0.000839207787848271, 9.26566931105978e-10 )\n} .
-                       qq{Formula: 'km_per_h( 1 ) ='\n} .
-                       qq{ Result: ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 ) [ = ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 9.3e-10 ) ]\n},
-                       qq{[Hint]行が表示されること} );
+        {
+            my $expect1 = 0.539956803455723;
+            $expect1 = 0.539956803455724 if( $earlier_than_v5_30 );
+            $t->stdout_is( qq{Available Units:\n} .
+                           qq{  0:  km_per_h  km/h\n} .
+                           qq{  1:  mph       mph\n} .
+                           qq{  2:  kn        kn\n} .
+                           qq{  3:  m_per_s   m/s\n} .
+                           qq{  4:  Mach      Mach\n} .
+                           qq{  5:  sol       speed_of_light\n} .
+                           qq{km_per_h( 1 ) = ( 1, 0.621371192237334, $expect1, 0.277777777777778, 0.000839207787848271, 9.26566931105978e-10 )\n} .
+                           qq{Formula: 'km_per_h( 1 ) ='\n} .
+                           qq{ Result: ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 0.00000000093 ) [ = ( 1, 0.621371192237, 0.539956803456, 0.277777777778, 0.000839207788, 9.3e-10 ) ]\n},
+                           qq{[Hint]行が表示されること} );
+        }
         $t->stderr_is( qq{} );
 
         $t = tests::Tester->run_blk( sub{

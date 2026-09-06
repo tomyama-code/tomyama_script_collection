@@ -7,6 +7,22 @@
 ### Changed
 - xxx
 
+## [0.3.22] - 2026-09-07
+### Changed
+- Made it compatible with older Perl environments.
+  - Test environments where operation was verified
+    (* indicates environments added this time)
+    - Windows 10 Cygwin  perl: v5.40.3
+    - CentOS 9 Stream    perl: v5.32.1
+    - Android Termux     perl: v5.42.0
+    - KNOPPIX V9.1       perl: v5.32.1
+    - KNOPPIX V8.6.1     perl: v5.28.1 *
+    - KNOPPIX V7.6.1     perl: v5.22.1 *
+    - FreeBSD 15.1       perl: v5.42.3
+- Only the test cases were modified.
+  - tests/c.t [1.61]:
+    - Changed the expected values ​​for some test cases on versions of Perl older than v5.30.0.
+
 ## [0.3.21] - 2026-09-06
 ### Changed
 - `c` [1.05.030]:
