@@ -3,7 +3,7 @@
 ## tsc_bin_path.pl -- Prints the installation path or project root directory.
 ##
 ## - Version: 1
-## - $Revision: 1.4 $
+## - $Revision: 1.6 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -13,6 +13,7 @@
 ## All rights reserved.
 ################################################################################
 
+use 5.014_000;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use FindBin;                        # first released with perl 5.00307
@@ -73,6 +74,9 @@ $ tsc_bin_path.pl [I<OPTIONS...>]
 =back
 
 =head1 DEPENDENCIES
+
+The minimum version of Perl required to run this script is Perl 5.14.0 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
 

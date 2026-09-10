@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.40 $
+## - $Revision: 2.41 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -16,6 +16,7 @@
 ## All rights reserved.
 ################################################################################
 
+use 5.008_009;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
@@ -194,7 +195,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.40 $};
+    my $rev = q{$Revision: 2.41 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1222,6 +1223,9 @@ Change the time zone only for the duration of execution: (shell feature)
 =back
 
 =head1 DEPENDENCIES
+
+The minimum version of Perl required to run this script is Perl 5.8.9 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.11 $
+## - $Revision: 1.12 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -133,7 +133,7 @@ subtest 'In-Proc Test' => sub{
                 $status = pl_main( '--datafile=Non-existent-file' );
             } );
             $t->has_exception( q{./timezone_id --datafile=Non-existent-file} );
-            $t->exception_like( qr/^Non\-existent\-file: could not open file: No such file or directory at /, 'データファイルのオープンに失敗させる' );
+            $t->exception_like( qr/^Non\-existent\-file: could not open file: /, 'データファイルのオープンに失敗させる' );
             $t->stdout_is( qq{} );
             $t->stderr_is( qq{} );
 
@@ -155,7 +155,7 @@ subtest 'In-Proc Test' => sub{
                 $status = pl_main( '--datafile-loc=Non-existent-file' );
             } );
             $t->has_exception( q{./timezone_id --datafile-loc=Non-existent-file} );
-            $t->exception_like( qr/^Non\-existent\-file: could not open file: No such file or directory at /, 'データファイルのオープンに失敗させる' );
+            $t->exception_like( qr/^Non\-existent\-file: could not open file: /, 'データファイルのオープンに失敗させる' );
             $t->stdout_is( qq{} );
             $t->stderr_is( qq{} );
 

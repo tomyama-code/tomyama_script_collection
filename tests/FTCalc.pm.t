@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 #use lib '.';
-use FindBin;            # first released with perl 5.00307
+use FindBin;                        # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
@@ -88,7 +88,7 @@ subtest 'コンストラクタ: 異常系のテスト' => sub{
     $t = tests::Tester->run_blk( sub{
         my $c = FTCalc->new();
     } );
-    ok( defined( $t->exception ), 'open3で正しく例外（die）が発生すること' );
+    ok( defined( $t->exception() ), 'open3で正しく例外（die）が発生すること' );
     $t->exception_like(
         qr/FTCalc: _FtcOpen3\(\): Failed to start /,
         '例外メッセージにエラーキーワードが含まれていること'
@@ -342,7 +342,20 @@ subtest '基本的な数式計算' => sub{
         };
         is( $stdout, qq{Formula: "２ ＰＩ １０"\n Result: 62.8318530718\n}, '計算式と結果が出力できていること' );
         is( $stderr, "", 'STDERR is silent.' );
-        is( $pi_res, 62.8318530718, '全角文字を含む計算が成功すること');
+        is( $pi_res, 62.8318530718, '日本語全角文字を含む計算が成功すること');
+
+#        # 呼び出し元で use utf8; が使われている事を疑似的に再現
+#        my $expr = '２ ＰＩ １０';
+#        my $stdout_expect = qq{Formula: "２ ＰＩ １０"\n Result: 62.8318530718\n};
+#        # 強制的に「UTF-8フラグ付き」にアップグレードする
+#        utf8::upgrade( $expr );
+#        utf8::upgrade( $stdout_expect );
+#        ( $stdout, $stderr ) = capture{
+#            $pi_res = $c->formula( $expr );
+#        };
+#        is( $stdout, $stdout_expect, '計算式と結果が出力できていること' );
+#        is( $stderr, "", 'STDERR is silent.' );
+#        is( $pi_res, 62.8318530718, '日本語全角文字を含む計算が成功すること');
 
         ( $stdout, $stderr ) = capture{
             undef( $c );    # re-generate-c-3 はここで消える

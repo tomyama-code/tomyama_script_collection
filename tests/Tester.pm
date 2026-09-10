@@ -1,12 +1,12 @@
 package tests::Tester;
 ################################################################################
-## - $Revision: 1.12 $
+## - $Revision: 1.14 $
 ################################################################################
 
-use strict;                     # first released with perl 5
-use warnings;                   # first released with perl v5.6.0
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
-use Exporter 'import';          # first released with perl 5
+use Exporter 'import';              # first released with perl 5
 our @EXPORT = qw(capture dies
     done_testing
     subtest
@@ -19,14 +19,14 @@ our @EXPORT = qw(capture dies
     unlike
 );
 
-use Carp qw();                  # first released with perl 5
-use Test::More qw();            # first released with perl v5.6.2
-                                # done_testing(), subtest(), ...
+use Carp qw();                      # first released with perl 5
+use Test::More qw();                # first released with perl v5.6.2
+                                    # done_testing(), subtest(), ...
 
-use File::Temp qw();            # first released with perl v5.6.1
+use File::Temp qw();                # first released with perl v5.6.1
 
-use FindBin;                    # first released with perl 5.00307
-use Cwd qw();                   # first released with perl 5
+use FindBin;                        # first released with perl 5.00307
+use Cwd qw();                       # first released with perl 5
 
 ## --- テスト対象のコード内でexitさせない ---
 #
@@ -332,7 +332,7 @@ sub has_exception( $;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    return Test::More::ok( defined( $self->exception ), $msg );
+    return Test::More::ok( defined( $self->{exception} ), $msg );
 }
 
 sub has_no_exception( $;$ )
@@ -344,7 +344,13 @@ sub has_no_exception( $;$ )
     # 呼出元の行番号を Test::More に正しく報告するためのマジック
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    return Test::More::ok( !defined( $self->exception ), $msg );
+    my $res = Test::More::ok( !defined( $self->{exception} ), $msg );
+
+    if( $res == 0 ){
+        print( qq{exception="$self->{exception}"\n} );
+    }
+
+    return $res;
 }
 
 sub stdout_is( $$;$ )
@@ -443,9 +449,6 @@ sub stderr_unlike( $$;$ )
 sub exception( $ )
 {
     my( $self ) = @_;
-
-    # 呼出元の行番号を Test::More に正しく報告するためのマジック
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     return $self->{exception};
 }

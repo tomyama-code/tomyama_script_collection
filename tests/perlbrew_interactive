@@ -1,0 +1,221 @@
+#!/usr/bin/env perl
+################################################################################
+## - $Revision: 1.1 $
+################################################################################
+
+use strict;
+use warnings;
+
+sub pl_main( @ )
+{
+    if( check_perlbrew() ){
+        my $msg =
+            qq{perlbrew was not found.\n} .
+            qq{You need to install it and source it in ~/.bash_profile.\n};
+        die( $msg );
+    }
+
+    perlbrew_use_selector();
+
+    return 0;
+}
+
+sub check_perlbrew()
+{
+    `which perlbrew >/dev/null 2>&1`;
+    my $exit_status = $? >> 8;
+    #print( qq{\$exit_status = $exit_status\n} );
+    return $exit_status;
+}
+
+sub perlbrew_install_selector()
+{
+    my @available_flag = ();
+    my @available_label = ();
+    perlbrew_exec( \@available_flag, \@available_label, 'available' );
+
+    print( qq{\n} );
+    my $available_label_len = scalar( @available_label );
+    for( my $idx=0; $idx<$available_label_len; $idx++ ){
+        my $flag  = $available_flag[ $idx ];
+        my $label = $available_label[ $idx ];
+        printf( qq{  %1s $label\n}, $flag );
+    }
+    print( qq{  q: quit\n} );
+
+    my $exit_status = 0;
+    while( 1 ){
+        my $menu_item = get_menu_item( 'Which version do you want to install?' );
+        if( $menu_item eq 'q' ){
+            print( qq{bye!\n} );
+        }elsif( $menu_item =~ m/^perl-5\.\d+\.\d+$/o ){
+            $exit_status = shell_exec( undef, 'perlbrew', 'install', $menu_item, '--notest' );
+        }else{
+            print( qq{"$menu_item": Unknown selection\n} );
+            next;
+        }
+
+        last;
+    }
+
+    return $exit_status;
+}
+
+sub perlbrew_use_selector()
+{
+    my @list_flag = ();
+    my @list_label = ();
+    perlbrew_exec( \@list_flag, \@list_label, 'list' );
+
+    print( qq{\n} );
+    print( qq{   0: off\n} );
+    my $list_label_len = scalar( @list_label );
+    my $menu_no_max = $list_label_len;
+    my $menu_no = 0;
+    for( my $idx=0; $idx<$list_label_len; $idx++ ){
+        my $flag  = $list_flag[ $idx ];
+        my $label = $list_label[ $idx ];
+        $menu_no = $idx + 1;
+        printf( qq{  %2d: %1s $label\n}, $menu_no, $flag );
+    }
+    print( qq{   a: List perls available to install\n} );
+    print( qq{   q: quit\n} );
+
+    while( 1 ){
+        my $menu_no = get_menu_item( 'Select from the menu' );
+        #print( qq{\$menu_no = "$menu_no"\n} );
+
+        if( $menu_no =~ m/^q/o ){
+            print( qq{bye!\n} );
+        }elsif( $menu_no =~ m/^a/o ){
+            perlbrew_install_selector();
+        }elsif( $menu_no =~ m/^[a-z]/o ){
+            print( qq{"$menu_no": Unknown selection\n} );
+            next;
+        }elsif( $menu_no == 0 ){
+            my $msg = qq{\n} .
+                      qq{# If you want to disable perlbrew's intervention:\n} .
+                      qq{  } . get_cmd_str( 'exit' ) . qq{\n};
+            print( $msg );
+        }elsif( 0 < $menu_no && $menu_no <= $menu_no_max ){
+            my $menu_no_clean = int( $menu_no );
+            if( $menu_no_clean != $menu_no ){
+                print( qq{"$menu_no": Enter an integer.\n} );
+                next;
+            }
+            my $perlbrew_id = $list_label[ $menu_no - 1 ];
+            $perlbrew_id =~ s/\r?\n$//o;
+            $perlbrew_id =~ s/^[ \*]+([^ ]+).*$/$1/o;
+            #print( qq{\$perlbrew_id = "$perlbrew_id"\n} );
+            my $msg = qq{\n} .
+                      qq{# If you want to switch Perl versions:\n} .
+                      qq{  } . get_cmd_str( 'perlbrew', 'use', $perlbrew_id ) . qq{\n} .
+                      qq{# If you want to uninstall:\n} .
+                      qq{  } . get_cmd_str( 'perlbrew', 'uninstall', $perlbrew_id ) . qq{\n};
+            print( $msg );
+        }else{
+            print( qq{'$menu_no': Unknown selection\n} );
+            next;
+        }
+
+        last;
+    }
+}
+
+sub get_cmd_str( @ )
+{
+    my @cmds = @_;
+    my @args = @cmds;
+    my $cmd = shift( @args );
+    my $args_len = scalar( @args );
+    for( my $idx=0; $idx<$args_len; $idx++ ){
+        $args[ $idx ] = qq{'$args[ $idx ]'};
+    }
+    my $cmd_str = "$cmd " . join( ' ', @args );
+    return $cmd_str;
+}
+
+sub perlbrew_exec( $$@ )
+{
+    my $ref_sign = shift( @_ );
+    my $ref_label = shift( @_ );
+    my @args = @_;
+
+    my @shell_stdout = ();
+    my $exit_status = shell_exec( \@shell_stdout, 'perlbrew', @args );
+    for my $line( @shell_stdout ){
+        $line =~ s/\r?\n$//o;
+        $line =~ s/^\s*(.*)\s*$/$1/o;
+
+        my $sign = '';
+        my $label = '';
+        if( $line =~ m/^([^\s]*)\s+(.*)$/o ){
+            #print( qq{\$1="$1", \$2="$2"\n} );
+            if( $2 eq '' ){
+                $label = $1;
+            }else{
+                $sign = $1;
+                $label = $2;
+            }
+            #print( qq{\$sign="$sign", \$label="$label"\n} );
+        }
+        push( @$ref_sign, $sign );
+        push( @$ref_label, $label );
+    }
+    return $exit_status;
+}
+
+sub shell_exec( $@ )
+{
+    my $ref_stdout = shift( @_ );
+    my @cmds = @_;
+
+    my $cmd_str = get_cmd_str( @cmds );
+    print( qq{\n  \$ $cmd_str\n} );
+
+    @$ref_stdout = () if( defined( $ref_stdout ) );
+
+    open( CMD_HANDLE, '-|', @cmds ) ||
+        die( qq{Command execution failed: $!} );
+    if( defined( $ref_stdout ) ){
+        @$ref_stdout = <CMD_HANDLE>;
+    }else{
+        local $| = 1;
+        while( <CMD_HANDLE> ){
+            my $line = $_;
+            $line =~ s/\r?\n$//o;
+            print( qq{$line\n} );
+        }
+    }
+    close( CMD_HANDLE );
+    my $exit_status = $? >> 8;
+
+    return $exit_status;
+}
+
+sub get_menu_item( $ )
+{
+    my( $prompt ) = @_;
+
+    local $| = 1;
+    print( qq{$prompt: } );
+
+    # vec(ビットベクトル)を作成して STDIN(ファイル記述子0)をセット
+    my $rin = '';
+    vec( $rin, fileno( STDIN ), 1 ) = 1;
+    # select(読込待ちベクトル, 書込待ち, 例外待ち, タイムアウト秒)
+    my $line = '';
+    my $wait_sec = undef;
+    my $nfound = select( my $rout = $rin, undef, undef, $wait_sec );
+    if( $nfound > 0 ){
+        # 入力があった場合、内容を確認
+        $line = <STDIN>;
+        $line =~ s/\r?\n$//o;
+        $line =~ s/^\s*(.*)\s*$/$1/o;
+        my $op = lc( $line );
+        return $op;
+    }
+    return undef;
+}
+
+exit( pl_main( @ARGV ) ) unless caller();

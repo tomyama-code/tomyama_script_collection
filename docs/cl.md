@@ -87,6 +87,9 @@ Use the included timezone\_id.
 
 # DEPENDENCIES
 
+The minimum version of Perl required to run this script is Perl 5.8.9 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
+
 This script uses only **core Perl modules**. No external modules from CPAN are required.
 
 ## Core Modules Used

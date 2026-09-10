@@ -7,6 +7,27 @@
 ### Changed
 - xxx
 
+## [0.3.23] - 2026-09-11
+### Changed
+- Added minimum Perl version requirements.
+  - FTCalc.pm       : use 5.022_000;
+  - c               : use 5.022_000;
+  - cl              : use 5.008_009;
+  - domsort         : use 5.014_000;
+  - fill            : use 5.014_000;
+  - holiday         : use 5.014_000;
+  - mark            : use 5.014_000;
+  - timezone_id     : use 5.014_000;
+  - tsc_bin_path.pl : use 5.014_000;
+- `FTCalc.pm` [1.19]:
+  - Fixed an issue where calculations could not be performed when `use utf8` was enabled in the calling code and a formula containing full-width characters was passed.
+- Note: The Perl version in the Cygwin environment has been updated from v5.40.3 to v5.44.0.
+  - Consequently, Perl v5.44 has been added to the test environment starting with this release.
+
+### Added
+- `tests/perlbrew_interactive`:
+  - A wrapper script for invoking frequently used perlbrew patterns.
+
 ## [0.3.22] - 2026-09-07
 ### Changed
 - Made it compatible with older Perl environments.

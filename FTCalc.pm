@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.15 $
+## - $Revision: 1.19 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -48,8 +48,10 @@ A module that provides an API for manipulating the calculation script "c".
 =cut
 
 package FTCalc;
+use 5.022_000;      # Support level equivalent to Flat-Text Calc
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
+use bytes;          # インプロセス実行による上位からの use utf8 の伝搬を防止
 use Carp qw();                      # first released with perl 5
 use IPC::Open3 qw();                # first released with perl 5
 use Symbol 'gensym';                # first released with perl 5.002
@@ -284,9 +286,10 @@ sub formula( $$;$ )
             $self->_printf( qq{Formula: "$expr"\n} );
         }
     }
-
+#use Encode;
     # c スクリプトの標準入力に計算式を書き込む
     my $fh_in = $self->{c_in};
+    #binmode( $fh_in, ":utf8" );
     print $fh_in ( "$expr\n" );
 
     # c スクリプトからの結果を読み込む（計算結果は最後の1行）
@@ -570,9 +573,11 @@ sub _clr_action_flag( $ )
 sub _print( $@ )
 {
     my( $self, @args ) = @_;
+
     # 出力する「その瞬間だけ」一時的に有効にする
     # 呼び出し元のハンドルまで汚染しない
     local $| = ( ( $self->{autoflush} ) ? 1 : 0 );
+
     print( @args );
 }
 
@@ -587,9 +592,11 @@ sub _vPrint( $@ )
 sub _printf( $$;@ )
 {
     my( $self, $format, @args ) = @_;
+
     # 出力する「その瞬間だけ」一時的に有効にする
     # 呼び出し元のハンドルまで汚染しない
     local $| = ( ( $self->{autoflush} ) ? 1 : 0 );
+
     printf( $format, @args );
 }
 
@@ -621,6 +628,9 @@ sub _get_my_path()
 __END__
 
 =head1 DEPENDENCIES
+
+The minimum version of Perl required to run this script is Perl 5.22 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
 

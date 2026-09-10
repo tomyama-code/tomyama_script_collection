@@ -1,13 +1,13 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.61 $
+## - $Revision: 1.63 $
 ################################################################################
 
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
 #use lib '.';
-use FindBin;            # first released with perl 5.00307
+use FindBin;                        # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Tester;
 
@@ -72,43 +72,16 @@ my $deg_Showa_Base     = "$deg_Showa_Base_Lat, $deg_Showa_Base_Lon";
 my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 
 ## $ ./tests/c.test.pl
-#subtest qq{Normal (In-Proc Test)} => sub{
-#    my $c = FTCalc->new();
+#subtest qq{Normal (Ex-Proc Test)} => sub{
 #    my $t;
-#    my $res;
 #
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{the_solar_system( 1, -0.1 )} );
-#    } );
-#    $t->exit_isnt( 0, qq{./c 'the_solar_system( 1, -0.1 )'} );
-#    $t->has_exception();
-#    $t->exception_like( qr/\nFTCalc: error: \[FATAL\] Calculation failed / );
-#    $t->stdout_is( qq{} );
-#    $t->stderr_like( qr/^c: evaluator: error: the_solar_system\(\): \$celestial_body\[=\-0\.1\] is out of range\./ );
-#
-#    $t = tests::Tester->run_blk( sub{
-#        $res = $c->formula( qq{mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )} );
-#    } );
-#    $t->exit_is( 0, qq{./c 'mul_each( round( normalize_ratio( the_solar_system( radius, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto ) ), 2 ), 100 )'} );
-#    $t->has_no_exception();
-#    is( scalar( @{ $res } ), 10, qq{Ratios calculated relative to the smallest body, scaled to 100.} );
-#    is( ${ $res }[ 0 ], 58546, qq{太陽  : 58546} );
-#    is( ${ $res }[ 1 ],   205, qq{水星  :   205} );
-#    is( ${ $res }[ 2 ],   509, qq{金星  :   509} );
-#    is( ${ $res }[ 3 ],   537, qq{地球  :   537} );
-#    is( ${ $res }[ 4 ],   286, qq{火星  :   286} );
-#    is( ${ $res }[ 5 ],  6016, qq{木星  :  6016} );
-#    is( ${ $res }[ 6 ],  5072, qq{土星  :  5072} );
-#    is( ${ $res }[ 7 ],  2151, qq{天王星:  2151} );
-#    is( ${ $res }[ 8 ],  2084, qq{海王星:  2084} );
-#    is( ${ $res }[ 9 ],   100, qq{冥王星:   100} );
-#    $t->stdout_is( qq{} );
+#    $t = tests::Tester->run_cmd( qq{./c 'ニュートン→キログラム重( 17 )'} );
+#    $t->exit_is( 0, qq{./c 'ニュートン→キログラム重( 17 )'} );
+#    $t->stdout_is( qq{1.73351756206\n} );
 #    $t->stderr_is( qq{} );
 #
 #};
-#done_testing();
-#exit( 0 );
-#subtest qq{Script Structure} => sub{
+#subtest qq{Normal (In-Proc Test 1)} => sub{
 #
 #    require './c';
 #
@@ -116,71 +89,26 @@ my $dms_Showa_Base = "-69, 0, -15.8040000000028, 39, 34, 55.920000000001";
 #    my $status;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = pl_main( 'the_solar_system()', '--verbose' );
+#        $status = pl_main( 'ニュートン→キログラム重( 17 )' );
 #    } );
-#    $t->exit_is( 0, qq{./c 'the_solar_system()' --verbose} );
+#    $t->exit_is( 0, qq{./c 'ニュートン→キログラム重( 17 )'} );
 #    $t->has_no_exception();
-#    $t->stdout_is( qq{[Hint] Return list format: (\n} .
-#                   qq{  0: radius [km],\n} .
-#                   qq{  1: mass [kg],\n} .
-#                   qq{  2: orbital_inclination_angle [DEG],\n} .
-#                   qq{  3: orbital_eccentricity,\n} .
-#                   qq{  4: orbit_semi_major_axis [au],\n} .
-#                   qq{  5: surface_gravity [m/s2],\n} .
-#                   qq{  6: orbital_period,\n} .
-#                   qq{  7: rotation_period [day],\n} .
-#                   qq{  8: number_of_satellites )\n} .
-#                   qq{[Hint] Selectable celestial bodies: (\n} .
-#                   qq{  0: Sun,\n} .
-#                   qq{  1: Mercury,\n} .
-#                   qq{  2: Venus,\n} .
-#                   qq{  3: Earth (default),\n} .
-#                   qq{  4: Mars,\n} .
-#                   qq{  5: Jupiter,\n} .
-#                   qq{  6: Saturn,\n} .
-#                   qq{  7: Uranus,\n} .
-#                   qq{  8: Neptune,\n} .
-#                   qq{  9: Pluto,\n} .
-#                   qq{ 10: Ceres,\n} .
-#                   qq{ 11: Haumea,\n} .
-#                   qq{ 12: Makemake,\n} .
-#                   qq{ 13: Eris )\n} .
-#                   qq{the_solar_system(  ) = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 )\n} .
-#                   qq{Formula: 'the_solar_system( ) ='\n} .
-#                   qq{ Result: ( 6378.137, 5972299999999999636144128, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) [ = ( 6378.137, 5.9723e+24, 0, 0.0167, 1, 9.798, 1, 0.997271, 1 ) ]\n},
-#                   qq{[Hint]行が表示されること} );
+#    $t->stdout_is( qq{1.73351756206\n} );
 #    $t->stderr_is( qq{} );
+#};
+#subtest qq{Normal (In-Proc Test 2)} => sub{
+#    my $c = FTCalc->new();
+#    my $t;
+#    my $res;
 #
 #    $t = tests::Tester->run_blk( sub{
-#        $status = pl_main( 'the_solar_system( radius )', '--verbose' );
+#        $res = $c->formula( qq{ニュートン→キログラム重( 17 )} );
 #    } );
-#    $t->exit_is( 0, qq{./c 'the_solar_system( radius )' --verbose} );
+#    $t->exit_is( 0, qq{Alias for newton2kgf()} );
 #    $t->has_no_exception();
-#    $t->stdout_is( qq{the_solar_system( 0 ) = 6378.137\n} .
-#                   qq{Formula: 'the_solar_system( 0 ) ='\n} .
-#                   qq{ Result: 6378.137\n},
-#                   qq{[Hint]行が表示されないこと} );
+#    is( $res, 1.73351756206, qq{ニュートン→キログラム重( 17 ) => 1.73351756206} );
+#    $t->stdout_is( qq{} );
 #    $t->stderr_is( qq{} );
-#
-#};
-#done_testing();
-#exit( 0 );
-#subtest qq{Normal (Ex-Proc Test)} => sub{
-#    my $t;
-#
-#    ## Begin: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
-#    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
-#    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.49, l2e( 2026, 1, 19 ) )' -v} );
-#    $t->stdout_like( qr/\n  ...0:::::::::::...  Age: 29 \( rounded \)\n/ );
-#    $t->stderr_is( qq{} );
-#    undef( $t );
-#
-#    $t = tests::Tester->run_cmd( qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
-#    $t->exit_is( 0, qq{./c 'get_next_moon_age_epoch( 29.50, l2e( 2026, 1, 19 ) )' -v} );
-#    $t->stdout_like( qr/\n  ...::::::::::::...  Age: 0 \( rounded \)\n/ );
-#    $t->stderr_is( qq{} );
-#    undef( $t );
-#    ##   End: print_moon_age_AA_if_necessary( MOON_AGE ) のテスト
 #
 #};
 #done_testing();

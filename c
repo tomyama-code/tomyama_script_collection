@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.30 $
+## - $Revision: 5.33 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.30 $};
+    my $rev = q{$Revision: 5.33 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -5874,6 +5874,7 @@ sub GetBPrintUserDefined( $ )
 
 package main;
 
+use 5.022_000;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
@@ -8692,6 +8693,9 @@ Area of ​​A5 size:
 =back
 
 =head1 DEPENDENCIES
+
+The minimum version of Perl required to run this script is Perl 5.22 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
 

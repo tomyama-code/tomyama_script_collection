@@ -2637,6 +2637,9 @@ The **c** script was created with the following in mind:
 
 # DEPENDENCIES
 
+The minimum version of Perl required to run this script is Perl 5.22 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
+
 This script uses only **core Perl modules**. No external modules from CPAN are required.
 
 ## Core Modules Used

@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.22 $
+## - $Revision: 2.23 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -15,6 +15,7 @@
 ## All rights reserved.
 ################################################################################
 
+use 5.014_000;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
@@ -573,7 +574,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.22 $};
+    my $rev = q{$Revision: 2.23 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -737,6 +738,9 @@ Display simple help and exit.
   $ ls -tr /var/log/messages.?.gz | xargs gzip -dc | mark -ihf 10 'error' - /var/log/messages > /tmp/report.txt
 
 =head1 DEPENDENCIES
+
+The minimum version of Perl required to run this script is Perl 5.14.0 or later.
+If run on an older version, it will terminate safely with an error (specifically, a compilation error).
 
 This script uses only B<core Perl modules>. No external modules from CPAN are required.
 
