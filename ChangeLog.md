@@ -4,8 +4,12 @@
 ### Added
 - xxx
 
+## [0.3.24] - 2026-09-13
 ### Changed
-- xxx
+- `FTCalc.pm` [1.23]
+  - Changed to use a locally prepared handle instead of STDOUT or STDERR when outputting wide strings.
+- `tsc_bin_path.pl` [1.8]
+  - To account for the possibility of wide characters being output, I added the `use bytes;` declaration and modified the code to use `syswrite()`, which bypasses the `:utf8` output layer.
 
 ## [0.3.23] - 2026-09-11
 ### Changed

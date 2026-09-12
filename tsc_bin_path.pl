@@ -3,7 +3,7 @@
 ## tsc_bin_path.pl -- Prints the installation path or project root directory.
 ##
 ## - Version: 1
-## - $Revision: 1.6 $
+## - $Revision: 1.8 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -16,6 +16,7 @@
 use 5.014_000;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
+use bytes;                          # first released with perl v5.6.0
 use FindBin;                        # first released with perl 5.00307
 use Pod::Text;                      # first released with perl 5.002
 
@@ -40,7 +41,8 @@ if( defined( $ARGV[ 0 ] ) ){
     }
 }
 
-print( $mypath );
+# :utf8 などの出力レイヤー（自動変換機能）を通らないsyswrite()で出力
+syswrite( STDOUT, $mypath );
 exit( 0 );
 __END__
 
@@ -83,6 +85,8 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 =head2 Core Modules Used
 
 =over 4
+
+=item * L<bytes> - first released with perl v5.6.0
 
 =item * L<FindBin> - first included in perl 5.00307
 

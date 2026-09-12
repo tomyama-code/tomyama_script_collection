@@ -47,7 +47,7 @@ sh_main()
         targets="$targets $bname"
 
         #"$apppath/prt" -e "$bname: "
-        printf '%-8s: ' "$bname"
+        printf '%-15s: ' "$bname"
 
         test_log="$tname.log"
         "./$tname" >"$test_log"

@@ -100,7 +100,7 @@ A module that provides an API for manipulating the calculation script "c".
     Get the default value of the module.
     Returns a hash keyed by the setting name.
 
-        my %def_val = &FTCalc::get_default_value();
+        my %def_val = FTCalc::get_default_value();
         printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );         # def_autoflush is 1
         printf( qq{def_timeout is %f\n}, $def_val{def_timeout} );             # def_timeout is 0.500000
         printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
@@ -116,7 +116,7 @@ A module that provides an API for manipulating the calculation script "c".
         $def_val{def_timeout} = 3.0;
         $def_val{def_b_verbose} = 1;
         $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
-        &FTCalc::set_default_value( %def_val );
+        FTCalc::set_default_value( %def_val );
 
 # DEPENDENCIES
 
@@ -127,8 +127,10 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 ## Core Modules Used
 
+- [bytes](https://metacpan.org/pod/bytes) — first released with perl v5.6.0
 - [Carp](https://metacpan.org/pod/Carp) — first released with perl 5
 - [constant](https://metacpan.org/pod/constant) — first included in perl 5.004
+- [Encode](https://metacpan.org/pod/Encode) — first released with perl v5.7.3
 - [File::Basename](https://metacpan.org/pod/File%3A%3ABasename) — first included in perl 5
 - [IO::Select](https://metacpan.org/pod/IO%3A%3ASelect) — first released with perl 5.00307
 - [IPC::Open3](https://metacpan.org/pod/IPC%3A%3AOpen3) — first included in perl 5

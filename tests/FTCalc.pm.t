@@ -1,6 +1,11 @@
 #!/usr/bin/env perl
+################################################################################
+## - $Revision: 1.2 $
+################################################################################
+
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
+use bytes;                          # first released with perl v5.6.0
 
 #use lib '.';
 use FindBin;                        # first released with perl 5.00307
@@ -95,6 +100,28 @@ subtest 'コンストラクタ: 異常系のテスト' => sub{
     );
     $t->stdout_is( "_FtcOpen3(): _FTC_FAIL_OPEN3\n", 'テストの前提条件を満たしていること' );
     $t->stderr_is( "", 'STDERR is silent.' );
+    undef( $t );
+
+    FTCalc::_set_action_flag( _FTC_FAIL_OPEN_STDOUT );
+    $t = tests::Tester->run_blk( sub{
+        my $c = FTCalc->new();
+    } );
+    $t->has_exception( '出力関数で正しく例外（die）が発生すること' );
+    $t->exception_like( qr/^Cannot dupe STDOUT: / );
+    $t->stdout_like( qr/^FTCalc: DESTROY: Terminate the c script: pid=/ );
+    $t->stderr_is( "" );
+    undef( $t );
+
+    FTCalc::_set_action_flag( _FTC_FAIL_OPEN_STDERR );
+    $t = tests::Tester->run_blk( sub{
+        my $c = FTCalc->new();
+    } );
+    $t->has_exception( '出力関数で正しく例外（die）が発生すること' );
+    $t->exception_like( qr/^Cannot dupe STDERR: / );
+    $t->stdout_like( qr/^FTCalc: CONSTRACT: Connected the c script: pid=/ );
+    $t->stderr_is( "" );
+    undef( $t );
+
 };
 
 # --------------------------------------------------------
@@ -232,7 +259,7 @@ subtest '基本的な数式計算' => sub{
         '例外メッセージが正しく出力されていること'
     );
     is( $stdout, qq{Formula: "round( pi )"\n}, '計算式だけ出力されていること' );
-    like( $stderr, qr/^c: evaluator: error: round\(\): / );
+    like( $stderr, qr/^c: evaluator: error: round\(\): /, '意図したとおりのエラー出力であること' );
 
 # --------------------------------------------------------
 # 複雑な書式を返す式の検証
@@ -344,18 +371,29 @@ subtest '基本的な数式計算' => sub{
         is( $stderr, "", 'STDERR is silent.' );
         is( $pi_res, 62.8318530718, '日本語全角文字を含む計算が成功すること');
 
-#        # 呼び出し元で use utf8; が使われている事を疑似的に再現
-#        my $expr = '２ ＰＩ １０';
-#        my $stdout_expect = qq{Formula: "２ ＰＩ １０"\n Result: 62.8318530718\n};
-#        # 強制的に「UTF-8フラグ付き」にアップグレードする
-#        utf8::upgrade( $expr );
-#        utf8::upgrade( $stdout_expect );
-#        ( $stdout, $stderr ) = capture{
-#            $pi_res = $c->formula( $expr );
+        # 呼び出し元で use utf8; が使われている事を疑似的に再現
+        my $expr = '３ ＰＩ １０';
+        my $stdout_expect = qq{Formula: "３ ＰＩ １０"\n Result: 94.2477796077\n};
+        my $is_flagged_str = 1;
+        # もし生のUTF-8バイト列（フラグなし）であれば
+        if( !utf8::is_utf8( $expr ) ){
+            $is_flagged_str = 0;
+            # 「UTF-8フラグ付き」に変換する
+            $expr = Encode::decode( 'utf8', $expr );
+        }
+        ok( $is_flagged_str == 0, 'UTF-8フラグ付き文字列ではない' );
+        ( $stdout, $stderr ) = capture{
+            $pi_res = $c->formula( $expr );
+        };
+#        my $exception = '';
+#        ( $stdout, $stderr, $exception ) = capture{
+#            return dies{
+#                $pi_res = $c->formula( $expr );
+#            };
 #        };
-#        is( $stdout, $stdout_expect, '計算式と結果が出力できていること' );
-#        is( $stderr, "", 'STDERR is silent.' );
-#        is( $pi_res, 62.8318530718, '日本語全角文字を含む計算が成功すること');
+        is( $stdout, $stdout_expect, '計算式と結果が出力できていること' );
+        is( $stderr, "", 'STDERR is silent.' );
+        is( $pi_res, 94.2477796077, 'フラグ付きUTF-8の計算式が成功すること');
 
         ( $stdout, $stderr ) = capture{
             undef( $c );    # re-generate-c-3 はここで消える

@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.15 $
+## - $Revision: 1.16 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -338,7 +338,7 @@ use constant STR_CHAR_CODE => 'utf8';
 sub utf82perlstr( $ )
 {
     my( $octets  ) = @_;
-    return Encode::decode( STR_CHAR_CODE, $octets  );
+    return Encode::decode( STR_CHAR_CODE, $octets );
 #    return $octets;
 }
 
@@ -377,7 +377,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.15 $};
+    my $rev = q{$Revision: 1.16 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }

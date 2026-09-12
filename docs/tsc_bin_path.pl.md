@@ -31,6 +31,7 @@ This script uses only **core Perl modules**. No external modules from CPAN are r
 
 ## Core Modules Used
 
+- [bytes](https://metacpan.org/pod/bytes) - first released with perl v5.6.0
 - [FindBin](https://metacpan.org/pod/FindBin) - first included in perl 5.00307
 - [Pod::Text](https://metacpan.org/pod/Pod%3A%3AText) - first included in perl 5.002
 - [strict](https://metacpan.org/pod/strict) — first included in perl 5

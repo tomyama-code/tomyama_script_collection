@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.19 $
+## - $Revision: 1.23 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -51,7 +51,8 @@ package FTCalc;
 use 5.022_000;      # Support level equivalent to Flat-Text Calc
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
-use bytes;          # インプロセス実行による上位からの use utf8 の伝搬を防止
+use bytes;                          # first released with perl v5.6.0
+use Encode qw();                    # first released with perl v5.7.3
 use Carp qw();                      # first released with perl 5
 use IPC::Open3 qw();                # first released with perl 5
 use Symbol 'gensym';                # first released with perl 5.002
@@ -59,9 +60,11 @@ use Symbol 'gensym';                # first released with perl 5.002
 use IO::Select;                     # first released with perl 5.00307
 use Scalar::Util qw();              # first released with perl v5.7.3
 use File::Basename qw();            # first released with perl 5
-use parent 'Exporter';
+use parent 'Exporter';              # first released with perl v5.10.1
 
 our @EXPORT = qw(
+    _FTC_FAIL_OPEN_STDOUT
+    _FTC_FAIL_OPEN_STDERR
     _FTC_FAIL_OPEN3
     _FTC_FAIL_SYSREAD_READ_ERR
     _FTC_FAIL_SYSREAD_CLOSED_STREAM
@@ -81,6 +84,12 @@ use constant FTC_FSC_FOLLOW_VERBOSE => 0x01;
 use constant FTC_FSC_OUTPUT_FORMULA => 0x10;
 use constant FTC_FSC_OUTPUT_RESULT  => 0x20;
 use constant FTC_FSC_OUTPUT_BOTH    => 0x30;
+
+use constant _FTC_FAIL_OPEN_STDOUT => 0x40;
+use constant _FTC_FAIL_OPEN_STDERR => 0x80;
+
+#local *STDOUT;
+#binmode( STDOUT, ':raw' );
 
 $main::def_autoflush = 1;
 #$main::def_timeout = 0.5;
@@ -106,7 +115,7 @@ sub new
 {
     my( $class, @opts ) = @_;
 
-    my $module_path = &_get_my_path();
+    my $module_path = _get_my_path();
     my $path_to_c = "$module_path/c";
     #print( qq{\$path_to_c="$path_to_c"\n} );
 
@@ -119,7 +128,7 @@ sub new
     # プロセス起動 (c スクリプトを実行)
     my $pid;
     eval{
-        $pid = &_FtcOpen3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
+        $pid = _FtcOpen3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     };
     if( $@ ){
         Carp::croak( "FTCalc: _FtcOpen3(): Failed to start '$path_to_c': $!" );
@@ -156,6 +165,10 @@ sub new
     $msg .= sprintf( qq{%s: CONSTRACT: timeout: %d, b_verbose: %d, formula_os=0x%02X\n},
                 __PACKAGE__, $self->_getTimeout(), $self->{b_verbose}, $self->{formula_os} );
     $self->_vPrint( $msg );
+
+    if( _get_action_flag( _FTC_FAIL_OPEN_STDERR ) ){
+        $self->_errPrint( "test\n" );
+    }
 
     return $self;
 }
@@ -268,6 +281,18 @@ Please refer to L<the c script documentation|https://github.com/tomyama-code/tom
 sub formula( $$;$ )
 {
     my( $self, $expr, $output_sel ) = @_;
+
+    # Perlフラグ付きUTF-8だったら
+    if( utf8::is_utf8( $expr ) ){
+        # 呼び出し側がutf8フラグを使っていたとしても
+        # cスクリプトは1バイト文字しか出力しない。
+        # 入力だけ処理すればよく、出力はそのまま呼び出し元に流せば良いはず。
+        # そもそもストリームにフラグ付きUTF-8を流すべきではない。
+        # これは呼び出し側にもそのまま当てはまるので
+        # 入力前にフラグを除去した計算式にしてからformula()を呼び出すべきである。
+        # ただし、救済できるケースなので、ここで救済しておくことに。
+        $expr = Encode::encode( 'utf8', $expr );
+    }
     if( !defined( $output_sel ) ){
         $output_sel = $self->_getOutputSel();
     }
@@ -286,10 +311,9 @@ sub formula( $$;$ )
             $self->_printf( qq{Formula: "$expr"\n} );
         }
     }
-#use Encode;
+
     # c スクリプトの標準入力に計算式を書き込む
     my $fh_in = $self->{c_in};
-    #binmode( $fh_in, ":utf8" );
     print $fh_in ( "$expr\n" );
 
     # c スクリプトからの結果を読み込む（計算結果は最後の1行）
@@ -314,7 +338,7 @@ sub formula( $$;$ )
         foreach my $fh( @ready ){
             my $fn = fileno( $fh );
             my $data;
-            my $bytes = &_FtcSysread( $fh, $data, 4096 );
+            my $bytes = _FtcSysread( $fh, $data, 4096 );
 
             if( !defined( $bytes ) ){
                 $self->{selector}->remove( $fh );
@@ -337,7 +361,7 @@ sub formula( $$;$ )
 
                 # 読み込んだデータをそれぞれの変数に格納
                 if( $fh == $self->{c_err} ){
-                    print STDERR ( $line . "\n" );
+                    $self->_errPrint( $line . "\n" );
                     if( $line =~ m/error: /o ){
                         $turn_completed = 1;
                         $error_occurred = 1;
@@ -398,32 +422,59 @@ sub formula( $$;$ )
     return '';
 }
 
+sub _dupe_handle_stdout( $ )
+{
+    my( undef, $mode, $orig_fh ) = @_;
+
+    if( _get_action_flag( _FTC_FAIL_OPEN_STDOUT ) ){
+        _clr_action_flag( _FTC_FAIL_OPEN_STDOUT );
+        return;
+    }
+
+    # 成功すれば真（1）、失敗すれば偽（undef）が返る
+    return open( $_[ 0 ], '>&', \*STDOUT );
+}
+
+sub _dupe_handle_stderr( $ )
+{
+    my( undef, $mode, $orig_fh ) = @_;
+
+    if( _get_action_flag( _FTC_FAIL_OPEN_STDERR ) ){
+        _clr_action_flag( _FTC_FAIL_OPEN_STDERR );
+        return;
+    }
+
+    # 成功すれば真（1）、失敗すれば偽（undef）が返る
+    return open( $_[ 0 ], '>&', \*STDERR );
+}
+
 sub _FtcOpen3( $$$@ )
 {
     my( $chld_in, $chld_out, $chld_err, $path_to_c, @opts ) = @_;
-    #open3 は子プロセスのプロセスIDを返します。
-    #失敗した場合は値を返さず、単に /^open3:/ にマッチする例外を発生させます。
-    #ただし、子プロセスでの exec の失敗は検出されません。
-    #SIGPIPE は自分で捕捉（トラップ）する必要があります。
-    if( &_get_action_flag( _FTC_FAIL_OPEN3 ) ){
-        &_clr_action_flag( _FTC_FAIL_OPEN3 );
+    #open3 は子プロセスのプロセスIDを返す。
+    #失敗した場合は値を返さず、単に /^open3:/ にマッチする例外を発生させる。
+    #ただし、子プロセスでの exec の失敗は検出されない。
+    #SIGPIPE は自分で捕捉（トラップ）する必要がある。
+    if( _get_action_flag( _FTC_FAIL_OPEN3 ) ){
+        _clr_action_flag( _FTC_FAIL_OPEN3 );
         print( qq{_FtcOpen3(): _FTC_FAIL_OPEN3\n} );
         my $msg = qq{_FtcOpen3(): open3: fail test\n};
         Carp::croak( $msg );
     }else{
-        return &IPC::Open3::open3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
+        # エラー時はdie()されるがままに委ねている
+        return IPC::Open3::open3( $chld_in, $chld_out, $chld_err, $path_to_c, @opts );
     }
 }
 
 sub _FtcSysread( *\$$;$ )
 {
     my( $_filehandle, undef, $_length ) = @_;
-    if( &_get_action_flag( _FTC_FAIL_SYSREAD_READ_ERR ) ){
-        &_clr_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
+    if( _get_action_flag( _FTC_FAIL_SYSREAD_READ_ERR ) ){
+        _clr_action_flag( _FTC_FAIL_SYSREAD_READ_ERR );
         print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_READ_ERR\n} );
         return undef;
-    }elsif( &_get_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM ) ){
-        &_clr_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
+    }elsif( _get_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM ) ){
+        _clr_action_flag( _FTC_FAIL_SYSREAD_CLOSED_STREAM );
         print( qq{_FtcSysread(): _FTC_FAIL_SYSREAD_CLOSED_STREAM\n} );
         $_filehandle->close();
         return 0;
@@ -441,7 +492,7 @@ sub _FtcSysread( *\$$;$ )
 Get the default value of the module.
 Returns a hash keyed by the setting name.
 
-  my %def_val = &FTCalc::get_default_value();
+  my %def_val = FTCalc::get_default_value();
   printf( qq{def_autoflush is %d\n}, $def_val{def_autoflush} );         # def_autoflush is 1
   printf( qq{def_timeout is %f\n}, $def_val{def_timeout} );             # def_timeout is 0.500000
   printf( qq{def_b_verbose is %d\n}, $def_val{def_b_verbose} );         # def_b_verbose is 0
@@ -473,7 +524,7 @@ Specify a hash where the setting names serve as keys.
   $def_val{def_timeout} = 3.0;
   $def_val{def_b_verbose} = 1;
   $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
-  &FTCalc::set_default_value( %def_val );
+  FTCalc::set_default_value( %def_val );
 
 =back
 
@@ -511,8 +562,8 @@ sub _setAutoflush( $$ )
 sub _getTimeout( $ )
 {
     my( $self ) = @_;
-    if( &_get_action_flag( _FTC_FAIL_ONETIME_TIMEOUT ) ){
-        &_clr_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
+    if( _get_action_flag( _FTC_FAIL_ONETIME_TIMEOUT ) ){
+        _clr_action_flag( _FTC_FAIL_ONETIME_TIMEOUT );
         print( qq{_getTimeout(): _FTC_FAIL_ONETIME_TIMEOUT\n} );
         return 0.01;
     }
@@ -574,11 +625,18 @@ sub _print( $@ )
 {
     my( $self, @args ) = @_;
 
-    # 出力する「その瞬間だけ」一時的に有効にする
-    # 呼び出し元のハンドルまで汚染しない
-    local $| = ( ( $self->{autoflush} ) ? 1 : 0 );
+    # 呼び出し元のハンドルまで汚染しないこと
+    # 出力する「その瞬間だけ」一時的に有効なハンドルを用いる
 
-    print( @args );
+    _dupe_handle_stdout( my $out ) || Carp::croak( "Cannot dupe STDOUT: $!" );
+    binmode( $out, ':raw' );
+    $out->autoflush( $self->{autoflush} );
+
+    print $out ( @args );
+
+    # 明示的にclose
+    # 書かなくても$outのスコープで自動的にcloseされる
+    $out->close();
 }
 
 sub _vPrint( $@ )
@@ -592,12 +650,8 @@ sub _vPrint( $@ )
 sub _printf( $$;@ )
 {
     my( $self, $format, @args ) = @_;
-
-    # 出力する「その瞬間だけ」一時的に有効にする
-    # 呼び出し元のハンドルまで汚染しない
-    local $| = ( ( $self->{autoflush} ) ? 1 : 0 );
-
-    printf( $format, @args );
+    my $str = sprintf( $format, @args );
+    $self->_print( $str );
 }
 
 sub _vPrintf( $$;@ )
@@ -606,6 +660,24 @@ sub _vPrintf( $$;@ )
     if( $self->{b_verbose} ){
         $self->_printf( $format, @args );
     }
+}
+
+sub _errPrint( $@ )
+{
+    my( $self, @args ) = @_;
+
+    # 呼び出し元のハンドルまで汚染しないこと
+    # 出力する「その瞬間だけ」一時的に有効なハンドルを用いる
+
+    _dupe_handle_stderr( my $err ) || Carp::croak( "Cannot dupe STDERR: $!" );
+    binmode( $err, ':raw' );
+    $err->autoflush( $self->{autoflush} );
+
+    print $err ( @args );
+
+    # 明示的にclose
+    # 書かなくても$errのスコープで自動的にcloseされる
+    $err->close();
 }
 
 sub _get_my_path()
@@ -638,9 +710,13 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
+=item * L<bytes> — first released with perl v5.6.0
+
 =item * L<Carp> — first released with perl 5
 
 =item * L<constant> — first included in perl 5.004
+
+=item * L<Encode> — first released with perl v5.7.3
 
 =item * L<File::Basename> — first included in perl 5
 
@@ -738,7 +814,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # --- ここから Pod::Coverage への指示 ---
 # 先頭がアンダースコア（_）で始まるものや、
-# 定数（FTC_ で始まるものなど）をドキュメント対象から除外します
+# 定数（FTC_ で始まるものなど）をドキュメント対象から除外する
 package
   Pod::Coverage::FTCalc;
 

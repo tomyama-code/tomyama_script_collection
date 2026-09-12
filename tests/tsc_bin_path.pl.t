@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.1 $
+## - $Revision: 1.2 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -31,6 +31,13 @@ subtest 'BASIC-TEST' => sub{
     $t->exit_isnt( 0, '存在しないパス' );
     $t->stdout_is( '' );
     $t->stderr_like( qr/^error: directory not found: / );
+
+    $t = tests::Tester->run_cmd( qq{./tsc_bin_path.pl 'キログラムメートル'} );
+    #$t->dump();
+    $t->exit_isnt( 0, '存在しないパス（誤判定されやすい文字「ム」）' );
+    $t->stdout_is( '' );
+    $t->stderr_like( qr/^error: directory not found: ".*キログラムメートル"\n$/, qq{正しく出力できていること} );
+
 };
 
 subtest '-h, --help' => sub{
