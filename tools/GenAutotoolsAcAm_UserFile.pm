@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.109 $
+## - $Revision: 2.110 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -15,9 +15,9 @@
 
 package GenAutotoolsAcAm_UserFile;
 
-use strict;
-use warnings 'all';
-use File::Basename;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
 
 my %ACAM_KYVL;
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c domsort fill FTCalc.pm holiday mark timezone_id tsc_bin_path.pl';
@@ -58,10 +58,10 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.109 $)
+AC_REVISION($Revision: 2.110 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
-AC_INIT([tomyama_script_collection], [0.3.24], [tomyama_code@yahoo.co.jp])
+AC_INIT([tomyama_script_collection], [0.3.25], [tomyama_code@yahoo.co.jp])
 
 dnl # foreign: GNU の厳密な規則に従わない緩めのモード
 dnl # dist-gzip: 指定しなくてもデフォルトでフックされている（抑止はno-dist-gzipを指定）
@@ -106,6 +106,7 @@ EXTRA_DIST = LICENSE \
   tests/prt \
   tests/Runner.pm \
   tests/stty \
+  tests/test_with_required_version.pl \
   tests/testdata_uniq_line.txt \
   tests/Tester.pm \
   tests/tests.sh
@@ -145,6 +146,18 @@ TESTS = $MY_TEST_RUNNERS$
 dist_check_SCRIPTS = $(TESTS)
 };
 
+sub getMyScripts()
+{
+    my @my_scripts = split( /\s/, $ACAM_KYVL{ '$MY_SCRIPTS$' } );
+    return @my_scripts;
+}
+
+sub getTestRunners()
+{
+    my @runners = split( /\s+/, $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } );
+    return @runners;
+}
+
 sub getKeyValue()
 {
     return %ACAM_KYVL;
@@ -157,14 +170,14 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.109 $';
-    $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = &getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
-    $ACAM_KYVL{ '$MY_SCR_ALL$' } = &getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
-    $ACAM_KYVL{ '$MY_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
-    $ACAM_KYVL{ '$MY_TL_DOCS$' } = &getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.110 $';
+    $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
+    $ACAM_KYVL{ '$MY_SCR_ALL$' } = getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
+    $ACAM_KYVL{ '$MY_DOCS$' } = getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
+    $ACAM_KYVL{ '$MY_TL_DOCS$' } = getDocNames( $ACAM_KYVL{ '$MY_TOOLS$' } );
     my @my_imgs_dot = glob( 'docs/img/*.dot' );
     $ACAM_KYVL{ '$MY_DOTS$' } = join( ' ', @my_imgs_dot );
-    $ACAM_KYVL{ '$MY_IMGS$' } = &getImgNames( $ACAM_KYVL{ '$MY_DOTS$' } );
+    $ACAM_KYVL{ '$MY_IMGS$' } = getImgNames( $ACAM_KYVL{ '$MY_DOTS$' } );
 
     $ACAM_KYVL{ '$AC_CONFIG_FILES$' } = '';
     my @ac_cfg_files = ();
@@ -193,7 +206,7 @@ sub getTestNames( $\$ )
     my @testrunners = ();
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         #printf( qq{\$test_target[ $idx ] = "$test_target[ $idx ]"\n} );
-        my $bname = basename( $test_target[ $idx ] );
+        my $bname = File::Basename::basename( $test_target[ $idx ] );
         $testrunners[ $idx ]   =            $bname . '.test.pl';
         $testcase_path[ $idx ] = 'tests/' . $bname . '.t';
     }
@@ -215,7 +228,7 @@ sub getDocNames( $ )
     my $idx_max = scalar( @arr );
     for( my $idx=0; $idx<$idx_max; $idx++ ){
         #printf( qq{\$arr[ $idx ] = "$arr[ $idx ]"\n} );
-        my $bname = basename( $arr[ $idx ] );
+        my $bname = File::Basename::basename( $arr[ $idx ] );
         $arr[ $idx ] = 'docs/' . $bname . '.md';
     }
     return join( ' ', @arr );

@@ -4,6 +4,10 @@
 ### Added
 - xxx
 
+## [0.3.25] - 2026-09-14
+### Changed
+- Minor changes to the test environment.
+
 ## [0.3.24] - 2026-09-13
 ### Changed
 - `FTCalc.pm` [1.23]

@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
 
-use strict;
-use warnings;
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
 
-use FindBin;            # first released with perl 5.00307
+use FindBin;                        # first released with perl 5.00307
 use lib File::Spec->catdir( $FindBin::Bin, '..' );
 use tests::Runner;
 
@@ -14,5 +14,4 @@ my $exit_status = $ret >> 8;
 
 tests::Runner::TestPostProc( $ENV{TEST_TARGET_CMD} );
 
-#print( qq{\$exit_status=$exit_status\n} );
-#$exit_status;
+exit $exit_status

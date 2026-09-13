@@ -8,7 +8,7 @@
 ## - If any files have been updated, it will exit with 0.
 ## - If no files have been updated, it will exit with a value other than 0.
 ##
-## - $Revision: 1.11 $
+## - $Revision: 1.12 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -18,10 +18,10 @@
 ## All rights reserved.
 ################################################################################
 
-use strict;
-use warnings 'all';
-use File::Basename;
-use Text::Diff 'diff';
+use strict;                         # first released with perl 5
+use warnings;                       # first released with perl v5.6.0
+use File::Basename qw();            # first released with perl 5
+use Text::Diff 'diff';              # not in CORE
 
 use lib './tools';    # @INC にディレクトリを追加
 use GenAutotoolsAcAm_UserFile;
@@ -132,8 +132,8 @@ sub pl_main( @ )
 sub initialize( @ )
 {
     ### GLOBAL ###
-    $apppath = dirname( $0 );
-    $appname = basename( $0 );
+    $apppath = File::Basename::dirname( $0 );
+    $appname = File::Basename::basename( $0 );
     $main::debug = 0;
     ##############
 

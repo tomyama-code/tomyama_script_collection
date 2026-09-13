@@ -1,6 +1,6 @@
 package tests::Runner;
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -73,6 +73,8 @@ sub TestPreProc( $@ )
     _SetTargetCommand( $testfilename );
 
     _PrintTime( $ENV{TEST_TARGET_NAME}, 'Begin', _FormatTime( $test_beg_epoch ) );
+
+    print( qq{Perl Version: $^V\n} );
 
     $ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @args ) > 0 );
 
