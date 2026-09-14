@@ -4,6 +4,11 @@
 ### Added
 - xxx
 
+## [0.3.27] - 2026-09-15
+### Changed
+- `timezone_id` [1.01.018]:
+  - Bug fix for the set_locale() function.
+
 ## [0.3.26] - 2026-09-15
 ### Changed
 - Minor changes to the test environment.

@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.16 $
+## - $Revision: 1.18 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -377,7 +377,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.16 $};
+    my $rev = q{$Revision: 1.18 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -390,15 +390,12 @@ sub set_locale( ;$ )
     if( defined( $locale ) ){
         $b_need_check = 1;
         if( $locale eq '' ){    # システムのデフォルトに戻す
-            delete( $ENV{LANG} );
-            delete( $ENV{LC_CTYPE} );
-            delete( $ENV{LC_ALL} );
-            #print( qq{unset locale\n} );
+            ## '' を指定しているので、LC_ALL、LC_CTYPE、または
+            ## LANG 環境変数で定義されたデフォルト値にリセットされる
+            $b_need_check = 0;
         }                       # その他の場合は指定値にセット
         POSIX::setlocale( POSIX::LC_CTYPE, $locale );
         POSIX::setlocale( POSIX::LC_ALL, $locale );
-        #print( qq{setlocale: "$locale"\n} );
-        $locale = 'C' if( $locale eq '' );
     }
 
     my $got_locale = POSIX::setlocale( POSIX::LC_CTYPE );

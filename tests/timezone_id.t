@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.12 $
+## - $Revision: 1.14 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -271,8 +271,8 @@ subtest 'In-Proc Test' => sub{
             } );
             $t->has_no_exception( q{./timezone_id JST --set-locale '' --debug} );
             is( $status, 0, 'LC_CTYPE がシステムデフォルトに変わること' );
-            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.C"\n/, qq{\$main::datafile_loc} );
-            $t->stdout_like( qr/\n     \$main::LC_CTYPE = "C"\n/, qq{\$main::LC_CTYPE} );
+            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.ja_JP"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \$main::LC_CTYPE = "ja_JP\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
             $t->stdout_like( qr/\n\+09:00 JST    \+35\.67642, \+139\.65002  Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
             $t->stdout_like( qr/\n\+09:00 JST    \+34\.64938, \+135\.00147  Japan       Link       JP\n/, qq{最後のレコード} );
