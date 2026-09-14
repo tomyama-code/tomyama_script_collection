@@ -4,6 +4,10 @@
 ### Added
 - xxx
 
+## [0.3.26] - 2026-09-15
+### Changed
+- Minor changes to the test environment.
+
 ## [0.3.25] - 2026-09-14
 ### Changed
 - Minor changes to the test environment.

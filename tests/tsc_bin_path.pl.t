@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -53,6 +53,22 @@ subtest '-h, --help' => sub{
     #$t->dump();
     $t->exit_is( 0, 'ロング形式のオプションでヘルプ表示' );
     $t->stdout_like( qr/^NAME\n    tsc_bin_path.pl / );
+    $t->stderr_is( '' );
+};
+
+subtest '-v, --version' => sub{
+    my $t;
+
+    $t = tests::Tester->run_cmd( './tsc_bin_path.pl', '-v' );
+    #$t->dump();
+    $t->exit_is( 0, 'ショート形式のオプションでバージョン表示' );
+    $t->stdout_like( qr/^Version: / );
+    $t->stderr_is( '' );
+
+    $t = tests::Tester->run_cmd( './tsc_bin_path.pl', '--version' );
+    #$t->dump();
+    $t->exit_is( 0, 'ロング形式のオプションでバージョン表示' );
+    $t->stdout_like( qr/^Version: / );
     $t->stderr_is( '' );
 };
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.2 $
+## - $Revision: 1.3 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -14,6 +14,20 @@ use tests::Tester;
 
 # モジュールの読み込み
 use FTCalc;
+
+subtest '関数のテスト' => sub{
+    my $t;
+
+    my $ver = '';
+
+    $t = tests::Tester->run_blk( sub{
+        $ver = FTCalc::GetVersion();
+    } );
+    $t->has_no_exception();
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+    like( $ver, qr/^1\.\d+\.\d+$/, 'バージョンが取得できていること' );
+};
 
 # --------------------------------------------------------
 # 負荷テスト

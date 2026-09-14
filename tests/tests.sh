@@ -50,6 +50,9 @@ sh_main()
         printf '%-15s: ' "$bname"
 
         test_log="$tname.log"
+        if [ "$WITH_PERL_COVERAGE" != '' ]; then
+            test_log="$tname.cov.log"
+        fi
         "./$tname" >"$test_log"
         exit_status=$?
         res='PASS'
@@ -58,8 +61,10 @@ sh_main()
             retval=`expr "$retval" '+' '1'`
         fi
         echo "$res: exit_status=$exit_status: $test_log"
-        printf "%-6s: $res: exit_status=$exit_status: $test_log\n" "$bname" >>"$test_summary"
+        printf "%-15s: $res: exit_status=$exit_status: $test_log\n" "$bname" >>"$test_summary"
     done
+
+    perl -e 'print( qq{\n  - Tested in a Perl $^V environment.\n\n} );' | tee -a "$test_summary"
 
     if [ "$WITH_PERL_COVERAGE" != '' ]; then
         if [ "$WITH_PERL_COVERAGE_OWNER" = "$$" ]; then

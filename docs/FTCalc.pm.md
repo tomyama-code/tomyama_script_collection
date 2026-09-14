@@ -118,6 +118,12 @@ A module that provides an API for manipulating the calculation script "c".
         $def_val{def_formula_os} = ( FTC_FSC_FOLLOW_VERBOSE | FTC_FSC_OUTPUT_BOTH );
         FTCalc::set_default_value( %def_val );
 
+- `GetVersion()`
+
+    Get the module version.
+
+        my $mod_ver = FTCalc::GetVersion();   # ex) 1.01.023
+
 # DEPENDENCIES
 
 The minimum version of Perl required to run this script is Perl 5.22 or later.

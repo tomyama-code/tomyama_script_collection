@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.23 $
+## - $Revision: 1.24 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -693,6 +693,36 @@ sub _get_my_path()
     my $dir_path = File::Basename::dirname( $full_path );
 
     return $dir_path;
+}
+
+=over 4
+
+=item C<GetVersion()>
+
+Get the module version.
+
+  my $mod_ver = FTCalc::GetVersion();   # ex) 1.01.023
+
+=back
+
+=cut
+
+sub GetVersion()
+{
+    my $rev = _GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    ## ex) 1.04.207
+    return $version;
+}
+sub _GetRevision()
+{
+    my $rev = q{$Revision: 1.24 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
 }
 
 1;

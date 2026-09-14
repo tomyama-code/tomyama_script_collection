@@ -154,6 +154,7 @@ for my $scr( @scripts ){
 
 my %testables = ();
 print( qq{\n} .
+       qq{---------------  -------  ---\n} .
        qq{Script Name      Require  Env.\n} .
        qq{---------------  -------  ---\n} );
 for my $scr( @scripts ){
@@ -164,10 +165,13 @@ for my $scr( @scripts ){
 
     $testables{ $scr } = $testable;
 }
+print( qq{---------------  -------  ---\n} );
 
 print( qq{\n} .
-       qq{Script Name      Require  Test Result\n} .
-       qq{---------------  -------  -----------\n} );
+       qq{  - Testing with the minimum required version.\n} .
+       qq{      ---------------  --------  -------  -----------\n} .
+       qq{      Script Name      Version   Perl     Test Result\n} .
+       qq{      ---------------  --------  -------  -----------\n} );
 my $test_result = 0;
 for my $scr( @scripts ){
     next if( $testables{ $scr } == 0 );
@@ -185,15 +189,29 @@ for my $scr( @scripts ){
 
     my @test_stdout = ();
     my $test_status = shell_exec( \@test_stdout, @cmd_args );
-    printf( qq{%-15s  %-7s  %s %s\n},
-        $scr, $req_ver, ( $test_status ? 'NG' : 'ok' ), $log_file );
-
     $test_result += $test_status;
 
     open( OUTLOG, '>', $log_file ) ||
         die( qq{$log_file: could not open file: $!} );
     print OUTLOG ( join( "", @test_stdout ) . "\n" );
     close( OUTLOG );
+
+    my $perl_ver = '';
+    my $targ_ver = '';
+    for my $line( @test_stdout ){
+        $line =~ s/\r?\n$//o;
+
+        ## Perl Version: v5.44.0, Test Target: 1.05.033
+        if( $line =~ m/^Perl Version: (v\d+\.\d+\.\d+), Test Target: (\d+\.\d+\.\d+)$/o ){
+            $perl_ver = $1;
+            $targ_ver = $2;
+            last;
+        }
+    }
+
+    printf( qq{      %-15s  %-8s  %-7s  %s %s\n},
+        $scr, $targ_ver, $perl_ver, ( $test_status ? 'NG' : 'ok' ), $log_file );
 }
+print( qq{      ---------------  --------  -------  -----------\n} );
 
 exit( $test_result );

@@ -1,6 +1,6 @@
 package tests::Runner;
 ################################################################################
-## - $Revision: 1.3 $
+## - $Revision: 1.5 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -15,20 +15,45 @@ my $test_end_epoch = 0;
 sub _SetTargetCommand( $ )
 {
     my( $testfilename ) = @_;
-    my $cmd = $testfilename;
-    $cmd =~ s!^.*/(.+)\.test\.pl$!$1!o;
-    if( $cmd =~ m!\.pm$!o ){
-        $ENV{TEST_TARGET_MDL} = $cmd;
-        $ENV{TEST_TARGET_NAME} = $ENV{TEST_TARGET_MDL};
-    }else{
-        $ENV{TEST_TARGET_CMD} = $cmd;
-        $ENV{TEST_TARGET_NAME} = $ENV{TEST_TARGET_CMD};
-    }
-    #print( qq{\$ENV{TEST_TARGET_NAME} = "$ENV{TEST_TARGET_NAME}"\n} );
 
     # カレントディレクトリを project root に強制する
     my $apppath = File::Basename::dirname( $testfilename );
     chdir( "$apppath/../" );
+
+    my $cmd = $testfilename;
+    $cmd =~ s!^.*/(.+)\.test\.pl$!$1!o;
+    if( $cmd =~ m!^(.*)\.pm$!o ){
+        $ENV{TEST_TARGET_MDL} = $cmd;
+        my $mod_name = $1;
+        $ENV{TEST_TARGET_NAME} = $ENV{TEST_TARGET_MDL};
+
+        my $mod_ver = '';
+        {
+            require "./$ENV{TEST_TARGET_NAME}";
+            $mod_ver = $mod_name->GetVersion();
+        }
+        $ENV{TEST_TARGET_VER} = $mod_ver;
+
+    }else{
+        $ENV{TEST_TARGET_CMD} = $cmd;
+        $ENV{TEST_TARGET_NAME} = $ENV{TEST_TARGET_CMD};
+
+        my $mod_ver = '';
+        open( VERSION_STR, '-|', "./$ENV{TEST_TARGET_CMD}", '--version' ) ||
+            die( qq{$ENV{TEST_TARGET_CMD}: could not execute: $!} );
+        my @version_str = <VERSION_STR>;
+        close( VERSION_STR );
+        for my $line( @version_str ){
+            $line =~ s/\r?\n$//o;
+            if( $line =~ m/^Version: (.*)$/o ){
+                $mod_ver = $1;
+                last;
+            }
+        }
+        $ENV{TEST_TARGET_VER} = $mod_ver;
+
+    }
+    #print( qq{\$ENV{TEST_TARGET_NAME} = "$ENV{TEST_TARGET_NAME}"\n} );
 }
 
 sub get_time_zone()
@@ -74,7 +99,7 @@ sub TestPreProc( $@ )
 
     _PrintTime( $ENV{TEST_TARGET_NAME}, 'Begin', _FormatTime( $test_beg_epoch ) );
 
-    print( qq{Perl Version: $^V\n} );
+    print( qq{Perl Version: $^V, Test Target: $ENV{TEST_TARGET_VER}\n} );
 
     $ENV{WITH_PERL_COVERAGE} = 1 if( scalar( @args ) > 0 );
 

@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.23 $
+- $Revision: 1.24 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -184,7 +184,7 @@ For details, please refer to [timezone_id.md](timezone_id.md).
 Prints the installation path or project root directory.
 
 - Version: 1
-- $Revision: 1.8 $
+- $Revision: 1.9 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -227,7 +227,7 @@ Generate and manage autotools "ac" and "am" files from a single source.
 - If any files have been updated, it will exit with 0.
 - If no files have been updated, it will exit with a value other than 0.
 
-- $Revision: 1.11 $
+- $Revision: 1.12 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -244,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.110 $
+- $Revision: 2.111 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.

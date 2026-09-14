@@ -3,7 +3,7 @@
 ## tsc_bin_path.pl -- Prints the installation path or project root directory.
 ##
 ## - Version: 1
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -20,12 +20,41 @@ use bytes;                          # first released with perl v5.6.0
 use FindBin;                        # first released with perl 5.00307
 use Pod::Text;                      # first released with perl 5.002
 
+## Revision: 1.2
+sub PrintVersion()
+{
+    my $ver = GetVersion();
+    my $v = qq{Version: $ver\n} .
+            qq{   Perl: $^V\n};
+    print( $v );
+}
+sub GetVersion()
+{
+    my $rev = GetRevision();
+
+    my $major = 1;
+    my( $minor, $revision ) = split( /\./, $rev );
+    my $version = sprintf( '%d.%02d.%03d', $major, $minor, $revision );
+
+    ## ex) 1.04.207
+    return $version;
+}
+sub GetRevision()
+{
+    my $rev = q{$Revision: 1.9 $};
+    $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
+    return $rev;
+}
+
 if( defined( $ARGV[ 0 ] ) ){
     if( $ARGV[ 0 ] eq '-h' || $ARGV[ 0 ] eq '--help' ){
         # パーサーの初期化
         my $parser = Pod::Text->new();
         # ファイルからPODを抽出してテキストとして標準出力
         $parser->parse_from_file( $0 );
+        exit( 0 );
+    }elsif( $ARGV[ 0 ] eq '-v' || $ARGV[ 0 ] eq '--version' ){
+        PrintVersion();
         exit( 0 );
     }
 }

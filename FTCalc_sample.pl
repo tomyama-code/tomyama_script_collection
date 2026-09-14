@@ -17,6 +17,9 @@ sub cmt( $ )
     print( qq{$comment\n} );
 }
 
+cmt( q{# モジュールのバージョン} );
+print( qq{Version: } . FTCalc::GetVersion() . "\n" );
+
 cmt( q{# 初期化} );
 my $c = FTCalc->new();
 $c->_setVerbos( $bVerbosDisplay );
