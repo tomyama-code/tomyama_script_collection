@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.18 $
+## - $Revision: 1.19 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -377,7 +377,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.18 $};
+    my $rev = q{$Revision: 1.19 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -387,35 +387,36 @@ sub set_locale( ;$ )
     my( $locale ) = @_;
 
     my $b_need_check = 0;
+    my $is_this_a_getter = 0;
+    my $refer_to_LANG = 0;
+    my $lc_ctype = '';
     if( defined( $locale ) ){
-        $b_need_check = 1;
-        if( $locale eq '' ){    # システムのデフォルトに戻す
-            ## '' を指定しているので、LC_ALL、LC_CTYPE、または
-            ## LANG 環境変数で定義されたデフォルト値にリセットされる
-            $b_need_check = 0;
-        }                       # その他の場合は指定値にセット
-        POSIX::setlocale( POSIX::LC_CTYPE, $locale );
-        POSIX::setlocale( POSIX::LC_ALL, $locale );
-    }
+        ## 空文字の場合はセッターではなくゲッターだが、
+        ## このツールでは非サポート。
+        if( $locale eq '' ){
+            die( qq{set_locale(): error: "$locale": Specifying an empty string is not supported.\n} );
+        }
 
-    my $got_locale = POSIX::setlocale( POSIX::LC_CTYPE );
-    if( $b_need_check ){
-        $b_need_check = 0;
-        if( $got_locale ne $locale ){
-            die( qq{set_locale(): error: specified_value="$locale": LC_CTYPE="$got_locale": failure.\n} );
+        $lc_ctype = POSIX::setlocale( POSIX::LC_CTYPE, $locale );
+
+        if( !defined( $lc_ctype ) ){
+            ## システムでは $locale に対応していなくてもツールとしてサポート。
+            $lc_ctype = $locale;
+        }
+    }else{
+        $lc_ctype = POSIX::setlocale( POSIX::LC_CTYPE );
+
+        # Android Termux環境では C と en_US のロケールしか使えない。
+        # これ以外を LC_xxx に設定すると setlocale がエラーを出すので
+        # このスクリプトでは LANG を参照することに。
+        if( $lc_ctype =~ m/^C($|\.)/o ){
+            if( defined( $ENV{LANG} ) ){
+                $lc_ctype = $ENV{LANG};
+            }
         }
     }
-    #print( qq{LC_CTYPE: "$got_locale"\n} );
 
-    # Android Termux環境では C と en_US のロケールしか使えない。
-    # これ以外を LC_xxx に設定すると setlocale がエラーを出すので
-    # このスクリプトでは LANG を参照することに。
-    if( $got_locale eq 'C.UTF-8' ){
-        if( defined( $ENV{LANG} ) ){
-            $got_locale = $ENV{LANG};
-        }
-    }
-    return $got_locale;
+    return $lc_ctype;
 }
 
 sub set_locale_datafilename( $$ )

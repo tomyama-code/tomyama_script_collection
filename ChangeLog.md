@@ -4,6 +4,11 @@
 ### Added
 - xxx
 
+## [0.3.28] - 2026-09-16
+- `timezone_id` [1.01.019]:
+  - Fixed the implementation around set_locale(),
+    as it was behaving strangely.
+
 ## [0.3.27] - 2026-09-15
 ### Changed
 - `timezone_id` [1.01.018]:
