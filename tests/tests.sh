@@ -64,7 +64,12 @@ sh_main()
         printf "%-15s: $res: exit_status=$exit_status: $test_log\n" "$bname" >>"$test_summary"
     done
 
-    perl -e 'print( qq{\n  - Tested in a Perl $^V environment.\n\n} );' | tee -a "$test_summary"
+    perl -e 'use lib q{./tools};
+      use GenAutotoolsAcAm_UserFile;
+      my $pkg_ver = GenAutotoolsAcAm_UserFile::getPkgVersion();
+      print( qq{\n} .
+             qq{- [$pkg_ver] Package test results\n} .
+             qq{  - Tested in a Perl $^V environment.\n\n} );' | tee -a "$test_summary"
 
     if [ "$WITH_PERL_COVERAGE" != '' ]; then
         if [ "$WITH_PERL_COVERAGE_OWNER" = "$$" ]; then
