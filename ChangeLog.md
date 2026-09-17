@@ -4,10 +4,17 @@
 ### Added
 - xxx
 
+## [0.3.29] - 2026-09-17
+### Changed
+- `timezone_id` [1.01.020]:
+  - Minor changes to locale files.
+  - Rename the existing Japanese locale data file.
+    - timezone_id.tab.ja_JP -> timezone_id.tab.ja
+
 ## [0.3.28] - 2026-09-16
+### Changed
 - `timezone_id` [1.01.019]:
-  - Fixed the implementation around set_locale(),
-    as it was behaving strangely.
+  - Fixed the implementation around set_locale(), as it was behaving strangely.
 
 ## [0.3.27] - 2026-09-15
 ### Changed

@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.19 $
+## - $Revision: 1.20 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -60,12 +60,31 @@ sub pl_main( @ )
     }
 
     my @data_loc = ();
-    if( -f $main::datafile_loc || $main::datafile_loc eq 'Non-existent-file' ){
-        #print( qq{\$main::datafile_loc="$main::datafile_loc" ( exists )\n} );
-        open( DATF_LOC, '<', $main::datafile_loc ) ||
-            die( qq{$main::datafile_loc: could not open file: $!} );
-        @data_loc = <DATF_LOC>;
-        close( DATF_LOC );
+    for my $datafile_loc( @main::datafile_loc ){
+        if( -f $datafile_loc || $datafile_loc eq 'Non-existent-file' ){
+            #print( qq{\$datafile_loc="$datafile_loc" ( exists )\n} );
+            open( DATF_LOC, '<', $datafile_loc ) ||
+                die( qq{$datafile_loc: could not open file: $!} );
+            my $idx = 0;
+            while( <DATF_LOC> ){
+                my $line = $_;
+                $line =~ s/\r?\n$//o;
+                if( defined( $data_loc[ $idx ] ) ){
+                    my @items = split( /\t/, $line, -1 );
+                    my @items_src = split( /\t/, $data_loc[ $idx ], -1 );
+                    my $items_len = scalar( @items );
+                    for( my $field=0; $field<$items_len; $field++ ){
+                        if( $items[ $field ] eq '' ){
+                            $items[ $field ] = $items_src[ $field ];
+                        }
+                    }
+                    $line = join( "\t", @items );
+                }
+                $data_loc[ $idx ] = $line;
+                $idx++;
+            }
+            close( DATF_LOC );
+        }
     }
 
     my $re_flag = '';
@@ -80,7 +99,6 @@ sub pl_main( @ )
         my $line_loc = "\t";
         if( defined( $data_loc[ $line_row ] ) ){
             $line_loc = $data_loc[ $line_row ];
-            $line_loc =~ s/\r?\n$//o;
         }
         $line_row++;
         my $line = $_;
@@ -105,7 +123,7 @@ sub pl_main( @ )
             # SDT: Standard Time, 標準時（冬時間、平時）
             # DST: Daylight Saving Time, 夏時間（日光節約時間）
             my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname ) =
-                split( /\t/, $line );
+                split( /\t/, $line, -1 );
             my $tz_id_len = length( $tz_id );
             $tz_id_len_max = $tz_id_len if( $tz_id_len > $tz_id_len_max );
             push( @matched, $concat_line );
@@ -117,11 +135,11 @@ sub pl_main( @ )
     if( $main::sort_order_by ne '' ){
         my $sort_order_by = lc( $main::sort_order_by );
         if( $sort_order_by eq 'lat' ){
-            @sorted = sort { ( split( /\t/, $a ) )[ 8 ] <=> ( split( /\t/, $b ) )[ 8 ] } ( @matched[ 1..$#matched ] );
+            @sorted = sort { ( split( /\t/, $a, -1 ) )[ 8 ] <=> ( split( /\t/, $b, -1 ) )[ 8 ] } ( @matched[ 1..$#matched ] );
         }elsif( $sort_order_by eq 'lon' ){
-            @sorted = sort { ( split( /\t/, $a ) )[ 9 ] <=> ( split( /\t/, $b ) )[ 9 ] } ( @matched[ 1..$#matched ] );
+            @sorted = sort { ( split( /\t/, $a, -1 ) )[ 9 ] <=> ( split( /\t/, $b, -1 ) )[ 9 ] } ( @matched[ 1..$#matched ] );
         }elsif( $sort_order_by eq 'id' ){
-            @sorted = sort { ( split( /\t/, $a ) )[ 4 ] cmp ( split( /\t/, $b ) )[ 4 ] } ( @matched[ 1..$#matched ] );
+            @sorted = sort { ( split( /\t/, $a, -1 ) )[ 4 ] cmp ( split( /\t/, $b, -1 ) )[ 4 ] } ( @matched[ 1..$#matched ] );
         }else{
             die( qq{$main::appname: --sort-order-by "$main::sort_order_by": Unsupported field name.\n} );
         }
@@ -130,7 +148,7 @@ sub pl_main( @ )
 
     for my $line( @sorted ){
         my( $sdt, $dst, $sdt2, $dst2, $tz_id, $type, $note, $cmt, $lat, $lon, $cc, $cname, $id_loc, $cname_loc ) =
-            split( /\t/, $line );
+            split( /\t/, $line, -1 );
 
         sub coord_fmt( $ )
         {
@@ -202,7 +220,7 @@ sub param_print()
              qq{     \@main::argv = (%s)\n} .
              qq{     \$main::banner = %d\n} .
              qq{     \$main::datafile = "%s"\n} .
-             qq{     \$main::datafile_loc = "%s"\n} .
+             qq{     \@main::datafile_loc = (%s)\n} .
              qq{     \$main::debug = %d\n} .
              qq{     \@main::filters = (%s)\n} .
              qq{     \$main::help = %d\n} .
@@ -218,7 +236,7 @@ sub param_print()
         array_to_str( @main::argv ),
         $main::banner,
         $main::datafile,
-        $main::datafile_loc,
+        array_to_str( @main::datafile_loc ),
         $main::debug,
         array_to_str( @main::filters ),
         $main::help,
@@ -273,7 +291,7 @@ sub parse_arg( @ )
         $main::set_locale = undef;
     }
     if( defined( $main::datafile_loc_specify ) ){
-        $main::datafile_loc = $main::datafile_loc_specify;
+        push( @main::datafile_loc, $main::datafile_loc_specify );
         $main::datafile_loc_specify = undef;
     }
 
@@ -377,7 +395,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.19 $};
+    my $rev = q{$Revision: 1.20 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -423,7 +441,12 @@ sub set_locale_datafilename( $$ )
 {
     my( $base, $locale ) = @_;
     $locale =~ s!\.utf-?8$!!oi;
-    $main::datafile_loc = "$base.$locale";
+    @main::datafile_loc = ();
+    if( $locale =~ m/^([a-z]{2})_/o ){
+        my $language = $1;
+        push( @main::datafile_loc, "$base.$language" );
+    }
+    push( @main::datafile_loc, "$base.$locale" );
 }
 
 # uncoverable branch false

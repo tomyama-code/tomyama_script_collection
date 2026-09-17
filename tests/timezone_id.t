@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.16 $
+## - $Revision: 1.17 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -151,7 +151,7 @@ subtest 'In-Proc Test' => sub{
                 $status = pl_main( '--datafile-loc=Non-existent-file' );
             } );
             $t->has_exception( q{./timezone_id --datafile-loc=Non-existent-file} );
-            $t->exception_like( qr/^Non\-existent\-file: could not open file: /, 'データファイルのオープンに失敗させる' );
+            $t->exception_like( qr/^Non-existent-file: could not open file: /, 'データファイルのオープンに失敗させる' );
             $t->stdout_is( qq{} );
             $t->stderr_is( qq{} );
 
@@ -250,6 +250,42 @@ subtest 'In-Proc Test' => sub{
             $t->stdout_unlike( qr/\n\+09:00 JST    \+34\.64938, \+135\.00147  Japan       Link       JP\n/, qq{最後のレコード} );
             $t->stderr_is( qq{} );
 
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--set-locale', 'fr_FR.UTF-8', 'SAINTE-HÉLÈNE' );
+            } );
+            $t->has_no_exception( q{./timezone_id --set-locale fr_FR.UTF-8 'SAINTE-HÉLÈNE'} );
+            is( $status, 0, 'frの言語ファイルを開くものの セントヘレナ は見つけられないこと' );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_unlike( qr/\n\+00:00 GMT     \+5\.32522,   -4\.0196   Africa\/Abidjan      Canonical  CI; BF; GH; GM; GN; IS; ML; MR; SH; SL; SN; TG\n/, qq{最初のレコード} );
+            $t->stdout_unlike( qr/\n\+00:00 GMT    -15\.95833,   -5\.70199  Atlantic\/St_Helena  Link       SH\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--set-locale', 'fr_FR.UTF-8', 'SAINTE-HÉLÈNE', '-i' );
+            } );
+            $t->has_no_exception( q{./timezone_id --set-locale fr_FR.UTF-8 'SAINTE-HÉLÈNE' -i} );
+            is( $status, 0, 'frの言語ファイルを開いて セントヘレナ を見つけられること' );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\+00:00 GMT     \+5\.32522,   -4\.0196   Africa\/Abidjan      Canonical  CI; BF; GH; GM; GN; IS; ML; MR; SH; SL; SN; TG\n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+00:00 GMT    -15\.95833,   -5\.70199  Atlantic\/St_Helena  Link       SH\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
+            ## 日本語の文字に大文字・小文字の区別はない。
+            ## ひらがな・カタカナの小さな文字：
+            ## 「ぁ、ぃ、ぅ、ぇ、ぉ」「ゃ、ゅ、ょ」「っ」や
+            ## 「ァ、ィ、ゥ、ェ、ォ」「ャ、ュ、ョ」「ッ」などは、
+            ## 「小文字」ではなく「捨て仮名（すてがな）」や「促音・拗音」と呼ばれる。
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--set-locale', 'ja_JP.UTF-8', 'jst', '-i' );
+            } );
+            $t->has_no_exception( q{./timezone_id --set-locale ja_JP.UTF-8 jst -i} );
+            is( $status, 0, '元のロケールに戻して正しく動作することを確認しておく' );
+            $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
+            $t->stdout_like( qr/\n\+09:00 JST    \+35\.67642, \+139\.65002  Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
+            $t->stdout_like( qr/\n\+09:00 JST    \+34\.64938, \+135\.00147  Japan       Link       JP\n/, qq{最後のレコード} );
+            $t->stderr_is( qq{} );
+
         };
 
         subtest q{Option Switch: --set-locale} => sub{
@@ -266,7 +302,7 @@ subtest 'In-Proc Test' => sub{
             } );
             $t->has_no_exception( q{./timezone_id --set-locale Invalid.locale JST --debug} );
             is( $status, 0, '指定された無効なロケールでも設定されること' );
-            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.Invalid\.locale"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \@main::datafile_loc = \( '\.\/timezone_id\.tab\.Invalid\.locale' \)\n/, qq{\$main::datafile_loc} );
             $t->stdout_like( qr/\n     \$main::LC_CTYPE = "Invalid\.locale"\n/, qq{\$main::LC_CTYPE} );
             $t->stderr_is( qq{} );
 
@@ -308,7 +344,7 @@ subtest 'In-Proc Test' => sub{
             } );
             $t->has_no_exception( q{./timezone_id JST --debug} );
             is( $status, 0, 'LC_CTYPE がシステムの最低限のロケール値に変わること' );
-            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.C"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \@main::datafile_loc = \( '\.\/timezone_id\.tab\.C' \)\n/, qq{\$main::datafile_loc} );
             $t->stdout_like( qr/\n     \$main::LC_CTYPE = "C"\n/, qq{\$main::LC_CTYPE} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
             $t->stdout_like( qr/\n\+09:00 JST    \+35\.67642, \+139\.65002  Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
@@ -320,7 +356,7 @@ subtest 'In-Proc Test' => sub{
             } );
             $t->has_no_exception( q{./timezone_id JST --set-locale ja_JP.UTF-8 --debug} );
             is( $status, 0, 'LC_CTYPE が指定した値に変わること' );
-            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.ja_JP"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \@main::datafile_loc = \( '\.\/timezone_id\.tab\.ja', '\.\/timezone_id\.tab\.ja_JP' \)\n/, qq{\@main::datafile_loc} );
             $t->stdout_like( qr/\n     \$main::LC_CTYPE = "ja_JP\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
             $t->stdout_like( qr/\n\+09:00 JST    \+35\.67642, \+139\.65002  Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );
@@ -353,7 +389,7 @@ subtest 'In-Proc Test' => sub{
             } );
             $t->has_no_exception( q{./timezone_id JST --debug} );
             is( $status, 0, 'Android Termux 環境用の救済コードが効くこと（ LANGを参照 ）' );
-            $t->stdout_like( qr/\n     \$main::datafile_loc = "\.\/timezone_id\.tab\.ja_JP"\n/, qq{\$main::datafile_loc} );
+            $t->stdout_like( qr/\n     \@main::datafile_loc = \( '\.\/timezone_id\.tab\.ja', '\.\/timezone_id\.tab\.ja_JP' \)\n/, qq{\@main::datafile_loc} );
             $t->stdout_like( qr/\n     \$main::LC_CTYPE = "ja_JP\.UTF-8"\n/, qq{\$main::LC_CTYPE} );
             $t->stdout_like( $expect_hdr_s, qq{ヘッダ} );
             $t->stdout_like( qr/\n\+09:00 JST    \+35\.67642, \+139\.65002  Asia\/Tokyo  Canonical  JP; AU\n/, qq{最初のレコード} );

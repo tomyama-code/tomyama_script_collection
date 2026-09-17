@@ -1,0 +1,599 @@
+ID	Pays
+	
+	
+Pacific/Niue	Niue
+Pacific/Pago_Pago	Samoa américaines; Îles mineures éloignées des États-Unis
+	Samoa américaines
+	Samoa américaines
+Pacific/Midway	Îles mineures éloignées des États-Unis
+	
+Honolulu	États-Unis
+	États-Unis
+	Îles mineures éloignées des États-Unis
+	
+Pacific/Rarotonga	Îles Cook
+Pacific/Tahiti	Polynésie française
+America/Adak	États-Unis
+	États-Unis
+	États-Unis
+Marquises	Polynésie française
+	
+Pacific/Gambier	Polynésie française
+America/Anchorage	États-Unis
+	États-Unis
+America/Juneau	États-Unis
+America/Metlakatla	États-Unis
+America/Nome	États-Unis
+America/Sitka	États-Unis
+America/Yakutat	États-Unis
+	
+Pacific/Pitcairn	Îles Pitcairn
+America/Los_Angeles	États-Unis
+	États-Unis
+	
+America/Tijuana	Mexique
+	Mexique
+	Mexique
+	Mexique
+	
+America/Dawson_Creek	Canada
+America/Dawson	Canada
+America/Fort_Nelson	Canada
+America/Hermosillo	Mexique
+America/Mazatlan	Mexique
+	Mexique
+America/Phoenix	États-Unis; Canada
+	
+	États-Unis
+America/Creston	Canada
+America/Vancouver	Canada
+	Canada
+America/Whitehorse	Canada
+	Canada
+America/Boise	États-Unis
+America/Cambridge_Bay	Canada
+America/Ciudad_Juarez	Mexique
+America/Denver	États-Unis
+	
+	États-Unis
+	États-Unis
+	États-Unis
+America/Inuvik	Canada
+	
+Bahia de Banderas	Mexique
+America/Belize	Belize
+America/Chihuahua	Mexique
+America/Costa_Rica	Costa Rica
+America/Edmonton	Canada
+	Canada
+	Canada
+America/El_Salvador	Salvador
+Pacific/Galapagos	Équateur
+America/Guatemala	Guatemala
+America/Managua	Nicaragua
+America/Merida	Mexique
+Mexico	Mexique
+	Mexique
+America/Monterrey	Mexique
+America/Regina	Canada
+	Canada
+America/Swift_Current	Canada
+America/Tegucigalpa	Honduras
+Beulah (Dakota du Nord)	États-Unis
+Center (Dakota du Nord)	États-Unis
+America/Chicago	États-Unis
+	
+	États-Unis
+Île de Pâques	Chili
+	Chili
+Knox [Indiana]	États-Unis
+	États-Unis
+	États-Unis
+America/Matamoros	Mexique
+America/Menominee	États-Unis
+New Salem (Dakota du Nord)	États-Unis
+America/Ojinaga	Mexique
+America/Rankin_Inlet	Canada
+America/Resolute	Canada
+Tell City [Indiana]	États-Unis
+America/Winnipeg	Canada
+	Canada
+	Canada
+	
+America/Bogota	Colombie
+America/Cancun	Mexique
+America/Eirunepe	Brésil
+America/Guayaquil	Équateur
+Jamaïque	Jamaïque
+	Jamaïque
+America/Lima	Pérou
+America/Panama	Panama; Canada; Îles Caïmans
+	
+	Canada
+Caïmans	Îles Caïmans
+America/Coral_Harbour	Canada
+America/Rio_Branco	Brésil
+	Brésil
+	Brésil
+Détroit	États-Unis
+	États-Unis
+America/Grand_Turk	Îles Turques-et-Caïques
+La Havane	Cuba
+	Cuba
+	États-Unis
+	États-Unis
+America/Indianapolis	États-Unis
+	États-Unis
+America/Iqaluit	Canada
+	Canada
+	États-Unis
+America/Louisville	États-Unis
+Marengo [Indiana]	États-Unis
+Monticello [Kentucky]	États-Unis
+America/New_York	États-Unis
+	
+	États-Unis
+Petersburg [Indiana]	États-Unis
+America/Port-au-Prince	Haïti
+America/Toronto	Canada; Bahamas
+	Canada
+America/Nassau	Bahamas
+	Canada
+	Canada
+	Canada
+Vevay [Indiana]	États-Unis
+Vincennes [Indiana]	États-Unis
+Winamac [Indiana]	États-Unis
+	
+La Barbade	Barbade
+America/Boa_Vista	Brésil
+America/Campo_Grande	Brésil
+America/Caracas	Venezuela
+America/Cuiaba	Brésil
+America/Guyana	Guyana
+America/La_Paz	Bolivie
+Manaos	Brésil
+	Brésil
+America/Martinique	Martinique
+America/Porto_Velho	Brésil
+Porto Rico	Porto Rico; Antigua-et-Barbuda; Canada; Anguilla; Aruba; Saint-Barthélemy; Pays-Bas caribéens; Curaçao; Dominique; Grenade; Guadeloupe; Saint-Christophe-et-Niévès; Sainte-Lucie; Saint-Martin; Montserrat; Saint-Martin (partie néerlandaise); Trinité-et-Tobago; Saint-Vincent-et-les Grenadines; Îles Vierges britanniques; Îles Vierges des États-Unis
+	Îles Vierges des États-Unis
+America/Anguilla	Anguilla
+America/Antigua	Antigua-et-Barbuda
+America/Aruba	Aruba
+America/Blanc-Sablon	Canada
+America/Curacao	Curaçao
+Dominique	Dominique
+Grenade	Grenade
+America/Guadeloupe	Guadeloupe
+America/Kralendijk	Pays-Bas caribéens
+America/Lower_Princes	Saint-Martin (partie néerlandaise)
+America/Marigot	Saint-Martin
+America/Montserrat	Montserrat
+Port-d’Espagne	Trinité-et-Tobago
+Saint-Barthélemy	Saint-Barthélemy
+Saint-Christophe	Saint-Christophe-et-Niévès
+Sainte-Lucie	Sainte-Lucie
+Saint-Thomas	Îles Vierges des États-Unis
+Saint-Vincent	Saint-Vincent-et-les Grenadines
+America/Tortola	Îles Vierges britanniques
+Saint-Domingue	République dominicaine
+Bermudes	Bermudes
+America/Glace_Bay	Canada
+America/Goose_Bay	Canada
+America/Halifax	Canada
+	Canada
+America/Moncton	Canada
+America/Santiago	Chili
+	Chili
+Thulé	Groenland
+Saint-Jean de Terre-Neuve	Canada
+	Canada
+	
+America/Araguaina	Brésil
+America/Asuncion	Paraguay
+America/Bahia	Brésil
+America/Belem	Brésil
+	Argentine
+America/Buenos_Aires	Argentine
+	Argentine
+America/Catamarca	Argentine
+	Argentine
+America/Cayenne	Guyane française
+	Argentine
+America/Cordoba	Argentine
+	Argentine
+America/Coyhaique	Chili
+America/Fortaleza	Brésil
+	Argentine
+America/Jujuy	Argentine
+America/Argentina/La_Rioja	Argentine
+America/Maceio	Brésil
+	Argentine
+America/Mendoza	Argentine
+America/Montevideo	Uruguay
+Antarctica/Palmer	Antarctique
+America/Paramaribo	Suriname
+America/Punta_Arenas	Chili
+America/Recife	Brésil
+America/Argentina/Rio_Gallegos	Argentine
+Antarctica/Rothera	Antarctique
+America/Argentina/Salta	Argentine
+America/Argentina/San_Juan	Argentine
+America/Argentina/San_Luis	Argentine
+America/Santarem	Brésil
+America/Sao_Paulo	Brésil
+	Brésil
+Atlantic/Stanley	Îles Malouines
+America/Argentina/Tucuman	Argentine
+Ushuaïa	Argentine
+America/Miquelon	Saint-Pierre-et-Miquelon
+	
+America/Noronha	Brésil
+	Brésil
+Géorgie du Sud	Géorgie du Sud-et-les Îles Sandwich du Sud
+	Groenland
+America/Godthab	Groenland
+America/Scoresbysund	Groenland
+	
+Cap-Vert	Cap-Vert
+Açores	Portugal
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+Africa/Abidjan	Côte d’Ivoire; Burkina Faso; Ghana; Gambie; Guinée; Islande; Mali; Mauritanie; Sainte-Hélène; Sierra Leone; Sénégal; Togo
+	Islande
+Africa/Accra	Ghana
+Africa/Bamako	Mali
+Africa/Banjul	Gambie
+Africa/Conakry	Guinée
+Africa/Dakar	Sénégal
+Africa/Freetown	Sierra Leone
+Africa/Lome	Togo
+Africa/Nouakchott	Mauritanie
+Africa/Ouagadougou	Burkina Faso
+Atlantic/Reykjavik	Islande
+Sainte-Hélène	Sainte-Hélène
+	Mali
+Africa/Bissau	Guinée-Bissau
+America/Danmarkshavn	Groenland
+Africa/Monrovia	Liberia
+Africa/Sao_Tome	Sao Tomé-et-Principe
+Îles Canaries	Espagne
+Europe/Dublin	Irlande
+	Irlande
+	Îles Féroé
+Îles Féroé	Îles Féroé
+Lisbonne	Portugal
+	Portugal
+	
+Londres	Royaume-Uni; Guernesey; Île de Man; Jersey
+	Royaume-Uni
+	Royaume-Uni
+Guernesey	Guernesey
+Île de Man	Île de Man
+Europe/Jersey	Jersey
+	Royaume-Uni
+Madère	Portugal
+Antarctica/Troll	Antarctique
+	
+Alger	Algérie
+Africa/Casablanca	Maroc
+Laâyoune	Sahara occidental
+Africa/Lagos	Nigeria; Angola; Bénin; Congo-Kinshasa; République centrafricaine; Congo-Brazzaville; Cameroun; Gabon; Guinée équatoriale; Niger
+Africa/Bangui	République centrafricaine
+Africa/Brazzaville	Congo-Brazzaville
+Africa/Douala	Cameroun
+Africa/Kinshasa	Congo-Kinshasa
+Africa/Libreville	Gabon
+Africa/Luanda	Angola
+Africa/Malabo	Guinée équatoriale
+Africa/Niamey	Niger
+Africa/Porto-Novo	Bénin
+Africa/Ndjamena	Tchad
+Africa/Tunis	Tunisie
+Andorre	Andorre
+Europe/Belgrade	Serbie; Bosnie-Herzégovine; Croatie; Monténégro; Macédoine du Nord; Slovénie
+Europe/Ljubljana	Slovénie
+Europe/Podgorica	Monténégro
+Europe/Sarajevo	Bosnie-Herzégovine
+Europe/Skopje	Macédoine du Nord
+Europe/Zagreb	Croatie
+Europe/Berlin	Allemagne; Danemark; Norvège; Suède; Svalbard et Jan Mayen
+Arctic/Longyearbyen	Svalbard et Jan Mayen
+Copenhague	Danemark
+Europe/Oslo	Norvège
+Europe/Stockholm	Suède
+	Svalbard et Jan Mayen
+Bruxelles	Belgique; Luxembourg; Pays-Bas
+	
+	
+Europe/Amsterdam	Pays-Bas
+Europe/Luxembourg	Luxembourg
+Europe/Budapest	Hongrie
+Africa/Ceuta	Espagne
+Europe/Gibraltar	Gibraltar
+Europe/Madrid	Espagne
+Malte	Malte
+Europe/Paris	France; Monaco
+Europe/Monaco	Monaco
+Europe/Prague	Tchéquie; Slovaquie
+Europe/Bratislava	Slovaquie
+Europe/Rome	Italie; Saint-Marin; État de la Cité du Vatican
+Saint-Marin	Saint-Marin
+Le Vatican	État de la Cité du Vatican
+Europe/Tirane	Albanie
+Vienne	Autriche
+Varsovie	Pologne
+	Pologne
+Europe/Zurich	Suisse; Allemagne; Liechtenstein
+Europe/Busingen	Allemagne
+Europe/Vaduz	Liechtenstein
+	
+Africa/Johannesburg	Afrique du Sud; Lesotho; Eswatini
+Africa/Maseru	Lesotho
+Africa/Mbabane	Eswatini
+Africa/Juba	Soudan du Sud
+Europe/Kaliningrad	Russie
+Africa/Khartoum	Soudan
+Africa/Maputo	Mozambique; Burundi; Botswana; Congo-Kinshasa; Malawi; Rwanda; Zambie; Zimbabwe
+Africa/Blantyre	Malawi
+Africa/Bujumbura	Burundi
+Africa/Gaborone	Botswana
+Africa/Harare	Zimbabwe
+Africa/Kigali	Rwanda
+Africa/Lubumbashi	Congo-Kinshasa
+Africa/Lusaka	Zambie
+Tripoli (Libye)	Libye
+	Libye
+Africa/Windhoek	Namibie
+Athènes	Grèce
+	
+Beyrouth	Liban
+Bucarest	Roumanie
+Le Caire	Égypte
+	Égypte
+Europe/Chisinau	Moldavie
+	Moldavie
+Famagouste	Chypre
+Asia/Gaza	Territoires palestiniens
+Hébron	Territoires palestiniens
+Europe/Helsinki	Finlande; Îles Åland
+Europe/Mariehamn	Îles Åland
+Jérusalem	Israël
+	Israël
+	Israël
+	Ukraine
+	Ukraine
+	Ukraine
+Kiev	Ukraine
+Nicosie	Chypre
+	Chypre
+Europe/Riga	Lettonie
+Europe/Sofia	Bulgarie
+Europe/Tallinn	Estonie
+Europe/Vilnius	Lituanie
+	
+Asia/Amman	Jordanie
+Bagdad	Irak
+Damas	Syrie
+Europe/Istanbul	Turquie
+	Turquie
+	Turquie
+Europe/Kirov	Russie
+Europe/Minsk	Biélorussie
+Moscou	Russie
+	Russie
+Africa/Nairobi	Kenya; Djibouti; Érythrée; Éthiopie; Comores; Madagascar; Somalie; Tanzanie; Ouganda; Mayotte
+Addis-Abeba	Éthiopie
+	Érythrée
+Africa/Dar_es_Salaam	Tanzanie
+Africa/Djibouti	Djibouti
+Africa/Kampala	Ouganda
+Mogadiscio	Somalie
+Indian/Antananarivo	Madagascar
+Indian/Comoro	Comores
+Indian/Mayotte	Mayotte
+Africa/Asmera	Érythrée
+Asia/Qatar	Qatar; Bahreïn
+Bahreïn	Bahreïn
+Riyad	Arabie saoudite; Antarctique; Koweït; Yémen
+Antarctica/Syowa	Antarctique
+Asia/Aden	Yémen
+Koweït	Koweït
+Europe/Simferopol	Russie; Ukraine
+Europe/Volgograd	Russie
+Téhéran	Iran
+	Iran
+	
+Europe/Astrakhan	Russie
+Bakou	Azerbaïdjan
+Dubaï	Émirats arabes unis; Oman; La Réunion; Seychelles; Terres australes françaises
+Mascate	Oman
+Indian/Mahe	Seychelles
+La Réunion	La Réunion
+Maurice	Maurice
+Europe/Samara	Russie
+Europe/Saratov	Russie
+Tbilissi	Géorgie
+Oulianovsk	Russie
+Erevan	Arménie
+Kaboul	Afghanistan
+	
+Alma Ata	Kazakhstan
+Aktioubinsk	Kazakhstan
+Aktaou	Kazakhstan
+Achgabat	Turkménistan
+	Turkménistan
+Atyraou	Kazakhstan
+Douchanbé	Tadjikistan
+Asia/Karachi	Pakistan
+Indian/Maldives	Maldives; Terres australes françaises
+Indian/Kerguelen	Terres australes françaises
+Antarctica/Mawson	Antarctique
+Ouralsk	Kazakhstan
+Kostanaï	Kazakhstan
+Kzyl Orda	Kazakhstan
+Samarcande	Ouzbékistan
+Tachkent	Ouzbékistan
+Antarctica/Vostok	Antarctique
+Ekaterinbourg	Russie
+Asia/Colombo	Sri Lanka
+	Inde
+Calcutta	Inde
+	Népal
+Katmandou	Népal
+	
+Bichkek	Kirghizstan
+Indian/Chagos	Territoire britannique de l’océan Indien
+Asia/Dhaka	Bangladesh
+	Bangladesh
+Asia/Omsk	Russie
+Asia/Thimphu	Bhoutan
+	Bhoutan
+Asia/Urumqi	Chine
+	Chine
+	Myanmar (Birmanie); Îles Cocos
+Indian/Cocos	Îles Cocos
+Rangoun	Myanmar (Birmanie)
+	
+Asia/Bangkok	Thaïlande; Île Christmas; Cambodge; Laos; Viêt Nam
+Asia/Phnom_Penh	Cambodge
+Asia/Vientiane	Laos
+Indian/Christmas	Île Christmas
+Asia/Barnaul	Russie
+Antarctica/Davis	Antarctique
+	Viêt Nam
+Hô-Chi-Minh-Ville	Viêt Nam
+Asia/Hovd	Mongolie
+Asia/Jakarta	Indonésie
+Krasnoïarsk	Russie
+Novossibirsk	Russie
+Asia/Novokuznetsk	Russie
+Asia/Pontianak	Indonésie
+Asia/Tomsk	Russie
+	
+Antarctica/Casey	Antarctique
+Asia/Hong_Kong	R.A.S. chinoise de Hong Kong
+	R.A.S. chinoise de Hong Kong
+Irkoutsk	Russie
+Asia/Kuching	Malaisie; Brunei
+Asia/Brunei	Brunei
+Asia/Macau	R.A.S. chinoise de Macao
+	R.A.S. chinoise de Macao
+Macassar	Indonésie
+	Indonésie
+Manille	Philippines
+Australia/Perth	Australie
+	Australie
+Asia/Shanghai	Chine
+	Chine
+	Chine
+	Chine
+	Chine
+Singapour	Singapour; Antarctique; Malaisie
+	Singapour
+Asia/Kuala_Lumpur	Malaisie
+Asia/Taipei	Taïwan
+	Taïwan
+Oulan-Bator	Mongolie
+	Mongolie
+	Mongolie
+Australia/Eucla	Australie
+	
+Tchita	Russie
+Asia/Dili	Timor oriental
+Asia/Jayapura	Indonésie
+Asia/Khandyga	Russie
+Palaos	Palaos
+Asia/Pyongyang	Corée du Nord
+Séoul	Corée du Sud
+	Corée du Sud
+Asia/Tokyo	Japon; Australie
+	Japon
+Iakoutsk	Russie
+Australia/Darwin	Australie
+	Australie
+Adélaïde	Australie
+	Australie
+Australia/Broken_Hill	Australie
+	Australie
+	
+Australia/Brisbane	Australie
+	Australie
+Pacific/Guam	Guam; Îles Mariannes du Nord
+Pacific/Saipan	Îles Mariannes du Nord
+Australia/Lindeman	Australie
+Pacific/Port_Moresby	Papouasie-Nouvelle-Guinée; Antarctique; Micronésie
+Antarctica/DumontDUrville	Antarctique
+	Micronésie
+	Micronésie
+Pacific/Truk	Micronésie
+Asia/Ust-Nera	Russie
+Asia/Vladivostok	Russie
+Australia/Hobart	Australie
+	Australie
+	Australie
+Antarctica/Macquarie	Australie
+Australia/Melbourne	Australie
+	Australie
+Australia/Sydney	Australie
+	Australie
+	Australie
+	Australie
+Australia/Lord_Howe	Australie
+	Australie
+	
+Pacific/Bougainville	Papouasie-Nouvelle-Guinée
+Éfaté	Vanuatu
+Pacific/Guadalcanal	Îles Salomon; Micronésie
+	Micronésie
+Pacific/Ponape	Micronésie
+Pacific/Kosrae	Micronésie
+Asia/Magadan	Russie
+Pacific/Noumea	Nouvelle-Calédonie
+Sakhaline	Russie
+Asia/Srednekolymsk	Russie
+Pacific/Norfolk	Île Norfolk
+	
+Asia/Anadyr	Russie
+Fidji	Fidji
+Kamtchatka	Russie
+Pacific/Kwajalein	Îles Marshall
+	Îles Marshall
+Pacific/Nauru	Nauru
+Pacific/Tarawa	Kiribati; Îles Marshall; Tuvalu; Îles mineures éloignées des États-Unis; Wallis-et-Futuna
+Pacific/Funafuti	Tuvalu
+Pacific/Majuro	Îles Marshall
+Pacific/Wake	Îles mineures éloignées des États-Unis
+Pacific/Wallis	Wallis-et-Futuna
+Pacific/Auckland	Nouvelle-Zélande; Antarctique
+	Nouvelle-Zélande
+Antarctica/McMurdo	Antarctique
+	Antarctique
+Pacific/Chatham	Nouvelle-Zélande
+	Nouvelle-Zélande
+	
+Pacific/Apia	Samoa
+Pacific/Fakaofo	Tokelau
+	Kiribati
+Pacific/Enderbury	Kiribati
+Pacific/Tongatapu	Tonga
+	
+Pacific/Kiritimati	Kiribati
