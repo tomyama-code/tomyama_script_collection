@@ -5,7 +5,7 @@
 ## - Displays the holiday data "cl.holiday" in the pager.
 ##
 ## - Version: 1
-## - $Revision: 1.12 $
+## - $Revision: 1.13 $
 ##
 ## - Author: 2022-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -147,7 +147,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.12 $};
+    my $rev = q{$Revision: 1.13 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -168,6 +168,10 @@ Displays the holiday data "cl.holiday" in the pager.
 The default pager is the "less" command.
 If the $PAGER environment variable is set,
 that setting takes precedence.
+
+=head1 VERSION
+
+This document describes $Revision: 1.13 $.
 
 =head1 SYNOPSIS
 

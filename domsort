@@ -3,7 +3,7 @@
 ## DOMSORT -- Sort by domain or IP address hierarchy.
 ##
 ## - Version: 1
-## - $Revision: 1.12 $
+## - $Revision: 1.13 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -170,7 +170,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.12 $};
+    my $rev = q{$Revision: 1.13 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -291,6 +291,10 @@ __END__
 =head1 NAME
 
 DOMSORT - Sort by domain or IP address hierarchy.
+
+=head1 VERSION
+
+This document describes $Revision: 1.13 $.
 
 =head1 SYNOPSIS
 

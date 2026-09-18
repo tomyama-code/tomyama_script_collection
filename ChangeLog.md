@@ -4,6 +4,27 @@
 ### Added
 - xxx
 
+## [0.3.31] - 2026-09-19
+### Changed
+- Modified to embed the script version in the document.
+  - `c`               [1.05.034]
+  - `cl`              [1.02.042]
+  - `domsort`         [1.01.013]
+  - `fill`            [1.01.014]
+  - `FTCalc.pm`       [1.01.025]
+  - `holiday`         [1.01.013]
+  - `mark`            [1.02.024]
+  - `timezone_id`     [1.01.021]
+  - `tsc_bin_path.pl` [1.01.010]
+  - `tools/build_script.sh` [1.8]
+  - `tools/create_CATALOG.sh` [1.15]
+  - `tools/gen_autotools_acam.pl` [1.14]
+  - `tools/GenAutotoolsAcAm_UserFile.pm` [2.116]
+
+## [0.3.30] - 2026-09-18
+### Changed
+- Minor changes to the test script.
+
 ## [0.3.29] - 2026-09-17
 ### Changed
 - `timezone_id` [1.01.020]:

@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.41 $
+## - $Revision: 2.42 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -195,7 +195,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.41 $};
+    my $rev = q{$Revision: 2.42 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1168,6 +1168,10 @@ Update interval in seconds (1-60)
 Refresh the display immediately
 
 =back
+
+=head1 VERSION
+
+This document describes $Revision: 2.42 $.
 
 =head1 SYNOPSIS
 

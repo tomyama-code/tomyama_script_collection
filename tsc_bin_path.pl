@@ -3,7 +3,7 @@
 ## tsc_bin_path.pl -- Prints the installation path or project root directory.
 ##
 ## - Version: 1
-## - $Revision: 1.9 $
+## - $Revision: 1.10 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -41,7 +41,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.9 $};
+    my $rev = q{$Revision: 1.10 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -89,6 +89,10 @@ If called using the PATH environment variable,
 it outputs the installation path;
 if called using a relative path,
 it outputs the specified path.
+
+=head1 VERSION
+
+This document describes $Revision: 1.10 $.
 
 =head1 SYNOPSIS
 

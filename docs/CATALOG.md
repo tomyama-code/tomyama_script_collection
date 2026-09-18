@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.24 $
+- $Revision: 1.25 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -42,7 +42,7 @@ The Flat-Text Calculator (Perl Script)
 - Turn your formulas into reusable data.
 
 - Version: 1
-- $Revision: 5.33 $
+- $Revision: 5.34 $
 
 - Script Structure
   - main
@@ -73,7 +73,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.41 $
+- $Revision: 2.42 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -91,7 +91,7 @@ For details, please refer to [cl.md](cl.md).
 Sort by domain or IP address hierarchy.
 
 - Version: 1
-- $Revision: 1.12 $
+- $Revision: 1.13 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -108,13 +108,13 @@ For details, please refer to [domsort.md](domsort.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.13 $
+- $Revision: 1.14 $
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 ![Image of the fill command execution](img/fill.jpg)
@@ -128,7 +128,7 @@ Displaying holiday data in the pager
 - Displays the holiday data "cl.holiday" in the pager.
 
 - Version: 1
-- $Revision: 1.12 $
+- $Revision: 1.13 $
 
 - Author: 2022-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -148,7 +148,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.23 $
+- $Revision: 2.24 $
 
 - Author: 2006-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -165,7 +165,7 @@ For details, please refer to [mark.md](mark.md).
 
 List IANA timezone IDs.
 
-- $Revision: 1.20 $
+- $Revision: 1.21 $
 - Note: This uses bundled IANA data instead of the host system's timezone data.
 
 - Author: 2026, tomyama
@@ -184,7 +184,7 @@ For details, please refer to [timezone_id.md](timezone_id.md).
 Prints the installation path or project root directory.
 
 - Version: 1
-- $Revision: 1.9 $
+- $Revision: 1.10 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -206,13 +206,13 @@ A script that describes the build steps
 - A script describing the build steps in an environment
   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.6 $
+- $Revision: 1.8 $
 
-- Author: 2025, tomyama
+- Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
 
 BSD 2-Clause License:
-Copyright (c) 2025, tomyama
+Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
 For details, please refer to [build_script.sh.md](build_script.sh.md).
@@ -227,7 +227,7 @@ Generate and manage autotools "ac" and "am" files from a single source.
 - If any files have been updated, it will exit with 0.
 - If no files have been updated, it will exit with a value other than 0.
 
-- $Revision: 1.13 $
+- $Revision: 1.14 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -244,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.115 $
+- $Revision: 2.116 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -264,12 +264,11 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.12 $
+- $Revision: 1.15 $
 
 - Tools required for this script
   - Perl 5.10 or later
   - pod2markdown
-  - help2man
   - glow
   - Graphviz (using the dot command)
 

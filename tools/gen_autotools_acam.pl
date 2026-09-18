@@ -8,7 +8,7 @@
 ## - If any files have been updated, it will exit with 0.
 ## - If no files have been updated, it will exit with a value other than 0.
 ##
-## - $Revision: 1.13 $
+## - $Revision: 1.14 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -184,6 +184,10 @@ __END__
 =head1 NAME
 
 gen_autotools_acam.pl -- Generate and manage autotools "ac" and "am" files from a single source.
+
+=head1 VERSION
+
+This document describes $Revision: 1.14 $.
 
 =head1 SYNOPSIS
 

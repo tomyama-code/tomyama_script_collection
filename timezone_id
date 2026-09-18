@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.20 $
+## - $Revision: 1.21 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -395,7 +395,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.20 $};
+    my $rev = q{$Revision: 1.21 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -501,6 +501,10 @@ Note: How to check when the time zone switches between daylight saving time and 
   Europe/Paris  67768036191673199 (gmtime failed) = Wed Dec 31 23:59:59 2147485547 CET isdst=0 gmtoff=3600
   Europe/Paris  67768036191673200 (gmtime failed) = 67768036191673200 (localtime failed)
   Europe/Paris  9223372036854775807 (gmtime failed) = 9223372036854775807 (localtime failed)
+
+=head1 VERSION
+
+This document describes $Revision: 1.21 $.
 
 =head1 SYNOPSIS
 

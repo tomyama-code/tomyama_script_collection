@@ -5,13 +5,13 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.6 $
+## - $Revision: 1.8 $
 ##
-## - Author: 2025, tomyama
+## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
 ##
 ## BSD 2-Clause License:
-## Copyright (c) 2025, tomyama
+## Copyright (c) 2025-2026, tomyama
 ## All rights reserved.
 ################################################################################
 
@@ -20,13 +20,30 @@ sh_main()
     sh_init
 
     if [ "$1" = '-h' -o "$1" = '--help' ]; then
-        echo "build_script.sh -- A script that describes the build steps"
+        echo "NAME"
+        echo "  $appname -- A script that describes the build steps"
         echo ""
-        echo "A script describing the build steps in an environment"
-        echo "that uses 'autotools' and 'custom scripts that generate autotools input files.'"
+        echo "VERSION"
+        echo '  This document describes $Revision: 1.8 $.'
         echo ""
-        echo "See Also"
-        echo "- docs/Developer_Manual.md"
+        echo "SYNOPSIS"
+        echo "  ./tools/$appname"
+        echo ""
+        echo "DESCRIPTION"
+        echo "  - A script describing the build procedure."
+        echo "    - First, generate the 'autotools' input files..."
+        echo "    - Then, run 'autotools'."
+        echo "    - Build using the 'Makefile'."
+        echo ""
+        echo "SEE ALSO"
+        echo "  - docs/Developer_Manual.md"
+        echo ""
+        echo "AUTHOR"
+        echo "  2025-2026, tomyama"
+        echo ""
+        echo "LICENSE"
+        echo "  BSD 2-Clause License"
+        echo "  Copyright (c) 2025-2026, tomyama"
         exit 0
     elif [ "$1" = '-v' -o "$1" = '--version' ]; then
         echo "$appname - ($version)"
@@ -111,8 +128,7 @@ sh_init()
     di_tmp="`dirname  \"$0\"`"
     cd "$di_tmp/"; apppath="`pwd`"; cd "$di_work/"
     unset di_tmp
-    version=`grep '$[R]evision' "$apppath/$appname" | \
-        sed 's/^.*$R/R/' | sed 's/ *\$$//'`
+    version=`sed -n 's/^.*\$[R]evision: \([0-9][0-9]*\.[0-9][0-9]*\) \$.*$/\1/p' "$apppath/$appname" | uniq`
 }
 
 sh_exec()

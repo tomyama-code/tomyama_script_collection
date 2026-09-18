@@ -15,7 +15,7 @@
 ## - Turn your formulas into reusable data.
 ##
 ## - Version: 1
-## - $Revision: 5.33 $
+## - $Revision: 5.34 $
 ##
 ## - Script Structure
 ##   - main
@@ -190,7 +190,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 5.33 $};
+    my $rev = q{$Revision: 5.34 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -6034,6 +6034,10 @@ automated epoch/local time conversions, and dynamic countdowns.
 Features advanced GIS navigation (Great-Circle and Rhumb Line distance/bearing) and localized lunar phase simulation with ASCII art visualizations.
 
 =back
+
+=head1 VERSION
+
+This document describes $Revision: 5.34 $.
 
 =head1 SYNOPSIS
 

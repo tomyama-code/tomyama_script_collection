@@ -7,12 +7,11 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.12 $
+## - $Revision: 1.15 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
 ##   - pod2markdown
-##   - help2man
 ##   - glow
 ##   - Graphviz (using the dot command)
 ##
@@ -29,13 +28,18 @@ out_format="svg"
 
 usage()
 {
-    echo "Usage: $appname <CATALOG.md> <script>..."
+    echo "SYNOPSIS"
+    echo "  ./tools/$appname <CATALOG.md> <script>..."
 }
 
 sh_main()
 {
     sh_init "$@"
     parse_input "$@"
+
+    rev=`sh_get_revision`
+    #echo "appname=\"$appname\", rev=\"$rev\""
+    # appname="create_CATALOG.sh", rev="1.12"
 
     targfile="$1"
     ## Confirmation required before calling "shift" [ on /bin/dash ]
@@ -177,13 +181,6 @@ sh_main()
                     is_environment_inadequate=1
                 fi
             fi
-            if [ "$dependent_file_type" = "shell" ]; then
-                sh_command_exists "help2man"
-                if [ $? -ne 0 ]; then
-                    errp "error: help2man command is missing."
-                    is_environment_inadequate=1
-                fi
-            fi
             if [ $is_environment_inadequate -ne 0 ]; then
                 errp "error: Cannot generate documentation."
                 continue;
@@ -210,27 +207,12 @@ sh_main()
             echo "* * *" >>"$targdir/$depend_base.md"
 
             if [ "$dependent_file_type" = "perl" ]; then
-                perldoc -Tu "$dependent_file" | pod2markdown >>"$targdir/$depend_base.md"
-            fi
-            if [ "$dependent_file_type" = "shell" ]; then
-                help2man --no-info "./$dependent_file" | man -l - | awk '
-                    /^NAME/{
-                        FLAG = 1;
-                    }
-                    FLAG != 0{
-                        if( match( $0, "^[a-z]" ) ){
-                            FLAG = 0;
-                        }else if( match( $0, "^[A-Z]" ) ){
-                            printf( "# %s\n\n", $0 );
-                        }else{
-                            sub( "^       ", "", $0 );
-                            if( $0 == "OPTIONS" ){
-                              sub( "^", "# " );
-                            }
-                            print;
-                        }
-                    }
-                ' >>"$targdir/$depend_base.md"
+                perldoc -Tu "./$dependent_file" | \
+                    pod2markdown | \
+                    sh_embed_version "$dependent_file" >>"$targdir/$depend_base.md"
+            elif [ "$dependent_file_type" = "shell" ]; then
+                "./$dependent_file" --help | sh_help2markdown | \
+                    sh_embed_version "$dependent_file" >>"$targdir/$depend_base.md"
             fi
 
             ## [ On /bin/dash ]
@@ -279,8 +261,7 @@ sh_init()
     di_tmp="`dirname  \"$0\"`"
     cd "$di_tmp/"; apppath="`pwd`"; cd "$di_work/"
     unset di_tmp
-    version=`grep '$[R]evision' "$apppath/$appname" | \
-        sed 's/^.*$R/R/' | sed 's/ *\$$//'`
+    version=`sed -n 's/^.*\$[R]evision: \([0-9][0-9]*\.[0-9][0-9]*\) \$.*$/\1/p' "$apppath/$appname" | uniq`
 }
 
 ## argument analysis
@@ -301,24 +282,39 @@ parse_input()
             exit 0
             ;;
         '-h' | '--help')
+            echo "NAME"
+            echo "  $appname -- Script to generate a catalog of scripts."
+            echo ""
+            echo "VERSION"
+            echo '  This document describes $Revision: 1.15 $.'
+            echo ""
             usage
-            echo "Script to generate a catalog of scripts."
             echo ""
-            echo "- Generates Markdown formatted files in the 'docs' directory."
-            echo "  - Output documentation from '--help' option or POD"
-            echo "- Generates image files using 'Graphviz'."
-            echo "  - Outputs svg images from dot files in 'docs'."
+            echo "DESCRIPTION"
+            echo "  - Generates Markdown formatted files in the 'docs' directory."
+            echo "    - Output documentation from '--help' option or POD"
             echo ""
-            echo "- Tools required for this script"
-            echo "  - Perl 5.10 or later"
-            echo "  - pod2markdown"
-            echo "  - help2man"
-            echo "  - glow"
-            echo "  - Graphviz (using the dot command)"
+            echo "  - Generates image files using 'Graphviz'."
+            echo "    - Outputs svg images from dot files in 'docs'."
             echo ""
             echo "OPTIONS"
             echo "  -h, --help     display this help and exit"
             echo "  -v, --version  output version information and exit"
+            echo ""
+            echo "DEPENDENCIES"
+            echo "  Tools required for this script."
+            echo ""
+            echo "  - Perl 5.10 or later"
+            echo "  - pod2markdown"
+            echo "  - glow"
+            echo "  - Graphviz (using the dot command)"
+            echo ""
+            echo "AUTHOR"
+            echo "  2025-2026, tomyama"
+            echo ""
+            echo "LICENSE"
+            echo "  BSD 2-Clause License"
+            echo "  Copyright (c) 2025-2026, tomyama"
             exit 0
             ;;
         '-'*)
@@ -337,6 +333,12 @@ errp()
     echo "$@" 1>&2
 }
 
+sh_get_revision()
+{
+    rev='$Revision: 1.15 $'
+    echo "$rev" | sed 's!^\$[R]evision: \([0-9][0-9]*\.[0-9][0-9]*\) \$$!\1!'
+}
+
 sh_getMdHeader()
 {
     echo '<!--- This file is auto-generated by `make catalog`. Do not edit manually. -->'
@@ -345,6 +347,51 @@ sh_getMdHeader()
 sh_command_exists()
 {
     which "$1" >/dev/null 2>&1
+}
+
+sh_help2markdown()
+{
+    cat - | perl -ne '
+        my $line = $_;
+        $line =~ s/\r?\n$//o;
+
+        my @head1 = (
+            q{NAME},
+            q{VERSION},
+            q{SYNOPSIS},
+            q{DESCRIPTION},
+            q{OPTIONS},
+            q{SEE ALSO},
+            q{DEPENDENCIES},
+            q{AUTHOR},
+            q{LICENSE}
+        );
+        my $definition_of_head1 = join( q{|}, @head1 );
+        if( $line =~ s/^($definition_of_head1)$/# $1\n/o ){
+        }else{
+            $line =~ s/^  //o;
+        }
+
+        print( qq{$line\n} );
+    '
+}
+
+sh_embed_version()
+{
+    script_name="$1"
+    cat - | perl -ne '
+        my $line = $_;
+        $line =~ s/\r?\n$//o;
+
+        my $flag_embedded = 0;
+        if( $line =~ s/^\s*(This document describes) \$[R]evision: (\d+\.\d+) \$\.$/- $1 $script_name [$2]./go ){
+            $flag_embedded = 1;
+        }
+        print( "$line\n" );
+        if( $flag_embedded ){
+            print( qq{- This document was generated by $appname [$rev].\n} );
+        }
+    ' -s -- "-script_name=$script_name" "-appname=$appname" "-rev=$rev"
 }
 
 sh_showMarkdownDoc()
@@ -377,7 +424,7 @@ sh_isUpdateNecessary()
     genfile="$2"
 
     if [ ! -f "$basefile" ]; then
-        echo "$0: error: $basefile: file not found" 1>&2
+        errp "$0: error: $basefile: file not found"
         exit 1
     fi
 

@@ -4,7 +4,7 @@
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.24 $
+## - $Revision: 1.25 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -21,6 +21,10 @@
 =head1 NAME
 
 FTCalc - Perl interface for The Flat-Text Calculator
+
+=head1 VERSION
+
+This document describes $Revision: 1.25 $.
 
 =head1 SYNOPSIS
 
@@ -720,7 +724,7 @@ sub GetVersion()
 }
 sub _GetRevision()
 {
-    my $rev = q{$Revision: 1.24 $};
+    my $rev = q{$Revision: 1.25 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
