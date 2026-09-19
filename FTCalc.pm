@@ -1,10 +1,11 @@
+#!/usr/bin/env perl
 ################################################################################
 ## FTCalc -- Perl interface for The Flat-Text Calculator
 ##
 ## - A module that provides an API for manipulating the calculation script "c".
 ##
 ## - Version: 1
-## - $Revision: 1.25 $
+## - $Revision: 1.26 $
 ##
 ## - Author: 2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -24,7 +25,7 @@ FTCalc - Perl interface for The Flat-Text Calculator
 
 =head1 VERSION
 
-This document describes $Revision: 1.25 $.
+This document describes $Revision: 1.26 $.
 
 =head1 SYNOPSIS
 
@@ -67,12 +68,13 @@ use File::Basename qw();            # first released with perl 5
 use parent 'Exporter';              # first released with perl v5.10.1
 
 our @EXPORT = qw(
-    _FTC_FAIL_OPEN_STDOUT
-    _FTC_FAIL_OPEN_STDERR
     _FTC_FAIL_OPEN3
     _FTC_FAIL_SYSREAD_READ_ERR
     _FTC_FAIL_SYSREAD_CLOSED_STREAM
     _FTC_FAIL_ONETIME_TIMEOUT
+    _FTC_FAIL_OPEN_STDOUT
+    _FTC_FAIL_OPEN_STDERR
+    _FTC_FAIL_OPEN_FTCOUT
     FTC_FSC_FOLLOW_VERBOSE
     FTC_FSC_OUTPUT_FORMULA
     FTC_FSC_OUTPUT_RESULT
@@ -84,13 +86,14 @@ use constant _FTC_FAIL_SYSREAD_READ_ERR      => 0x02;
 use constant _FTC_FAIL_SYSREAD_CLOSED_STREAM => 0x04;
 use constant _FTC_FAIL_ONETIME_TIMEOUT => 0x08;
 
+use constant _FTC_FAIL_OPEN_STDOUT => 0x10;
+use constant _FTC_FAIL_OPEN_STDERR => 0x20;
+use constant _FTC_FAIL_OPEN_FTCOUT => 0x40;
+
 use constant FTC_FSC_FOLLOW_VERBOSE => 0x01;
 use constant FTC_FSC_OUTPUT_FORMULA => 0x10;
 use constant FTC_FSC_OUTPUT_RESULT  => 0x20;
 use constant FTC_FSC_OUTPUT_BOTH    => 0x30;
-
-use constant _FTC_FAIL_OPEN_STDOUT => 0x40;
-use constant _FTC_FAIL_OPEN_STDERR => 0x80;
 
 #local *STDOUT;
 #binmode( STDOUT, ':raw' );
@@ -428,7 +431,7 @@ sub formula( $$;$ )
 
 sub _dupe_handle_stdout( $ )
 {
-    my( undef, $mode, $orig_fh ) = @_;
+    my( undef ) = @_;
 
     if( _get_action_flag( _FTC_FAIL_OPEN_STDOUT ) ){
         _clr_action_flag( _FTC_FAIL_OPEN_STDOUT );
@@ -441,7 +444,7 @@ sub _dupe_handle_stdout( $ )
 
 sub _dupe_handle_stderr( $ )
 {
-    my( undef, $mode, $orig_fh ) = @_;
+    my( undef ) = @_;
 
     if( _get_action_flag( _FTC_FAIL_OPEN_STDERR ) ){
         _clr_action_flag( _FTC_FAIL_OPEN_STDERR );
@@ -724,10 +727,108 @@ sub GetVersion()
 }
 sub _GetRevision()
 {
-    my $rev = q{$Revision: 1.25 $};
+    my $rev = q{$Revision: 1.26 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
+
+=head1 COMMAND LINE USAGE
+
+This module can be executed directly as a command to generate a default template file.
+
+=head2 How to Run
+
+=over 4
+
+=item FTCalc.pm [ I<filename> ]
+
+Generates a template file.
+If I<filename> is omitted, it defaults to C<./a.ftc>.
+
+Note: C<FTCalc.pm> is in your C<PATH> and has execute permissions, so it can be run directly.
+
+=back
+
+=head2 Execution example
+
+  $ FTCalc.pm
+  Generated './a.ftc'.
+  $ cat -n ./a.ftc
+       1  #!/usr/bin/env perl
+       2  use strict;
+       3  use warnings;
+       4  use bytes;
+       5  use lib qx/tsc_bin_path.pl/;
+       6  use FTCalc;
+       7
+       8  my $c = FTCalc->new();
+       9
+      10  my $mph = 88;
+      11  my $km_per_h = $c->formula( qq{MPH( $mph, km_per_h )} );
+      12  $km_per_h = sprintf( '%.2f', $km_per_h );
+      13
+      14  print( qq{$mph mph is $km_per_h km/h\n} );
+      15  # 88 mph is 141.62 km/h
+      16
+      17  exit( 0 );
+  $ ./a.ftc
+  88 mph is 141.62 km/h
+  $
+
+=cut
+
+sub _open_ftc_out( $$$ )
+{
+    my( undef, $mode, $file_path ) = @_;
+
+    if( _get_action_flag( _FTC_FAIL_OPEN_FTCOUT ) ){
+        _clr_action_flag( _FTC_FAIL_OPEN_FTCOUT );
+        return;
+    }
+
+    # 成功すれば真（1）、失敗すれば偽（undef）が返る
+    return open( $_[ 0 ], $mode, $file_path );
+}
+
+sub _pl_main( @ )
+{
+    my $ftc_file = './a.ftc';
+    $ftc_file = $_[ 0 ] if( defined( $_[ 0 ] ) );
+    #print( qq{\$ftc_file="$ftc_file"\n} );
+
+    my @ftc_body = (
+        q{#!/usr/bin/env perl},
+        q{use strict;},
+        q{use warnings;},
+        q{use bytes;},
+        q{use lib qx/tsc_bin_path.pl/;},
+        q{use FTCalc;},
+        q{},
+        q{my $c = FTCalc->new();},
+        q{},
+        q{my $mph = 88;},
+        q{my $km_per_h = $c->formula( qq{MPH( $mph, km_per_h )} );},
+        q{$km_per_h = sprintf( '%.2f', $km_per_h );},
+        q{},
+        q{print( qq{$mph mph is $km_per_h km/h\n} );},
+        q{# 88 mph is 141.62 km/h},
+        q{},
+        q{exit( 0 );}
+    );
+    _open_ftc_out( my $ftcout_fh, '>', $ftc_file ) ||
+        die( qq{"$ftc_file": could not open file: $!} );
+    print $ftcout_fh ( join( "\n", @ftc_body ) . "\n" );
+    close( $ftcout_fh );
+
+    chmod( 0755, $ftc_file );
+
+    print( qq{Generated '$ftc_file'.\n} );
+
+    return 0;
+}
+
+# uncoverable branch false
+exit( _pl_main( @ARGV ) ) unless caller();
 
 1;
 

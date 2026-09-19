@@ -12,7 +12,7 @@ Perl interface for The Flat-Text Calculator
 - A module that provides an API for manipulating the calculation script "c".
 
 - Version: 1
-- $Revision: 1.25 $
+- $Revision: 1.26 $
 
 - Author: 2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -244,7 +244,7 @@ Define templates and key-value pairs for use with "gen_autotools_acam.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.116 $
+- $Revision: 2.117 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -264,7 +264,7 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.15 $
+- $Revision: 1.16 $
 
 - Tools required for this script
   - Perl 5.10 or later

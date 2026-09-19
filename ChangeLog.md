@@ -4,6 +4,18 @@
 ### Added
 - xxx
 
+## [0.3.32] - 2026-09-20
+### Added
+- `FTCalc.pm` [1.01.026]
+  - Added a template generation feature.
+
+### Changed
+- `tools/create_CATALOG.sh` [1.16]
+  - Added `under_development_flag`.
+  - Changed the logic so that document updates are determined based on the modification timestamp during development,
+    but by checking revision numbers otherwise.
+    - This change should prevent unnecessary updates in repositories like Git that do not preserve file timestamps.
+
 ## [0.3.31] - 2026-09-19
 ### Changed
 - Modified to embed the script version in the document.

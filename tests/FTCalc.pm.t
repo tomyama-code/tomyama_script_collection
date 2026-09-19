@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ################################################################################
 
 use strict;                         # first released with perl 5
@@ -590,6 +590,54 @@ subtest 'formulaメソッド: 異常系のテスト' => sub{
         # リカバリ処理を入れていないので、
         # おかしくなったインスタンスは再利用しないで作り直すこと。
     };
+};
+
+# --------------------------------------------------------
+# _pl_main: テンプレート生成機能のテスト
+# --------------------------------------------------------
+subtest '_pl_main: テンプレート生成機能のテスト' => sub{
+    my $t;
+    my $res;
+
+    $t = tests::Tester->run_blk( sub{
+        $res = FTCalc::_pl_main();
+    } );
+    $t->has_no_exception( q{./FTCalc.pm} );
+    is( $res, 0, q{正常終了すること} );
+    $t->stdout_is( qq{Generated './a.ftc'.\n} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_cmd( q{./a.ftc} );
+    $t->exit_is( 0, q{生成したテンプレートが実行できること} );
+    $t->stdout_is( qq{88 mph is 141.62 km/h\n} );
+    $t->stderr_is( qq{} );
+
+    unlink( q{./a.ftc} );
+
+    FTCalc::_set_action_flag( _FTC_FAIL_OPEN_FTCOUT );
+    $t = tests::Tester->run_blk( sub{
+        $res = FTCalc::_pl_main();
+    } );
+    $t->has_exception( q{./FTCalc.pm} );
+    $t->exception_like( qr/^"\.\/a\.ftc": could not open file: /, q{openで失敗} );
+    $t->stdout_is( qq{} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_blk( sub{
+        $res = FTCalc::_pl_main( './hello.ftc' );
+    } );
+    $t->has_no_exception( q{./FTCalc.pm './hello.ftc'} );
+    is( $res, 0, q{正常終了すること} );
+    $t->stdout_is( qq{Generated './hello.ftc'.\n} );
+    $t->stderr_is( qq{} );
+
+    $t = tests::Tester->run_cmd( q{./hello.ftc} );
+    $t->exit_is( 0, q{生成したテンプレートが実行できること} );
+    $t->stdout_is( qq{88 mph is 141.62 km/h\n} );
+    $t->stderr_is( qq{} );
+
+    unlink( q{./hello.ftc} );
+
 };
 
 done_testing();

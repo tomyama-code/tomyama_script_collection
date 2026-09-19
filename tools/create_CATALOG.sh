@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.15 $
+## - $Revision: 1.16 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
@@ -36,6 +36,10 @@ sh_main()
 {
     sh_init "$@"
     parse_input "$@"
+
+    sh_is_it_under_development
+    under_development_flag=$?
+    echo "\$under_development_flag=$under_development_flag"
 
     rev=`sh_get_revision`
     #echo "appname=\"$appname\", rev=\"$rev\""
@@ -286,7 +290,7 @@ parse_input()
             echo "  $appname -- Script to generate a catalog of scripts."
             echo ""
             echo "VERSION"
-            echo '  This document describes $Revision: 1.15 $.'
+            echo '  This document describes $Revision: 1.16 $.'
             echo ""
             usage
             echo ""
@@ -335,7 +339,7 @@ errp()
 
 sh_get_revision()
 {
-    rev='$Revision: 1.15 $'
+    rev='$Revision: 1.16 $'
     echo "$rev" | sed 's!^\$[R]evision: \([0-9][0-9]*\.[0-9][0-9]*\) \$$!\1!'
 }
 
@@ -347,6 +351,25 @@ sh_getMdHeader()
 sh_command_exists()
 {
     which "$1" >/dev/null 2>&1
+}
+
+sh_is_it_under_development()
+{
+    under_devel_flag=0
+    if [ "$git_command_exists" = '' ]; then
+        git_command_exists=0
+        sh_command_exists "git"
+        if [ $? -eq 0 ]; then
+            git_command_exists=1
+        fi
+    fi
+    if [ $git_command_exists -ne 0 ]; then
+        git diff --exit-code $apppath/GenAutotoolsAcAm_UserFile.pm >/dev/null
+        if [ $? -ne 0 ]; then
+            under_devel_flag=1
+        fi
+    fi
+    return $under_devel_flag
 }
 
 sh_help2markdown()
@@ -428,17 +451,61 @@ sh_isUpdateNecessary()
         exit 1
     fi
 
-    epoch_base="`sh_get_epoch_sec_of_last_update_time \"$basefile\"`"
+    if [ ! -f "$genfile" ]; then
+        return 2
+    fi
 
-    if [ -f "$genfile" ]; then
+    if [ $under_development_flag -eq 0 ]; then
+        # Determine based on the revision number.
+
+        # ./tools/create_CATALOG.sh docs/CATALOG.md FTCalc.pm c cl domsort fill holiday mark timezone_id tsc_bin_path.pl tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh
+        #echo "Determine based on the revision number."
+        #echo "\$basefile=\"$basefile\""
+        #echo "\$genfile=\"$genfile\""
+        basefile_rev=`perl -ne '
+            my $line = $_;
+            $line =~ s/\r?\n$//o;
+            if( $line =~ m/\\$[R]evision: (\\d+\\.\\d+) \\$/o ){
+                my $basefile_rev = $1;
+                print( qq{$basefile_rev} );
+                last;
+            }
+        ' "$basefile"`
+        #echo "\$basefile_rev=\"$basefile_rev\""
+        if [ "$basefile_rev" = '' ]; then
+            errp "$0: error: $basefile_rev: Revision not found"
+            exit 1
+        fi
+
+        basefilename="`basename \"$basefile\"`"
+        perl -ne '
+            my $line = $_;
+            $line =~ s/\r?\n$//o;
+            if( $line =~ m/\Q$basefilename [$rev].\E/o ){
+                #print( qq{ok\n} );
+                exit( 1 );
+            }
+        ' -s -- "-basefilename=$basefilename" "-rev=$basefile_rev" "$genfile"
+        is_the_revision_number_included=$?
+        #echo "\$is_the_revision_number_included=$is_the_revision_number_included"
+        if [ $is_the_revision_number_included -ne 0 ]; then
+            return 0
+        fi
+        #echo "\$basefile=\"$basefile\""
+        #echo "\$basefilename=\"$basefilename\", \$basefile_rev=\"$basefile_rev\""
+        #echo "\$genfile=\"$genfile\""
+        return 1
+    else
+        # Determine based on the file modification time.
+
+        epoch_base="`sh_get_epoch_sec_of_last_update_time \"$basefile\"`"
+
         epoch_genfile="`sh_get_epoch_sec_of_last_update_time \"$genfile\"`"
 
         if [ "$epoch_genfile" -ge "$epoch_base" ]; then
             return 0
         fi
         return 1
-    else
-        return 2
     fi
 }
 
