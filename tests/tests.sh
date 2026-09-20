@@ -65,8 +65,8 @@ sh_main()
     done
 
     perl -e 'use lib q{./tools};
-      use GenAutotoolsAcAm_UserFile;
-      my $pkg_ver = GenAutotoolsAcAm_UserFile::getPkgVersion();
+      use GenAutotoolsInput_UserFile;
+      my $pkg_ver = GenAutotoolsInput_UserFile::getPkgVersion();
       print( qq{\n} .
              qq{- [$pkg_ver] Package test results\n} .
              qq{  - Tested in a Perl $^V environment.\n\n} );' | tee -a "$test_summary"

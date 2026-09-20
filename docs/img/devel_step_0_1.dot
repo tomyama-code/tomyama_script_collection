@@ -30,7 +30,7 @@ digraph physical_directory_structure {
                 edge [style=invis];
                 program01 -> program02 -> program03 -> program04 -> program05
             }
-            program01 [shape=box, style=solid , label="( Step.pre-1 )\n./tools/gen_autotools_acam.pl", penwidth=2]
+            program01 [shape=box, style=solid , label="( Step.pre-1 )\n./tools/gen_autotools_input.pl", penwidth=2]
             program02 [shape=box, style=solid , label="( Step.1 )\naclocal                      "]
             program03 [shape=box, style=solid , label="( Step.2 )\nautoconf                     "]
             program04 [shape=box, style=solid , label="( Step.3 )\nautomake --add-missing --copy"]
@@ -50,7 +50,7 @@ digraph physical_directory_structure {
                 file13 -> file09 -> file10 -> file11 -> file12
             }
 
-            file13 [shape=note, style=solid , label="tools/GenAutotoolsAcAm_UserFile.pm", penwidth=2]
+            file13 [shape=note, style=solid , label="tools/GenAutotoolsInput_UserFile.pm", penwidth=2]
             file01 [shape=note, style=solid , label="docs/*.dot"]
             file02 [shape=note, style=solid , label="docs/*.svg"]
             file03 [shape=note, style=dotted, label="aclocal.m4"]

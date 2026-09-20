@@ -5,7 +5,7 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.8 $
+## - $Revision: 1.9 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -24,7 +24,7 @@ sh_main()
         echo "  $appname -- A script that describes the build steps"
         echo ""
         echo "VERSION"
-        echo '  This document describes $Revision: 1.8 $.'
+        echo '  This document describes $Revision: 1.9 $.'
         echo ""
         echo "SYNOPSIS"
         echo "  ./tools/$appname"
@@ -65,7 +65,7 @@ sh_main()
 
     cd "$apppath/../"
 
-    sh_exec ./tools/gen_autotools_acam.pl
+    sh_exec ./tools/gen_autotools_input.pl
     the_file_was_updated=$?
 
     need_configure=0

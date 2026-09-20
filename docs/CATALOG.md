@@ -206,7 +206,7 @@ A script that describes the build steps
 - A script describing the build steps in an environment
   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.8 $
+- $Revision: 1.9 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -217,17 +217,17 @@ All rights reserved.
 
 For details, please refer to [build_script.sh.md](build_script.sh.md).
 
-### tools/gen_autotools_acam.pl
+### tools/gen_autotools_input.pl
 
 Generate and manage autotools "ac" and "am" files from a single source.
 
-- Outputs autotools ac and am files based on the data in "GenAutotoolsAcAm_UserFile.pm".
+- Outputs autotools ac and am files based on the data in "GenAutotoolsInput_UserFile.pm".
 - Eliminates the hassle of adding definitions to multiple files.
 
 - If any files have been updated, it will exit with 0.
 - If no files have been updated, it will exit with a value other than 0.
 
-- $Revision: 1.14 $
+- $Revision: 1.15 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -236,15 +236,15 @@ BSD 2-Clause License:
 Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
-For details, please refer to [gen_autotools_acam.pl.md](gen_autotools_acam.pl.md).
+For details, please refer to [gen_autotools_input.pl.md](gen_autotools_input.pl.md).
 
-### tools/GenAutotoolsAcAm_UserFile.pm
+### tools/GenAutotoolsInput_UserFile.pm
 
-Define templates and key-value pairs for use with "gen_autotools_acam.pl".
+Define templates and key-value pairs for use with "gen_autotools_input.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.117 $
+- $Revision: 2.118 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -253,7 +253,7 @@ BSD 2-Clause License:
 Copyright (c) 2025-2026, tomyama
 All rights reserved.
 
-For details, please refer to [GenAutotoolsAcAm_UserFile.pm.md](GenAutotoolsAcAm_UserFile.pm.md).
+For details, please refer to [GenAutotoolsInput_UserFile.pm.md](GenAutotoolsInput_UserFile.pm.md).
 
 ### tools/create_CATALOG.sh
 
@@ -264,7 +264,7 @@ Script to generate a catalog of scripts.
 - Generates image files using 'Graphviz'.
   - Outputs svg images from dot files in 'docs'.
 
-- $Revision: 1.16 $
+- $Revision: 1.18 $
 
 - Tools required for this script
   - Perl 5.10 or later

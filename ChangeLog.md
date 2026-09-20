@@ -4,6 +4,15 @@
 ### Added
 - xxx
 
+## [0.3.33] - 2026-09-21
+### Changed
+- `tools/create_CATALOG.sh` [1.18]
+  - Added a check to distinguish between directories cloned via Git and those created by extracting a tarball.
+  - Refactored the logic of the `sh_is_it_under_development` subroutine.
+- Rename the file.
+  - [2.118] `tools/GenAutotoolsAcAm_UserFile.pl` -> `tools/GenAutotoolsInput_UserFile.pl`
+  - [1.15]  `tools/gen_autotools_acam.pl`        -> `tools/gen_autotools_input.pl`
+
 ## [0.3.32] - 2026-09-20
 ### Added
 - `FTCalc.pm` [1.01.026]

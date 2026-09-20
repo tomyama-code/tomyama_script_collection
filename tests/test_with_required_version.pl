@@ -4,7 +4,7 @@ use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 
 use lib './tools';    # @INC にディレクトリを追加
-require GenAutotoolsAcAm_UserFile;
+require GenAutotoolsInput_UserFile;
 
 sub command_exists( $ )
 {
@@ -113,7 +113,7 @@ sub get_perl_env()
     return %perl_env;
 }
 
-my @scripts = GenAutotoolsAcAm_UserFile::getMyScripts();
+my @scripts = GenAutotoolsInput_UserFile::getMyScripts();
 #printf( qq{( %s )\n}, join( ', ', @scripts ) );
 
 my $perlbrew = 'perlbrew';
@@ -126,8 +126,8 @@ if( $is_perlbrew_exists == 0 ){
 
 my %perl_env = get_perl_env();
 
-#GenAutotoolsAcAm_UserFile::setupValue();
-#my @testRunners = GenAutotoolsAcAm_UserFile::getTestRunners();
+#GenAutotoolsInput_UserFile::setupValue();
+#my @testRunners = GenAutotoolsInput_UserFile::getTestRunners();
 #printf( qq{( %s )\n}, join( ', ', @testRunners ) );
 
 #my $curr_perl_ver_num = $];

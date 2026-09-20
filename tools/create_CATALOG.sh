@@ -7,7 +7,7 @@
 ## - Generates image files using 'Graphviz'.
 ##   - Outputs svg images from dot files in 'docs'.
 ##
-## - $Revision: 1.16 $
+## - $Revision: 1.18 $
 ##
 ## - Tools required for this script
 ##   - Perl 5.10 or later
@@ -290,7 +290,7 @@ parse_input()
             echo "  $appname -- Script to generate a catalog of scripts."
             echo ""
             echo "VERSION"
-            echo '  This document describes $Revision: 1.16 $.'
+            echo '  This document describes $Revision: 1.18 $.'
             echo ""
             usage
             echo ""
@@ -339,7 +339,7 @@ errp()
 
 sh_get_revision()
 {
-    rev='$Revision: 1.16 $'
+    rev='$Revision: 1.18 $'
     echo "$rev" | sed 's!^\$[R]evision: \([0-9][0-9]*\.[0-9][0-9]*\) \$$!\1!'
 }
 
@@ -355,20 +355,31 @@ sh_command_exists()
 
 sh_is_it_under_development()
 {
-    under_devel_flag=0
     if [ "$git_command_exists" = '' ]; then
         git_command_exists=0
+        git_working_directory=0
+        under_devel_flag=0
+
         sh_command_exists "git"
         if [ $? -eq 0 ]; then
             git_command_exists=1
+        else
+            return $under_devel_flag
+        fi
+
+        git status . >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            git_working_directory=1
+        else
+            return $under_devel_flag
         fi
     fi
-    if [ $git_command_exists -ne 0 ]; then
-        git diff --exit-code $apppath/GenAutotoolsAcAm_UserFile.pm >/dev/null
-        if [ $? -ne 0 ]; then
-            under_devel_flag=1
-        fi
+
+    git diff --exit-code $apppath/GenAutotoolsInput_UserFile.pm >/dev/null
+    if [ $? -ne 0 ]; then
+        under_devel_flag=1
     fi
+
     return $under_devel_flag
 }
 
@@ -458,7 +469,7 @@ sh_isUpdateNecessary()
     if [ $under_development_flag -eq 0 ]; then
         # Determine based on the revision number.
 
-        # ./tools/create_CATALOG.sh docs/CATALOG.md FTCalc.pm c cl domsort fill holiday mark timezone_id tsc_bin_path.pl tools/build_script.sh tools/gen_autotools_acam.pl tools/GenAutotoolsAcAm_UserFile.pm tools/create_CATALOG.sh
+        # ./tools/create_CATALOG.sh docs/CATALOG.md FTCalc.pm c cl domsort fill holiday mark timezone_id tsc_bin_path.pl tools/build_script.sh tools/gen_autotools_input.pl tools/GenAutotoolsInput_UserFile.pm tools/create_CATALOG.sh
         #echo "Determine based on the revision number."
         #echo "\$basefile=\"$basefile\""
         #echo "\$genfile=\"$genfile\""

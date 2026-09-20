@@ -56,18 +56,18 @@
 自作スクリプトを使ってテンプレートから configure.ac, Makefile.am を生成する。
 configure.ac, Makefile.am は 直接編集禁止です。
 
-まずは、大元である、`tools/GenAutotoolsAcAm_UserFile.pm`を編集してください。
+まずは、大元である、`tools/GenAutotoolsInput_UserFile.pm`を編集してください。
 その後は以下のスクリプトで、configure.ac, Makefile.am を更新します。
 
 ```sh
-./tools/gen_autotools_acam.pl
+./tools/gen_autotools_input.pl
 ```
 
-`tools/GenAutotoolsAcAm_UserFile.pm` と `tools/gen_autotools_acam.pl` の詳細は、[CATALOG.md](CATALOG.md)を確認してください。
+`tools/GenAutotoolsInput_UserFile.pm` と `tools/gen_autotools_input.pl` の詳細は、[CATALOG.md](CATALOG.md)を確認してください。
 もしくは、直接それぞれのドキュメントを見ることもできます。
 
-- [gen_autotools_acam.pl](gen_autotools_acam.pl.md)
-- [GenAutotoolsAcAm_UserFile.pm](GenAutotoolsAcAm_UserFile.pm.md)
+- [gen_autotools_input.pl](gen_autotools_input.pl.md)
+- [GenAutotoolsInput_UserFile.pm](GenAutotoolsInput_UserFile.pm.md)
 
 ![( Step.0-1 )のファイルの状態図](img/devel_step_0_1.svg)
 

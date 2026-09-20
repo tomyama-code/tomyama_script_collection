@@ -1,9 +1,9 @@
 ################################################################################
-## GenAutotoolsAcAm_UserFile.pm -- Define templates and key-value pairs for use with "gen_autotools_acam.pl".
+## GenAutotoolsInput_UserFile.pm -- Define templates and key-value pairs for use with "gen_autotools_input.pl".
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.117 $
+## - $Revision: 2.118 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -13,19 +13,19 @@
 ## All rights reserved.
 ################################################################################
 
-package GenAutotoolsAcAm_UserFile;
+package GenAutotoolsInput_UserFile;
 
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.32';
+$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.33';
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c domsort fill FTCalc.pm holiday mark timezone_id tsc_bin_path.pl';
 $ACAM_KYVL{ '$MY_SCR_NOTEST$' } = 'cl';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
-                            ' tools/gen_autotools_acam.pl' .
-                            ' tools/GenAutotoolsAcAm_UserFile.pm' .
+                            ' tools/gen_autotools_input.pl' .
+                            ' tools/GenAutotoolsInput_UserFile.pm' .
                             ' tools/create_CATALOG.sh';
 $ACAM_KYVL{ '$MY_IMG_FORMAT$' } = 'svg';
 
@@ -59,7 +59,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.117 $)
+AC_REVISION($Revision: 2.118 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
 AC_INIT([tomyama_script_collection], [$MY_PKG_VER$], [tomyama_code@yahoo.co.jp])
@@ -193,7 +193,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.117 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.118 $';
     $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
     $ACAM_KYVL{ '$MY_DOCS$' } = getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
@@ -280,22 +280,22 @@ __END__
 
 =head1 NAME
 
-GenAutotoolsAcAm_UserFile.pm -- Define templates and key-value pairs for use with "gen_autotools_acam.pl".
+GenAutotoolsInput_UserFile.pm -- Define templates and key-value pairs for use with "gen_autotools_input.pl".
 
 =head1 VERSION
 
-This document describes $Revision: 2.117 $.
+This document describes $Revision: 2.118 $.
 
 =head1 SYNOPSIS
 
 Loading method example:
 
   use lib './tools';    # Add the package location to @INC
-  use GenAutotoolsAcAm_UserFile;
+  use GenAutotoolsInput_UserFile;
 
 =head1 DESCRIPTION
 
-This package serves as a user-editable configuration for "gen_autotools_acam.pl".
+This package serves as a user-editable configuration for "gen_autotools_input.pl".
 It defines:
 
 =over 4
@@ -331,7 +331,7 @@ Populate dynamic values (e.g. test names, documentation file lists) based on exi
 
 =head1 SEE ALSO
 
-L<gen_autotools_acam.pl>, perl(1)
+L<gen_autotools_input.pl>, perl(1)
 
 =head1 AUTHOR
 
