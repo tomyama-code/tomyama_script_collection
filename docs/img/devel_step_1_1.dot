@@ -55,7 +55,7 @@ digraph physical_directory_structure {
             file02 [shape=note, style=solid , label="docs/*.svg"]
             file03 [shape=note, style=solid , label="aclocal.m4", penwidth=2]
             file04 [shape=note, style=dotted, label="config.*"]
-            file05 [shape=note, style=solid , label="configure.ac", penwidth=2]
+            file05 [shape=note, style=solid , label="configure.ac"]
             file06 [shape=note, style=solid , label="Makefile.am"]
             file07 [shape=note, style=dotted, label="Makefile.in"]
             file08 [shape=note, style=dotted, label="Makefile"]
@@ -80,7 +80,8 @@ digraph physical_directory_structure {
         {rank=same; program05; file04; file08; file12}
 
         // スクリプトとドキュメントの関係
-        file05 -> program02 -> file03
-        file09 -> program02 -> file09
+        file05 -> program02 [style=dashed]
+        file09 -> program02 [dir=both]
+        program02 -> file03 [style=bold]
     }
 }

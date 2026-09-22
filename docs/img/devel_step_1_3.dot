@@ -53,14 +53,14 @@ digraph physical_directory_structure {
             file13 [shape=note, style=solid , label="tools/GenAutotoolsInput_UserFile.pm"]
             file01 [shape=note, style=solid , label="docs/*.dot"]
             file02 [shape=note, style=solid , label="docs/*.svg"]
-            file03 [shape=note, style=solid , label="aclocal.m4", penwidth=2]
+            file03 [shape=note, style=solid , label="aclocal.m4"]
             file04 [shape=note, style=dotted, label="config.*"]
-            file05 [shape=note, style=solid , label="configure.ac", penwidth=2]
-            file06 [shape=note, style=solid , label="Makefile.am", penwidth=2]
+            file05 [shape=note, style=solid , label="configure.ac"]
+            file06 [shape=note, style=solid , label="Makefile.am"]
             file07 [shape=note, style=solid , label="Makefile.in", penwidth=2]
             file08 [shape=note, style=dotted, label="Makefile"]
-            file09 [shape=note, style=solid  , label="autom4te.cache/*", penwidth=2]
-            file10 [shape=note, style=solid , label="tests/Makefile.am", penwidth=2]
+            file09 [shape=note, style=solid , label="autom4te.cache/*"]
+            file10 [shape=note, style=solid , label="tests/Makefile.am"]
             file11 [shape=note, style=solid , label="tests/Makefile.in", penwidth=2]
             file12 [shape=note, style=dotted, label="tests/Makefile"]
         }
@@ -80,10 +80,12 @@ digraph physical_directory_structure {
         {rank=same; program05; file04; file08; file12}
 
         // スクリプトとドキュメントの関係
-        file03 -> program04
-        file05 -> program04
-        file06 -> program04 -> file07
-        file10 -> program04 -> file11
-        file09 -> program04 -> file09
+        file03 -> program04 [style=dashed]
+        file05 -> program04 [style=dashed]
+        file06 -> program04 [style=dashed]
+        file10 -> program04 [style=dashed]
+        file09 -> program04 [dir=both]
+        program04 -> file07 [style=bold]
+        program04 -> file11 [style=bold]
     }
 }

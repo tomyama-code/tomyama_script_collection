@@ -45,7 +45,7 @@
 
 ## ステップごとの手順
 
-### Step 0: リポジトリを clone した状態
+### Step 0: Gitリポジトリを clone した状態
 ![( Step.0 )のファイルの状態図](img/devel_step_0.svg)
 
 ---
@@ -53,18 +53,18 @@
 
 ### Step 0-1: autotools 入力ファイルの生成
 
-自作スクリプトを使ってテンプレートから configure.ac, Makefile.am を生成する。
-configure.ac, Makefile.am は 直接編集禁止です。
+`tools/gen_autotools_input.pl`スクリプトを使ってテンプレートから `configure.ac`, `Makefile.am` を生成する。
+`configure.ac`, `Makefile.am` を 直接編集する事は禁止。
 
-まずは、大元である、`tools/GenAutotoolsInput_UserFile.pm`を編集してください。
-その後は以下のスクリプトで、configure.ac, Makefile.am を更新します。
+1. まずは、情報ファイルである、`tools/GenAutotoolsInput_UserFile.pm`を編集する。
+2. その後は以下のスクリプトで、`configure.ac`, `Makefile.am` を更新する。
 
 ```sh
 ./tools/gen_autotools_input.pl
 ```
 
-`tools/GenAutotoolsInput_UserFile.pm` と `tools/gen_autotools_input.pl` の詳細は、[CATALOG.md](CATALOG.md)を確認してください。
-もしくは、直接それぞれのドキュメントを見ることもできます。
+`tools/GenAutotoolsInput_UserFile.pm` と `tools/gen_autotools_input.pl` の詳細は、[CATALOG.md](CATALOG.md)を確認。
+もしくは、直接それぞれのドキュメントを見ることも可能。
 
 - [gen_autotools_input.pl](gen_autotools_input.pl.md)
 - [GenAutotoolsInput_UserFile.pm](GenAutotoolsInput_UserFile.pm.md)
@@ -74,9 +74,9 @@ configure.ac, Makefile.am は 直接編集禁止です。
 ---
 
 
-ここからは下は普通のautotools環境と同様の手順です（configure.ac, Makefile.amを直接編集しない事以外は）。
-この手順通りである必要はなくて`autoreconf -i`などを使っても良いです。
-どのステップでどのファイルが生成されるのかを整理したかったので作成した図です。
+ここから下は`autotools`の手順に従う。
+この手順通りである必要はなくて`autoreconf -i`などを使っても良い。
+この説明は、手順を明示するというよりも、【autotoolsがどのステップでどのファイルを生成しているのか？】を整理したかったので作成した。
 
 
 ### Step 1-1: aclocal
@@ -121,7 +121,7 @@ automake --add-missing --copy
 
 ### Step 1-4: configure
 
-./configure を実行し、Makefile を生成する。
+./configure を実行して Makefile を生成する。
 
 ```sh
 ./configure
@@ -134,7 +134,7 @@ automake --add-missing --copy
 
 ## テスト方法
 
-[README.md](../README.md) の「テスト」を参照してください。
+[README.md](../README.md) の「テスト」を参照。
 
 ---
 
@@ -145,16 +145,33 @@ automake --add-missing --copy
 make dist
 ```
 
-配布用 tarballの作成と同時に、docs配下のドキュメント（Markdown形式）、DOTファイルを画像（SVG形式）に変換する処理も走ります。
-図やドキュメントを更新する場合も、`make dist` をご利用ください。
+配布用 tarballの作成と同時に、docs配下のドキュメント（Markdown形式）、DOTファイルを画像（SVG形式）に変換する処理も実行される。
+図やドキュメントを更新する場合も、`make dist` を利用可能。
+
+アーカイブに含めるファイルの一覧を取得するには：
+
+```sh
+make echo-distfiles
+```
 
 ---
 
 
-## ドキュメント（Markdown形式）を更新するには：
+## Markdown形式のドキュメントを更新するには：
 
-docs配下のドキュメント（Markdown形式）の基となるデータはスクリプト内に入っています。
-ドキュメントだけを更新する場合は、`make catalog` をご利用ください。
+docs配下のドキュメント（Markdown形式）の基となるデータはスクリプト内に記述している。
+
+ドキュメントを更新したい場合は：
+
+```sh
+make catalog
+```
+
+dotファイルを変更した時に図だけを更新したい場合は：
+
+```sh
+make docs/img/*.svg
+```
 
 ---
 
@@ -163,10 +180,10 @@ docs配下のドキュメント（Markdown形式）の基となるデータは�
 
 編集禁止ファイル
 
-- configure.ac
-- Makefile.am
+- `configure.ac`
+- `Makefile.am`
 
-これらは Step 0-1 の手順で生成してください。
+これらのファイルは、必ず Step 0-1 の手順で生成すること。
 
 ## 今後の拡張
 

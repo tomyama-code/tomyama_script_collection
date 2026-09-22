@@ -57,11 +57,11 @@ digraph physical_directory_structure {
             file04 [shape=note, style=solid , label="config.*", penwidth=2]
             file05 [shape=note, style=solid , label="configure.ac"]
             file06 [shape=note, style=solid , label="Makefile.am"]
-            file07 [shape=note, style=solid , label="Makefile.in", penwidth=2]
+            file07 [shape=note, style=solid , label="Makefile.in"]
             file08 [shape=note, style=solid , label="Makefile", penwidth=2]
             file09 [shape=note, style=solid  , label="autom4te.cache/*"]
             file10 [shape=note, style=solid , label="tests/Makefile.am"]
-            file11 [shape=note, style=solid , label="tests/Makefile.in", penwidth=2]
+            file11 [shape=note, style=solid , label="tests/Makefile.in"]
             file12 [shape=note, style=solid , label="tests/Makefile", penwidth=2]
         }
 
@@ -80,8 +80,10 @@ digraph physical_directory_structure {
         {rank=same; program05; file04; file08; file12}
 
         // スクリプトとドキュメントの関係
-        program05 -> file04
-        file07 -> program05 -> file08
-        file11 -> program05 -> file12
+        file07 -> program05 [style=dashed]
+        file11 -> program05 [style=dashed]
+        program05 -> file04 [style=bold]
+        program05 -> file08 [style=bold]
+        program05 -> file12 [style=bold]
     }
 }

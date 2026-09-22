@@ -53,13 +53,13 @@ digraph physical_directory_structure {
             file13 [shape=note, style=solid , label="tools/GenAutotoolsInput_UserFile.pm"]
             file01 [shape=note, style=solid , label="docs/*.dot"]
             file02 [shape=note, style=solid , label="docs/*.svg"]
-            file03 [shape=note, style=solid , label="aclocal.m4", penwidth=2]
+            file03 [shape=note, style=solid , label="aclocal.m4"]
             file04 [shape=note, style=dotted, label="config.*"]
-            file05 [shape=note, style=solid , label="configure.ac", penwidth=2]
+            file05 [shape=note, style=solid , label="configure.ac"]
             file06 [shape=note, style=solid , label="Makefile.am"]
             file07 [shape=note, style=dotted, label="Makefile.in"]
             file08 [shape=note, style=dotted, label="Makefile"]
-            file09 [shape=note, style=solid , label="autom4te.cache/*", penwidth=2]
+            file09 [shape=note, style=solid , label="autom4te.cache/*"]
             file10 [shape=note, style=solid , label="tests/Makefile.am"]
             file11 [shape=note, style=dotted, label="tests/Makefile.in"]
             file12 [shape=note, style=dotted, label="tests/Makefile"]
@@ -80,8 +80,9 @@ digraph physical_directory_structure {
         {rank=same; program05; file04; file08; file12}
 
         // スクリプトとドキュメントの関係
-        file05 -> program03 -> program05
-        file03 -> program03
-        file09 -> program03 -> file09
+        file05 -> program03 [style=dashed]
+        file03 -> program03 [style=dashed]
+        file09 -> program03 [dir=both]
+        program03 -> program05 [style=bold]
     }
 }

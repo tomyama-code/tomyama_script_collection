@@ -4,6 +4,15 @@
 ### Added
 - xxx
 
+## [0.3.34] - 2026-09-22
+### Changed
+- Minor changes to the document.
+  - `tools/gen_autotools_input.pl` [1.16]
+    - Stopped using Text::Diff (a non-core Perl module)
+  - `tools/create_CATALOG.sh` [1.20]
+    - Modified to embed the revision number of `create_CATALOG.sh` into `CATALOG.md`.
+    - Modified to generate links when `*.md` files are found in the `--help` output.
+
 ## [0.3.33] - 2026-09-21
 ### Changed
 - `tools/create_CATALOG.sh` [1.18]

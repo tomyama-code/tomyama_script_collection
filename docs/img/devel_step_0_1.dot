@@ -50,7 +50,7 @@ digraph physical_directory_structure {
                 file13 -> file09 -> file10 -> file11 -> file12
             }
 
-            file13 [shape=note, style=solid , label="tools/GenAutotoolsInput_UserFile.pm", penwidth=2]
+            file13 [shape=note, style=solid , label="tools/GenAutotoolsInput_UserFile.pm"]
             file01 [shape=note, style=solid , label="docs/*.dot"]
             file02 [shape=note, style=solid , label="docs/*.svg"]
             file03 [shape=note, style=dotted, label="aclocal.m4"]
@@ -80,8 +80,9 @@ digraph physical_directory_structure {
         {rank=same; program05; file04; file08; file12}
 
         // スクリプトとドキュメントの関係
-        file13 -> program01 -> file05
-        program01 -> file06
-        program01 -> file10
+        file13 -> program01 [style=dashed]
+        program01 -> file05 [style=bold]
+        program01 -> file06 [style=bold]
+        program01 -> file10 [style=bold]
     }
 }

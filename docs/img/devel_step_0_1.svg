@@ -50,8 +50,8 @@
 <!-- program01&#45;&gt;file05 -->
 <g id="edge31" class="edge">
 <title>program01&#45;&gt;file05</title>
-<path fill="none" stroke="black" d="M171.71,-311.06C198.76,-301.3 232.32,-289.19 260.26,-279.11"/>
-<polygon fill="black" stroke="black" points="261.42,-282.41 269.64,-275.73 259.05,-275.83 261.42,-282.41"/>
+<path fill="none" stroke="black" stroke-width="2" d="M171.71,-311.06C198.76,-301.3 232.32,-289.19 260.26,-279.11"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="260,-282.93 268.22,-276.24 257.62,-276.34 260,-282.93"/>
 </g>
 <!-- file06 -->
 <g id="node12" class="node">
@@ -64,8 +64,8 @@
 <!-- program01&#45;&gt;file06 -->
 <g id="edge32" class="edge">
 <title>program01&#45;&gt;file06</title>
-<path fill="none" stroke="black" d="M167.15,-311.02C185.73,-302.23 206.67,-290.42 223,-276 237.6,-263.1 234.77,-254.29 248,-240 257.26,-230 268.43,-220.23 278.89,-211.86"/>
-<polygon fill="black" stroke="black" points="280.9,-214.73 286.63,-205.82 276.59,-209.21 280.9,-214.73"/>
+<path fill="none" stroke="black" stroke-width="2" d="M167.15,-311.02C185.73,-302.23 206.67,-290.42 223,-276 237.6,-263.1 234.77,-254.29 248,-240 257.26,-230 268.43,-220.23 278.89,-211.86"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="279.7,-215.66 285.44,-206.75 275.4,-210.14 279.7,-215.66"/>
 </g>
 <!-- file10 -->
 <g id="node16" class="node">
@@ -78,8 +78,8 @@
 <!-- program01&#45;&gt;file10 -->
 <g id="edge33" class="edge">
 <title>program01&#45;&gt;file10</title>
-<path fill="none" stroke="black" d="M180.56,-311.06C201.25,-302.73 223.67,-291.22 241,-276 255.09,-263.63 248.23,-251.55 263,-240 271.2,-233.59 318.19,-219 360.4,-206.76"/>
-<polygon fill="black" stroke="black" points="361.19,-210.17 369.83,-204.04 359.25,-203.44 361.19,-210.17"/>
+<path fill="none" stroke="black" stroke-width="2" d="M180.56,-311.06C201.25,-302.73 223.67,-291.22 241,-276 255.09,-263.63 248.23,-251.55 263,-240 271.2,-233.59 318.19,-219 360.4,-206.76"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="359.74,-210.59 368.38,-204.46 357.8,-203.86 359.74,-210.59"/>
 </g>
 <!-- program03 -->
 <g id="node3" class="node">
@@ -108,16 +108,16 @@
 <!-- file13 -->
 <g id="node6" class="node">
 <title>file13</title>
-<polygon fill="none" stroke="black" stroke-width="2" points="492,-348 272,-348 272,-312 498,-312 498,-342 492,-348"/>
-<polyline fill="none" stroke="black" stroke-width="2" points="492,-348 492,-342"/>
-<polyline fill="none" stroke="black" stroke-width="2" points="498,-342 492,-342"/>
+<polygon fill="none" stroke="black" points="492,-348 272,-348 272,-312 498,-312 498,-342 492,-348"/>
+<polyline fill="none" stroke="black" points="492,-348 492,-342"/>
+<polyline fill="none" stroke="black" points="498,-342 492,-342"/>
 <text xml:space="preserve" text-anchor="middle" x="385" y="-326.88" font-family="monospace" font-size="10.00">tools/GenAutotoolsInput_UserFile.pm</text>
 </g>
 <!-- file13&#45;&gt;program01 -->
 <!-- file13&#45;&gt;program01 -->
 <g id="edge30" class="edge">
 <title>file13&#45;&gt;program01</title>
-<path fill="none" stroke="black" d="M271.21,-343.26C258.23,-343.61 245.26,-343.58 232.28,-343.15"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M271.53,-343.25C258.47,-343.61 245.41,-343.58 232.36,-343.15"/>
 <polygon fill="black" stroke="black" points="232.53,-339.66 222.39,-342.73 232.24,-346.65 232.53,-339.66"/>
 </g>
 <!-- file01 -->
