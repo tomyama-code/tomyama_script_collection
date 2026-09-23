@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.24 $
+## - $Revision: 2.25 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -89,6 +89,9 @@ sub pl_main( @ )
         }
         $num_char_disp_area = ( ( ( int( $file_name_len_max / 8 ) ) + 1 ) * 8 ) - 1;
     }
+    my $re_flag = '';
+    $re_flag .= 'i' if( $main::ignorecase );
+    #print( qq{\$re_flag="$re_flag"\n} );
     for( my $file_idx=0; $file_idx<$file_num; $file_idx++ ){
         my $opn_fname = $main::fi_in[ $file_idx ];
 
@@ -98,10 +101,9 @@ sub pl_main( @ )
 
         open( FI_IN, "<$opn_fname" ) ||
             die( qq{$main::appname: error: "$opn_fname": could not open file: $!\n} );
+        $main::post_buffer_counter = 0;
+        @main::pre_buffer = ();
         my $flag_filter = $main::flag_filter;
-        my $re_flag = '';
-        $re_flag .= 'i' if( $main::ignorecase );
-        #print( qq{\$re_flag="$re_flag"\n} );
         my $nr_first_eof = -1;
         my $nr_of_last_output = 0;
         my $is_skipping = 0;
@@ -152,11 +154,11 @@ sub pl_main( @ )
                 }
             }
 
-            my $post_buffer_counter_wait = 0;
+            my $post_buffer_counter_offset = 0;
             if( $main::flag_head_tail ){
                 if( $nr == 1 ){
                     if( $match_flg == 0 ){
-                        $post_buffer_counter_wait = -1;
+                        $post_buffer_counter_offset = -1;
                         $match_flg = 1;
                     }
                 }elsif( $nr == $nr_first_eof ){
@@ -218,7 +220,7 @@ sub pl_main( @ )
                     @main::pre_buffer = ();
 
                     ## 後方行出力用のカウンタをセットする
-                    $main::post_buffer_counter = $main::buffer_post + $post_buffer_counter_wait;
+                    $main::post_buffer_counter = $main::buffer_post + $post_buffer_counter_offset;
 
                     if( $cancel_match_check ){
                         $flag_filter = 0;
@@ -574,7 +576,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.24 $};
+    my $rev = q{$Revision: 2.25 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -653,7 +655,7 @@ It searches for the specified I<PATTERN> and emphasizes matching text.
 
 =head1 VERSION
 
-This document describes $Revision: 2.24 $.
+This document describes $Revision: 2.25 $.
 
 =head1 SYNOPSIS
 

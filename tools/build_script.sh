@@ -5,7 +5,7 @@
 ## - A script describing the build steps in an environment
 ##   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 ##
-## - $Revision: 1.9 $
+## - $Revision: 1.10 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -24,7 +24,7 @@ sh_main()
         echo "  $appname -- A script that describes the build steps"
         echo ""
         echo "VERSION"
-        echo '  This document describes $Revision: 1.9 $.'
+        echo '  This document describes $Revision: 1.10 $.'
         echo ""
         echo "SYNOPSIS"
         echo "  ./tools/$appname"
@@ -58,22 +58,29 @@ sh_main()
         configure_opts="SHELL=/data/data/com.termux/files/usr/bin/bash --bindir=/data/data/com.termux/files/usr/local/bin"
     fi
 
-    force_update=0
+    force_run_autotools=0
     if [ "$1" != '' ]; then
-        force_update=1
+        force_run_autotools=1
+        echo "\$force_run_autotools=$force_run_autotools"
     fi
 
     cd "$apppath/../"
 
     sh_exec ./tools/gen_autotools_input.pl
-    the_file_was_updated=$?
+    if [ $? -eq 0 ]; then
+        autotools_input_was_updated=1
+    else
+        autotools_input_was_updated=0
+    fi
+
+    echo "\$autotools_input_was_updated=$autotools_input_was_updated"
 
     need_configure=0
     ## [ On /bin/dash ]
     ## Accepts "backslash sequences" by default.
     ## There is no concept of "-e".
     echo ""
-    if [ $the_file_was_updated -eq 0 -o $force_update -ne 0 ]; then
+    if [ $autotools_input_was_updated -ne 0 -o $force_run_autotools -ne 0 ]; then
         echo "Run autotools."
         sh_exec aclocal && \
         sh_exec autoconf && \
@@ -85,7 +92,7 @@ sh_main()
         echo "Skip running autotools."
     fi
 
-    if [ ! -f 'Makefile' -o $force_update -ne 0 -o $need_configure -ne 0 ]; then
+    if [ ! -f 'Makefile' -o $force_run_autotools -ne 0 -o $need_configure -ne 0 ]; then
         sh_exec ./configure $configure_opts
         if [ $? -ne 0 ]; then
             echo "$0: error: exit" 1>&2

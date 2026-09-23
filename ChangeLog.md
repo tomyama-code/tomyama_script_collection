@@ -4,6 +4,14 @@
 ### Added
 - xxx
 
+## [0.3.35] - 2026-09-24
+### Changed
+- `mark` [1.02.025]
+  - Fixed an issue where certain variables required initialization each time an input file was opened.
+    - Resolved a problem where extra lines were sometimes output when processing multiple files.
+- `tools/build_script.sh` [1.10]
+  - Changed the variable name because it was odd.
+
 ## [0.3.34] - 2026-09-22
 ### Changed
 - Minor changes to the document.

@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.119 $
+## - $Revision: 2.120 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -20,7 +20,7 @@ use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.34';
+$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.35';
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c domsort fill FTCalc.pm holiday mark timezone_id tsc_bin_path.pl';
 $ACAM_KYVL{ '$MY_SCR_NOTEST$' } = 'cl';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
@@ -69,7 +69,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - automake 1.18.1
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.119 $)
+AC_REVISION($Revision: 2.120 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
 AC_INIT([tomyama_script_collection], [$MY_PKG_VER$], [tomyama_code@yahoo.co.jp])
@@ -203,7 +203,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.119 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.120 $';
     $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
     $ACAM_KYVL{ '$MY_DOCS$' } = getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
@@ -294,7 +294,7 @@ GenAutotoolsInput_UserFile.pm -- Define templates and key-value pairs for use wi
 
 =head1 VERSION
 
-This document describes $Revision: 2.119 $.
+This document describes $Revision: 2.120 $.
 
 =head1 SYNOPSIS
 

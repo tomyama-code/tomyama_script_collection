@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.10 $
+## - $Revision: 1.11 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -376,6 +376,83 @@ subtest qq{In-Proc Test} => sub{
             $t->has_no_exception( qq{./mark --head-tail LICENSE} );
             ok( $status == 0 );
             $t->stdout_like( qr/\n\n        \*\*\* \(filtered\) \*\*\*\nDAMAGES \(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n/, qq{headの最後とtailの最初} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--head-tail', '-f', '1,2', 'LICENSE', 'LICENSE' );
+            } );
+            $t->has_no_exception( qq{./mark --head-tail -f 1,2 LICENSE LICENSE} );
+            ok( $status == 0 );
+            $t->stdout_is(
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{LICENSE:BSD 2-Clause License\n} .
+                qq{LICENSE:\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n} .
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{LICENSE:BSD 2-Clause License\n} .
+                qq{LICENSE:\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n},
+                qq{複数ファイルの処理} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( 'THIS', '-nf', '1,2', 'LICENSE', 'LICENSE' );
+            } );
+            $t->has_no_exception( qq{./mark THIS -nf 1,2 LICENSE LICENSE} );
+            ok( $status == 0 );
+            $t->stdout_is(
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     15:\n} .
+                qq{LICENSE:     16:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n} .
+                qq{LICENSE:     17:AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n} .
+                qq{LICENSE:     18:IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
+                qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n} .
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     15:\n} .
+                qq{LICENSE:     16:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n} .
+                qq{LICENSE:     17:AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n} .
+                qq{LICENSE:     18:IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
+                qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n},
+                qq{複数ファイル、キーワードによるフィルターの組み合わせ。'--head-tail' が効かないことを確認する} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '--head-tail', 'THIS', '-nf', '1,2', 'LICENSE', 'LICENSE' );
+            } );
+            $t->has_no_exception( qq{./mark --head-tail THIS -nf 1,2 LICENSE LICENSE} );
+            ok( $status == 0 );
+            $t->stdout_is(
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{LICENSE:      1:BSD 2-Clause License\n} .
+                qq{LICENSE:      2:\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     15:\n} .
+                qq{LICENSE:     16:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n} .
+                qq{LICENSE:     17:AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n} .
+                qq{LICENSE:     18:IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
+                qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n} .
+                qq{ ***** [ LICENSE ] *****\n} .
+                qq{LICENSE:      1:BSD 2-Clause License\n} .
+                qq{LICENSE:      2:\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     15:\n} .
+                qq{LICENSE:     16:THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n} .
+                qq{LICENSE:     17:AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n} .
+                qq{LICENSE:     18:IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n} .
+                qq{        *** (filtered) ***\n} .
+                qq{LICENSE:     24:OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n} .
+                qq{LICENSE:     25:OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n},
+                qq{複数ファイル、キーワードによるフィルターの組み合わせ。'--head-tail' が効くことを確認する} );
             $t->stderr_is( qq{} );
 
         };

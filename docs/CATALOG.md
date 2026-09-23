@@ -151,7 +151,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.24 $
+- $Revision: 2.25 $
 
 - Author: 2006-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -209,7 +209,7 @@ A script that describes the build steps
 - A script describing the build steps in an environment
   that uses 'autotools' and 'custom scripts that generate autotools input files'.
 
-- $Revision: 1.9 $
+- $Revision: 1.10 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -249,7 +249,7 @@ Define templates and key-value pairs for use with "gen_autotools_input.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.119 $
+- $Revision: 2.120 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
