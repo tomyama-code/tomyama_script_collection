@@ -4,6 +4,13 @@
 ### Added
 - xxx
 
+## [0.3.36] - 2026-09-25
+### Changed
+- `mark` [1.02.027]
+  - Added support for correctly handling wide-character boundaries (character count) (`use utf8;`).
+  - There was an issue with the logic for returning arguments to `@ARGV` after parsing the arguments for `-f` and determining that a specific argument did not belong to `-f`.
+    Because the arguments were being returned to the end of the list instead of the beginning, a bug occurred where the order of the arguments was altered.
+
 ## [0.3.35] - 2026-09-24
 ### Changed
 - `mark` [1.02.025]

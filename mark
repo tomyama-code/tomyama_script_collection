@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.25 $
+## - $Revision: 2.27 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -18,6 +18,8 @@
 use 5.014_000;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
+use utf8;                           # first released with perl v5.6.0
+use Encode qw();                    # first released with perl v5.7.3
 use File::Basename qw();            # first released with perl 5
 use Getopt::Long qw();              # first released with perl 5
 use Fcntl;                          # first released with perl 5
@@ -139,15 +141,17 @@ sub pl_main( @ )
                 }
                 #print( qq{\$nr=$nr, \$nr_first_eof=$nr_first_eof\n} );
             }else{
-                if( defined( $main::re ) ){
+                if( defined( $main::re_flaggedstr ) ){
+                    my $mybuff_flaggedstr = utf8_to_flaggedstr( $mybuff );
                     if( $main::bUseAnsiEscSeqColor ){
                         # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                        if( $mybuff =~ s/(?$re_flag)($main::re)/\033[1m$1\033[0m/g ){
+                        if( $mybuff_flaggedstr =~ s/(?$re_flag)($main::re_flaggedstr)/\033[1m$1\033[0m/g ){
+                            $mybuff = flaggedstr_to_utf8( $mybuff_flaggedstr );
                             $match_flg = 1;
                         }
                     }else{
                         # インライン修飾子 (?imsx) を埋め込んだ正規表現
-                        if( $mybuff =~ m/(?$re_flag)$main::re/g ){
+                        if( $mybuff_flaggedstr =~ m/(?$re_flag)$main::re_flaggedstr/g ){
                             $match_flg = 1;
                         }
                     }
@@ -261,6 +265,7 @@ sub init_script()
     $main::post_buffer_counter = 0;
     $main::ignorecase = 0;
     $main::re = undef;
+    $main::re_flaggedstr = undef;
     @main::fi_in = ();
     $main::syscall_act = 0;
     $main::multiple_input_files = 0;
@@ -314,9 +319,10 @@ sub parse_arg( @ )
 
     # Getopt::Long が動くように局所的に変更して騙す
     local @ARGV = @main::argv;
+    #print( "before: \@ARGV = ( " . join( ', ', @ARGV ) . " )\n" );
 
     # 設定: ショートオプションのまとめ指定（バンドリング）を有効化
-    Getopt::Long::Configure("bundling");
+    Getopt::Long::Configure( "bundling" );
 
     Getopt::Long::GetOptions(
         'debug|d'   => \$main::debug,
@@ -336,7 +342,7 @@ sub parse_arg( @ )
                     $main::buffer_post = $2;
                 }
             }else{
-                push( @ARGV, $arg );
+                unshift( @ARGV, $arg );
             }
         },
         'with-filename|H' => \$main::prt_fname,
@@ -354,6 +360,7 @@ sub parse_arg( @ )
         return 0;
     }
 
+    #print( "after : \@ARGV = ( " . join( ', ', @ARGV ) . " )\n" );
     while( my $myparam = shift( @ARGV ) ){
         #print( qq{\$myparam = "$myparam"\n} );
         if( $myparam eq '-' ){
@@ -364,8 +371,10 @@ sub parse_arg( @ )
                     return 1;
                 }
             }
+            #print( qq{push( \@main::fi_in, $myparam );\n} );
             push( @main::fi_in, $myparam );
         }elsif( -f $myparam ){
+            #print( qq{push( \@main::fi_in, $myparam );\n} );
             push( @main::fi_in, $myparam );
         }else{
             if( defined( $main::re ) ){
@@ -381,6 +390,7 @@ sub parse_arg( @ )
 
     if( ( !defined( $main::re ) ) && ( $main::flag_head_tail == 0 ) ){
         if( $fi_in_nums > 0 ){
+            #print( '( ' . join( ', ', @main::fi_in ) . " )\n" );
             $main::re = shift( @main::fi_in );
             $fi_in_nums--;
         }else{
@@ -388,6 +398,10 @@ sub parse_arg( @ )
             usage( 1 );
             return 1;
         }
+    }
+
+    if( defined( $main::re ) ){
+        $main::re_flaggedstr = utf8_to_flaggedstr( $main::re );
     }
 
     if( $fi_in_nums == 0 ){
@@ -463,6 +477,22 @@ sub _sysread( *$$ )
         return undef;
     }
     return sysread( $filehandle, $$ref_buf, $length );
+}
+
+## UTF-8 → Perl内部文字列
+sub utf8_to_flaggedstr( $ )
+{
+    my( $octets  ) = @_;
+    return Encode::decode( 'utf8', $octets );
+#    return $octets;
+}
+
+## Perl内部文字列 → UTF-8
+sub flaggedstr_to_utf8( $ )
+{
+    my( $flagged_str  ) = @_;
+    return Encode::encode( 'utf8', $flagged_str );
+#    return $flagged_str;
 }
 
 sub read_one_line( *$ )
@@ -576,7 +606,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.25 $};
+    my $rev = q{$Revision: 2.27 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -655,7 +685,7 @@ It searches for the specified I<PATTERN> and emphasizes matching text.
 
 =head1 VERSION
 
-This document describes $Revision: 2.25 $.
+This document describes $Revision: 2.27 $.
 
 =head1 SYNOPSIS
 
@@ -754,6 +784,8 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 
 =over 4
 
+=item * L<Encode> - first released with perl v5.7.3
+
 =item * L<Errno> - first released with perl 5.005
 
 =item * L<Fcntl> - first released with perl 5
@@ -763,6 +795,8 @@ This script uses only B<core Perl modules>. No external modules from CPAN are re
 =item * L<Getopt::Long> - first released with perl 5
 
 =item * L<strict> — first included in perl 5
+
+=item * L<utf8> - first released with perl v5.6.0
 
 =item * L<warnings> — first included in perl v5.6.0
 

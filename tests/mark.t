@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.11 $
+## - $Revision: 1.13 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -187,6 +187,22 @@ subtest qq{In-Proc Test} => sub{
             my $status;
 
             $t = tests::Tester->run_blk( sub{
+                $status = pl_main( '-f2', 'エント.ポイント', './mark' );
+            } );
+            $t->has_no_exception( qq{./mark -f2 'エント.ポイント' ./mark} );
+            ok( $status == 0 );
+            $t->stdout_is(
+                "        *** (filtered) ***\n" .
+                "\n" .
+                "##########\n" .
+                "## スクリプトのエントリポイント\n" .
+                "sub pl_main( @ )\n" .
+                "{\n" .
+                "        *** (filtered) ***\n",
+                qq{日本語の正規表現（1バイトではなく1文字を認識できていること）} );
+            $t->stderr_is( qq{} );
+
+            $t = tests::Tester->run_blk( sub{
                 $status = pl_main( '-f', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn$', "./tests/testdata_uniq_line.txt" );
             } );
             $t->has_no_exception( qq{./mark -f '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
@@ -345,7 +361,7 @@ subtest qq{In-Proc Test} => sub{
             $t->has_no_exception( qq{./mark -f0,1, '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$' ./tests/testdata_uniq_line.txt} );
             ok( $status != 0, "Incorrect parameter specification." );
             $t->stdout_is( qq{} );
-            $t->stderr_is( qq{mark: error: "0,1,": <PATTERN> has already been specified as "^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$".\n}, qq{The right warning.} );
+            $t->stderr_is( qq{mark: error: "^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$": <PATTERN> has already been specified as "0,1,".\n}, qq{The right warning.} );
 
             $t = tests::Tester->run_blk( sub{
                 $status = pl_main( '-f0', 'rstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijk', "./tests/testdata_uniq_line.txt" );
