@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.13 $
+## - $Revision: 1.14 $
 ################################################################################
 
 use strict;                     # first released with perl 5
@@ -160,7 +160,7 @@ subtest qq{In-Proc Test} => sub{
             ok( $status == 0 );
             $t->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
-            $t->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
+            $t->stderr_like( qr/\n     \$main::debug = 1\n/, qq{Prints debugging information.} );
 
             $t = tests::Tester->run_blk( sub{
                 $status = pl_main( '--debug', '^opqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmn\$', "./tests/testdata_uniq_line.txt" );
@@ -169,7 +169,7 @@ subtest qq{In-Proc Test} => sub{
             ok( $status == 0 );
             $t->stdout_like( qr/^0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLMNOPQRSTUVWXYZ\n/, qq{Display from the correct point} );
             $t->stdout_like( qr/\nNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxygABCDEFGHIJKLM$/, qq{Display to the correct point} );
-            $t->stderr_like( qr/\n\$main::debug = 1\n/, qq{Prints debugging information.} );
+            $t->stderr_like( qr/\n     \$main::debug = 1\n/, qq{Prints debugging information.} );
 
             $t = tests::Tester->run_blk( sub{
                 $status = pl_main( '--debug', '--version' );
@@ -177,8 +177,8 @@ subtest qq{In-Proc Test} => sub{
             $t->has_no_exception( qq{./mark --debug --version} );
             ok( $status == 0 );
             $t->stdout_like( qr/^Version: / );
-            $t->stderr_like( qr/\n\$main::prt_fname = undef\n/, q{!defined( $main::prt_fname )} );
-            $t->stderr_like( qr/\n\$main::re = undef\n/, q{!defined( $main::re )} );
+            $t->stderr_like( qr/\n     \$main::prt_fname = undef\n/, q{!defined( $main::prt_fname )} );
+            $t->stderr_like( qr/\n     \$main::re = undef\n/, q{!defined( $main::re )} );
 
         };
 
@@ -815,13 +815,13 @@ subtest qq{Ex-Proc Test} => sub{
         $t = tests::Tester->run_cmd( qq{echo "123" | ./mark -d mark -} );
         $t->exit_is( 0, "normal termination" );
         $t->stdout_is( "123\n", qq{Only "123"} );
-        $t->stderr_like( qr/\n\@main::fi_in = \( '\-' \)\n/, qq{Hyphens(-) must be completed.} );
+        $t->stderr_like( qr/\n     \@main::fi_in = \( '\-' \)\n/, qq{Hyphens(-) must be completed.} );
         undef( $t );
 
         $t = tests::Tester->run_cmd( qq{echo "123" | ./mark -d mark} );
         $t->exit_is( 0, qq{Omit the hyphen(-).} );
         $t->stdout_is( "123\n", qq{Only "123"} );
-        $t->stderr_like( qr/\n\@main::fi_in = \( '\-' \)\n/, qq{Hyphens(-) must be completed.} );
+        $t->stderr_like( qr/\n     \@main::fi_in = \( '\-' \)\n/, qq{Hyphens(-) must be completed.} );
         undef( $t );
 
         $t = tests::Tester->run_cmd( qq{echo "123" | ./mark -d mark - -} );

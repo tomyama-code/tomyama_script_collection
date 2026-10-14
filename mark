@@ -5,7 +5,7 @@
 ## - It behaves like the filter program.
 ## - The back and forth 5 lines are displayed in default.
 ##
-## - $Revision: 2.27 $
+## - $Revision: 2.29 $
 ##
 ## - Author: 2006-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -38,10 +38,7 @@ sub pl_main( @ )
         return 1;
     }
 
-    ## デバッグ用 : パラメータ出力
-    if( $main::debug ){
-        prt_param();
-    }
+    param_print();
 
     if( $main::help || $main::version ){
         if( $main::help ){
@@ -276,38 +273,45 @@ sub init_script()
 
 ##########
 ## デバッグ用 : パラメータ出力
-sub prt_param()
+sub param_print()
 {
-    printf STDERR ( qq{ ***** PARAMETER *****\n} .
-                   qq{\$main::apppath = "$main::apppath"\n} .
-                   qq{\$main::appname = "$main::appname"\n} .
-                   qq{\$main::argc = $main::argc\n} .
-                   qq{\$main::debug = $main::debug\n} .
-                   qq{\$main::bUseAnsiEscSeqColor = $main::bUseAnsiEscSeqColor\n} .
-                   qq{\$main::numbering = $main::numbering\n} .
-                   qq{\$main::prt_fname = %s\n} .
-                   qq{\$main::flag_head_tail = $main::flag_head_tail\n} .
-                   qq{\$main::flag_filter = $main::flag_filter\n} .
-                   qq{\$main::buffer_pre = $main::buffer_pre\n} .
-                   qq{\$main::buffer_post = $main::buffer_post\n} .
-                   qq{scalar( \@main::pre_buffer ) = %d\n} .
-                   qq{\$main::post_buffer_counter = $main::post_buffer_counter\n} .
-                   qq{\$main::ignorecase = $main::ignorecase\n} .
-                   qq{\$main::re = %s\n} .
-                   qq{\@main::fi_in = (%s)\n} .
-                   qq{\$main::syscall_act = 0x%02X\n} .
-                   qq{\$main::multiple_input_files = $main::multiple_input_files\n},
-                   defined( $main::prt_fname ) ? qq{"$main::prt_fname"} : 'undef',
-                   scalar( @main::pre_buffer ),
-                   defined( $main::re ) ? qq{"$main::re"} : 'undef',
-                   array_to_str( @main::fi_in ),
-                   $main::syscall_act );
+    dPrintf( qq{Parameter Print\n} .
+             qq{     \$main::apppath = "$main::apppath"\n} .
+             qq{     \$main::appname = "$main::appname"\n} .
+             qq{     \$main::argc = $main::argc\n} .
+             qq{     \@main::argv = (%s)\n} .
+             qq{     \$main::debug = $main::debug\n} .
+             qq{     \$main::bUseAnsiEscSeqColor = $main::bUseAnsiEscSeqColor\n} .
+             qq{     \$main::numbering = $main::numbering\n} .
+             qq{     \$main::prt_fname = %s\n} .
+             qq{     \$main::flag_head_tail = $main::flag_head_tail\n} .
+             qq{     \$main::flag_filter = $main::flag_filter\n} .
+             qq{     \$main::buffer_pre = $main::buffer_pre\n} .
+             qq{     \$main::buffer_post = $main::buffer_post\n} .
+             qq{     scalar( \@main::pre_buffer ) = %d\n} .
+             qq{     \$main::post_buffer_counter = $main::post_buffer_counter\n} .
+             qq{     \$main::ignorecase = $main::ignorecase\n} .
+             qq{     \$main::re = %s\n} .
+             qq{     \@main::fi_in = (%s)\n} .
+             qq{     \$main::syscall_act = 0x%02X\n} .
+             qq{     \$main::multiple_input_files = $main::multiple_input_files\n},
+        array_to_str( ', ', @main::argv ),
+        defined( $main::prt_fname ) ? qq{"$main::prt_fname"} : 'undef',
+        scalar( @main::pre_buffer ),
+        defined( $main::re ) ? qq{"$main::re"} : 'undef',
+        array_to_str( ', ', @main::fi_in ),
+        $main::syscall_act );
 }
 
-sub array_to_str( @ )
+sub array_to_str( $@ )
 {
-    return q{ '} . join( q{', '}, @_ ) . q{' } if( scalar( @_ ) > 0 );
-    return '';
+    my( $delim, @array ) = @_;
+    my $array_len = scalar( @array );
+    for( my $idx=0; $idx<$array_len; $idx++ ){
+        $array[ $idx ] = qq{'$array[ $idx ]'};
+    }
+    return '' if( $array_len == 0 );
+    return ' ' . join( $delim, @array ) . ' ';
 }
 
 ##########
@@ -420,6 +424,21 @@ sub parse_arg( @ )
     }
 
     return 0;
+}
+
+#sub dPrint( @ )
+#{
+#    if( $main::debug ){
+#        print( 'dbg: ', @_ );
+#    }
+#}
+
+sub dPrintf( @ )
+{
+    if( $main::debug ){
+        print STDERR ( 'dbg: ' );
+        printf STDERR ( @_ );
+    }
 }
 
 # https://perldoc.jp/func/fcntl
@@ -606,7 +625,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.27 $};
+    my $rev = q{$Revision: 2.29 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -685,7 +704,7 @@ It searches for the specified I<PATTERN> and emphasizes matching text.
 
 =head1 VERSION
 
-This document describes $Revision: 2.27 $.
+This document describes $Revision: 2.29 $.
 
 =head1 SYNOPSIS
 

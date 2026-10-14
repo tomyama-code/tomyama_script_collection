@@ -2,7 +2,7 @@
 ################################################################################
 ## TIMEZONE_ID -- List IANA timezone IDs.
 ##
-## - $Revision: 1.21 $
+## - $Revision: 1.22 $
 ## - Note: This uses bundled IANA data instead of the host system's timezone data.
 ##
 ## - Author: 2026, tomyama
@@ -233,12 +233,12 @@ sub param_print()
         $main::apppath,
         $main::appname,
         $main::argc,
-        array_to_str( @main::argv ),
+        array_to_str( ', ', @main::argv ),
         $main::banner,
         $main::datafile,
-        array_to_str( @main::datafile_loc ),
+        array_to_str( ', ', @main::datafile_loc ),
         $main::debug,
-        array_to_str( @main::filters ),
+        array_to_str( ', ', @main::filters ),
         $main::help,
         $main::ignorecase,
         $main::LC_CTYPE,
@@ -248,10 +248,15 @@ sub param_print()
         $main::version );
 }
 
-sub array_to_str( @ )
+sub array_to_str( $@ )
 {
-    return q{ '} . join( q{', '}, @_ ) . q{' } if( scalar( @_ ) > 0 );
-    return '';
+    my( $delim, @array ) = @_;
+    my $array_len = scalar( @array );
+    for( my $idx=0; $idx<$array_len; $idx++ ){
+        $array[ $idx ] = qq{'$array[ $idx ]'};
+    }
+    return '' if( $array_len == 0 );
+    return ' ' . join( $delim, @array ) . ' ';
 }
 
 ##########
@@ -395,7 +400,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 1.21 $};
+    my $rev = q{$Revision: 1.22 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -504,7 +509,7 @@ Note: How to check when the time zone switches between daylight saving time and 
 
 =head1 VERSION
 
-This document describes $Revision: 1.21 $.
+This document describes $Revision: 1.22 $.
 
 =head1 SYNOPSIS
 

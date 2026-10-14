@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 ################################################################################
-## - $Revision: 1.3 $
+## - $Revision: 1.4 $
 ################################################################################
 
 use strict;
@@ -301,7 +301,7 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -w10d 10:10} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
         $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
         $t->stderr_is( qq{} );
 
@@ -310,7 +310,7 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -dw10 10:10} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 10\n/, qq{The value 10 is recognized} );
         $t->stdout_like( qr/10\n20\n30\n40\n50\n60\n70\n80\n90\n100/, qq{"-w10d"} );
         $t->stderr_is( qq{} );
 
@@ -327,8 +327,8 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -dw -180 179:-1} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-        $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+        $t->stdout_like( qr/\n     \$main::cycle = 180\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 1\n/, qq{The default value is used} );
         $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
         $t->stderr_is( qq{} );
 
@@ -337,8 +337,8 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -dw2 -90 178:-2} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::cycle = 90\n/, qq{The specified value is used} );
-        $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::cycle = 90\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 2\n/, qq{The specified value is used} );
         $t->stdout_like( qr/\n004\n002\n000$/, qq{Counting down to 0} );
         $t->stderr_is( qq{} );
 
@@ -347,8 +347,8 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -wd -180 179:-1} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::cycle = 180\n/, qq{The specified value is used} );
-        $t->stdout_like( qr/\n\$main::wait_sec = 1\n/, qq{The default value is used} );
+        $t->stdout_like( qr/\n     \$main::cycle = 180\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 1\n/, qq{The default value is used} );
         $t->stdout_like( qr/\n002\n001\n000$/, qq{Counting down to 0} );
         $t->stderr_is( qq{} );
 
@@ -357,8 +357,8 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -w20d50 0980:-20} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::cycle = 50\n/, qq{The specified value is used} );
-        $t->stdout_like( qr/\n\$main::wait_sec = 20\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::cycle = 50\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 20\n/, qq{The specified value is used} );
         $t->stdout_like( qr/\n0040\n0020\n0000$/, qq{Counting down to 0} );
         $t->stderr_is( qq{} );
 
@@ -367,8 +367,8 @@ subtest qq{In-Proc Test} => sub{
         } );
         ok( $status == 0, qq{./fill -d -5w2 2:2} );
         $t->has_no_exception();
-        $t->stdout_like( qr/\n\$main::cycle = 5\n/, qq{The specified value is used} );
-        $t->stdout_like( qr/\n\$main::wait_sec = 2\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::cycle = 5\n/, qq{The specified value is used} );
+        $t->stdout_like( qr/\n     \$main::wait_sec = 2\n/, qq{The specified value is used} );
         $t->stdout_like( qr/\n6\n8\n10$/, qq{Counting up to 10} );
         $t->stderr_is( qq{} );
 
@@ -532,21 +532,21 @@ subtest qq{Replacing data from STDIN} => sub{
 
     $t = tests::Tester->run_cmd( qq{echo '1>i<N>p<U>t<9' | ./fill 8 - 2 -d} );
     $t->exit_is( 0, "Internal Special Tokens" );
-    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n     \$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
     $t->stdout_like( qr/\n81>i<N>p<U>t<92\n/, qq{Correct output} );
     $t->stderr_is( "", "stderr is silent" );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '1>I<n>n<P>N<u>T<s>U<b>9' | ./fill 8 - 2 -d} );
     $t->exit_is( 0, "Internal Special Tokens" );
-    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n     \$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
     $t->stdout_like( qr/\n81>I<n>n<P>N<u>T<s>U<b>92\n/, qq{Correct output} );
     $t->stderr_is( "", "stderr is silent" );
     undef( $t );
 
     $t = tests::Tester->run_cmd( qq{echo '1>I<n>n<P>N<u>T<g>S<u>B<9' | ./fill 8 - 2 -d} );
     $t->exit_is( 0, "Internal Special Tokens" );
-    $t->stdout_like( qr/\n\$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
+    $t->stdout_like( qr/\n     \$main::prt_fmt = "8>i<N>p<U>t<2"\n/, qq{"prt_fmt" is recognized correctly} );
     $t->stdout_like( qr/\n81>I<n>n<P>N<u>T<g>S<u>B<92\n/, qq{Correct output} );
     $t->stderr_is( "", "stderr is silent" );
     undef( $t );

@@ -6,7 +6,7 @@
 ##   timeouts by maintaining active traffic during remote operations.
 ##
 ## - Version: 1
-## - $Revision: 2.42 $
+## - $Revision: 2.43 $
 ##
 ## - Author: 2005-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -19,6 +19,7 @@
 use 5.008_009;
 use strict;                         # first released with perl 5
 use warnings;                       # first released with perl v5.6.0
+use bytes;                          # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 use Time::Local qw();               # first released with perl 5
 use POSIX       qw();               # first released with perl 5
@@ -195,7 +196,7 @@ sub GetVersion()
 }
 sub GetRevision()
 {
-    my $rev = q{$Revision: 2.42 $};
+    my $rev = q{$Revision: 2.43 $};
     $rev =~ s!^\$[R]evision: (\d+\.\d+) \$$!$1!o;
     return $rev;
 }
@@ -1171,7 +1172,7 @@ Refresh the display immediately
 
 =head1 VERSION
 
-This document describes $Revision: 2.42 $.
+This document describes $Revision: 2.43 $.
 
 =head1 SYNOPSIS
 

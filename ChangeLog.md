@@ -4,6 +4,14 @@
 ### Added
 - xxx
 
+## [0.3.37] - 2026-10-14
+### Changed
+- Aligned the coding style with that of other scripts.
+  - `cl` [1.02.043]
+  - `fill` [1.01.015]
+  - `mark` [1.02.029]
+  - `timezone_id` [1.01.022]
+
 ## [0.3.36] - 2026-09-25
 ### Changed
 - `mark` [1.02.027]

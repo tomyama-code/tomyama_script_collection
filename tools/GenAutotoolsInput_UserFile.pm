@@ -3,7 +3,7 @@
 ##
 ## - This package can be edited by the user to form the basis of input files for the autotools.
 ##
-## - $Revision: 2.121 $
+## - $Revision: 2.122 $
 ##
 ## - Author: 2025-2026, tomyama
 ## - Intended primarily for personal use, but BSD license permits redistribution.
@@ -20,7 +20,7 @@ use warnings;                       # first released with perl v5.6.0
 use File::Basename qw();            # first released with perl 5
 
 my %ACAM_KYVL;
-$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.36';
+$ACAM_KYVL{ '$MY_PKG_VER$' } = '0.3.37';
 $ACAM_KYVL{ '$MY_SCRIPTS$' } = 'c domsort fill FTCalc.pm holiday mark timezone_id tsc_bin_path.pl';
 $ACAM_KYVL{ '$MY_SCR_NOTEST$' } = 'cl';
 $ACAM_KYVL{ '$MY_TOOLS$' } = 'tools/build_script.sh' .
@@ -33,9 +33,9 @@ my %ACAM_TMPL;
 
 $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 #AC_PREREQ([2.72])	## Cygwin
-##                	##   - autoscan 2.72
+##                	##   - autoscan 2.73 ← 2.72
 ##                	##   - aclocal  1.18.1
-##                	##   - autoconf 2.72
+##                	##   - autoconf 2.73 ← 2.72
 ##                	##   - automake 1.18.1
 ##                	##   - /usr/share/automake-1.11
 ##                	##   - /usr/share/automake-1.12
@@ -45,6 +45,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - /usr/share/automake-1.16
 ##                	##   - /usr/share/automake-1.17
 ##                	##   - /usr/share/automake-1.18
+##                	##   - /usr/share/automake-1.19
 #AC_PREREQ([2.69])	## CentOS 9 Stream [ autoreconf -i が必須 ]
 ##                	##   - autoscan 2.69
 ##                	##   - aclocal  1.16.2
@@ -52,12 +53,12 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - automake 1.16.2
 ##                	##   - /usr/share/automake-1.16 [ 古い ]
 #AC_PREREQ([2.72])	## android 15 on Termux
-##                	##   - autoscan 2.72
+##                	##   - autoscan 2.73 ← 2.72
 ##                	##   - aclocal  1.18.1
-##                	##   - autoconf 2.72
+##                	##   - autoconf 2.73 ← 2.72
 ##                	##   - automake 1.18.1
 ##                	##   - /data/data/com.termux/files/usr/share/automake-1.18
-#AC_PREREQ([2.69])	## KNIPPIX 8.6.1
+#AC_PREREQ([2.69])	## KNOPPIX 8.6.1
 ##                	##   - autoscan 2.69
 ##                	##   - aclocal  1.16
 ##                	##   - autoconf 2.69
@@ -69,7 +70,7 @@ $ACAM_TMPL{ 'configure.ac' } = q{dnl #
 ##                	##   - automake 1.18.1
 AC_PREREQ([2.69])
 
-AC_REVISION($Revision: 2.121 $)
+AC_REVISION($Revision: 2.122 $)
 
 dnl # パッケージ名, バージョン, メンテナのメールアドレス
 AC_INIT([tomyama_script_collection], [$MY_PKG_VER$], [tomyama_code@yahoo.co.jp])
@@ -203,7 +204,7 @@ sub getTemplates()
 
 sub setupValue()
 {
-    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.121 $';
+    $ACAM_KYVL{ 'ACAM_REVISION' } = '$Revision: 2.122 $';
     $ACAM_KYVL{ '$MY_TEST_RUNNERS$' } = getTestNames( $ACAM_KYVL{ '$MY_SCRIPTS$' }, \$ACAM_KYVL{ '$MY_TEST_CASES$' } );
     $ACAM_KYVL{ '$MY_SCR_ALL$' } = getScrNames( qq{$ACAM_KYVL{ '$MY_SCRIPTS$' } $ACAM_KYVL{ '$MY_SCR_NOTEST$' }} );
     $ACAM_KYVL{ '$MY_DOCS$' } = getDocNames( $ACAM_KYVL{ '$MY_SCR_ALL$' } );
@@ -294,7 +295,7 @@ GenAutotoolsInput_UserFile.pm -- Define templates and key-value pairs for use wi
 
 =head1 VERSION
 
-This document describes $Revision: 2.121 $.
+This document describes $Revision: 2.122 $.
 
 =head1 SYNOPSIS
 

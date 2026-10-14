@@ -76,7 +76,7 @@ CLOCK PROGRAM
   timeouts by maintaining active traffic during remote operations.
 
 - Version: 1
-- $Revision: 2.42 $
+- $Revision: 2.43 $
 
 - Author: 2005-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -111,7 +111,7 @@ For details, please refer to [domsort.md](domsort.md).
 
 Generates data row-wise according to a pattern, similar to Excel's AutoFill.
 
-- $Revision: 1.14 $
+- $Revision: 1.15 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -151,7 +151,7 @@ emphasizes part matching a pattern
 - It behaves like the filter program.
 - The back and forth 5 lines are displayed in default.
 
-- $Revision: 2.27 $
+- $Revision: 2.29 $
 
 - Author: 2006-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
@@ -168,7 +168,7 @@ For details, please refer to [mark.md](mark.md).
 
 List IANA timezone IDs.
 
-- $Revision: 1.21 $
+- $Revision: 1.22 $
 - Note: This uses bundled IANA data instead of the host system's timezone data.
 
 - Author: 2026, tomyama
@@ -249,7 +249,7 @@ Define templates and key-value pairs for use with "gen_autotools_input.pl".
 
 - This package can be edited by the user to form the basis of input files for the autotools.
 
-- $Revision: 2.121 $
+- $Revision: 2.122 $
 
 - Author: 2025-2026, tomyama
 - Intended primarily for personal use, but BSD license permits redistribution.
